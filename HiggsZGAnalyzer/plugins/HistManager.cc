@@ -127,6 +127,20 @@
   }
 
   void HistManager::fillProfile(float x, float y, std::string name, std::string title,
+                                int binsx, float xmin, float xmax, float weight){
+
+    myFile->cd();
+    std::map<std::string,TProfile*>::iterator it;
+    it = theProfMap.find(name);
+    if (it == theProfMap.end()){
+      theProfMap[name] = new TProfile(name.c_str(),title.c_str(),binsx,xmin,xmax);
+    }
+
+    theProfMap[name]->Fill(x,y,weight);
+
+  }
+
+  void HistManager::fillProfile(float x, float y, std::string name, std::string title,
                                 int binsx, float xmin, float xmax,
                                 float ymin, float ymax, float weight){
 
@@ -141,6 +155,22 @@
 
   }
 
+  void HistManager::fillProfile(float x, float y, std::string name, std::string title,
+                                int binsx, float xmin, float xmax,
+                                float weight,std::string folder){
+
+    myFile->cd();
+    std::map<std::string,TProfile*>::iterator it;
+    it = theProfMap.find(name);
+    if (it == theProfMap.end()){
+      myFile->cd(folder.c_str());
+      theProfMap[name] = new TProfile(name.c_str(),title.c_str(),binsx,xmin,xmax);
+   //   myFile->cd();
+    }
+
+    theProfMap[name]->Fill(x,y,weight);
+
+  }
   void HistManager::fillProfile(float x, float y, std::string name, std::string title,
                                 int binsx, float xmin, float xmax,
                                 float ymin, float ymax, float weight,std::string folder){

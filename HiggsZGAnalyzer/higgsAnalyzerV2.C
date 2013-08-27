@@ -8,7 +8,7 @@ using namespace std;
 //Specify parameters here. //
 /////////////////////////////
 
-string  selection      = "mumuGamma";
+string  selection      = "eeGamma";
 string  period         = "2012";
 int     JC_LVL         = 0;
 string  abcd           = "ABCD";
@@ -98,13 +98,13 @@ void higgsAnalyzerV2::Begin(TTree * tree)
   TH1::SetDefaultSumw2(kTRUE);
   TH2::SetDefaultSumw2(kTRUE);
 
-  histoFile = new TFile("higgsHistograms_ggM125_8TeV_pythia8_175_local.root", "RECREATE");
-  trainingFile = new TFile("higgsTraining_ggM125_8TeV_pythia8_175_local.root", "RECREATE");
-  sampleFile = new TFile("higgsSample_ggM125_8TeV_pythia8_175_local.root", "RECREATE");
-  higgsFile = new TFile("higgsFile_ggM125_8TeV_pythia8_175_local.root", "RECREATE");
-  eleSmearFile = new TFile("eleSmearFile_ggM125_8TeV_pythia8_175_local.root", "RECREATE");
-  eleIDISOFile = new TFile("eleIDISOFile_ggM125_8TeV_pythia8_175_local.root", "RECREATE");
-  m_llgFile = new TFile("m_llgFile_ggM125_8TeV_pythia8_175_local.root","RECREATE");
+  histoFile = new TFile("higgsHistograms_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root", "RECREATE");
+  trainingFile = new TFile("higgsTraining_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root", "RECREATE");
+  sampleFile = new TFile("higgsSample_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root", "RECREATE");
+  higgsFile = new TFile("higgsFile_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root", "RECREATE");
+  eleSmearFile = new TFile("eleSmearFile_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root", "RECREATE");
+  eleIDISOFile = new TFile("eleIDISOFile_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root", "RECREATE");
+  m_llgFile = new TFile("m_llgFile_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root","RECREATE");
 
   trainingFile->cd();
   trainingChain = new TTree("varMVA","hey everyone it's the training tree");
@@ -279,11 +279,11 @@ void higgsAnalyzerV2::Begin(TTree * tree)
       <<" "<<"pt/Mllg"
       <<endl<<endl;
 
-    finalDump.open("dumps/finalDump_mumuGamma_2012_Signal2012ggM125.txt");
+    finalDump.open("dumps/finalDump_eeGamma_2012_Signal2012ggM125.txt");
   }
 
   if (dataDumps && suffix == "DATA"){
-    dataDump.open("dataDump_ggM125_8TeV_pythia8_175_local.txt");
+    dataDump.open("dataDump_ggM125_8TeV_pythia8_175_v2_local.txt");
     if (!dataDump.good()) cout << "ERROR: can't open file for writing." << endl;
   }
 
@@ -415,25 +415,27 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
 
 
     if(genHZG.lp && genHZG.lm && genHZG.g){
-      if (genHZG.lp->Pt() > genHZG.lm->Pt()){
-        StandardPlots(*genHZG.lp,*genHZG.lm,*genHZG.g,1,"PreGen", "PreGen");
-      }else{
-        StandardPlots(*genHZG.lm,*genHZG.lp,*genHZG.g,1,"PreGen", "PreGen");
+      if(genHZG.lp->Pt() > 8 && genHZG.lm->Pt() > 8){
+        if (genHZG.lp->Pt() > genHZG.lm->Pt()){
+          StandardPlots(*genHZG.lp,*genHZG.lm,*genHZG.g,1,"PreGen", "PreGen");
+        }else{
+          StandardPlots(*genHZG.lm,*genHZG.lp,*genHZG.g,1,"PreGen", "PreGen");
+        }
+        //genHZG.lp->Print();
+        //genHZG.lm->Print();
+        //genHZG.g->Print();
+        genLevelInputs.veczg = *genHZG.lp+*genHZG.lm+*genHZG.g;
+        //cout<<"higgsMass: "<<genLevelInputs.veczg.M()<<endl;
+        genLevelInputs.vecz = *genHZG.lp+*genHZG.lm; 
+        genLevelInputs.vecg = *genHZG.g;
+
+        genLevelInputs.veclp = *genHZG.lp;
+        genLevelInputs.veclm = *genHZG.lm;
+
+        getZGAngles(genLevelInputs,genLevelOutputs, false);
+        AnglePlots(genLevelOutputs,1);
+        //cout<<"costheta_lm: "<<genLevelOutputs.costheta_lm<<"\tcostheta_lp: "<<genLevelOutputs.costheta_lp<<"\tphi: "<<genLevelOutputs.phi<<"\tcosTheta: "<<genLevelOutputs.cosTheta<<"\tcosThetaG: "<<genLevelOutputs.cosThetaG<<endl;
       }
-      //genHZG.lp->Print();
-      //genHZG.lm->Print();
-      //genHZG.g->Print();
-      genLevelInputs.veczg = *genHZG.lp+*genHZG.lm+*genHZG.g;
-      //cout<<"higgsMass: "<<genLevelInputs.veczg.M()<<endl;
-      genLevelInputs.vecz = *genHZG.lp+*genHZG.lm; 
-      genLevelInputs.vecg = *genHZG.g;
-
-      genLevelInputs.veclp = *genHZG.lp;
-      genLevelInputs.veclm = *genHZG.lm;
-
-      getZGAngles(genLevelInputs,genLevelOutputs, false);
-      AnglePlots(genLevelOutputs,1);
-      //cout<<"costheta_lm: "<<genLevelOutputs.costheta_lm<<"\tcostheta_lp: "<<genLevelOutputs.costheta_lp<<"\tphi: "<<genLevelOutputs.phi<<"\tcosTheta: "<<genLevelOutputs.cosTheta<<"\tcosThetaG: "<<genLevelOutputs.cosThetaG<<endl;
     }
 
     //////////// DYJets Gamma Veto ////////////
@@ -618,8 +620,10 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
 
   vector<TVector3> goodVertices;
   vector<TCPrimaryVtx> pvVect;
+  int nTracks = 0;
   for (int i = 0; i < primaryVtx->GetSize(); ++i) {
     TCPrimaryVtx* pVtx = (TCPrimaryVtx*) primaryVtx->At(i);
+    nTracks+=pVtx->Ntracks();
     if (
         !pVtx->IsFake() 
         && pVtx->NDof() > 4.
@@ -651,20 +655,6 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
   ++nEvents[4];
 
 
-
-
-
-
-
-  
-
-  /*
-     cout<<endl;
-     genHs[0].P4().Print();
-     (genPhotons[0].P4()+genZs[0].P4()).Print();
-     cout<<genMuons.size()<<endl;
-     if(genMuons.size()>0) (genPhotons[0].P4()+genMuons[0].P4()+genMuons[1].P4()).Print();
-     */
   ///////////////
   // electrons //
   ///////////////
@@ -795,28 +785,6 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
     //for (int i = 0; i < pfMuons->GetSize(); ++ i)
   {
     TCMuon* thisMuon = (TCMuon*) recoMuons->At(i);    
-    /*
-    if(eventNumber==EVENTNUMBER){
-      float ptErrMuTmp = 1.0;
-      thisMuon->Print(); cout<<" charge: "<<thisMuon->Charge()<<endl;
-      tmpMuCor.SetXYZT(11.398083,-24.497328,38.084204,46.695322);
-      rmcor2012->momcor_mc(tmpMuCor,thisMuon->Charge(),0,0,ptErrMuTmp);
-      cout<<" cor val: "<<endl;
-      tmpMuCor.Print();
-
-    }
-    */
-
-
-    /*
-       thisMuon->LoadMap(*mapCuts);
-       map<string, float> muCut = thisMuon->MuonMap();
-       cout<<"new event muons"<<endl;
-       for( map<string,float>::iterator ii=muCut.begin(); ii!=muCut.end(); ++ii)
-       {                                                                                                        
-       cout << (*ii).first << ": " << (*ii).second << endl;                                                   
-       } 
-       */
 
     // Section for muon energy/momentum corrections.  NOTE: this will change the pt and thus ID/ISO of muon
 
@@ -982,6 +950,11 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
     sort(photonsID.begin(), photonsID.end(), P4SortCondition);
     sort(photonsIDIso.begin(), photonsIDIso.end(), P4SortCondition);
   }
+
+
+  //////////
+  // Jets //
+  //////////
 
   ////////////////////////
   // Analysis selection //
@@ -1882,9 +1855,11 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
   //////////////////////////////
 
 
-  hm->fill1DHist(primaryVtx->GetSize(),"h1_pvMultCopy_Signal2012ggM125", "Multiplicity of PVs", 50, 0.5, 50.5, eventWeight,"Vtx");
+  hm->fill1DHist(primaryVtx->GetSize(),"h1_pvMult_Signal2012ggM125", "Multiplicity of PVs; nVtx; Entries", 50, 0.5, 50.5, eventWeight,"Vtx");
+  hm->fillProfile(primaryVtx->GetSize(),nTracks,"h1_nTracks_Signal2012ggM125", "Average number of tracks per nVtx; nVtx; nTracks", 50, 0.5, 50.5, 1,"Vtx");
+  hm->fill1DHist(pvPosition->Z(),"h1_pvPosZ_Signal2012ggM125", "Z position of beamspot; Z(cm); Entries", 50, -25, 25, eventWeight,"Vtx");
   if (isRealData) {
-    hm->fillProfile(runNumber,primaryVtx->GetSize(),"p1_nVtcsCopy", "Average number of vertices per run; Run Number; nVertices", 8700.0, 135000.0, 144200.0, 0.0, 6.0, 1,"Vtx");
+    hm->fillProfile(runNumber,primaryVtx->GetSize(),"h1_nVtcs_Signal2012ggM125", "Average number of vertices per run; Run Number; nVertices", 8700.0, 135000.0, 144200.0, 0.0, 6.0, 1,"Vtx");
   }
 
   //////////////////////////////
@@ -1899,7 +1874,6 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
   //////////
 
   hm->fill1DHist(eventWeight,"h1_eventWeight_Signal2012ggM125", "event weight", 100, 0., 2.,1,"Misc");
-  hm->fill1DHist(primaryVtx->GetSize(),"h1_pvMult_Signal2012ggM125", "Multiplicity of PVs", 25, 0.5, 25.5, eventWeight,"Misc");
   if (!isRealData) hm->fill1DHist(ptHat,"h1_ptHat_Signal2012ggM125","ptHat",37, 15.0, 200.0, eventWeight,"Misc");
 
   if (isRealData) {
@@ -2080,7 +2054,7 @@ void higgsAnalyzerV2::StandardPlots(TLorentzVector p1, TLorentzVector p2, TLoren
   hm->fill1DHist(threeBody.M(),"h1_threeBodyMass"+tag+"_Signal2012ggM125", "M_{3body};M (GeV);N_{evts}", 75, 50, 200, eventWeight,folder);    
 
 
-  hm->fill1DHist(primaryVtx->GetSize(),"h1_pvMult"+tag+"_Signal2012ggM125", "Multiplicity of PVs;N_{PV};N_{evts}", 25, 0.5, 25.5, eventWeight, folder);
+  hm->fill1DHist(primaryVtx->GetSize(),"h1_pvMultCopy"+tag+"_Signal2012ggM125", "Multiplicity of PVs;N_{PV};N_{evts}", 25, 0.5, 25.5, eventWeight, folder);
   for(int i = 0; i < 64; ++i) {
     unsigned long iHLT = 0x0; 
     iHLT = 0x01 << i;  

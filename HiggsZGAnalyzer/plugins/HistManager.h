@@ -49,12 +49,19 @@ class HistManager : public TObject {
                   int binsy, float ymin, float ymax, float weight,std::string folder);
   // make a profile histogram
   void fillProfile(float x, float y, std::string name, std::string title,
+                   int binsx, float xmin, float xmax, float weight);
+
+  void fillProfile(float x, float y, std::string name, std::string title,
                    int binsx, float xmin, float xmax,
                    float ymin, float ymax, float weight);
 
   void fillProfile(float x, float y, std::string name, std::string title,
                    int binsx, float xmin, float xmax,
                    float ymin, float ymax, float weight,std::string folder);
+
+  void fillProfile(float x, float y, std::string name, std::string title,
+                   int binsx, float xmin, float xmax,
+                   float weight,std::string folder);
 
   ClassDef(HistManager, 1);
 

@@ -1,0 +1,11 @@
+file:/uscms/home/bpollack/EOS/V02_01_8TeV/tthHZG_M120/nuTuple_10_1_n33.root
+file:/uscms/home/bpollack/EOS/V02_01_8TeV/tthHZG_M120/nuTuple_11_1_7PW.root
+file:/uscms/home/bpollack/EOS/V02_01_8TeV/tthHZG_M120/nuTuple_1_1_a5J.root
+file:/uscms/home/bpollack/EOS/V02_01_8TeV/tthHZG_M120/nuTuple_2_1_Q8i.root
+file:/uscms/home/bpollack/EOS/V02_01_8TeV/tthHZG_M120/nuTuple_3_1_7Fj.root
+file:/uscms/home/bpollack/EOS/V02_01_8TeV/tthHZG_M120/nuTuple_4_1_Fv8.root
+file:/uscms/home/bpollack/EOS/V02_01_8TeV/tthHZG_M120/nuTuple_5_1_nXP.root
+file:/uscms/home/bpollack/EOS/V02_01_8TeV/tthHZG_M120/nuTuple_6_1_nf8.root
+file:/uscms/home/bpollack/EOS/V02_01_8TeV/tthHZG_M120/nuTuple_7_1_oSG.root
+file:/uscms/home/bpollack/EOS/V02_01_8TeV/tthHZG_M120/nuTuple_8_1_pvi.root
+file:/uscms/home/bpollack/EOS/V02_01_8TeV/tthHZG_M120/nuTuple_9_1_CQJ.root
