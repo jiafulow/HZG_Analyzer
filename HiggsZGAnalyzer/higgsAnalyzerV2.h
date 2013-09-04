@@ -1,6 +1,7 @@
 #ifndef higgsAnalyzerV2_h
 #define higgsAnalyzerV2_h
 
+#include <memory>
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
@@ -12,6 +13,7 @@
 #include <algorithm>
 #include <set>
 #include <map>
+#include <unistd.h>
 
 #include <TROOT.h>
 #include <TChain.h>
@@ -55,6 +57,8 @@
 #include "plugins/LeptonScaleCorrections.h"
 #include "plugins/EGammaMvaEleEstimator.cc"
 #include "plugins/ZGAngles.h"
+#include "./hzgammaME/TVar.hh"
+#include "./hzgammaME/TEvtProb.cc"
 
 #ifdef __MAKECINT__
 #pragma link C++ class vector<string>+;
@@ -254,6 +258,8 @@ class higgsAnalyzerV2 : public TSelector {
     virtual bool           FindGoodZMuon(vector<TCMuon> muonList, TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* ZP4, int* int1, int* int2 ); 
     virtual bool           FindGoodZElectron(vector<TCElectron> electronList, vector<TCElectron> uncorElectronList, TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* ZP4, float* eta1, float* eta2, int* int1, int* int2); 
     virtual bool           FindGoodZMuon(vector<TCMuon> muonList, vector<TCMuon> uncorMuonList, TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* ZP4, int* int1, int* int2); 
+
+    virtual float          MEDiscriminator(TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* gamma);
 
     /////////////////////
     // Gen Level Stuff //

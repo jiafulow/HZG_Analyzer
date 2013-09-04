@@ -3262,3 +3262,77 @@ void higgsAnalyzerV2::CleanUpGen(genHZGParticles& _genHZG){
   if (_genHZG.z) delete _genHZG.z;
   if (_genHZG.h) delete _genHZG.h;
 }
+
+float higgsAnalyzerV2::MEDiscriminator(TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* gamma){
+
+  TEvtProb Xcal2;
+  hzgamma_event_type hzgamma_event;
+
+  float dXsec_ZGam_MCFM = 0.;
+  float dXsec_HZGam_MCFM = 0.;
+  float Discriminant = 0.;
+  float PreBoostMass = 0.;
+  float logBkg(0.), logSig(0.);
+  
+  auto_ptr<TLorentzVector> pl1(new TLorentzVector(*lepton1));
+  auto_ptr<TLorentzVector> pl2(new TLorentzVector(*lepton2));
+  auto_ptr<TLorentzVector> pg(new TLorentzVector(*gamma));
+  TLorentzVector psum = *pl1 + *pl2 + *pg;
+
+  TVector3 bv = -psum.BoostVector();
+  pl1->Boost(bv); pl2->Boost(bv); pg->Boost(bv);
+
+  hzgamma_event.p[0].SetPxPyPzE(pl1->Px(), pl1->Py(), pl1->Pz(), pl1->Energy());
+  hzgamma_event.p[1].SetPxPyPzE(pl2->Px(), pl2->Py(), pl2->Pz(), pl2->Energy());
+  hzgamma_event.p[2].SetPxPyPzE(pg->Px(), pg->Py(), pg->Pz(), pg->Energy());
+
+  if (selection == "mumuGamma"){
+    hzgamma_event.PdgCode[0] = 13;
+    hzgamma_event.PdgCode[1] = -13;
+    hzgamma_event.PdgCode[2] = 22;
+  }else{
+    hzgamma_event.PdgCode[0] = 11;
+    hzgamma_event.PdgCode[1] = -11;
+    hzgamma_event.PdgCode[2] = 22;
+  }
+
+  float zmass = (hzgamma_event.p[0]+hzgamma_event.p[1]).M();
+  float gammass = (hzgamma_event.p[2]).M();
+  float zgammass = (hzgamma_event.p[0]+hzgamma_event.p[1]+hzgamma_event.p[2]).M();
+
+  Xcal2.SetHiggsMass(zgammass);
+  Xcal2.SetMatrixElement(TVar::MCFM);
+
+  // hacky bullshit to prevent XsecCalc from blowing up stdout
+  fpos_t pos;
+  fflush(stdout);
+  fgetpos(stdout, &pos);
+  int fd = dup(fileno(stdout));
+  char fname[] = "garbage.txt";
+  freopen(fname, "a+", stdout);   
+  printf("inside file op");  
+
+  dXsec_ZGam_MCFM = Xcal2.XsecCalc(TVar::qqb_zgam, TVar::QQB, hzgamma_event,false);
+  dXsec_HZGam_MCFM = Xcal2.XsecCalc(TVar::gg_hzgam, TVar::GG, hzgamma_event,false);
+
+  fflush(stdout);
+  dup2(fd,fileno(stdout));
+  close(fd);
+  clearerr(stdout);
+  fsetpos(stdout, &pos);
+  // hacky bullshit end 
+
+  logBkg = -log10(dXsec_ZGam_MCFM);
+  logSig = -log10(dXsec_HZGam_MCFM);
+  Discriminant = -log(dXsec_ZGam_MCFM/(dXsec_ZGam_MCFM+dXsec_HZGam_MCFM));
+
+  return Discriminant;
+
+}
+
+
+
+
+
+
+
