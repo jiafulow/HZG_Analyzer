@@ -1,4 +1,4 @@
-GFORTRAN module version '6' created from /uscms/home/kkelly12/work/CMSSW_5_3_8/src/HZG_MatrixElement/HiggsZGAnalyzer/hzgammaME/MCFM-6.6/src/F90/recurrenceB.f90 on Thu Aug 22 14:46:34 2013
+GFORTRAN module version '6' created from /uscms/home/bpollack/nobackup/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/hzgammaME/MCFM-6.6/src/F90/recurrenceB.f90 on Wed Sep  4 11:06:33 2013
 MD5:4af836b69cd078c3b87547374a0c39e9 -- If you edit this, you'll get what you deserve.
 
 (() () () () () () () () () () () () () () () () () () () () () () ()

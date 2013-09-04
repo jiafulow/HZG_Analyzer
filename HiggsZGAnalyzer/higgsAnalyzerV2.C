@@ -88,6 +88,7 @@ void higgsAnalyzerV2::Begin(TTree * tree)
   rEl             = new TRandom3(1234);
   rMuRun          = new TRandom3(187);
   phoCorrector    = new zgamma::PhosphorCorrectionFunctor("plugins/PHOSPHOR_NUMBERS_EXPFIT_ERRORS.txt", true);
+  Xcal2           = new TEvtProb();
 
   genHZG = {};
 
@@ -975,9 +976,9 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
   //float deltaPhiJetMET = 2*TMath::Pi();
   //if (jetP4.size() > 0) deltaPhiJetMET= DeltaPhiJetMET(metP4, jetP4, eventWeight);
 
-  TLorentzVector lepton1;
+  TCPhysObject   lepton1;
   int            lepton1int =-1;
-  TLorentzVector lepton2;
+  TCPhysObject   lepton2;
   int            lepton2int =-1;
   TLorentzVector uncorLepton1;
   TLorentzVector uncorLepton2;
@@ -1473,6 +1474,15 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
   hm->fill1DHist(23,"h1_acceptanceByCut_Signal2012ggM125", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");
   hm->fill1DHist(23,"h1_acceptanceByCutRaw_Signal2012ggM125", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
   ++nEvents[22];
+
+  /////////////
+  // ME Disc //
+  /////////////
+  
+  float MEdisc = MEDiscriminator(lepton1,lepton2,GP4);
+  cout<<"MEDisc:\t"<<MEdisc<<endl;
+
+
 
   //////////////
   // Non-Cuts //
@@ -2789,7 +2799,7 @@ dump << " run: "                   << setw(7)  << runNumber                     
      << endl;
 }
 
-bool higgsAnalyzerV2::FindGoodZElectron(vector<TCElectron> electronList, TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* ZP4,float* eta1, float* eta2, int* int1, int* int2){
+bool higgsAnalyzerV2::FindGoodZElectron(vector<TCElectron> electronList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* ZP4,float* eta1, float* eta2, int* int1, int* int2){
   TLorentzVector tmpZ;
   bool goodZ = false;
   float ZmassDiff=99999;
@@ -2816,7 +2826,7 @@ bool higgsAnalyzerV2::FindGoodZElectron(vector<TCElectron> electronList, TLorent
   return goodZ;
 }
           
-bool higgsAnalyzerV2::FindGoodZElectron(vector<TCElectron> electronList, vector<TCElectron> uncorElectronList, TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* ZP4, float* eta1, float* eta2, int* int1, int* int2){
+bool higgsAnalyzerV2::FindGoodZElectron(vector<TCElectron> electronList, vector<TCElectron> uncorElectronList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* ZP4, float* eta1, float* eta2, int* int1, int* int2){
   TLorentzVector tmpZ;
   bool goodZ = false;
   float ZmassDiff=99999;
@@ -2882,7 +2892,7 @@ bool higgsAnalyzerV2::FindGoodZElectron(vector<TCElectron> electronList, vector<
   return goodZ;
 }
           
-bool higgsAnalyzerV2::FindGoodZMuon(vector<TCMuon> muonList, TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* ZP4, int* int1, int* int2){
+bool higgsAnalyzerV2::FindGoodZMuon(vector<TCMuon> muonList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* ZP4, int* int1, int* int2){
   TLorentzVector tmpZ;
   bool goodZ = false;
   float ZmassDiff=99999;
@@ -2907,7 +2917,7 @@ bool higgsAnalyzerV2::FindGoodZMuon(vector<TCMuon> muonList, TLorentzVector* lep
   return goodZ;
 }
 
-bool higgsAnalyzerV2::FindGoodZMuon(vector<TCMuon> muonList, vector<TCMuon> uncorMuonList, TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* ZP4, int* int1, int* int2){
+bool higgsAnalyzerV2::FindGoodZMuon(vector<TCMuon> muonList, vector<TCMuon> uncorMuonList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* ZP4, int* int1, int* int2){
   TLorentzVector tmpZ;
   bool goodZ = false;
   float ZmassDiff=99999;
@@ -3263,9 +3273,9 @@ void higgsAnalyzerV2::CleanUpGen(genHZGParticles& _genHZG){
   if (_genHZG.h) delete _genHZG.h;
 }
 
-float higgsAnalyzerV2::MEDiscriminator(TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* gamma){
+float higgsAnalyzerV2::MEDiscriminator(TCPhysObject lepton1, TCPhysObject lepton2, TLorentzVector gamma){
+  //modified from kevin kelly
 
-  TEvtProb Xcal2;
   hzgamma_event_type hzgamma_event;
 
   float dXsec_ZGam_MCFM = 0.;
@@ -3274,17 +3284,23 @@ float higgsAnalyzerV2::MEDiscriminator(TLorentzVector* lepton1, TLorentzVector* 
   float PreBoostMass = 0.;
   float logBkg(0.), logSig(0.);
   
-  auto_ptr<TLorentzVector> pl1(new TLorentzVector(*lepton1));
-  auto_ptr<TLorentzVector> pl2(new TLorentzVector(*lepton2));
-  auto_ptr<TLorentzVector> pg(new TLorentzVector(*gamma));
+  auto_ptr<TLorentzVector> pl1(new TLorentzVector(lepton1));
+  auto_ptr<TLorentzVector> pl2(new TLorentzVector(lepton2));
+  auto_ptr<TLorentzVector> pg(new TLorentzVector(gamma));
   TLorentzVector psum = *pl1 + *pl2 + *pg;
 
   TVector3 bv = -psum.BoostVector();
   pl1->Boost(bv); pl2->Boost(bv); pg->Boost(bv);
 
-  hzgamma_event.p[0].SetPxPyPzE(pl1->Px(), pl1->Py(), pl1->Pz(), pl1->Energy());
-  hzgamma_event.p[1].SetPxPyPzE(pl2->Px(), pl2->Py(), pl2->Pz(), pl2->Energy());
-  hzgamma_event.p[2].SetPxPyPzE(pg->Px(), pg->Py(), pg->Pz(), pg->Energy());
+  if (lepton1.Charge() == -1){
+    hzgamma_event.p[0].SetPxPyPzE(pl1->Px(), pl1->Py(), pl1->Pz(), pl1->Energy());
+    hzgamma_event.p[1].SetPxPyPzE(pl2->Px(), pl2->Py(), pl2->Pz(), pl2->Energy());
+    hzgamma_event.p[2].SetPxPyPzE(pg->Px(), pg->Py(), pg->Pz(), pg->Energy());
+  }else{
+    hzgamma_event.p[1].SetPxPyPzE(pl1->Px(), pl1->Py(), pl1->Pz(), pl1->Energy());
+    hzgamma_event.p[0].SetPxPyPzE(pl2->Px(), pl2->Py(), pl2->Pz(), pl2->Energy());
+    hzgamma_event.p[2].SetPxPyPzE(pg->Px(), pg->Py(), pg->Pz(), pg->Energy());
+  }
 
   if (selection == "mumuGamma"){
     hzgamma_event.PdgCode[0] = 13;
@@ -3300,8 +3316,8 @@ float higgsAnalyzerV2::MEDiscriminator(TLorentzVector* lepton1, TLorentzVector* 
   float gammass = (hzgamma_event.p[2]).M();
   float zgammass = (hzgamma_event.p[0]+hzgamma_event.p[1]+hzgamma_event.p[2]).M();
 
-  Xcal2.SetHiggsMass(zgammass);
-  Xcal2.SetMatrixElement(TVar::MCFM);
+  Xcal2->SetHiggsMass(zgammass);
+  Xcal2->SetMatrixElement(TVar::MCFM);
 
   // hacky bullshit to prevent XsecCalc from blowing up stdout
   fpos_t pos;
@@ -3312,8 +3328,8 @@ float higgsAnalyzerV2::MEDiscriminator(TLorentzVector* lepton1, TLorentzVector* 
   freopen(fname, "a+", stdout);   
   printf("inside file op");  
 
-  dXsec_ZGam_MCFM = Xcal2.XsecCalc(TVar::qqb_zgam, TVar::QQB, hzgamma_event,false);
-  dXsec_HZGam_MCFM = Xcal2.XsecCalc(TVar::gg_hzgam, TVar::GG, hzgamma_event,false);
+  dXsec_ZGam_MCFM = Xcal2->XsecCalc(TVar::qqb_zgam, TVar::QQB, hzgamma_event,false);
+  dXsec_HZGam_MCFM = Xcal2->XsecCalc(TVar::gg_hzgam, TVar::GG, hzgamma_event,false);
 
   fflush(stdout);
   dup2(fd,fileno(stdout));
