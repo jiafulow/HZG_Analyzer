@@ -102,9 +102,9 @@ void setTDRStyle() {
 
 // Margins:
   tdrStyle->SetPadTopMargin(0.08);
-  tdrStyle->SetPadBottomMargin(0.13);
-  tdrStyle->SetPadLeftMargin(0.15);
-  //tdrStyle->SetPadRightMargin(0.03);
+  tdrStyle->SetPadBottomMargin(0.11);
+  tdrStyle->SetPadLeftMargin(0.11);
+  tdrStyle->SetPadRightMargin(0.03);
 
 // For the Global title:
 
@@ -129,14 +129,14 @@ void setTDRStyle() {
   // tdrStyle->SetTitleXSize(Float_t size = 0.02); // Another way to set the size?
   // tdrStyle->SetTitleYSize(Float_t size = 0.02);
   tdrStyle->SetTitleXOffset(.9);
-  tdrStyle->SetTitleYOffset(1.);
-  // tdrStyle->SetTitleOffset(1.1, "Y"); // Another way to set the Offset
+  // tdrStyle->SetTitleYOffset(1.2);
+   tdrStyle->SetTitleOffset(1.1, "Y"); // Another way to set the Offset
 
 // For the axis labels:
 
   tdrStyle->SetLabelColor(1, "XYZ");
   tdrStyle->SetLabelFont(42, "XYZ");
-  tdrStyle->SetLabelOffset(0.007, "XY");
+  tdrStyle->SetLabelOffset(0.006, "XY");
   tdrStyle->SetLabelSize(0.05, "XYZ");
 
 // For the axis:

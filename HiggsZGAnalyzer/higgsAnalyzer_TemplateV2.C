@@ -8,11 +8,11 @@ using namespace std;
 //Specify parameters here. //
 /////////////////////////////
 
-string  selection      = "SELECTION";
-string  period         = "PERIOD";
-int     JC_LVL         = 0;
-string  abcd           = "ABCD";
-string  suffix         = "SUFFIX";
+static const string  selection      = "SELECTION";
+static const string  period         = "PERIOD";
+static const int     JC_LVL         = 0;
+static const string  abcd           = "ABCD";
+static const string  suffix         = "SUFFIX";
 
 
 /////////////////
@@ -24,38 +24,38 @@ string  suffix         = "SUFFIX";
 //  metByQtCut[] = {-999.,999.}, bJetVeto = 9999, qtCut = 0., nJets[] = {0,999}, MassZG[] = {100.,180.}, SumEt = 99999., AngCut = 999,
 //  M12Cut = 999999999999999999999, drCut = 0.4, MZpMZGcut = 185, VBFdeltaEta = 3.5, VBFdeltaPhi = 2.4, diJetMassCut = 500, Zeppenfeld = 2.5, R9Cut = 0.94; 
 
-float jetPtCut[] = {30,30}, muPtCut[] = {20,10}, elePtCut[] = {20,10}, gammaPtCut[] = {15./110.,15.}, zMassCut[] = {50,99999.}, metCut[] = {-9999.,9999.},
+static const float jetPtCut[] = {30,30}, muPtCut[] = {20,10}, elePtCut[] = {20,10}, gammaPtCut[] = {15./110.,15.}, zMassCut[] = {50,99999.}, metCut[] = {-9999.,9999.},
   metByQtCut[] = {-999.,999.}, bJetVeto = 9999, qtCut = 0., nJets[] = {0,999}, MassZG[] = {100.,190.}, SumEt = 99999., AngCut = 999,
   M12Cut = 999999999999999999999, drCut = 0.4, MZpMZGcut = 185, VBFdeltaEta = 3.5, VBFdeltaPhi = 2.4, diJetMassCut = 500, Zeppenfeld = 2.5, R9Cut = 0.94; 
 
 
-bool    VBFcuts         = false;
+static const bool    VBFcuts         = false;
 
-bool    DYGammaVeto    = true;
-bool    customPhotoID  = false;
-bool    spikeVeto      = true;
+static const bool    DYGammaVeto    = true;
+static const bool    customPhotoID  = false;
+static const bool    spikeVeto      = true;
 
-bool    R9switch       = false;
+static const bool    R9switch       = false;
 
-bool    doEleMVA       = true;
+static const bool    doEleMVA       = true;
 
-bool    doLooseMuIso   = true;
+static const bool    doLooseMuIso   = true;
 
-bool    doAnglesMVA = false;
+static const bool    doAnglesMVA = false;
 
 ///// debugging dumps /////
-bool dumps = false;
-bool dataDumps = false;
-int EVENTNUMBER = -999;
+static const bool dumps = false;
+static const bool dataDumps = false;
+static const int EVENTNUMBER = -999;
 
 //// energy corrections ////
-bool engCor = true;
-bool doR9Cor = true;
-bool doEleReg  = true;
+static const bool engCor = true;
+static const bool doR9Cor = true;
+static const bool doEleReg  = true;
 
 //// Scale Factors ////
-bool doScaleFactors = true;
-bool doLumiXS= false;
+static const bool doScaleFactors = true;
+static const bool doLumiXS= false;
 
 ///////////////////////////
 //Resources for weighting//
@@ -586,8 +586,7 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
   //cout<<"triggerStatus: "<<triggerStatus<<" hltPrescale: "<<hltPrescale<<" triggerPass: "<<triggerPass<<endl;
   //int  eventPrescale = triggerSelector->GetEventPrescale();
   //cout<<eventPrescale<<endl;
-
-  /*
+/*
   cout<<"new trig event"<<endl;
   for (int i = 0; i <  triggerObjects->GetSize(); ++i) {
     TCTriggerObject* thisTrigObj = (TCTriggerObject*) triggerObjects->At(i);    
@@ -597,7 +596,7 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
     thisTrigObj->Print();
     cout<<endl;
   }
-  */
+*/
   if (!triggerPass) return kTRUE;
   hm->fill1DHist(3,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
   hm->fill1DHist(3,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
