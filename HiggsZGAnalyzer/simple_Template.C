@@ -92,6 +92,12 @@ Bool_t simple_v2::Process(Long64_t entry)
   genHZG = {};
   if(!isRealData){
     ///////// load all the relevent particles into a struct /////////
+    for (int i = 0; i < genParticles->GetSize(); ++i) {
+      TCGenParticle* thisGen = (TCGenParticle*) genParticles->At(i);    
+      cout<<"pdgId:\t"<<thisGen->GetPDGId()
+    }
+
+    /*
     FindGenParticles(genParticles, selection, vetoPhotons, genHZG);
 
     ///////// gen angles, plots before any kinematic/fiducial cleaning //////////////
@@ -135,6 +141,7 @@ Bool_t simple_v2::Process(Long64_t entry)
       quickCount += 1;
       //cout<<"costheta_lm: "<<genLevelOutputs.costheta_lm<<"\tcostheta_lp: "<<genLevelOutputs.costheta_lp<<"\tphi: "<<genLevelOutputs.phi<<"\tcosTheta: "<<genLevelOutputs.cosTheta<<"\tcosThetaG: "<<genLevelOutputs.cosThetaG<<endl;
     }
+    */
   }
 
   return kTRUE;
