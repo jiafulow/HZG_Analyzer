@@ -80,7 +80,7 @@ Requirements          = Memory >= 199 &&OpSys == "LINUX"&& (Arch != "DUMMY" )&& 
 Output                = res/report_$(Cluster)_$(Process).stdout
 Error                 = res/report_$(Cluster)_$(Process).stderr
 Log                   = res/report_$(Cluster)_$(Process).log
-notify_user           = Nathaniel.Jay.Odell@cern.ch
+notify_user           = noOne@fake.com
 Queue
 '''
         batch_submit_file = tempfile.NamedTemporaryFile(prefix = 'batch_submit_file', delete=False)

@@ -1480,7 +1480,11 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
   /////////////
   
   float MEdisc = MEDiscriminator(lepton1,lepton2,GP4);
-  cout<<"MEDisc:\t"<<MEdisc<<endl;
+  if (MEdisc < 0.063) return kTRUE;
+  //cout<<"MEDisc:\t"<<MEdisc<<endl;
+  hm->fill1DHist(24,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");
+  hm->fill1DHist(24,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
+  ++nEvents[23];
 
 
 
@@ -1933,7 +1937,8 @@ void higgsAnalyzerV2::Terminate()
   //cout << "| Angular Cut:                       |\t" << nEvents[19]                   << "\t|" << endl;
   //cout << "| M12 Cut:                           |\t" << nEvents[20]                   << "\t|" << endl;
   //cout << "| MVA Cuts:                          |\t" << nEvents[21]                   << "\t|" << endl;
-  cout << "| VBF Cuts:                          |\t" << nEvents[22]                   << "\t|" << endl;
+  //cout << "| VBF Cuts:                          |\t" << nEvents[22]                   << "\t|" << endl;
+  cout << "| ME Cuts:                           |\t" << nEvents[23]                   << "\t|" << endl;
   cout << "| 100-190 range:                     |\t" << nEvents[51]                   << "\t|" << endl;
   cout << "| 100-190 weighted (all):            |\t" << eventHisto->Integral(50,50) << "\t|" << endl;
   cout << "| 100-190 weighted (PU):             |\t" << eventHisto->Integral(51,51) << "\t|" << endl;

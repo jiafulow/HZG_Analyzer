@@ -1,7 +1,7 @@
 #!/bin/csh
 source /uscmst1/prod/sw/cms/cshrc prod
-scram pro CMSSW CMSSW_5_3_6
-cd CMSSW_5_3_6/src
+scram pro CMSSW CMSSW_5_3_8_patch1
+cd CMSSW_5_3_8_patch1/src
 cmsenv 
 cd ${_CONDOR_SCRATCH_DIR}
 #### Leave this blank #######
@@ -22,7 +22,7 @@ set period    = $6
 
 tar -zxf stageball.tar.gz
 
-cp higgsAnalyzer_Template.C higgsAnalyzer.C
+cp higgsAnalyzer_TemplateV2.C higgsAnalyzerV2.C
 #cp higgsAnalyzer.h .
 #cp TC*.cc .
 #cp TC*.h .
@@ -36,13 +36,13 @@ cp higgsAnalyzer_Template.C higgsAnalyzer.C
 #cp -r $srcDir/otherHistos/*root otherHistos/.
 #cp -r $srcDir/plugins/* plugins/.
 
-sed -i "s/SUFFIX/$suffix/g" higgsAnalyzer.C
-sed -i "s/ABCD/$abcd/g" higgsAnalyzer.C
-sed -i "s/SELECTION/$selection/g" higgsAnalyzer.C
-sed -i "s/PERIOD/$period/g" higgsAnalyzer.C
-sed -i "s/COUNT/$count/g" higgsAnalyzer.C
-sed -i "s/DATANAME/$dataName/g" higgsAnalyzer.C
-sed -i "s/\.\.\/src/src/g" higgsAnalyzer.h
+sed -i "s/SUFFIX/$suffix/g" higgsAnalyzerV2.C
+sed -i "s/ABCD/$abcd/g" higgsAnalyzerV2.C
+sed -i "s/SELECTION/$selection/g" higgsAnalyzerV2.C
+sed -i "s/PERIOD/$period/g" higgsAnalyzerV2.C
+sed -i "s/COUNT/$count/g" higgsAnalyzerV2.C
+sed -i "s/DATANAME/$dataName/g" higgsAnalyzerV2.C
+sed -i "s/\.\.\/src/src/g" higgsAnalyzerV2.h
 
 ls
 cat > run.C << +EOF
@@ -78,6 +78,10 @@ cat > run.C << +EOF
     gROOT->LoadMacro("plugins/PhosphorCorrectorFunctor.cc+");
     gROOT->LoadMacro("plugins/LeptonScaleCorrections.h+");
     gROOT->LoadMacro("plugins/EGammaMvaEleEstimator.cc+");
+    gROOT->LoadMacro("plugins/ZGAngles.cc+");
+    gSystem->Load("libgfortran.so");
+    gSystem->Load("./hzgammaME/libmcfm_6p6.so");
+    gSystem->Load("./hzgammaME/libME.so");
 
     TChain* fChain = new TChain("ntupleProducer/eventTree");
 
@@ -103,7 +107,7 @@ cat > run.C << +EOF
     TStopwatch timer;
     timer.Start();
 
-    fChain->Process("higgsAnalyzer.C+");
+    fChain->Process("higgsAnalyzerV2.C+");
   }
                                           
 +EOF
@@ -114,3 +118,9 @@ root -l -b -q run.C
 rm higgsAnalyzer*
 rm input.txt 
 rm run.C
+rm input.DAT
+rm process.DAT
+rm stageball.tar.gz
+rm garbage.txt
+rm br.sm1
+rm br.sm2
