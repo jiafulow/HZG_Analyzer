@@ -38,6 +38,18 @@ float TCMET::ChargedEMFraction() const {
   return _chargedEMFraction;
 }
 
+float TCMET::UnCorPhi() const {
+  return _unCorPhi;
+}
+
+//Significance
+float TCMET::Significance() const {
+  return _Significance;
+}
+float TCMET::SigmaX2() const {
+  return _SigmaX2;
+}
+
     // "set" methods ---------
 
 void TCMET::SetSumEt(float n) {
@@ -64,3 +76,14 @@ void TCMET::SetChargedEMFraction(float n) {
   _chargedEMFraction = n;
 }
 
+void TCMET::SetUnCorPhi(float n) {
+  _unCorPhi = n;
+}
+
+//Significance
+void TCMET::SetSignificance(float n) {
+  _Significance = n;
+}
+void TCMET::SetSigmaX2(float n) {
+  _SigmaX2 = n;
+}

@@ -93,8 +93,17 @@ Bool_t simple_v2::Process(Long64_t entry)
   if(!isRealData){
     ///////// load all the relevent particles into a struct /////////
     for (int i = 0; i < genParticles->GetSize(); ++i) {
+      bool moms = true;
       TCGenParticle* thisGen = (TCGenParticle*) genParticles->At(i);    
-      cout<<"pdgId:\t"<<thisGen->GetPDGId()
+      if (thisGen->GetPDGId() == 13){
+        cout<<"pdgId:\t"<<thisGen->GetPDGId()<<"\tstatus:\t"<<thisGen->GetStatus()<<"\tpt:\t"<<thisGen->Pt()<<endl;
+        if(!thisGen->Mother()) moms = false;
+        while(moms){
+          thisGen = thisGen->Mother();
+          cout<<"\tMOM\tpdgId:\t"<<thisGen->GetPDGId()<<"\tstatus:\t"<<thisGen->GetStatus()<<"\tpt:\t"<<thisGen->Pt()<<endl;
+          if(!thisGen->Mother()) moms = false;
+        }
+      }
     }
 
     /*
@@ -220,7 +229,7 @@ void simple_v2::AnglePlots(ZGAngles &zga,float eventWeight)
   hm->fill1DHist(zga.cosTheta,"h1_costhetaZG_SUFFIX", "Cos(#Theta) ZG system;cos(#Theta);N_{evts}", 50, -1.1, 1.1, eventWeight);     
   hm->fill1DHist(zga.costheta_lm+zga.costheta_lp,"h1_costhetaBoth_SUFFIX", "Cos(#theta) of both lepton;cos(#theta);N_{evts}", 50, -1.1, 1.1, eventWeight);     
 }
-
+/*
 void  simple_v2::FindGenParticles(TClonesArray *genParticles, string selection, vector<TCGenParticle>& vetoPhotons, genHZGParticles& _genHZG){
   vector<TCGenParticle> genElectrons;
   vector<TCGenParticle> genMuons;
@@ -300,7 +309,7 @@ void  simple_v2::FindGenParticles(TClonesArray *genParticles, string selection, 
 
   return;
 }
-
+*/
 void simple_v2::CleanUpGen(genHZGParticles& _genHZG){
   if (_genHZG.lp) delete _genHZG.lp;
   if (_genHZG.lm) delete _genHZG.lm;

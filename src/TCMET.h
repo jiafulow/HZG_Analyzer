@@ -23,6 +23,11 @@ private:
     float _neutralEMFraction;
     float _chargedHadronFraction;
     float _chargedEMFraction;
+    float _unCorPhi;
+
+//Significance
+    float _Significance;
+    float _SigmaX2;
 
 public:
     TCMET();
@@ -36,6 +41,11 @@ public:
     float NeutralEMFraction() const;
     float ChargedHadronFraction() const;
     float ChargedEMFraction() const;
+    float UnCorPhi() const;
+
+//Significance
+    float Significance() const;
+    float SigmaX2() const;
 
     // "set" methods ---------
 
@@ -45,6 +55,11 @@ public:
     void SetNeutralEMFraction(float n);
     void SetChargedHadronFraction(float n);
     void SetChargedEMFraction(float n);
+    void SetUnCorPhi(float n);
+
+//Significance
+    void SetSignificance(float n);
+    void SetSigmaX2(float n);
 
     ClassDef(TCMET, 1);
 

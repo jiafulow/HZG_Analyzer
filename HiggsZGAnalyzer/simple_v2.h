@@ -169,7 +169,7 @@ class simple_v2 : public TSelector {
       TCGenParticle* lm;
     }genHZG;
 
-    void FindGenParticles(TClonesArray* genParticles, string selection, vector<TCGenParticle>& vetoPhotons, genHZGParticles& _genHZG);
+   // void FindGenParticles(TClonesArray* genParticles, string selection, vector<TCGenParticle>& vetoPhotons, genHZGParticles& _genHZG);
     void CleanUpGen(genHZGParticles& _genHZG);
     virtual void    AnglePlots(ZGAngles &zga, float eventWeight);
 
