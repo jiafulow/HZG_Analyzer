@@ -1,7 +1,5 @@
-The Full Higgs -> ZG analyzer for NWU group, by Brian Pollack.
-This analyzer is built to run on NWU ntuples only.
-Scripts folder contains useful functions, not all directly related to HZG.
+Welcome to the New HZG Analyzer, by Brian Pollack
+-------------------------------------------------
 
-
-ME weighting branch
-
+This branch is in production, intended to run on the bleeding edge NWU ntuples.
+Significant updates are intended for readability, speed improvements, and workflow optimization.
