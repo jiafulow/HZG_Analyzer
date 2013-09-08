@@ -8,7 +8,7 @@ using namespace std;
 //Specify parameters here. //
 /////////////////////////////
 
-static const string  selection      = "eeGamma";
+static const string  selection      = "mumuGamma";
 static const string  period         = "2012";
 static const int     JC_LVL         = 0;
 static const string  abcd           = "ABCD";
@@ -99,13 +99,13 @@ void higgsAnalyzerV2::Begin(TTree * tree)
   TH1::SetDefaultSumw2(kTRUE);
   TH2::SetDefaultSumw2(kTRUE);
 
-  histoFile = new TFile("higgsHistograms_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root", "RECREATE");
-  trainingFile = new TFile("higgsTraining_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root", "RECREATE");
-  sampleFile = new TFile("higgsSample_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root", "RECREATE");
-  higgsFile = new TFile("higgsFile_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root", "RECREATE");
-  eleSmearFile = new TFile("eleSmearFile_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root", "RECREATE");
-  eleIDISOFile = new TFile("eleIDISOFile_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root", "RECREATE");
-  m_llgFile = new TFile("m_llgFile_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root","RECREATE");
+  histoFile = new TFile("higgsHistograms_ggM125_8TeV_pythia8_175_v2_mumuGamma_local.root", "RECREATE");
+  trainingFile = new TFile("higgsTraining_ggM125_8TeV_pythia8_175_v2_mumuGamma_local.root", "RECREATE");
+  sampleFile = new TFile("higgsSample_ggM125_8TeV_pythia8_175_v2_mumuGamma_local.root", "RECREATE");
+  higgsFile = new TFile("higgsFile_ggM125_8TeV_pythia8_175_v2_mumuGamma_local.root", "RECREATE");
+  eleSmearFile = new TFile("eleSmearFile_ggM125_8TeV_pythia8_175_v2_mumuGamma_local.root", "RECREATE");
+  eleIDISOFile = new TFile("eleIDISOFile_ggM125_8TeV_pythia8_175_v2_mumuGamma_local.root", "RECREATE");
+  m_llgFile = new TFile("m_llgFile_ggM125_8TeV_pythia8_175_v2_mumuGamma_local.root","RECREATE");
 
   trainingFile->cd();
   trainingChain = new TTree("varMVA","hey everyone it's the training tree");
@@ -280,7 +280,7 @@ void higgsAnalyzerV2::Begin(TTree * tree)
       <<" "<<"pt/Mllg"
       <<endl<<endl;
 
-    finalDump.open("dumps/finalDump_eeGamma_2012_Signal2012ggM125.txt");
+    finalDump.open("dumps/finalDump_mumuGamma_2012_Signal2012ggM125.txt");
   }
 
   if (dataDumps && suffix == "DATA"){
@@ -324,13 +324,13 @@ void higgsAnalyzerV2::Begin(TTree * tree)
   sampleChain->Branch("scaleFactor",&scaleFactor,"scaleFactor/F");
   trainingChain->Branch("scaleFactor",&scaleFactor,"scaleFactor/F");
 
-  m_llgChain->Branch("m_llg_Signal2012ggM125", &m_llg, "m_llg/F");
-  m_llgChain->Branch("m_llgCAT1_Signal2012ggM125", &m_llgCAT1, "m_llgCAT1/F");
-  m_llgChain->Branch("m_llgCAT2_Signal2012ggM125", &m_llgCAT2, "m_llgCAT2/F");
-  m_llgChain->Branch("m_llgCAT3_Signal2012ggM125", &m_llgCAT3, "m_llgCAT3/F");
-  m_llgChain->Branch("m_llgCAT4_Signal2012ggM125", &m_llgCAT4, "m_llgCAT4/F");
-  m_llgChain->Branch("unBinnedWeight_Signal2012ggM125", &unBinnedWeight, "unBinnedWeight/F");
-  m_llgChain->Branch("unBinnedLumiXS_Signal2012ggM125", &unBinnedLumiXS, "unBinnedLumiXS/F");
+  m_llgChain->Branch("m_llg_Signal2012ggM125", &m_llg, "m_llg/D");
+  m_llgChain->Branch("m_llgCAT1_Signal2012ggM125", &m_llgCAT1, "m_llgCAT1/D");
+  m_llgChain->Branch("m_llgCAT2_Signal2012ggM125", &m_llgCAT2, "m_llgCAT2/D");
+  m_llgChain->Branch("m_llgCAT3_Signal2012ggM125", &m_llgCAT3, "m_llgCAT3/D");
+  m_llgChain->Branch("m_llgCAT4_Signal2012ggM125", &m_llgCAT4, "m_llgCAT4/D");
+  m_llgChain->Branch("unBinnedWeight_Signal2012ggM125", &unBinnedWeight, "unBinnedWeight/D");
+  m_llgChain->Branch("unBinnedLumiXS_Signal2012ggM125", &unBinnedLumiXS, "unBinnedLumiXS/D");
 
   //MVA Angles shit
 

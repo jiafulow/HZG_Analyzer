@@ -324,13 +324,13 @@ void higgsAnalyzerV2::Begin(TTree * tree)
   sampleChain->Branch("scaleFactor",&scaleFactor,"scaleFactor/F");
   trainingChain->Branch("scaleFactor",&scaleFactor,"scaleFactor/F");
 
-  m_llgChain->Branch("m_llg_SUFFIX", &m_llg, "m_llg/F");
-  m_llgChain->Branch("m_llgCAT1_SUFFIX", &m_llgCAT1, "m_llgCAT1/F");
-  m_llgChain->Branch("m_llgCAT2_SUFFIX", &m_llgCAT2, "m_llgCAT2/F");
-  m_llgChain->Branch("m_llgCAT3_SUFFIX", &m_llgCAT3, "m_llgCAT3/F");
-  m_llgChain->Branch("m_llgCAT4_SUFFIX", &m_llgCAT4, "m_llgCAT4/F");
-  m_llgChain->Branch("unBinnedWeight_SUFFIX", &unBinnedWeight, "unBinnedWeight/F");
-  m_llgChain->Branch("unBinnedLumiXS_SUFFIX", &unBinnedLumiXS, "unBinnedLumiXS/F");
+  m_llgChain->Branch("m_llg_SUFFIX", &m_llg, "m_llg/D");
+  m_llgChain->Branch("m_llgCAT1_SUFFIX", &m_llgCAT1, "m_llgCAT1/D");
+  m_llgChain->Branch("m_llgCAT2_SUFFIX", &m_llgCAT2, "m_llgCAT2/D");
+  m_llgChain->Branch("m_llgCAT3_SUFFIX", &m_llgCAT3, "m_llgCAT3/D");
+  m_llgChain->Branch("m_llgCAT4_SUFFIX", &m_llgCAT4, "m_llgCAT4/D");
+  m_llgChain->Branch("unBinnedWeight_SUFFIX", &unBinnedWeight, "unBinnedWeight/D");
+  m_llgChain->Branch("unBinnedLumiXS_SUFFIX", &unBinnedLumiXS, "unBinnedLumiXS/D");
 
   //MVA Angles shit
 
@@ -1480,7 +1480,7 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
   /////////////
   
   float MEdisc = MEDiscriminator(lepton1,lepton2,GP4);
-  if (MEdisc < 0.063) return kTRUE;
+  if (MEdisc < 0.02) return kTRUE;
   //cout<<"MEDisc:\t"<<MEdisc<<endl;
   hm->fill1DHist(24,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");
   hm->fill1DHist(24,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
