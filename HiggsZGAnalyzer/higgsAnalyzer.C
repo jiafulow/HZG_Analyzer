@@ -1,6 +1,6 @@
-#define higgsAnalyzerV2_cxx
+#define higgsAnalyzer_cxx
 
-#include "higgsAnalyzerV2.h"
+#include "higgsAnalyzer.h"
 
 using namespace std;
 
@@ -8,11 +8,11 @@ using namespace std;
 //Specify parameters here. //
 /////////////////////////////
 
-string  selection      = "mumuGamma";
-string  period         = "2012";
-int     JC_LVL         = 0;
-string  abcd           = "ABCD";
-string  suffix         = "Signal2012ggM125";
+static const string  selection      = "eeGamma";
+static const string  period         = "2012";
+static const int     JC_LVL         = 0;
+static const string  abcd           = "ABCD";
+static const string  suffix         = "Signal2012ggM125";
 
 
 /////////////////
@@ -24,45 +24,45 @@ string  suffix         = "Signal2012ggM125";
 //  metByQtCut[] = {-999.,999.}, bJetVeto = 9999, qtCut = 0., nJets[] = {0,999}, MassZG[] = {100.,180.}, SumEt = 99999., AngCut = 999,
 //  M12Cut = 999999999999999999999, drCut = 0.4, MZpMZGcut = 185, VBFdeltaEta = 3.5, VBFdeltaPhi = 2.4, diJetMassCut = 500, Zeppenfeld = 2.5, R9Cut = 0.94; 
 
-float jetPtCut[] = {30,30}, muPtCut[] = {20,10}, elePtCut[] = {20,10}, gammaPtCut[] = {15./110.,15.}, zMassCut[] = {50,99999.}, metCut[] = {-9999.,9999.},
+static const float jetPtCut[] = {30,30}, muPtCut[] = {20,10}, elePtCut[] = {20,10}, gammaPtCut[] = {15./110.,15.}, zMassCut[] = {50,99999.}, metCut[] = {-9999.,9999.},
   metByQtCut[] = {-999.,999.}, bJetVeto = 9999, qtCut = 0., nJets[] = {0,999}, MassZG[] = {100.,190.}, SumEt = 99999., AngCut = 999,
   M12Cut = 999999999999999999999, drCut = 0.4, MZpMZGcut = 185, VBFdeltaEta = 3.5, VBFdeltaPhi = 2.4, diJetMassCut = 500, Zeppenfeld = 2.5, R9Cut = 0.94; 
 
 
-bool    VBFcuts         = false;
+static const bool    VBFcuts         = false;
 
-bool    DYGammaVeto    = true;
-bool    customPhotoID  = false;
-bool    spikeVeto      = true;
+static const bool    DYGammaVeto    = true;
+static const bool    customPhotoID  = false;
+static const bool    spikeVeto      = true;
 
-bool    R9switch       = false;
+static const bool    R9switch       = false;
 
-bool    doEleMVA       = true;
+static const bool    doEleMVA       = true;
 
-bool    doLooseMuIso   = true;
+static const bool    doLooseMuIso   = true;
 
-bool    doAnglesMVA = false;
+static const bool    doAnglesMVA = false;
 
 ///// debugging dumps /////
-bool dumps = false;
-bool dataDumps = false;
-int EVENTNUMBER = -999;
+static const bool dumps = false;
+static const bool dataDumps = false;
+static const int EVENTNUMBER = -999;
 
 //// energy corrections ////
-bool engCor = true;
-bool doR9Cor = true;
-bool doEleReg  = true;
+static const bool engCor = true;
+static const bool doR9Cor = true;
+static const bool doEleReg  = true;
 
 //// Scale Factors ////
-bool doScaleFactors = true;
-bool doLumiXS= false;
+static const bool doScaleFactors = true;
+static const bool doLumiXS= false;
 
 ///////////////////////////
 //Resources for weighting//
 ///////////////////////////
 
 
-void higgsAnalyzerV2::Begin(TTree * tree)
+void higgsAnalyzer::Begin(TTree * tree)
 {
 
   for (int i =0; i<100; i++){
@@ -88,6 +88,7 @@ void higgsAnalyzerV2::Begin(TTree * tree)
   rEl             = new TRandom3(1234);
   rMuRun          = new TRandom3(187);
   phoCorrector    = new zgamma::PhosphorCorrectionFunctor("plugins/PHOSPHOR_NUMBERS_EXPFIT_ERRORS.txt", true);
+  Xcal2           = new TEvtProb();
 
   genHZG = {};
 
@@ -98,13 +99,13 @@ void higgsAnalyzerV2::Begin(TTree * tree)
   TH1::SetDefaultSumw2(kTRUE);
   TH2::SetDefaultSumw2(kTRUE);
 
-  histoFile = new TFile("higgsHistograms_ggM125_8TeV_pythia8_175_local.root", "RECREATE");
-  trainingFile = new TFile("higgsTraining_ggM125_8TeV_pythia8_175_local.root", "RECREATE");
-  sampleFile = new TFile("higgsSample_ggM125_8TeV_pythia8_175_local.root", "RECREATE");
-  higgsFile = new TFile("higgsFile_ggM125_8TeV_pythia8_175_local.root", "RECREATE");
-  eleSmearFile = new TFile("eleSmearFile_ggM125_8TeV_pythia8_175_local.root", "RECREATE");
-  eleIDISOFile = new TFile("eleIDISOFile_ggM125_8TeV_pythia8_175_local.root", "RECREATE");
-  m_llgFile = new TFile("m_llgFile_ggM125_8TeV_pythia8_175_local.root","RECREATE");
+  histoFile = new TFile("higgsHistograms_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root", "RECREATE");
+  trainingFile = new TFile("higgsTraining_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root", "RECREATE");
+  sampleFile = new TFile("higgsSample_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root", "RECREATE");
+  higgsFile = new TFile("higgsFile_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root", "RECREATE");
+  eleSmearFile = new TFile("eleSmearFile_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root", "RECREATE");
+  eleIDISOFile = new TFile("eleIDISOFile_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root", "RECREATE");
+  m_llgFile = new TFile("m_llgFile_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root","RECREATE");
 
   trainingFile->cd();
   trainingChain = new TTree("varMVA","hey everyone it's the training tree");
@@ -279,11 +280,11 @@ void higgsAnalyzerV2::Begin(TTree * tree)
       <<" "<<"pt/Mllg"
       <<endl<<endl;
 
-    finalDump.open("dumps/finalDump_mumuGamma_2012_Signal2012ggM125.txt");
+    finalDump.open("dumps/finalDump_eeGamma_2012_Signal2012ggM125.txt");
   }
 
   if (dataDumps && suffix == "DATA"){
-    dataDump.open("dataDump_ggM125_8TeV_pythia8_175_local.txt");
+    dataDump.open("dataDump_ggM125_8TeV_pythia8_175_v2_local.txt");
     if (!dataDump.good()) cout << "ERROR: can't open file for writing." << endl;
   }
 
@@ -358,7 +359,7 @@ void higgsAnalyzerV2::Begin(TTree * tree)
 
 
 
-Bool_t higgsAnalyzerV2::Process(Long64_t entry)
+Bool_t higgsAnalyzer::Process(Long64_t entry)
 {
 
   GetEntry(entry,1);
@@ -391,125 +392,6 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
   m_llg = m_llgCAT1 = m_llgCAT2 = m_llgCAT3 = m_llgCAT4 = -1;
   unBinnedWeight = unBinnedLumiXS = 1;
 
-  ///////////////////////////
-  // Electron Preselection //
-  ///////////////////////////
-
-  /*
-  if (selection == "eeGamma"){
-    if (recoElectrons->GetSize() < 2) return kTRUE;  
-
-    bool leadingEl = false;
-    int leadingPos = -1;
-    for (int i = 0; i <  recoElectrons->GetSize(); ++i) {
-      TCElectron* thisElec = (TCElectron*) recoElectrons->At(i);    
-      if (thisElec->Pt() > 20){
-        leadingEl = true;
-        leadingPos = i;
-        break;
-      }
-    }
-    if (!leadingEl) return kTRUE;
-
-    bool trailingEl = false;
-    for (int i = 0; i <  recoElectrons->GetSize(); ++i) {
-      TCElectron* thisElec = (TCElectron*) recoElectrons->At(i);    
-      if ((i != leadingPos) && (thisElec->Pt() > 10)){
-        trailingEl = true;
-        break;
-      }
-    }
-    if (!trailingEl) return kTRUE;
-  }
-*/
-
-  hm->fill1DHist(2,"h1_acceptanceByCut_Signal2012ggM125", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
-  hm->fill1DHist(2,"h1_acceptanceByCutRaw_Signal2012ggM125", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
-  if (!isRealData) hm->fill1DHist(nPUVerticesTrue,"h1_simVertexMultTrueUltraFine_Signal2012ggM125", "Multiplicity of simulated vertices true", 500, 0, 100,1,"Misc");
-  ++nEvents[1];
-
-
-
-  //////////////////
-  //Trigger status//
-  //////////////////
-
-  for(int i = 0; i < 64; ++i) {
-    unsigned long iHLT = 0x0; 
-    iHLT = 0x01 << i;  
-    if ((triggerStatus & iHLT) == iHLT) hm->fill1DHist(i+1,"h1_triggerStatus_Signal2012ggM125", "Triggers", 64, 0.5, 64.5,1,"Misc");  
-  } 
-
-  bool triggerPass   = triggerSelector->SelectTrigger(triggerStatus, hltPrescale);
-  //cout<<"triggerStatus: "<<triggerStatus<<" hltPrescale: "<<hltPrescale<<" triggerPass: "<<triggerPass<<endl;
-  //int  eventPrescale = triggerSelector->GetEventPrescale();
-  //cout<<eventPrescale<<endl;
-
-  /*
-  cout<<"new trig event"<<endl;
-  for (int i = 0; i <  triggerObjects->GetSize(); ++i) {
-    TCTriggerObject* thisTrigObj = (TCTriggerObject*) triggerObjects->At(i);    
-    cout<<" HLT: "<<thisTrigObj->GetHLTName()<<endl;
-    cout<<" module: "<<thisTrigObj->GetModuleName()<<endl;
-    cout<<" id: "<<thisTrigObj->GetId()<<endl;
-    thisTrigObj->Print();
-    cout<<endl;
-  }
-  */
-  //if (!triggerPass) return kTRUE;
-  hm->fill1DHist(3,"h1_acceptanceByCut_Signal2012ggM125", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
-  hm->fill1DHist(3,"h1_acceptanceByCutRaw_Signal2012ggM125", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
-  ++nEvents[2];
-
-
-
-
-  ////////////////////////////
-  //Check the event vertices//
-  ////////////////////////////
-
-
-  if (!isRealData) hm->fill1DHist(nPUVertices,"h1_simVertexMultStoyan_Signal2012ggM125", "Multiplicity of simulated vertices", 60, 0, 60, 1, "Misc");
-  if (!isRealData) hm->fill1DHist(nPUVertices,"h1_simVertexMultPoter_Signal2012ggM125", "Multiplicity of simulated vertices", 100, 0, 100, 1, "Misc");
-  if (!isRealData) hm->fill1DHist(nPUVertices,"h1_simVertexMult_Signal2012ggM125", "Multiplicity of simulated vertices", 50, -0.5, 49.5,1,"Misc");
-  if (!isRealData) hm->fill1DHist(nPUVerticesTrue,"h1_simVertexMultTrue_Signal2012ggM125", "Multiplicity of simulated vertices true", 50, -0.5, 49.5,1,"Misc");
-  if (!isRealData) hm->fill1DHist(nPUVerticesTrue,"h1_simVertexMultTrueFine_Signal2012ggM125", "Multiplicity of simulated vertices true", 200, 0, 100,1,"Misc");
-
-
-  vector<TVector3> goodVertices;
-  vector<TCPrimaryVtx> pvVect;
-  for (int i = 0; i < primaryVtx->GetSize(); ++i) {
-    TCPrimaryVtx* pVtx = (TCPrimaryVtx*) primaryVtx->At(i);
-    if (
-        !pVtx->IsFake() 
-        && pVtx->NDof() > 4.
-        && fabs(pVtx->z()) <= 24.
-        && fabs(pVtx->Perp()) <= 2.
-       )
-
-      goodVertices.push_back(*pVtx);
-
-  }
-  //if (goodVertices.size() < 1) return kTRUE;
-  hm->fill1DHist(4,"h1_acceptanceByCut_Signal2012ggM125", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
-  hm->fill1DHist(4,"h1_acceptanceByCutRaw_Signal2012ggM125", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
-  ++nEvents[3];
-
-  pvPosition = new TVector3();
-  *pvPosition = goodVertices[0];
-
-
-
-  //////////////////
-  // Data quality //
-  //////////////////
-
-  //if (isRealData && (isDeadEcalCluster || isScraping || isCSCTightHalo)) return kTRUE;
-  //if (isRealData && (isNoiseHcal || isDeadEcalCluster || isScraping || isCSCTightHalo)) return kTRUE;
-  hm->fill1DHist(5,"h1_acceptanceByCut_Signal2012ggM125", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
-  hm->fill1DHist(5,"h1_acceptanceByCutRaw_Signal2012ggM125", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
-  ++nEvents[4];
-
   ///////////////////
   // Gen Particles //
   ///////////////////
@@ -534,25 +416,27 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
 
 
     if(genHZG.lp && genHZG.lm && genHZG.g){
-      if (genHZG.lp->Pt() > genHZG.lm->Pt()){
-        StandardPlots(*genHZG.lp,*genHZG.lm,*genHZG.g,1,"PreGen", "PreGen");
-      }else{
-        StandardPlots(*genHZG.lm,*genHZG.lp,*genHZG.g,1,"PreGen", "PreGen");
+      if(genHZG.lp->Pt() > 8 && genHZG.lm->Pt() > 8){
+        if (genHZG.lp->Pt() > genHZG.lm->Pt()){
+          StandardPlots(*genHZG.lp,*genHZG.lm,*genHZG.g,1,"PreGen", "PreGen");
+        }else{
+          StandardPlots(*genHZG.lm,*genHZG.lp,*genHZG.g,1,"PreGen", "PreGen");
+        }
+        //genHZG.lp->Print();
+        //genHZG.lm->Print();
+        //genHZG.g->Print();
+        genLevelInputs.veczg = *genHZG.lp+*genHZG.lm+*genHZG.g;
+        //cout<<"higgsMass: "<<genLevelInputs.veczg.M()<<endl;
+        genLevelInputs.vecz = *genHZG.lp+*genHZG.lm; 
+        genLevelInputs.vecg = *genHZG.g;
+
+        genLevelInputs.veclp = *genHZG.lp;
+        genLevelInputs.veclm = *genHZG.lm;
+
+        getZGAngles(genLevelInputs,genLevelOutputs, false);
+        AnglePlots(genLevelOutputs,1);
+        //cout<<"costheta_lm: "<<genLevelOutputs.costheta_lm<<"\tcostheta_lp: "<<genLevelOutputs.costheta_lp<<"\tphi: "<<genLevelOutputs.phi<<"\tcosTheta: "<<genLevelOutputs.cosTheta<<"\tcosThetaG: "<<genLevelOutputs.cosThetaG<<endl;
       }
-      //genHZG.lp->Print();
-      //genHZG.lm->Print();
-      //genHZG.g->Print();
-      genLevelInputs.veczg = *genHZG.lp+*genHZG.lm+*genHZG.g;
-      //cout<<"higgsMass: "<<genLevelInputs.veczg.M()<<endl;
-      genLevelInputs.vecz = *genHZG.lp+*genHZG.lm; 
-      genLevelInputs.vecg = *genHZG.g;
-
-      genLevelInputs.veclp = *genHZG.lp;
-      genLevelInputs.veclm = *genHZG.lm;
-
-      getZGAngles(genLevelInputs,genLevelOutputs, false);
-      AnglePlots(genLevelOutputs,1);
-      //cout<<"costheta_lm: "<<genLevelOutputs.costheta_lm<<"\tcostheta_lp: "<<genLevelOutputs.costheta_lp<<"\tphi: "<<genLevelOutputs.phi<<"\tcosTheta: "<<genLevelOutputs.cosTheta<<"\tcosThetaG: "<<genLevelOutputs.cosThetaG<<endl;
     }
 
     //////////// DYJets Gamma Veto ////////////
@@ -650,20 +534,127 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
     }
   }
 
-
-
-
-
-
-  
+  ///////////////////////////
+  // Electron Preselection //
+  ///////////////////////////
 
   /*
-     cout<<endl;
-     genHs[0].P4().Print();
-     (genPhotons[0].P4()+genZs[0].P4()).Print();
-     cout<<genMuons.size()<<endl;
-     if(genMuons.size()>0) (genPhotons[0].P4()+genMuons[0].P4()+genMuons[1].P4()).Print();
-     */
+  if (selection == "eeGamma"){
+    if (recoElectrons->GetSize() < 2) return kTRUE;  
+
+    bool leadingEl = false;
+    int leadingPos = -1;
+    for (int i = 0; i <  recoElectrons->GetSize(); ++i) {
+      TCElectron* thisElec = (TCElectron*) recoElectrons->At(i);    
+      if (thisElec->Pt() > 20){
+        leadingEl = true;
+        leadingPos = i;
+        break;
+      }
+    }
+    if (!leadingEl) return kTRUE;
+
+    bool trailingEl = false;
+    for (int i = 0; i <  recoElectrons->GetSize(); ++i) {
+      TCElectron* thisElec = (TCElectron*) recoElectrons->At(i);    
+      if ((i != leadingPos) && (thisElec->Pt() > 10)){
+        trailingEl = true;
+        break;
+      }
+    }
+    if (!trailingEl) return kTRUE;
+  }
+*/
+
+  hm->fill1DHist(2,"h1_acceptanceByCut_Signal2012ggM125", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
+  hm->fill1DHist(2,"h1_acceptanceByCutRaw_Signal2012ggM125", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
+  if (!isRealData) hm->fill1DHist(nPUVerticesTrue,"h1_simVertexMultTrueUltraFine_Signal2012ggM125", "Multiplicity of simulated vertices true", 500, 0, 100,1,"Misc");
+  ++nEvents[1];
+
+
+
+  //////////////////
+  //Trigger status//
+  //////////////////
+
+  for(int i = 0; i < 64; ++i) {
+    unsigned long iHLT = 0x0; 
+    iHLT = 0x01 << i;  
+    if ((triggerStatus & iHLT) == iHLT) hm->fill1DHist(i+1,"h1_triggerStatus_Signal2012ggM125", "Triggers", 64, 0.5, 64.5,1,"Misc");  
+  } 
+
+  bool triggerPass   = triggerSelector->SelectTrigger(triggerStatus, hltPrescale);
+  //cout<<"triggerStatus: "<<triggerStatus<<" hltPrescale: "<<hltPrescale<<" triggerPass: "<<triggerPass<<endl;
+  //int  eventPrescale = triggerSelector->GetEventPrescale();
+  //cout<<eventPrescale<<endl;
+/*
+  cout<<"new trig event"<<endl;
+  for (int i = 0; i <  triggerObjects->GetSize(); ++i) {
+    TCTriggerObject* thisTrigObj = (TCTriggerObject*) triggerObjects->At(i);    
+    cout<<" HLT: "<<thisTrigObj->GetHLTName()<<endl;
+    cout<<" module: "<<thisTrigObj->GetModuleName()<<endl;
+    cout<<" id: "<<thisTrigObj->GetId()<<endl;
+    thisTrigObj->Print();
+    cout<<endl;
+  }
+*/
+  if (!triggerPass) return kTRUE;
+  hm->fill1DHist(3,"h1_acceptanceByCut_Signal2012ggM125", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
+  hm->fill1DHist(3,"h1_acceptanceByCutRaw_Signal2012ggM125", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
+  ++nEvents[2];
+
+
+
+
+  ////////////////////////////
+  //Check the event vertices//
+  ////////////////////////////
+
+
+  if (!isRealData) hm->fill1DHist(nPUVertices,"h1_simVertexMultStoyan_Signal2012ggM125", "Multiplicity of simulated vertices", 60, 0, 60, 1, "Misc");
+  if (!isRealData) hm->fill1DHist(nPUVertices,"h1_simVertexMultPoter_Signal2012ggM125", "Multiplicity of simulated vertices", 100, 0, 100, 1, "Misc");
+  if (!isRealData) hm->fill1DHist(nPUVertices,"h1_simVertexMult_Signal2012ggM125", "Multiplicity of simulated vertices", 50, -0.5, 49.5,1,"Misc");
+  if (!isRealData) hm->fill1DHist(nPUVerticesTrue,"h1_simVertexMultTrue_Signal2012ggM125", "Multiplicity of simulated vertices true", 50, -0.5, 49.5,1,"Misc");
+  if (!isRealData) hm->fill1DHist(nPUVerticesTrue,"h1_simVertexMultTrueFine_Signal2012ggM125", "Multiplicity of simulated vertices true", 200, 0, 100,1,"Misc");
+
+
+  vector<TVector3> goodVertices;
+  vector<TCPrimaryVtx> pvVect;
+  int nTracks = 0;
+  for (int i = 0; i < primaryVtx->GetSize(); ++i) {
+    TCPrimaryVtx* pVtx = (TCPrimaryVtx*) primaryVtx->At(i);
+    nTracks+=pVtx->Ntracks();
+    if (
+        !pVtx->IsFake() 
+        && pVtx->NDof() > 4.
+        && fabs(pVtx->z()) <= 24.
+        && fabs(pVtx->Perp()) <= 2.
+       )
+
+      goodVertices.push_back(*pVtx);
+
+  }
+  if (goodVertices.size() < 1) return kTRUE;
+  hm->fill1DHist(4,"h1_acceptanceByCut_Signal2012ggM125", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
+  hm->fill1DHist(4,"h1_acceptanceByCutRaw_Signal2012ggM125", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
+  ++nEvents[3];
+
+  pvPosition = new TVector3();
+  *pvPosition = goodVertices[0];
+
+
+
+  //////////////////
+  // Data quality //
+  //////////////////
+
+  //if (isRealData && (isDeadEcalCluster || isScraping || isCSCTightHalo)) return kTRUE;
+  //if (isRealData && (isNoiseHcal || isDeadEcalCluster || isScraping || isCSCTightHalo)) return kTRUE;
+  hm->fill1DHist(5,"h1_acceptanceByCut_Signal2012ggM125", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
+  hm->fill1DHist(5,"h1_acceptanceByCutRaw_Signal2012ggM125", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
+  ++nEvents[4];
+
+
   ///////////////
   // electrons //
   ///////////////
@@ -794,28 +785,6 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
     //for (int i = 0; i < pfMuons->GetSize(); ++ i)
   {
     TCMuon* thisMuon = (TCMuon*) recoMuons->At(i);    
-    /*
-    if(eventNumber==EVENTNUMBER){
-      float ptErrMuTmp = 1.0;
-      thisMuon->Print(); cout<<" charge: "<<thisMuon->Charge()<<endl;
-      tmpMuCor.SetXYZT(11.398083,-24.497328,38.084204,46.695322);
-      rmcor2012->momcor_mc(tmpMuCor,thisMuon->Charge(),0,0,ptErrMuTmp);
-      cout<<" cor val: "<<endl;
-      tmpMuCor.Print();
-
-    }
-    */
-
-
-    /*
-       thisMuon->LoadMap(*mapCuts);
-       map<string, float> muCut = thisMuon->MuonMap();
-       cout<<"new event muons"<<endl;
-       for( map<string,float>::iterator ii=muCut.begin(); ii!=muCut.end(); ++ii)
-       {                                                                                                        
-       cout << (*ii).first << ": " << (*ii).second << endl;                                                   
-       } 
-       */
 
     // Section for muon energy/momentum corrections.  NOTE: this will change the pt and thus ID/ISO of muon
 
@@ -982,6 +951,11 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
     sort(photonsIDIso.begin(), photonsIDIso.end(), P4SortCondition);
   }
 
+
+  //////////
+  // Jets //
+  //////////
+
   ////////////////////////
   // Analysis selection //
   ////////////////////////
@@ -1002,9 +976,9 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
   //float deltaPhiJetMET = 2*TMath::Pi();
   //if (jetP4.size() > 0) deltaPhiJetMET= DeltaPhiJetMET(metP4, jetP4, eventWeight);
 
-  TLorentzVector lepton1;
+  TCPhysObject   lepton1;
   int            lepton1int =-1;
-  TLorentzVector lepton2;
+  TCPhysObject   lepton2;
   int            lepton2int =-1;
   TLorentzVector uncorLepton1;
   TLorentzVector uncorLepton2;
@@ -1501,6 +1475,15 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
   hm->fill1DHist(23,"h1_acceptanceByCutRaw_Signal2012ggM125", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
   ++nEvents[22];
 
+  /////////////
+  // ME Disc //
+  /////////////
+  
+  float MEdisc = MEDiscriminator(lepton1,lepton2,GP4);
+  cout<<"MEDisc:\t"<<MEdisc<<endl;
+
+
+
   //////////////
   // Non-Cuts //
   //////////////
@@ -1881,9 +1864,11 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
   //////////////////////////////
 
 
-  hm->fill1DHist(primaryVtx->GetSize(),"h1_pvMultCopy_Signal2012ggM125", "Multiplicity of PVs", 50, 0.5, 50.5, eventWeight,"Vtx");
+  hm->fill1DHist(primaryVtx->GetSize(),"h1_pvMult_Signal2012ggM125", "Multiplicity of PVs; nVtx; Entries", 50, 0.5, 50.5, eventWeight,"Vtx");
+  hm->fillProfile(primaryVtx->GetSize(),nTracks,"h1_nTracks_Signal2012ggM125", "Average number of tracks per nVtx; nVtx; nTracks", 50, 0.5, 50.5, 1,"Vtx");
+  hm->fill1DHist(pvPosition->Z(),"h1_pvPosZ_Signal2012ggM125", "Z position of beamspot; Z(cm); Entries", 50, -25, 25, eventWeight,"Vtx");
   if (isRealData) {
-    hm->fillProfile(runNumber,primaryVtx->GetSize(),"p1_nVtcsCopy", "Average number of vertices per run; Run Number; nVertices", 8700.0, 135000.0, 144200.0, 0.0, 6.0, 1,"Vtx");
+    hm->fillProfile(runNumber,primaryVtx->GetSize(),"h1_nVtcs_Signal2012ggM125", "Average number of vertices per run; Run Number; nVertices", 8700.0, 135000.0, 144200.0, 0.0, 6.0, 1,"Vtx");
   }
 
   //////////////////////////////
@@ -1898,7 +1883,6 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
   //////////
 
   hm->fill1DHist(eventWeight,"h1_eventWeight_Signal2012ggM125", "event weight", 100, 0., 2.,1,"Misc");
-  hm->fill1DHist(primaryVtx->GetSize(),"h1_pvMult_Signal2012ggM125", "Multiplicity of PVs", 25, 0.5, 25.5, eventWeight,"Misc");
   if (!isRealData) hm->fill1DHist(ptHat,"h1_ptHat_Signal2012ggM125","ptHat",37, 15.0, 200.0, eventWeight,"Misc");
 
   if (isRealData) {
@@ -1918,7 +1902,7 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
    return kTRUE;
 }
 
-void higgsAnalyzerV2::Terminate()
+void higgsAnalyzer::Terminate()
 {
 
   TH1F* eventHisto = (TH1F*)histoFile->GetDirectory("Misc")->Get("h1_acceptanceByCut_Signal2012ggM125");
@@ -2002,7 +1986,7 @@ void higgsAnalyzerV2::Terminate()
 // User Defined Functions //
 ////////////////////////////
 
-void higgsAnalyzerV2::MetPlusZPlots(TLorentzVector metP4, TLorentzVector ZP4, float eventWeight)
+void higgsAnalyzer::MetPlusZPlots(TLorentzVector metP4, TLorentzVector ZP4, float eventWeight)
 {
 
   hm->fill1DHist(metP4.Pt()/ZP4.Pt(),"h1_MetOverQt_Signal2012ggM125", "MET/Q_{T,ll};MET/q_{T};N_{evts}", 45, 0., 9., eventWeight,"MET+Lepton");
@@ -2024,7 +2008,7 @@ void higgsAnalyzerV2::MetPlusZPlots(TLorentzVector metP4, TLorentzVector ZP4, fl
   }
 }
 
-void higgsAnalyzerV2::MetPlusLeptonPlots(TLorentzVector metP4, TLorentzVector p1, TLorentzVector p2, float eventWeight)
+void higgsAnalyzer::MetPlusLeptonPlots(TLorentzVector metP4, TLorentzVector p1, TLorentzVector p2, float eventWeight)
 {
   hm->fill1DHist(CalculateTransMassAlt(metP4, p1),"h1_MetLeadLeptonMT_Signal2012ggM125", "M_{T,l1};M_{T,l1};N_{evts}", 50, 0., 250., eventWeight,"MET+Lepton");
   hm->fill1DHist(CalculateTransMassAlt(metP4, p1),"h1_MetTrailingLeptonMT_Signal2012ggM125", "M_{T,l2};M_{T,l2};N_{evts}", 50, 0., 250., eventWeight,"MET+Lepton");
@@ -2033,7 +2017,7 @@ void higgsAnalyzerV2::MetPlusLeptonPlots(TLorentzVector metP4, TLorentzVector p1
   hm->fill1DHist(fabs(metP4.DeltaPhi(p2)),"h1_MetTrailingLeptonDeltaPhi_Signal2012ggM125", "#Delta#phi(l2, MET);#Delta#phi;N_{evts}", 36, 0., TMath::Pi(), eventWeight,"MET+Lepton");
 }
 
-void higgsAnalyzerV2::LeptonBasicPlots(TLorentzVector p1, TLorentzVector p2, float eventWeight)
+void higgsAnalyzer::LeptonBasicPlots(TLorentzVector p1, TLorentzVector p2, float eventWeight)
 {
   hm->fill1DHist(p1.Pt(),"h1_leadLeptonPt_Signal2012ggM125", "p_{T} leading lepton;p_{T};N_{evts}", 48, 10., 250., eventWeight,"Lepton");     
   hm->fill1DHist(p1.Eta(),"h1_leadLeptonEta_Signal2012ggM125", "#eta leading lepton;#eta;N_{evts}", 25, -2.5, 2.5, eventWeight,"Lepton");    
@@ -2051,7 +2035,7 @@ void higgsAnalyzerV2::LeptonBasicPlots(TLorentzVector p1, TLorentzVector p2, flo
   hm->fill1DHist(p2.DeltaR(p1),"h1_diLeptonDeltaR_Signal2012ggM125", "dilepton #Delta R;#Delta R;N_{evts}", 18, 0., 4.5, eventWeight,"Lepton");  
 }
 
-void higgsAnalyzerV2::StandardPlots(TLorentzVector p1, TLorentzVector p2, TLorentzVector gamma, float eventWeight,string tag, string folder)
+void higgsAnalyzer::StandardPlots(TLorentzVector p1, TLorentzVector p2, TLorentzVector gamma, float eventWeight,string tag, string folder)
 {
   TLorentzVector diLep = p1+p2;
   TLorentzVector threeBody = p1+p2+gamma;
@@ -2079,7 +2063,7 @@ void higgsAnalyzerV2::StandardPlots(TLorentzVector p1, TLorentzVector p2, TLoren
   hm->fill1DHist(threeBody.M(),"h1_threeBodyMass"+tag+"_Signal2012ggM125", "M_{3body};M (GeV);N_{evts}", 75, 50, 200, eventWeight,folder);    
 
 
-  hm->fill1DHist(primaryVtx->GetSize(),"h1_pvMult"+tag+"_Signal2012ggM125", "Multiplicity of PVs;N_{PV};N_{evts}", 25, 0.5, 25.5, eventWeight, folder);
+  hm->fill1DHist(primaryVtx->GetSize(),"h1_pvMultCopy"+tag+"_Signal2012ggM125", "Multiplicity of PVs;N_{PV};N_{evts}", 25, 0.5, 25.5, eventWeight, folder);
   for(int i = 0; i < 64; ++i) {
     unsigned long iHLT = 0x0; 
     iHLT = 0x01 << i;  
@@ -2087,22 +2071,23 @@ void higgsAnalyzerV2::StandardPlots(TLorentzVector p1, TLorentzVector p2, TLoren
   } 
 }
 
-void higgsAnalyzerV2::AnglePlots(ZGAngles &zga,float eventWeight)
+void higgsAnalyzer::AnglePlots(ZGAngles &zga,float eventWeight)
 {
   hm->fill1DHist(zga.costheta_lp,"h1_costhetaLP_Signal2012ggM125", "Cos(#theta) positive lepton;cos(#theta);N_{evts}", 50, -1., 1., eventWeight,"ZGAngles");     
   hm->fill1DHist(zga.costheta_lm,"h1_costhetaLM_Signal2012ggM125", "Cos(#theta) negative lepton;cos(#theta);N_{evts}", 50, -1., 1., eventWeight,"ZGAngles");     
   hm->fill1DHist(zga.phi,"h1_phi_Signal2012ggM125", "#phi positive lepton;#phi;N_{evts}", 50, -TMath::Pi(), TMath::Pi(), eventWeight,"ZGAngles");     
   hm->fill1DHist(zga.cosTheta,"h1_costhetaZG_Signal2012ggM125", "Cos(#Theta) ZG system;cos(#Theta);N_{evts}", 50, -1., 1., eventWeight,"ZGAngles");     
+  hm->fill1DHist(zga.costheta_lm+zga.costheta_lp,"h1_costhetaBoth_Signal2012ggM125", "Cos(#theta) of both lepton;cos(#theta);N_{evts}", 50, -1.1, 1.1, eventWeight,"ZGAngles");     
 }
 
-void higgsAnalyzerV2::DileptonBasicPlots(TLorentzVector ZP4, float eventWeight)
+void higgsAnalyzer::DileptonBasicPlots(TLorentzVector ZP4, float eventWeight)
 {
   hm->fill1DHist(ZP4.Mt(),"h1_diLeptonTransMass_Signal2012ggM125", "M_{T,ll};M_{T,ll};N_{evts}", 100, 55., 255., eventWeight,"Lepton");
   hm->fill1DHist(ZP4.M(),"h1_diLeptonMass_Signal2012ggM125", "M_{ll}; M_{ll};N_{evts}", 40, 70., 110., eventWeight,"Lepton");     
   hm->fill1DHist(ZP4.Pt(),"h1_diLeptonQt_Signal2012ggM125", "q_{T};Q_{T};N_{evts}", 50, 0., 500., eventWeight,"Lepton");       
 }
 
-void higgsAnalyzerV2::GenPlots(vector<TCGenParticle> Zs, vector<TCGenParticle> leps, vector<TCGenParticle> phots, vector<TCGenParticle> Hs, TLorentzVector ZP4, TLorentzVector GP4, float eventWeight)
+void higgsAnalyzer::GenPlots(vector<TCGenParticle> Zs, vector<TCGenParticle> leps, vector<TCGenParticle> phots, vector<TCGenParticle> Hs, TLorentzVector ZP4, TLorentzVector GP4, float eventWeight)
 {
   //cout<<"gen function has activated"<<endl;
   if (Zs.size()>0){
@@ -2220,7 +2205,7 @@ void higgsAnalyzerV2::GenPlots(vector<TCGenParticle> Zs, vector<TCGenParticle> l
 }
 
 
-float higgsAnalyzerV2::CalculateTransMass(TLorentzVector p1, TLorentzVector p2)
+float higgsAnalyzer::CalculateTransMass(TLorentzVector p1, TLorentzVector p2)
 {
   //float transE    = sqrt(p1.Pt()*p1.Pt() + pow(91.2,2)) + sqrt(p2.Pt()*p2.Pt() + pow(91.2,2)); //p2.M()*p2.M());
   float transE    = sqrt(p1.Pt()*p1.Pt() + p2.M()*p2.M()) + sqrt(p2.Pt()*p2.Pt() +p2.M()*p2.M());
@@ -2230,13 +2215,13 @@ float higgsAnalyzerV2::CalculateTransMass(TLorentzVector p1, TLorentzVector p2)
   return transMass;
 }
 
-float higgsAnalyzerV2::CalculateTransMassAlt(TLorentzVector p1, TLorentzVector p2)
+float higgsAnalyzer::CalculateTransMassAlt(TLorentzVector p1, TLorentzVector p2)
 {
   float transMass = sqrt(2*p2.Pt()*p1.Pt() * (1 - cos(fabs(p2.DeltaPhi(p1)))));
   return transMass;
 }
 
-bool higgsAnalyzerV2::CosmicMuonFilter(TCMuon muon1, TCMuon muon2)
+bool higgsAnalyzer::CosmicMuonFilter(TCMuon muon1, TCMuon muon2)
 {
   float dimuonAngle = muon1.Angle(muon2.Vect());
   if (fabs(TMath::Pi() - dimuonAngle)  < 0.05)
@@ -2246,7 +2231,7 @@ bool higgsAnalyzerV2::CosmicMuonFilter(TCMuon muon1, TCMuon muon2)
 }
 
 
-float higgsAnalyzerV2::Dz(TVector3 objVtx, TLorentzVector objP4, TVector3 vtx)
+float higgsAnalyzer::Dz(TVector3 objVtx, TLorentzVector objP4, TVector3 vtx)
 {
   float vx  = objVtx.x(), vy = objVtx.y(), vz = objVtx.z();
   float px  = objP4.Px(), py = objP4.Py();
@@ -2257,7 +2242,7 @@ float higgsAnalyzerV2::Dz(TVector3 objVtx, TLorentzVector objP4, TVector3 vtx)
   return dZ;
 }
 
-float higgsAnalyzerV2::Dxy(TVector3 objVtx, TLorentzVector objP4, TVector3 vtx)
+float higgsAnalyzer::Dxy(TVector3 objVtx, TLorentzVector objP4, TVector3 vtx)
 {
   float vx  = objVtx.x(), vy = objVtx.y();
   float px  = objP4.Px(), py = objP4.Py(), pt = objP4.Pt();
@@ -2267,7 +2252,7 @@ float higgsAnalyzerV2::Dxy(TVector3 objVtx, TLorentzVector objP4, TVector3 vtx)
   return dXY;
 }
 
-float higgsAnalyzerV2::GetPhotonMass()
+float higgsAnalyzer::GetPhotonMass()
 {
   float photonMass = 91.2;
   if (selection == "eGamma") {
@@ -2286,14 +2271,14 @@ float higgsAnalyzerV2::GetPhotonMass()
 //////////////////////////////
 
 
-float higgsAnalyzerV2::CalculateX2(TLorentzVector p1, TLorentzVector p2)
+float higgsAnalyzer::CalculateX2(TLorentzVector p1, TLorentzVector p2)
 {
   float Et = sqrt(p1.Pt()*p1.Pt() + p1.M()*p1.M()) + sqrt(p2.Pt()*p2.Pt() + p2.M()*p2.M()); //same points as above.
   float X2 = (Et/7000.)*(exp(-p1.Eta())+exp(-p2.Eta()));
   return X2;
 }
 
-float higgsAnalyzerV2::CalculateX1(TLorentzVector p1,TLorentzVector p2)
+float higgsAnalyzer::CalculateX1(TLorentzVector p1,TLorentzVector p2)
 {
   float Et = sqrt(p1.Pt()*p1.Pt() + p1.M()*p1.M() + sqrt(p2.Pt()*p2.Pt() + p2.M()*p2.M())); //uses p.M() in both cases - should i change this for the photon, also uses theoretical z mass.
   float X1 = (Et/7000.)*(exp(p1.Eta())+exp(p2.Eta()));
@@ -2301,14 +2286,14 @@ float higgsAnalyzerV2::CalculateX1(TLorentzVector p1,TLorentzVector p2)
 }
 
 
-float higgsAnalyzerV2::CalculateM12sqrd(TLorentzVector p1, TLorentzVector p2)
+float higgsAnalyzer::CalculateM12sqrd(TLorentzVector p1, TLorentzVector p2)
 {
   float Et1Et2 =p1.Pt()*p2.Pt();
   float M12sqrd = 2*Et1Et2*(cosh(p1.Eta()-p2.Eta())-cos(p1.DeltaPhi(p2)));
   return M12sqrd;
 }
 
-float higgsAnalyzerV2::Zeppenfeld(TLorentzVector p, TLorentzVector pj1, TLorentzVector pj2)
+float higgsAnalyzer::Zeppenfeld(TLorentzVector p, TLorentzVector pj1, TLorentzVector pj2)
 {
   float zep = p.Eta()-(pj1.Eta()+pj2.Eta())/2.;
   return zep;
@@ -2320,7 +2305,7 @@ float higgsAnalyzerV2::Zeppenfeld(TLorentzVector p, TLorentzVector pj1, TLorentz
 //////////////////////////////////
 
 
-bool higgsAnalyzerV2::PassMuonID(TCMuon *mu, muIDCuts cutLevel){
+bool higgsAnalyzer::PassMuonID(TCMuon *mu, muIDCuts cutLevel){
 
   bool muPass = false;
 
@@ -2353,7 +2338,7 @@ bool higgsAnalyzerV2::PassMuonID(TCMuon *mu, muIDCuts cutLevel){
   return muPass;
 }
 
-bool higgsAnalyzerV2::PassMuonIso(TCMuon *mu, muIsoCuts cutLevel){
+bool higgsAnalyzer::PassMuonIso(TCMuon *mu, muIsoCuts cutLevel){
 
   float combIso;
 
@@ -2366,7 +2351,7 @@ bool higgsAnalyzerV2::PassMuonIso(TCMuon *mu, muIsoCuts cutLevel){
 }
 
 
-bool higgsAnalyzerV2::PassElectronID(TCElectron *el, elIDCuts cutLevel)
+bool higgsAnalyzer::PassElectronID(TCElectron *el, elIDCuts cutLevel)
 {
   bool elPass = false;
   if (fabs(el->SCEta()) > 2.5) return elPass;
@@ -2411,7 +2396,7 @@ bool higgsAnalyzerV2::PassElectronID(TCElectron *el, elIDCuts cutLevel)
        return elPass;
 }
 
-bool higgsAnalyzerV2::PassElectronIso(TCElectron *el, elIsoCuts cutLevel){
+bool higgsAnalyzer::PassElectronIso(TCElectron *el, elIsoCuts cutLevel){
   float thisEA = 0;
   if (fabs(el->Eta())     <  1.0) thisEA = EAEle[0];
   else if (fabs(el->Eta())     <  1.5) thisEA = EAEle[1];
@@ -2428,7 +2413,7 @@ bool higgsAnalyzerV2::PassElectronIso(TCElectron *el, elIsoCuts cutLevel){
   return isoPass;
 }
 
-bool higgsAnalyzerV2::PassPhotonID(TCPhoton *ph, phIDCuts cutLevel){
+bool higgsAnalyzer::PassPhotonID(TCPhoton *ph, phIDCuts cutLevel){
   float tmpEta;
   bool phoPass = false;
   tmpEta = ph->SCEta();
@@ -2449,7 +2434,7 @@ bool higgsAnalyzerV2::PassPhotonID(TCPhoton *ph, phIDCuts cutLevel){
   return phoPass;
 }
 
-bool higgsAnalyzerV2::PassPhotonIso(TCPhoton *ph, phIsoCuts cutLevel){
+bool higgsAnalyzer::PassPhotonIso(TCPhoton *ph, phIsoCuts cutLevel){
   float chEA,nhEA,phEA,chIsoCor,nhIsoCor,phIsoCor,tmpEta;
   bool isoPass = false;
   tmpEta = ph->SCEta();
@@ -2528,7 +2513,7 @@ bool higgsAnalyzerV2::PassPhotonIso(TCPhoton *ph, phIsoCuts cutLevel){
 //////////////////////////////
 
 
-void higgsAnalyzerV2::ElectronDump(TCElectron *el, elIDCuts cutLevelID, elIsoCuts cutLevelIso, ofstream & dump)
+void higgsAnalyzer::ElectronDump(TCElectron *el, elIDCuts cutLevelID, elIsoCuts cutLevelIso, ofstream & dump)
 {
   float thisEA = 0;
   if (fabs(el->Eta())     <  1.0) thisEA = EAEle[0];
@@ -2555,7 +2540,7 @@ void higgsAnalyzerV2::ElectronDump(TCElectron *el, elIDCuts cutLevelID, elIsoCut
        << endl;
 }
 
-void higgsAnalyzerV2::MuonDump(TCMuon *mu, muIDCuts cutLevelID, muIsoCuts cutLevelIso, ofstream & dump)
+void higgsAnalyzer::MuonDump(TCMuon *mu, muIDCuts cutLevelID, muIsoCuts cutLevelIso, ofstream & dump)
 {
   float thisEA = 0;
   if (fabs(mu->Eta())     <  1.0) thisEA = EAMu[0];
@@ -2582,7 +2567,7 @@ void higgsAnalyzerV2::MuonDump(TCMuon *mu, muIDCuts cutLevelID, muIsoCuts cutLev
        << endl;
 }
 
-void higgsAnalyzerV2::PhotonDump(TCPhoton *ph, phIDCuts cutLevelID, phIsoCuts cutLevelIso, ofstream & dump)
+void higgsAnalyzer::PhotonDump(TCPhoton *ph, phIDCuts cutLevelID, phIsoCuts cutLevelIso, ofstream & dump)
 {
   float chEA,nhEA,phEA,tmpEta;
   tmpEta = ph->SCEta();
@@ -2629,7 +2614,7 @@ void higgsAnalyzerV2::PhotonDump(TCPhoton *ph, phIDCuts cutLevelID, phIsoCuts cu
        << endl;
 }
 
-void higgsAnalyzerV2::PhotonDump2(TCPhoton *ph, phIDCuts cutLevelID, phIsoCuts cutLevelIso, TLorentzVector lepton1, TLorentzVector lepton2, ofstream & dump)
+void higgsAnalyzer::PhotonDump2(TCPhoton *ph, phIDCuts cutLevelID, phIsoCuts cutLevelIso, TLorentzVector lepton1, TLorentzVector lepton2, ofstream & dump)
 {
   float chEA,nhEA,phEA,tmpEta;
   tmpEta = ph->SCEta();
@@ -2681,7 +2666,7 @@ void higgsAnalyzerV2::PhotonDump2(TCPhoton *ph, phIDCuts cutLevelID, phIsoCuts c
        << " "       << scaledPt              << endl;
 }
 
-void higgsAnalyzerV2::DataDumper(TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* gamma, float R9input, float SCEta, ofstream & dump, float eta1, float eta2){
+void higgsAnalyzer::DataDumper(TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* gamma, float R9input, float SCEta, ofstream & dump, float eta1, float eta2){
   int cat = -1;
   bool goodLep = false;
   if (selection == "mumuGamma"){
@@ -2708,7 +2693,7 @@ void higgsAnalyzerV2::DataDumper(TLorentzVector* lepton1, TLorentzVector* lepton
 
 }
 
-void higgsAnalyzerV2::DataDumper(TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* gamma, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* uncorGamma, float R9input, float SCEta, ofstream & dump, float eta1, float eta2){
+void higgsAnalyzer::DataDumper(TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* gamma, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* uncorGamma, float R9input, float SCEta, ofstream & dump, float eta1, float eta2){
   int cat = -1;
   bool goodLep = false;
   if (selection == "mumuGamma"){
@@ -2740,7 +2725,7 @@ void higgsAnalyzerV2::DataDumper(TLorentzVector* lepton1, TLorentzVector* lepton
        << " r9: "      << setw(10) << R9input       << endl;
 }
 
-void higgsAnalyzerV2::FinalDumper(TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* gamma, int catNum, ofstream & dump){
+void higgsAnalyzer::FinalDumper(TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* gamma, int catNum, ofstream & dump){
   float mll = (*lepton1 + *lepton2).M();
   float mllg = (*lepton1 + *lepton2 + *gamma).M();
 
@@ -2755,7 +2740,7 @@ void higgsAnalyzerV2::FinalDumper(TLorentzVector* lepton1, TLorentzVector* lepto
   }
 }
 
-void higgsAnalyzerV2::MVADumper(TCElectron* ele, EGammaMvaEleEstimator* mvaMaker, double rhoFactor, ofstream & dump){
+void higgsAnalyzer::MVADumper(TCElectron* ele, EGammaMvaEleEstimator* mvaMaker, double rhoFactor, ofstream & dump){
   bool passPreSel = false;
   bool passMVA = false;
   if (ele->IdMap("preSelPassV1")) passPreSel = true;			
@@ -2814,7 +2799,7 @@ dump << " run: "                   << setw(7)  << runNumber                     
      << endl;
 }
 
-bool higgsAnalyzerV2::FindGoodZElectron(vector<TCElectron> electronList, TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* ZP4,float* eta1, float* eta2, int* int1, int* int2){
+bool higgsAnalyzer::FindGoodZElectron(vector<TCElectron> electronList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* ZP4,float* eta1, float* eta2, int* int1, int* int2){
   TLorentzVector tmpZ;
   bool goodZ = false;
   float ZmassDiff=99999;
@@ -2841,7 +2826,7 @@ bool higgsAnalyzerV2::FindGoodZElectron(vector<TCElectron> electronList, TLorent
   return goodZ;
 }
           
-bool higgsAnalyzerV2::FindGoodZElectron(vector<TCElectron> electronList, vector<TCElectron> uncorElectronList, TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* ZP4, float* eta1, float* eta2, int* int1, int* int2){
+bool higgsAnalyzer::FindGoodZElectron(vector<TCElectron> electronList, vector<TCElectron> uncorElectronList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* ZP4, float* eta1, float* eta2, int* int1, int* int2){
   TLorentzVector tmpZ;
   bool goodZ = false;
   float ZmassDiff=99999;
@@ -2907,7 +2892,7 @@ bool higgsAnalyzerV2::FindGoodZElectron(vector<TCElectron> electronList, vector<
   return goodZ;
 }
           
-bool higgsAnalyzerV2::FindGoodZMuon(vector<TCMuon> muonList, TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* ZP4, int* int1, int* int2){
+bool higgsAnalyzer::FindGoodZMuon(vector<TCMuon> muonList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* ZP4, int* int1, int* int2){
   TLorentzVector tmpZ;
   bool goodZ = false;
   float ZmassDiff=99999;
@@ -2932,7 +2917,7 @@ bool higgsAnalyzerV2::FindGoodZMuon(vector<TCMuon> muonList, TLorentzVector* lep
   return goodZ;
 }
 
-bool higgsAnalyzerV2::FindGoodZMuon(vector<TCMuon> muonList, vector<TCMuon> uncorMuonList, TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* ZP4, int* int1, int* int2){
+bool higgsAnalyzer::FindGoodZMuon(vector<TCMuon> muonList, vector<TCMuon> uncorMuonList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* ZP4, int* int1, int* int2){
   TLorentzVector tmpZ;
   bool goodZ = false;
   float ZmassDiff=99999;
@@ -2960,7 +2945,7 @@ bool higgsAnalyzerV2::FindGoodZMuon(vector<TCMuon> muonList, vector<TCMuon> unco
 }
 
 
-void higgsAnalyzerV2::LumiXSWeight(float * LumiXSWeight){
+void higgsAnalyzer::LumiXSWeight(float * LumiXSWeight){
   if (!isRealData){
     if(period.find("2011") != string::npos){
 
@@ -3016,7 +3001,8 @@ void higgsAnalyzerV2::LumiXSWeight(float * LumiXSWeight){
 
       if(suffix.find("gg") != string::npos){
         if(suffix.find("120")!=string::npos) *LumiXSWeight = 99992/(21.13*0.00111*0.10098*1000);
-        if(suffix.find("125")!=string::npos) *LumiXSWeight = 99991/(19.52*0.00154*0.100974*1000);
+        //if(suffix.find("125")!=string::npos) *LumiXSWeight = 99991/(19.52*0.00154*0.100974*1000);
+        if(suffix.find("125")!=string::npos) *LumiXSWeight = 100000/(19.52*0.00154*0.100974*1000);
         if(suffix.find("130")!=string::npos) *LumiXSWeight = 99991/(18.07*0.00195*0.10098*1000);
         if(suffix.find("135")!=string::npos) *LumiXSWeight = 99996/(16.79*0.00227*0.10098*1000);
         if(suffix.find("140")!=string::npos) *LumiXSWeight = 96994/(15.63*0.00246*0.10098*1000);
@@ -3074,7 +3060,7 @@ void higgsAnalyzerV2::LumiXSWeight(float * LumiXSWeight){
   }
 }
 
-TMVA::Reader* higgsAnalyzerV2::MVAInitializer(mvaVarStruct vars, mvaInitStruct inits){
+TMVA::Reader* higgsAnalyzer::MVAInitializer(mvaVarStruct vars, mvaInitStruct inits){
   // -----------------  MVA stuff -----------------------------------------------------------
   tmvaReader = new TMVA::Reader("!Color:!Silent");
 
@@ -3113,7 +3099,7 @@ TMVA::Reader* higgsAnalyzerV2::MVAInitializer(mvaVarStruct vars, mvaInitStruct i
   // ------------------ End of MVA stuff --------------------------------------------------------------------------
 }
 
-void higgsAnalyzerV2::MVACalulator (mvaVarStruct vars, mvaInitStruct inits, TMVA::Reader* tmvaReader){
+void higgsAnalyzer::MVACalulator (mvaVarStruct vars, mvaInitStruct inits, TMVA::Reader* tmvaReader){
 
   // -------------------------- MVA stuff -------------------------------------------
   // the sequence of cuts is a bit different for the pre-selection
@@ -3198,7 +3184,7 @@ void higgsAnalyzerV2::MVACalulator (mvaVarStruct vars, mvaInitStruct inits, TMVA
 }
 
 
-void  higgsAnalyzerV2::FindGenParticles(TClonesArray *genParticles, string selection, vector<TCGenParticle>& vetoPhotons, genHZGParticles& _genHZG){
+void  higgsAnalyzer::FindGenParticles(TClonesArray *genParticles, string selection, vector<TCGenParticle>& vetoPhotons, genHZGParticles& _genHZG){
   vector<TCGenParticle> genElectrons;
   vector<TCGenParticle> genMuons;
   vector<TCGenParticle> genZs;
@@ -3278,7 +3264,7 @@ void  higgsAnalyzerV2::FindGenParticles(TClonesArray *genParticles, string selec
   return;
 }
 
-void higgsAnalyzerV2::CleanUpGen(genHZGParticles& _genHZG){
+void higgsAnalyzer::CleanUpGen(genHZGParticles& _genHZG){
   if (_genHZG.lp) delete _genHZG.lp;
   if (_genHZG.lm) delete _genHZG.lm;
   if (_genHZG.g) delete _genHZG.g;
@@ -3286,3 +3272,83 @@ void higgsAnalyzerV2::CleanUpGen(genHZGParticles& _genHZG){
   if (_genHZG.z) delete _genHZG.z;
   if (_genHZG.h) delete _genHZG.h;
 }
+
+float higgsAnalyzer::MEDiscriminator(TCPhysObject lepton1, TCPhysObject lepton2, TLorentzVector gamma){
+  //modified from kevin kelly
+
+  hzgamma_event_type hzgamma_event;
+
+  float dXsec_ZGam_MCFM = 0.;
+  float dXsec_HZGam_MCFM = 0.;
+  float Discriminant = 0.;
+  float PreBoostMass = 0.;
+  float logBkg(0.), logSig(0.);
+  
+  auto_ptr<TLorentzVector> pl1(new TLorentzVector(lepton1));
+  auto_ptr<TLorentzVector> pl2(new TLorentzVector(lepton2));
+  auto_ptr<TLorentzVector> pg(new TLorentzVector(gamma));
+  TLorentzVector psum = *pl1 + *pl2 + *pg;
+
+  TVector3 bv = -psum.BoostVector();
+  pl1->Boost(bv); pl2->Boost(bv); pg->Boost(bv);
+
+  if (lepton1.Charge() == -1){
+    hzgamma_event.p[0].SetPxPyPzE(pl1->Px(), pl1->Py(), pl1->Pz(), pl1->Energy());
+    hzgamma_event.p[1].SetPxPyPzE(pl2->Px(), pl2->Py(), pl2->Pz(), pl2->Energy());
+    hzgamma_event.p[2].SetPxPyPzE(pg->Px(), pg->Py(), pg->Pz(), pg->Energy());
+  }else{
+    hzgamma_event.p[1].SetPxPyPzE(pl1->Px(), pl1->Py(), pl1->Pz(), pl1->Energy());
+    hzgamma_event.p[0].SetPxPyPzE(pl2->Px(), pl2->Py(), pl2->Pz(), pl2->Energy());
+    hzgamma_event.p[2].SetPxPyPzE(pg->Px(), pg->Py(), pg->Pz(), pg->Energy());
+  }
+
+  if (selection == "mumuGamma"){
+    hzgamma_event.PdgCode[0] = 13;
+    hzgamma_event.PdgCode[1] = -13;
+    hzgamma_event.PdgCode[2] = 22;
+  }else{
+    hzgamma_event.PdgCode[0] = 11;
+    hzgamma_event.PdgCode[1] = -11;
+    hzgamma_event.PdgCode[2] = 22;
+  }
+
+  float zmass = (hzgamma_event.p[0]+hzgamma_event.p[1]).M();
+  float gammass = (hzgamma_event.p[2]).M();
+  float zgammass = (hzgamma_event.p[0]+hzgamma_event.p[1]+hzgamma_event.p[2]).M();
+
+  Xcal2->SetHiggsMass(zgammass);
+  Xcal2->SetMatrixElement(TVar::MCFM);
+
+  // hacky bullshit to prevent XsecCalc from blowing up stdout
+  fpos_t pos;
+  fflush(stdout);
+  fgetpos(stdout, &pos);
+  int fd = dup(fileno(stdout));
+  char fname[] = "garbage.txt";
+  freopen(fname, "a+", stdout);   
+  printf("inside file op");  
+
+  dXsec_ZGam_MCFM = Xcal2->XsecCalc(TVar::qqb_zgam, TVar::QQB, hzgamma_event,false);
+  dXsec_HZGam_MCFM = Xcal2->XsecCalc(TVar::gg_hzgam, TVar::GG, hzgamma_event,false);
+
+  fflush(stdout);
+  dup2(fd,fileno(stdout));
+  close(fd);
+  clearerr(stdout);
+  fsetpos(stdout, &pos);
+  // hacky bullshit end 
+
+  logBkg = -log10(dXsec_ZGam_MCFM);
+  logSig = -log10(dXsec_HZGam_MCFM);
+  Discriminant = -log(dXsec_ZGam_MCFM/(dXsec_ZGam_MCFM+dXsec_HZGam_MCFM));
+
+  return Discriminant;
+
+}
+
+
+
+
+
+
+

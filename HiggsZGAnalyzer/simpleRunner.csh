@@ -1,8 +1,8 @@
 #!/bin/csh
 
-cp simple_Template.C simple_v2.C
+cp simple_Template.C simple.C
 
-sed -i "s/SUFFIX/$1/g" simple_v2.C
+sed -i "s/SUFFIX/$1/g" simple.C
 
 cat > run.C << +EOF
     
@@ -16,20 +16,21 @@ cat > run.C << +EOF
 
 	void run() {
 
-     gROOT->LoadMacro("../src/TCPhysObject.cc+");
-     gROOT->LoadMacro("../src/TCJet.cc+");
-     gROOT->LoadMacro("../src/TCMET.cc+");
-     gROOT->LoadMacro("../src/TCElectron.cc+");
-     gROOT->LoadMacro("../src/TCMuon.cc+");
-     gROOT->LoadMacro("../src/TCTau.cc+");
-     gROOT->LoadMacro("../src/TCPhoton.cc+");
-     gROOT->LoadMacro("../src/TCGenJet.cc+");
-     gROOT->LoadMacro("../src/TCGenParticle.cc+");
-     gROOT->LoadMacro("../src/TCPrimaryVtx.cc+");
-     gROOT->LoadMacro("../src/TCTriggerObject.cc+");
+  gROOT->SetMacroPath(".:../src/:../interface/:../plugins/");
+  gROOT->LoadMacro("TCPhysObject.cc+");
+     gROOT->LoadMacro("TCJet.cc+");
+     gROOT->LoadMacro("TCMET.cc+");
+     gROOT->LoadMacro("TCElectron.cc+");
+     gROOT->LoadMacro("TCMuon.cc+");
+     gROOT->LoadMacro("TCTau.cc+");
+     gROOT->LoadMacro("TCPhoton.cc+");
+     gROOT->LoadMacro("TCGenJet.cc+");
+     gROOT->LoadMacro("TCGenParticle.cc+");
+     gROOT->LoadMacro("TCPrimaryVtx.cc+");
+     gROOT->LoadMacro("TCTriggerObject.cc+");
 
-     gROOT->LoadMacro("plugins/HistManager.cc+");
-     gROOT->LoadMacro("plugins/ZGAngles.cc+");
+     gROOT->LoadMacro("HistManager.cc+");
+     gROOT->LoadMacro("ZGAngles.cc+");
 
 	  TChain* fChain = new TChain("ntupleProducer/eventTree");
 
@@ -48,7 +49,7 @@ cat > run.C << +EOF
 	  TStopwatch timer;
 	  timer.Start();
 
-	  fChain->Process("simple_v2.C+");
+	  fChain->Process("simple.C+");
 
 	  cout << "\n\nDone!" << endl;
 	  cout << "CPU Time : " << timer.CpuTime() << endl;
@@ -61,4 +62,4 @@ cat > run.C << +EOF
 root -l -b -q run.C
 
 rm run.C
-rm simple_v2.C
+rm simple.C

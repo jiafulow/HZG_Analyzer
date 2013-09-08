@@ -1,6 +1,7 @@
 #ifndef higgsAnalyzer_h
 #define higgsAnalyzer_h
 
+#include <memory>
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
@@ -12,6 +13,7 @@
 #include <algorithm>
 #include <set>
 #include <map>
+#include <unistd.h>
 
 #include <TROOT.h>
 #include <TChain.h>
@@ -30,6 +32,9 @@
 #include "TProfile.h"
 #include "TRandom3.h"
 #include "TMath.h"
+#include "TMVA/Tools.h"
+#include "TMVA/Reader.h"
+#include "TMVA/MethodCuts.h"
 
 #include "../src/TCJet.h"
 #include "../src/TCMET.h"
@@ -47,12 +52,13 @@
 #include "plugins/WeightUtils.h"
 #include "plugins/ElectronFunctions.h"
 #include "plugins/rochcor_2011.h"
-//#include "plugins/rochcor2012.h"
 #include "plugins/rochcor2012v2.h"
 #include "plugins/PhosphorCorrectorFunctor.hh"
 #include "plugins/LeptonScaleCorrections.h"
 #include "plugins/EGammaMvaEleEstimator.cc"
 #include "plugins/ZGAngles.h"
+#include "./hzgammaME/TVar.hh"
+#include "./hzgammaME/TEvtProb.cc"
 
 #ifdef __MAKECINT__
 #pragma link C++ class vector<string>+;
@@ -123,6 +129,11 @@ class higgsAnalyzer : public TSelector {
     EGammaMvaEleEstimator* myMVATrig;
 
     TMVA::Reader             *myTMVAReader;
+
+    //ZGAngles MVA shit
+
+
+    TEvtProb* Xcal2;
 
   public :
     TTree          *fChain;   //!pointer to the analyzed TTree or TChain
@@ -222,6 +233,9 @@ class higgsAnalyzer : public TSelector {
 		virtual void    SlaveTerminate() {};
 		virtual void    Terminate();
 
+    static bool P4SortCondition(const TLorentzVector& p1, const TLorentzVector& p2) {return (p1.Pt() > p2.Pt());} 
+    static bool VertexSortCondition(const TCPrimaryVtx& pv1, const TCPrimaryVtx& pv2) {return (pv1.SumPt2Trks() > pv2.SumPt2Trks());}
+
     virtual float   Dz(TVector3 objVtx, TLorentzVector objP4, TVector3 vtx);
     virtual float   Dxy(TVector3 objVtx, TLorentzVector objP4, TVector3 vtx);
 		virtual void    MetPlusZPlots(TLorentzVector metP4, TLorentzVector ZP4, float evtWeight);
@@ -241,11 +255,28 @@ class higgsAnalyzer : public TSelector {
     virtual float          CalculateX2(TLorentzVector p1, TLorentzVector p2);
     virtual float          Zeppenfeld(TLorentzVector p, TLorentzVector pj1, TLorentzVector pj2);
 
-    virtual bool           FindGoodZElectron(vector<TCElectron> electronList, TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* ZP4, float* eta1, float* eta2, int* int1, int* int2); 
-    virtual bool           FindGoodZMuon(vector<TCMuon> muonList, TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* ZP4, int* int1, int* int2 ); 
-    virtual bool           FindGoodZElectron(vector<TCElectron> electronList, vector<TCElectron> uncorElectronList, TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* ZP4, float* eta1, float* eta2, int* int1, int* int2); 
-    virtual bool           FindGoodZMuon(vector<TCMuon> muonList, vector<TCMuon> uncorMuonList, TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* ZP4, int* int1, int* int2); 
+    virtual bool           FindGoodZElectron(vector<TCElectron> electronList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* ZP4, float* eta1, float* eta2, int* int1, int* int2); 
+    virtual bool           FindGoodZMuon(vector<TCMuon> muonList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* ZP4, int* int1, int* int2 ); 
+    virtual bool           FindGoodZElectron(vector<TCElectron> electronList, vector<TCElectron> uncorElectronList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* ZP4, float* eta1, float* eta2, int* int1, int* int2); 
+    virtual bool           FindGoodZMuon(vector<TCMuon> muonList, vector<TCMuon> uncorMuonList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* ZP4, int* int1, int* int2); 
 
+    virtual float          MEDiscriminator(TCPhysObject lepton1, TCPhysObject lepton2, TLorentzVector gamma);
+
+    /////////////////////
+    // Gen Level Stuff //
+    /////////////////////
+
+    struct genHZGParticles{
+      TCGenParticle* h;
+      TCGenParticle* z;
+      TCGenParticle* w;
+      TCGenParticle* g;
+      TCGenParticle* lp;
+      TCGenParticle* lm;
+    }genHZG;
+
+    void FindGenParticles(TClonesArray* genParticles, string selection, vector<TCGenParticle>& vetoPhotons, genHZGParticles& _genHZG);
+    void CleanUpGen(genHZGParticles& _genHZG);
 
     //////////////////////
     // Cut and Iso Defs //
@@ -339,7 +370,55 @@ class higgsAnalyzer : public TSelector {
     virtual void  FinalDumper(TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* gamma, int catNum, ofstream & dump);
 
 
-		ClassDef(higgsAnalyzer,0);
+    ///////////////////////
+    // ZGAngles MVA defs //
+    ///////////////////////
+
+    // TMVA weights directory
+
+#define N_DISCR_METHODS 3
+#define N_HIGGS_MASSES 1
+
+    // here we will use only BDTG... but will keep the structure 
+    enum DISCR_METHOD {
+      MLPBNN, BDTG, BDT
+    };
+
+    enum DISCR_TYPE {
+      D_ZJets
+    };
+
+
+    TMVA::Reader* tmvaReader;
+
+    struct mvaInitStruct{
+      TString weightsDir; 
+      TString discrMethodName[3];
+      TString discrSampleName; 
+      Int_t mvaHiggsMassPoint[N_HIGGS_MASSES];
+      Float_t bdtCut[N_HIGGS_MASSES];
+    } mvaInits;
+
+    struct mvaVarStruct{
+      Float_t _diffZGvector;
+      Float_t _threeBodyPt;
+      Float_t _GPt;
+      Float_t _cosZ;
+      Float_t _diffPlaneMVA;
+      Float_t _vtxVariable;
+      Float_t _threeBodyMass;
+      Float_t _dr1;
+      Float_t _dr2;
+      Float_t _M12;
+    } mvaVars; 
+
+    virtual TMVA::Reader*   MVAInitializer(mvaVarStruct vars, mvaInitStruct inits);
+    virtual void MVACalulator (mvaVarStruct vars, mvaInitStruct inits, TMVA::Reader* tmvaReader);
+
+
+
+
+    ClassDef(higgsAnalyzer,0);
 };
 
 #endif
@@ -518,6 +597,26 @@ void higgsAnalyzer::Init(TTree *tree)
   mediumPhIso.chIso03[1] =                 1.2;
   mediumPhIso.nhIso03[1] =                 1.5;
   mediumPhIso.phIso03[1] =                 1.0;
+
+
+  ///////////////////////
+  // ZGAngles MVA init //
+  ///////////////////////
+
+  // TMVA weights directory
+  mvaInits.weightsDir = "/uscms_data/d2/bpollack/CMSSW_4_4_2/src/MVACodes/mvaExamples_brian/weights/";
+
+  // here we will use only BDTG... but will keep the structure 
+  mvaInits.discrMethodName[0] = "MLPBNN";
+  mvaInits.discrMethodName[1] = "BDTG";
+  mvaInits.discrMethodName[2] = "BDT";
+
+  mvaInits.discrSampleName = "MVA_ZJets";
+
+
+  mvaInits.mvaHiggsMassPoint[0] = 125;
+
+  mvaInits.bdtCut[0] = 0.75;
 
 }
 

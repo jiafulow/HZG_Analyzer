@@ -1,5 +1,5 @@
-#define simple_v2_cxx
-// The class definition in simple_v2.h has been generated automatically
+#define simple_cxx
+// The class definition in simple.h has been generated automatically
 // by the ROOT utility TTree::MakeSelector(). This class is derived
 // from the ROOT class TSelector. For more information on the TSelector
 // framework see $ROOTSYS/README/README.SELECTOR or the ROOT User Manual.
@@ -18,12 +18,12 @@
 //
 // To use this file, try the following session on your Tree T:
 //
-// Root > T->Process("simple_v2.C")
-// Root > T->Process("simple_v2.C","some options")
-// Root > T->Process("simple_v2.C+")
+// Root > T->Process("simple.C")
+// Root > T->Process("simple.C","some options")
+// Root > T->Process("simple.C+")
 //
 
-#include "simple_v2.h"
+#include "simple.h"
 #include <TH2.h>
 #include <TStyle.h>
 
@@ -36,7 +36,7 @@ int quickCount         = 0;
 
 bool MuonSortCondition(const TCMuon& m1, const TCMuon& m2) {return (m1.Pt() > m2.Pt());}
 
-void simple_v2::Begin(TTree * /*tree*/)
+void simple::Begin(TTree * /*tree*/)
 {
   // The Begin() function is called at the start of the query.
   // When running with PROOF Begin() is only called on the client.
@@ -51,7 +51,7 @@ void simple_v2::Begin(TTree * /*tree*/)
 
 }
 
-void simple_v2::SlaveBegin(TTree * /*tree*/)
+void simple::SlaveBegin(TTree * /*tree*/)
 {
   // The SlaveBegin() function is called after the Begin() function.
   // When running with PROOF SlaveBegin() is called on each slave server.
@@ -61,12 +61,12 @@ void simple_v2::SlaveBegin(TTree * /*tree*/)
 
 }
 
-Bool_t simple_v2::Process(Long64_t entry)
+Bool_t simple::Process(Long64_t entry)
 {
   // The Process() function is called for each entry in the tree (or possibly
   // keyed object in the case of PROOF) to be processed. The entry argument
   // specifies which entry in the currently loaded tree is to be processed.
-  // It can be passed to either simple_v2::GetEntry() or TBranch::GetEntry()
+  // It can be passed to either simple::GetEntry() or TBranch::GetEntry()
   // to read either all or the required parts of the data. When processing
   // keyed objects with PROOF, the object is already loaded and is available
   // via the fObject pointer.
@@ -156,7 +156,7 @@ Bool_t simple_v2::Process(Long64_t entry)
   return kTRUE;
 }
 
-void simple_v2::SlaveTerminate()
+void simple::SlaveTerminate()
 {
   // The SlaveTerminate() function is called after all entries or objects
   // have been processed. When running with PROOF SlaveTerminate() is called
@@ -164,7 +164,7 @@ void simple_v2::SlaveTerminate()
 
 }
 
-void simple_v2::Terminate()
+void simple::Terminate()
 {
   // The Terminate() function is the last function to be called during
   // a query. It always runs on the client, it can be used to present
@@ -176,7 +176,7 @@ void simple_v2::Terminate()
   histoFile->Close();  
 }
 
-bool simple_v2::PassMuonID(TCMuon *mu, muIDCuts cutLevel){
+bool simple::PassMuonID(TCMuon *mu, muIDCuts cutLevel){
 
   bool muPass = false;
 
@@ -209,7 +209,7 @@ bool simple_v2::PassMuonID(TCMuon *mu, muIDCuts cutLevel){
   return muPass;
 }
 
-bool simple_v2::PassMuonIso(TCMuon *mu, muIsoCuts cutLevel){
+bool simple::PassMuonIso(TCMuon *mu, muIsoCuts cutLevel){
 
   float combIso;
 
@@ -221,7 +221,7 @@ bool simple_v2::PassMuonIso(TCMuon *mu, muIsoCuts cutLevel){
   return isoPass;
 }
 
-void simple_v2::AnglePlots(ZGAngles &zga,float eventWeight)
+void simple::AnglePlots(ZGAngles &zga,float eventWeight)
 {
   hm->fill1DHist(zga.costheta_lp,"h1_costhetaLP_SUFFIX", "Cos(#theta) positive lepton;cos(#theta);N_{evts}", 50, -1.1, 1.1, eventWeight);     
   hm->fill1DHist(zga.costheta_lm,"h1_costhetaLM_SUFFIX", "Cos(#theta) negative lepton;cos(#theta);N_{evts}", 50, -1.1, 1.1, eventWeight);     
@@ -230,7 +230,7 @@ void simple_v2::AnglePlots(ZGAngles &zga,float eventWeight)
   hm->fill1DHist(zga.costheta_lm+zga.costheta_lp,"h1_costhetaBoth_SUFFIX", "Cos(#theta) of both lepton;cos(#theta);N_{evts}", 50, -1.1, 1.1, eventWeight);     
 }
 /*
-void  simple_v2::FindGenParticles(TClonesArray *genParticles, string selection, vector<TCGenParticle>& vetoPhotons, genHZGParticles& _genHZG){
+void  simple::FindGenParticles(TClonesArray *genParticles, string selection, vector<TCGenParticle>& vetoPhotons, genHZGParticles& _genHZG){
   vector<TCGenParticle> genElectrons;
   vector<TCGenParticle> genMuons;
   vector<TCGenParticle> genZs;
@@ -310,7 +310,7 @@ void  simple_v2::FindGenParticles(TClonesArray *genParticles, string selection, 
   return;
 }
 */
-void simple_v2::CleanUpGen(genHZGParticles& _genHZG){
+void simple::CleanUpGen(genHZGParticles& _genHZG){
   if (_genHZG.lp) delete _genHZG.lp;
   if (_genHZG.lm) delete _genHZG.lm;
   if (_genHZG.g) delete _genHZG.g;
