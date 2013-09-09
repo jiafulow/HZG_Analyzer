@@ -43,7 +43,6 @@ class TriggerSelector: public TObject {
         void    TriggerDefaults();
         void    AddTriggers(vstring);
 
-        ClassDef(TriggerSelector, 0);
 
     private:
         // input parameters
@@ -58,10 +57,9 @@ class TriggerSelector: public TObject {
         bool            _eventPass;
         int             _eventPrescale;
         ULong64_t       _passTriggers;
+
+        ClassDef(TriggerSelector, 1);
 };
 
 #endif
 
-#if !defined(__CINT__)
-ClassImp(TriggerSelector);
-#endif

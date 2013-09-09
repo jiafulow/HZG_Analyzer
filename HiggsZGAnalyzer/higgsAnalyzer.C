@@ -99,13 +99,13 @@ void higgsAnalyzer::Begin(TTree * tree)
   TH1::SetDefaultSumw2(kTRUE);
   TH2::SetDefaultSumw2(kTRUE);
 
-  histoFile = new TFile("higgsHistograms_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root", "RECREATE");
-  trainingFile = new TFile("higgsTraining_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root", "RECREATE");
-  sampleFile = new TFile("higgsSample_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root", "RECREATE");
-  higgsFile = new TFile("higgsFile_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root", "RECREATE");
-  eleSmearFile = new TFile("eleSmearFile_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root", "RECREATE");
-  eleIDISOFile = new TFile("eleIDISOFile_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root", "RECREATE");
-  m_llgFile = new TFile("m_llgFile_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root","RECREATE");
+  histoFile = new TFile("higgsHistograms_newTuple_eeGamma_local.root", "RECREATE");
+  trainingFile = new TFile("higgsTraining_newTuple_eeGamma_local.root", "RECREATE");
+  sampleFile = new TFile("higgsSample_newTuple_eeGamma_local.root", "RECREATE");
+  higgsFile = new TFile("higgsFile_newTuple_eeGamma_local.root", "RECREATE");
+  eleSmearFile = new TFile("eleSmearFile_newTuple_eeGamma_local.root", "RECREATE");
+  eleIDISOFile = new TFile("eleIDISOFile_newTuple_eeGamma_local.root", "RECREATE");
+  m_llgFile = new TFile("m_llgFile_newTuple_eeGamma_local.root","RECREATE");
 
   trainingFile->cd();
   trainingChain = new TTree("varMVA","hey everyone it's the training tree");
@@ -284,7 +284,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   }
 
   if (dataDumps && suffix == "DATA"){
-    dataDump.open("dataDump_ggM125_8TeV_pythia8_175_v2_local.txt");
+    dataDump.open("dataDump_newTuple_local.txt");
     if (!dataDump.good()) cout << "ERROR: can't open file for writing." << endl;
   }
 

@@ -39,7 +39,6 @@ class WeightUtils: public TObject {
         float ElectronTriggerWeight(TLorentzVector l1, TLorentzVector l2);
         float MuonTriggerWeight(TLorentzVector l1, TLorentzVector l2);
 
-        ClassDef(WeightUtils, 0);
 
     private:
         //input parameters
@@ -114,10 +113,8 @@ class WeightUtils: public TObject {
         float _recoilTransWeight;
         float _gammaPtPuWeight;
 
+        ClassDef(WeightUtils, 1);
 };
 
 #endif
 
-#if !defined(__CINT__)
-ClassImp(WeightUtils);
-#endif

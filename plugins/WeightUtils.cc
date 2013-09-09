@@ -1,4 +1,5 @@
 #include "../interface/WeightUtils.h"
+#include "../interface/WeightUtilsLinkDef.h"
 
 WeightUtils::WeightUtils(string sampleName, string dataPeriod, string abcd, string selection, bool isRealData)
 {

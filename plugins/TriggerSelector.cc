@@ -1,4 +1,5 @@
 #include "../interface/TriggerSelector.h"
+#include "../interface/TriggerSelectorLinkDef.h"
 
 TriggerSelector::TriggerSelector() {}
 
