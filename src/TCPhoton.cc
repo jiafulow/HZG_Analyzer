@@ -3,7 +3,6 @@
 #include <iostream>
 
 
-//TCPhoton::TCPhoton() { }
 
 
 TCPhoton::TCPhoton() {
@@ -29,7 +28,7 @@ TCPhoton::TCPhoton() {
 }
 
 
-TCPhoton::~TCPhoton() { delete _crysArray; }
+TCPhoton::~TCPhoton() { delete[] _crysArray; }
 
 // "get" methods -------------------------------------
 

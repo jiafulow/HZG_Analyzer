@@ -88,7 +88,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   rEl             = new TRandom3(1234);
   rMuRun          = new TRandom3(187);
   phoCorrector    = new zgamma::PhosphorCorrectionFunctor("plugins/PHOSPHOR_NUMBERS_EXPFIT_ERRORS.txt", true);
-  Xcal2           = new TEvtProb();
+  //Xcal2           = new TEvtProb();
 
   genHZG = {};
 
@@ -341,12 +341,12 @@ void higgsAnalyzer::Begin(TTree * tree)
   cout<<"load and initialize MVA"<<endl;
   std::vector<std::string> myManualCatWeigthsTrig;
 
-  myManualCatWeigthsTrig.push_back("plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat1.weights.xml");
-  myManualCatWeigthsTrig.push_back("plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat2.weights.xml");
-  myManualCatWeigthsTrig.push_back("plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat3.weights.xml");
-  myManualCatWeigthsTrig.push_back("plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat4.weights.xml");
-  myManualCatWeigthsTrig.push_back("plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat5.weights.xml");
-  myManualCatWeigthsTrig.push_back("plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat6.weights.xml");
+  myManualCatWeigthsTrig.push_back("../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat1.weights.xml");
+  myManualCatWeigthsTrig.push_back("../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat2.weights.xml");
+  myManualCatWeigthsTrig.push_back("../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat3.weights.xml");
+  myManualCatWeigthsTrig.push_back("../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat4.weights.xml");
+  myManualCatWeigthsTrig.push_back("../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat5.weights.xml");
+  myManualCatWeigthsTrig.push_back("../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat6.weights.xml");
 
   myMVATrig = new EGammaMvaEleEstimator();
   myMVATrig->initialize("BDT",
@@ -364,6 +364,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   GetEntry(entry,1);
   if(eventNumber == EVENTNUMBER) cout<<EVENTNUMBER<<endl;
+  cout<<"event:\t"<<eventNumber<<endl;
 
   // 2011 bad electron run veto
   if(selection == "eeGamma" && isRealData && period.find("2011") != string::npos){
@@ -446,16 +447,16 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       if (vetoPhotons.size() > 0){
         //cout<<"photon mother ID:"<<endl;
         for (testIt=vetoPhotons.begin(); testIt<vetoPhotons.end(); testIt++){
-          // if the photon's mother and grandmother is a lepton, kill it
-          if ( (abs(testIt->Mother()) == 11 || abs(testIt->Mother()) == 13 || abs(testIt->Mother()) == 15)
-              && (abs(testIt->Grandmother()) == 11 || abs(testIt->Grandmother()) == 13 || abs(testIt->Grandmother()) == 15) ) return kTRUE; 
-          // if the photon's mother is a lepton, and the grandmother is a Z or W, destroy it
-          if ( (abs(testIt->Mother()) == 11 || abs(testIt->Mother()) == 13 || abs(testIt->Mother()) == 15)
-              && (abs(testIt->Grandmother()) == 23 || abs(testIt->Grandmother()) == 24) ) return kTRUE;
-          // if the photon's mother is a photon, and the grandmother is an electron, raze it to the ground
-          if ( abs(testIt->Mother()) == 22 && abs(testIt->Grandmother()) == 11) return kTRUE;
-          // if the photon's mother is a gluon (?!) or a quark, eliminate it with prejudice
-          if ( abs(testIt->Mother()) == 21 || abs(testIt->Mother()) < 7) return kTRUE;
+            // if the photon's mother and grandmother is a lepton, kill it
+          if ( (abs(testIt->Mother()->GetPDGId()) == 11 || abs(testIt->Mother()->GetPDGId()) == 13 || abs(testIt->Mother()->GetPDGId()) == 15) && (testIt->Mother()->Mother())
+              && (abs(testIt->Mother()->Mother()->GetPDGId()) == 11 || abs(testIt->Mother()->Mother()->GetPDGId()) == 13 || abs(testIt->Mother()->Mother()->GetPDGId()) == 15) ) return kTRUE; 
+            // if the photon's mother is a lepton, and the grandmother is a Z or W, kill it
+          if ( (abs(testIt->Mother()->GetPDGId()) == 11 || abs(testIt->Mother()->GetPDGId()) == 13 || abs(testIt->Mother()->GetPDGId()) == 15) && (testIt->Mother()->Mother())
+              && (abs(testIt->Mother()->Mother()->GetPDGId()) == 23 || abs(testIt->Mother()->Mother()->GetPDGId()) == 24) ) return kTRUE;
+            // if the photon's mother is a photon, and the grandmother is an electron, kill it 
+          if ( abs(testIt->Mother()->GetPDGId()) == 22 && (testIt->Mother()->Mother()) && abs(testIt->Mother()->Mother()->GetPDGId()) == 11) return kTRUE;
+            // if the photon's mother is a gluon (?!) or a quark, kill it
+          if ( abs(testIt->Mother()->GetPDGId()) == 21 || abs(testIt->Mother()->GetPDGId()) < 7) return kTRUE;
         }
 
 
@@ -857,9 +858,9 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   // photons //
   /////////////
 
-  vector<TCPhoton> photonsID; 
-  vector<TCPhoton> photonsIDIso; 
-  vector<TCPhoton> photonsIDIsoUnCor; 
+  vector<TCPhoton*> photonsID; 
+  vector<TCPhoton*> photonsIDIso; 
+  vector<TCPhoton*> photonsIDIsoUnCor; 
   TCPhoton* clonePhoton;
 
 
@@ -913,7 +914,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
           TCGenParticle goodGenPhoton;
           float testDr = 9999;
           for (UInt_t j = 0; j<vetoPhotons.size(); j++){
-            if(thisPhoton->DeltaR(vetoPhotons[j]) < 0.2 && vetoPhotons[j].GetStatus()==1 && fabs(vetoPhotons[j].Mother()) == 22){
+            if(thisPhoton->DeltaR(vetoPhotons[j]) < 0.2 && vetoPhotons[j].GetStatus()==1 && fabs(vetoPhotons[j].Mother()->GetPDGId()) == 22){
               if(thisPhoton->DeltaR(vetoPhotons[j])<testDr){
                 goodGenPhoton = vetoPhotons[j];
                 testDr = thisPhoton->DeltaR(vetoPhotons[j]);
@@ -937,20 +938,22 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       ////// Currently Using Cut-Based Photon ID, 2012
 
       if (dumps) PhotonDump(thisPhoton, mediumPhID, mediumPhIso, phDump1);
-      if (PassPhotonID(thisPhoton, mediumPhID)) photonsID.push_back(*thisPhoton);
+      if (PassPhotonID(thisPhoton, mediumPhID)) photonsID.push_back(thisPhoton);
       if (PassPhotonID(thisPhoton, mediumPhID) && PassPhotonIso(thisPhoton, mediumPhIso)){
-        photonsIDIso.push_back(*thisPhoton);
-        if (engCor) photonsIDIsoUnCor.push_back(*clonePhoton);
+        photonsIDIso.push_back(thisPhoton);
+        if (engCor) photonsIDIsoUnCor.push_back(clonePhoton);
       }
 
 
 
 
-    }
-    sort(photonsID.begin(), photonsID.end(), P4SortCondition);
-    sort(photonsIDIso.begin(), photonsIDIso.end(), P4SortCondition);
-  }
 
+    }
+    //cout<<"debug0"<<endl;
+    //return kTRUE;
+    //sort(photonsID.begin(), photonsID.end(), P4SortCondition);
+    //sort(photonsIDIso.begin(), photonsIDIso.end(), P4SortCondition);
+  }
 
   //////////
   // Jets //
@@ -1150,7 +1153,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
 
   if (photonsIDIso.size()>0 && ZP4.M() > 50 ){
-    StandardPlots(lepton1,lepton2,photonsIDIso[0],eventWeight,"PreSel", "PreSel");
+    StandardPlots(lepton1,lepton2,*photonsIDIso[0],eventWeight,"PreSel", "PreSel");
   }else if (ZP4.M() > zMassCut[0]){
     TLorentzVector noPhoton;
     noPhoton.SetPtEtaPhiE(0.00001,0,0,0.00001);
@@ -1173,7 +1176,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   if (dumps){
     for (Int_t i = 0; i < photonsIDIso.size(); ++i) {
-      PhotonDump2(&photonsIDIso[i], mediumPhID, mediumPhIso, lepton1, lepton2, phDump2);
+      PhotonDump2(photonsIDIso[i], mediumPhID, mediumPhIso, lepton1, lepton2, phDump2);
     }
   }
 
@@ -1195,25 +1198,25 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     bool goodPhoton = false;
     for (UInt_t i = 0; i<photonsIDIso.size(); i++){
 
-      GP4 = photonsIDIso[i];    // define GP4
-      GP4scEta = photonsIDIso[i].SCEta();
-      if (engCor) uncorGP4 = photonsIDIsoUnCor[i]; 
+      GP4 = *photonsIDIso[i];    // define GP4
+      GP4scEta = photonsIDIso[i]->SCEta();
+      if (engCor) uncorGP4 = *photonsIDIsoUnCor[i]; 
       if (eventNumber == EVENTNUMBER) cout<<"dr1: "<<GP4.DeltaR(lepton1)<<" dr2: "<<GP4.DeltaR(lepton2)<<endl<<" pt/M: "<<GP4.Pt()/(GP4+ZP4).M()<<endl;
       if ((GP4.DeltaR(lepton1)<drCut || GP4.DeltaR(lepton2)<drCut)) continue;
       if (GP4.Pt()/(GP4+ZP4).M() > gammaPtCut[0] && GP4.Pt() > gammaPtCut[1]) goodPhoton = true;
       if(goodPhoton){
-        R9 = photonsIDIso[i].R9();
+        R9 = photonsIDIso[i]->R9();
         R9Cor = R9;
         if (doR9Cor){
           if (suffix != "DATA"){
             if (period == "2011"){
-              if (fabs(photonsIDIso[i].SCEta()) < 1.479){
+              if (fabs(photonsIDIso[i]->SCEta()) < 1.479){
                 R9Cor = R9*1.0048;
               }else{
                 R9Cor = R9*1.00492;
               }
             } else if (period == "2012"){
-              if (fabs(photonsIDIso[i].SCEta()) < 1.479){
+              if (fabs(photonsIDIso[i]->SCEta()) < 1.479){
                 R9Cor = R9*1.0045 + 0.0010;
               }else{
                 R9Cor = R9*1.0086 - 0.0007;
@@ -1433,7 +1436,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   }
 
-
   //////////////////
   // Angular Cuts //
   //////////////////
@@ -1479,8 +1481,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   // ME Disc //
   /////////////
   
-  float MEdisc = MEDiscriminator(lepton1,lepton2,GP4);
-  cout<<"MEDisc:\t"<<MEdisc<<endl;
+  //float MEdisc = MEDiscriminator(lepton1,lepton2,GP4);
+  //cout<<"MEDisc:\t"<<MEdisc<<endl;
 
 
 
@@ -2109,11 +2111,11 @@ void higgsAnalyzer::GenPlots(vector<TCGenParticle> Zs, vector<TCGenParticle> lep
 
   if (leps.size() > 1){
     for (lepIt=leps.begin(); lepIt<leps.end(); lepIt++){
-      if (oneSet && abs((*lepIt).Mother()) == 23){
+      if (oneSet && abs((*lepIt).Mother()->GetPDGId()) == 23){
         zMuon2 = *lepIt;
         break;
       }
-      if (!oneSet && abs((*lepIt).Mother()) == 23){
+      if (!oneSet && abs((*lepIt).Mother()->GetPDGId()) == 23){
         zMuon1 = *lepIt;
         oneSet = true;
       }
@@ -2131,7 +2133,7 @@ void higgsAnalyzer::GenPlots(vector<TCGenParticle> Zs, vector<TCGenParticle> lep
       vector<TCGenParticle>::iterator photIt;
       for (photIt=leps.begin(); photIt<leps.end(); photIt++){
         //cout<<(*photIt).Mother()<<endl;
-        if ((*photIt).Mother()==23){
+        if ((*photIt).Mother()->GetPDGId()==23){
           hPhot = *photIt;
           break;
         }
@@ -3201,10 +3203,10 @@ void  higgsAnalyzer::FindGenParticles(TClonesArray *genParticles, string selecti
   //  cout<<thisGen->GetPDGId()<<endl;
     if (abs(thisGen->GetPDGId()) == 11){
       genElectrons.push_back(*thisGen);
-      if (abs(thisGen->Mother())==23) isEEGamma = true;
+      if (abs(thisGen->Mother()->GetPDGId())==23) isEEGamma = true;
     }else if (abs(thisGen->GetPDGId()) == 13){
       genMuons.push_back(*thisGen);
-      if (abs(thisGen->Mother())==23) isMuMuGamma = true;
+      if (abs(thisGen->Mother()->GetPDGId())==23) isMuMuGamma = true;
     }else if (abs(thisGen->GetPDGId()) == 23) genZs.push_back(*thisGen);
     else if (abs(thisGen->GetPDGId()) == 24) genWs.push_back(*thisGen);
     else if (abs(thisGen->GetPDGId()) == 22) genPhotons.push_back(*thisGen);
@@ -3236,10 +3238,10 @@ void  higgsAnalyzer::FindGenParticles(TClonesArray *genParticles, string selecti
 
   if (genLeptons.size() > 1){
     for (testIt=genLeptons.begin(); testIt<genLeptons.end(); testIt++){
-      if(testIt->Mother() == 23 && testIt->Charge() == 1 ){
+      if(testIt->Mother()->GetPDGId() == 23 && testIt->Charge() == 1 ){
         _genHZG.lp = new TCGenParticle(*testIt);
         posLep = true;
-      }else if(testIt->Mother()== 23 && testIt->Charge() == -1){
+      }else if(testIt->Mother()->GetPDGId()== 23 && testIt->Charge() == -1){
         _genHZG.lm = new TCGenParticle((*testIt));
         negLep = true;
       }
@@ -3250,7 +3252,7 @@ void  higgsAnalyzer::FindGenParticles(TClonesArray *genParticles, string selecti
   if (genPhotons.size() > 0 && posLep && negLep){
       for (testIt=genPhotons.begin(); testIt<genPhotons.end(); testIt++){
         //cout<<"mother: "<<testIt->Mother()<<"\tstatus: "<<testIt->GetStatus()<<endl;
-        if (testIt->Mother() == 25 && fabs((*testIt+*_genHZG.lm+*_genHZG.lp).M()-125.0) < 0.1) _genHZG.g = new TCGenParticle(*testIt); goodPhot = true; break;
+        if (testIt->Mother()->GetPDGId() == 25 && fabs((*testIt+*_genHZG.lm+*_genHZG.lp).M()-125.0) < 0.1) _genHZG.g = new TCGenParticle(*testIt); goodPhot = true; break;
       }
       if (!goodPhot) return;
     //_genHZG.g = new TCGenParticle(genPhotons.front());
@@ -3273,6 +3275,7 @@ void higgsAnalyzer::CleanUpGen(genHZGParticles& _genHZG){
   if (_genHZG.h) delete _genHZG.h;
 }
 
+/*
 float higgsAnalyzer::MEDiscriminator(TCPhysObject lepton1, TCPhysObject lepton2, TLorentzVector gamma){
   //modified from kevin kelly
 
@@ -3347,7 +3350,7 @@ float higgsAnalyzer::MEDiscriminator(TCPhysObject lepton1, TCPhysObject lepton2,
 }
 
 
-
+*/
 
 
 

@@ -45,9 +45,9 @@ cat > run.C << +EOF
     gROOT->LoadMacro("LeptonScaleCorrections.h+");
     gROOT->LoadMacro("EGammaMvaEleEstimator.cc+");
     gROOT->LoadMacro("ZGAngles.cc+");
-    gSystem->Load("libgfortran.so");
-    gSystem->Load("./hzgammaME/libmcfm_6p6.so");
-    gSystem->Load("./hzgammaME/libME.so");
+    //gSystem->Load("libgfortran.so");
+    //gSystem->Load("./hzgammaME/libmcfm_6p6.so");
+    //gSystem->Load("./hzgammaME/libME.so");
 
     TChain* fChain = new TChain("ntupleProducer/eventTree");
 
@@ -78,7 +78,7 @@ cat > run.C << +EOF
     TStopwatch timer;
     timer.Start();
 
-    fChain->Process("higgsAnalyzer.C+");
+    fChain->Process("higgsAnalyzer.C++g");
 
     cout << "\n\nDone!" << endl;
     cout << "CPU Time : " << timer.CpuTime() << endl;
