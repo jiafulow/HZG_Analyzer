@@ -56,8 +56,8 @@
 #include "../interface/LeptonScaleCorrections.h"
 #include "../interface/EGammaMvaEleEstimator.h"
 #include "../interface/ZGAngles.h"
-//#include "./hzgammaME/TVar.hh"
-//#include "./hzgammaME/TEvtProb.cc"
+#include "../hzgammaME/TVar.hh"
+#include "../hzgammaME/TEvtProb.cc"
 
 #ifdef __MAKECINT__
 #pragma link C++ class vector<string>+;
@@ -129,10 +129,9 @@ class higgsAnalyzer : public TSelector {
 
     TMVA::Reader             *myTMVAReader;
 
-    //ZGAngles MVA shit
+    //ZGAngles ME shit
 
-
-    //TEvtProb* Xcal2;
+    TEvtProb* Xcal2;
 
   public :
     TTree          *fChain;   //!pointer to the analyzed TTree or TChain
@@ -259,7 +258,7 @@ class higgsAnalyzer : public TSelector {
     virtual bool           FindGoodZElectron(vector<TCElectron> electronList, vector<TCElectron> uncorElectronList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* ZP4, float* eta1, float* eta2, int* int1, int* int2); 
     virtual bool           FindGoodZMuon(vector<TCMuon> muonList, vector<TCMuon> uncorMuonList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* ZP4, int* int1, int* int2); 
 
-    //virtual float          MEDiscriminator(TCPhysObject lepton1, TCPhysObject lepton2, TLorentzVector gamma);
+    virtual float          MEDiscriminator(TCPhysObject lepton1, TCPhysObject lepton2, TLorentzVector gamma);
 
     /////////////////////
     // Gen Level Stuff //
