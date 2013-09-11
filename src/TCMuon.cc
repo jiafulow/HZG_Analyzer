@@ -1,5 +1,5 @@
 #include "../interface/TCMuon.h"
-#include "../interface/TCMuonLinkDef.h"
+#include "TCMuonLinkDef.h"
 #include <iostream>
 
 TCMuon::TCMuon() {
@@ -23,7 +23,14 @@ bool TCMuon::IsTRK() const {
 }
 
 bool TCMuon::IsPF() const {
-   return _isPF;
+  return _isPF;
+}
+
+bool TCMuon::IsSoft() const {
+  return _isSoft;
+}
+bool TCMuon::IsTight() const {
+  return _isTight;
 }
 
 int TCMuon::NumberOfMatchedStations() const {
@@ -56,6 +63,9 @@ int TCMuon::NumberOfLostTrackerHits() const {
 
 float TCMuon::NormalizedChi2() const {
   return _normalizedChi2;
+}
+float TCMuon::NormalizedChi2_tracker() const {
+  return _normalizedChi2_tracker;
 }
 
 int TCMuon::NumberOfMatches() const {
@@ -91,7 +101,14 @@ void TCMuon::SetIsTRK(bool t){
    _isTRK = t;
 }
 void TCMuon::SetIsPF(bool t){
-   _isPF = t;
+  _isPF = t;
+}
+
+void TCMuon::SetIsSoft(bool t){
+  _isSoft = t;
+}
+void TCMuon::SetIsTight(bool t){
+  _isTight = t;
 }
 
 void TCMuon::SetNumberOfValidMuonHits(int n) {
@@ -116,6 +133,9 @@ void TCMuon::SetNumberOfLostTrackerHits(int n) {
 
 void TCMuon::SetNormalizedChi2(float n) {
   _normalizedChi2 = n;
+}
+void TCMuon::SetNormalizedChi2_tracker(float n) {
+  _normalizedChi2_tracker = n;
 }
 
 void TCMuon::SetNumberOfMatches(int n) {

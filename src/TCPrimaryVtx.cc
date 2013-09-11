@@ -6,7 +6,7 @@
  */
 
 #include "../interface/TCPrimaryVtx.h"
-#include "../interface/TCPrimaryVtxLinkDef.h"
+#include "TCPrimaryVtxLinkDef.h"
 
 TCPrimaryVtx::TCPrimaryVtx() {
 }

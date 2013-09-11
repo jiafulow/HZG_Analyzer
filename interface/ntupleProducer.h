@@ -56,7 +56,6 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -114,11 +113,11 @@
 #include "EGamma/EGammaAnalysisTools/interface/ElectronEnergyRegressionEvaluate.h"
 #include "EgammaAnalysis/ElectronTools/interface/PatElectronEnergyCalibrator.h"
 
-// Track MET Tools - Added by Rafael on May 28th
 #include "RecoMET/METProducers/interface/TrackMETProducer.h"
 #include "RecoMET/METProducers/interface/ParticleFlowForChargedMETProducer.h"
-
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 // ntuple storage classes
+#include "TCPhysObject.h"
 #include "TCPrimaryVtx.h"
 #include "TCJet.h"
 #include "TCMET.h"
@@ -129,6 +128,7 @@
 #include "TCTriggerObject.h"
 #include "TCGenJet.h"
 #include "TCGenParticle.h"
+
 
 // Need for HLT trigger info:
 #include "FWCore/Common/interface/TriggerNames.h"
@@ -176,19 +176,6 @@ struct Filters {		//Filters
   Bool_t isNoisetrkPOG3;
 };
 
-/*
-struct CrystalInfo{
-  uint32_t rawId;
-  int ieta;
-  int iphi;
-  int ix;
-  int iy;
-  double energy;
-  double time;
-  double timeErr;
-  int recoFlag;
-};
-*/
 
 class ntupleProducer : public edm::EDAnalyzer {
  public:
@@ -243,9 +230,9 @@ class ntupleProducer : public edm::EDAnalyzer {
   edm::InputTag jetTag_;
   string        jecTag_;
   edm::InputTag metTag_;
-  edm::InputTag trackmetTag_; //Added by Rafael on May 28th
-  edm::InputTag t0metTag_; //Added by Rafael on July 3rd 2013
-  edm::InputTag t2metTag_; //Added by Rafael on July 3rd 2013
+  edm::InputTag trackmetTag_; 
+  edm::InputTag t0metTag_;
+  edm::InputTag t2metTag_;
   edm::InputTag genJetTag_;
   edm::InputTag muonTag_;
   edm::InputTag electronTag_;
@@ -267,14 +254,15 @@ class ntupleProducer : public edm::EDAnalyzer {
   edm::ParameterSet jetPUIdAlgo_;
   edm::InputTag triggerEventTag_;
 
+  bool skimLepton_;
   bool saveJets_;
   bool saveElectrons_;
   bool saveMuons_;
   bool savePhotons_;
   bool saveMET_;
-  bool saveTrackMET_; //Added by Rafael on May 28th
-  bool saveT0MET_; //Added by Rafael on July 3rd 2013
-  bool saveT2MET_; //Added by Rafael on July 3rd 2013
+  bool saveTrackMET_; 
+  bool saveT0MET_; 
+  bool saveT2MET_;
   bool saveGenJets_;
   bool saveGenParticles_;
   bool isRealData;

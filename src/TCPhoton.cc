@@ -1,8 +1,9 @@
 #include "../interface/TCPhoton.h"
-#include "../interface/TCPhotonLinkDef.h"
+#include "TCPhotonLinkDef.h"
 #include <iostream>
 
 
+//TCPhoton::TCPhoton() { }
 
 
 TCPhoton::TCPhoton() {
@@ -23,7 +24,7 @@ TCPhoton::TCPhoton() {
   for(int i=0; i < 100; i++){
     TCPhoton:: SetCrystal(i, crystal);
   }
-
+  
 
 }
 
@@ -57,7 +58,7 @@ void TCPhoton::SetCrystal(int i , CrystalInfo crys) {
   _crysArray[i].rawId = crys.rawId;
   _crysArray[i].ieta =crys.ieta;
   _crysArray[i].iphi =crys.iphi;
-  _crysArray[i].ix =crys.ix;
+    _crysArray[i].ix =crys.ix;
   _crysArray[i].iy =crys.iy;
   _crysArray[i].energy =crys.energy;
   _crysArray[i].time =crys.time;

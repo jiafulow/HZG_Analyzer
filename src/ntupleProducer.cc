@@ -22,6 +22,7 @@ ntupleProducer::ntupleProducer(const edm::ParameterSet& iConfig)
   triggerPaths_     = iConfig.getUntrackedParameter<vector<string> >("triggers");
 
   partFlowTag_      = iConfig.getUntrackedParameter<edm::InputTag>("partFlowTag");
+  skimLepton_       = iConfig.getUntrackedParameter<bool>("skimLepton");
 
   saveJets_         = iConfig.getUntrackedParameter<bool>("saveJets");
   saveElectrons_    = iConfig.getUntrackedParameter<bool>("saveElectrons");
@@ -184,8 +185,8 @@ void ntupleProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
       jetCon->SetUncertaintyJES(-1);
 
-      jetCon->SetBDiscriminatorMap("../interface/TCHE", MatchBTagsToJets(bTagsTCHE, *iJet));
-      jetCon->SetBDiscriminatorMap("../interface/TCHP", MatchBTagsToJets(bTagsTCHP, *iJet));
+      jetCon->SetBDiscriminatorMap("TCHE", MatchBTagsToJets(bTagsTCHE, *iJet));
+      jetCon->SetBDiscriminatorMap("TCHP", MatchBTagsToJets(bTagsTCHP, *iJet));
       jetCon->SetBDiscriminatorMap("SSVHE", MatchBTagsToJets(bTagsSSVHE, *iJet));
       jetCon->SetBDiscriminatorMap("JBP", MatchBTagsToJets(bTagsJBP, *iJet));
       jetCon->SetBDiscriminatorMap("CSV", MatchBTagsToJets(bTagsCSV, *iJet));
@@ -332,12 +333,10 @@ void ntupleProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 
 
-
   //////////////////                                                                                                                                                          
   // Get MVAMET   // 
   ////////////////// 
 
-  //   if (saveTrackMET_) {
 
   Handle<vector<reco::PFMET> > mvaMET;
   iEvent.getByLabel("pfMEtMVA", mvaMET);
@@ -351,9 +350,6 @@ void ntupleProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     mva_MET->SetMagPhi(mvamet->et(), mvamet->phi());
   }
 
-
-
-
   ///////////////
   // Get muons //
   ///////////////
@@ -361,42 +357,71 @@ void ntupleProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   if (saveMuons_) {
 
-
     Handle<vector<reco::Muon> > muons;
     iEvent.getByLabel(muonTag_, muons);
 
     for (vector<reco::Muon>::const_iterator iMuon = muons->begin(); iMuon != muons->end(); ++iMuon) {
-      if (!iMuon->isGlobalMuon() || iMuon->pt() < 3.) continue;
+      //if (!iMuon->isGlobalMuon() || iMuon->pt() < 3.) continue;
+      //if (iMuon->pt() < 3.) continue;
       //if (!iMuon->isGlobalMuon()) continue;
 
       TCMuon* muCon = new ((*recoMuons)[muCount]) TCMuon;
 
       muCon->SetPxPyPzE(iMuon->px(), iMuon->py(), iMuon->pz(), iMuon->energy());
-      muCon->SetVtx(iMuon->globalTrack()->vx(),iMuon->globalTrack()->vy(),iMuon->globalTrack()->vz());
-      muCon->SetPtError(iMuon->globalTrack()->ptError());
       muCon->SetCharge(iMuon->charge());
 
-      // Muon ID variables
       muCon->SetIsPF(iMuon->isPFMuon());
       muCon->SetIsGLB(iMuon->isGlobalMuon());
       muCon->SetIsTRK(iMuon->isTrackerMuon());
-      muCon->SetNormalizedChi2(iMuon->globalTrack()->normalizedChi2());
+
+      if (primaryVtcs->size()>0){
+        muCon->SetIsTight(muon::isTightMuon(*iMuon, *primaryVtcs->begin()));
+        //isSoftMuon is not available in CMSSW_5_3_8, where I'm working, will include it in a later versions
+        //muCon->SetIsSoft( muon::isSoftMuon( *iMuon, *primaryVtcs->begin()));
+        muCon->SetIsSoft(0);                
+      }
+      else{
+        muCon->SetIsTight(0);
+        muCon->SetIsSoft(0);
+      }
+
       muCon->SetCaloComp(iMuon->caloCompatibility());
       muCon->SetSegComp(muon::segmentCompatibility(*iMuon));
-
-      muCon->SetTrackLayersWithMeasurement(iMuon->track()->hitPattern().trackerLayersWithMeasurement());
       muCon->SetNumberOfMatchedStations(iMuon->numberOfMatchedStations());
       muCon->SetNumberOfMatches(iMuon->numberOfMatches());
-      muCon->SetNumberOfValidPixelHits(iMuon->globalTrack()->hitPattern().numberOfValidPixelHits());
-      muCon->SetNumberOfValidTrackerHits(iMuon->globalTrack()->hitPattern().numberOfValidTrackerHits()); 
-      muCon->SetNumberOfValidMuonHits(iMuon->globalTrack()->hitPattern().numberOfValidMuonHits());
-      muCon->SetNumberOfLostPixelHits(iMuon->globalTrack()->hitPattern().numberOfLostPixelHits());
-      muCon->SetNumberOfLostTrackerHits(iMuon->globalTrack()->hitPattern().numberOfLostTrackerHits());
 
+      if (iMuon->isGlobalMuon()){
+        muCon->SetNormalizedChi2(       iMuon->globalTrack()->normalizedChi2());
+        muCon->SetNumberOfValidMuonHits(iMuon->globalTrack()->hitPattern().numberOfValidMuonHits());
+      }
+      else{
+        muCon->SetNormalizedChi2(-1);
+        muCon->SetNumberOfValidMuonHits(-1);
+      }
 
+      if (iMuon->isTrackerMuon()){
+        muCon->SetVtx(iMuon->track()->vx(),iMuon->track()->vy(),iMuon->track()->vz());
+        muCon->SetPtError(iMuon->track()->ptError());
+
+        muCon->SetTrackLayersWithMeasurement(iMuon->track()->hitPattern().trackerLayersWithMeasurement());
+        muCon->SetNumberOfValidPixelHits(    iMuon->innerTrack()->hitPattern().numberOfValidPixelHits());
+        muCon->SetNormalizedChi2_tracker(    iMuon->innerTrack()->normalizedChi2());
+        muCon->SetNumberOfValidTrackerHits(iMuon->track()->hitPattern().numberOfValidTrackerHits());
+        muCon->SetNumberOfLostPixelHits(   iMuon->track()->hitPattern().numberOfLostPixelHits());
+        muCon->SetNumberOfLostTrackerHits( iMuon->track()->hitPattern().numberOfLostTrackerHits());
+      }
+      else{
+        muCon->SetVtx(-1,-1,-1);
+        muCon->SetPtError(-1);
+        muCon->SetTrackLayersWithMeasurement(-1);
+        muCon->SetNumberOfValidPixelHits(-1);
+        muCon->SetNormalizedChi2_tracker(-1);
+        muCon->SetNumberOfValidTrackerHits(-1);
+        muCon->SetNumberOfLostPixelHits(-1);
+        muCon->SetNumberOfLostTrackerHits(-1);
+      }
       // Set isolation map values
       // Detector-based isolation
-
       muCon->SetIsoMap("NTracks_R03", iMuon->isolationR03().nTracks);
       muCon->SetIsoMap("EmIso_R03", iMuon->isolationR03().emEt);
       muCon->SetIsoMap("HadIso_R03", iMuon->isolationR03().hadEt);
@@ -615,15 +640,15 @@ void ntupleProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       }//end of for (unsigned int y =0; y < crystalinfo_container.size();y++
       /*
       TCPhoton::CrystalInfo * savedCrystals = myPhoton->GetCrystalArray();
-      for (int y = 0; y< myPhoton->GetNCrystals();y++){
+         for (int y = 0; y< myPhoton->GetNCrystals();y++){
          std::cout << "savedCrystals[y].time : " << savedCrystals[y].time << std::endl; 
          std::cout << "savedCrystals[y].timeErr : " << savedCrystals[y].timeErr << std::endl;
          std::cout << "savedCrystals[y].energy : " << savedCrystals[y].energy <<std::endl;
          std::cout << "savedCrystals[y].ieta: " << savedCrystals[y].ieta << std::endl;
 
          std::cout << "savedCrystals[y].rawId: " << savedCrystals[y].rawId <<std::endl;
-      }
-      */
+         }
+         */
 
       const reco::BasicCluster& seedClus = *(iPhoton->superCluster()->seed());
 
@@ -881,20 +906,21 @@ void ntupleProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }                                               
 
   ++nEvents;
-
-  /*if (eleCount == 0 || muCount == 0)*/  eventTree -> Fill(); // possibly specify a cut in configuration
-
-  beamSpot->Clear();
-  primaryVtx    -> Clear("C");
-  recoJets      -> Clear("C");
-  recoJPT       -> Clear("C");
-  recoMuons     -> Clear("C");
-  recoElectrons -> Clear("C");
-  recoPhotons   -> Clear("C");
-  triggerObjects-> Clear("C");
-  genJets       -> Clear("C");
-  genParticles  -> Clear("C");
-
+    if (!skimLepton_)
+      eventTree -> Fill();
+    else if(skimLepton_ && (eleCount > 0 || muCount > 0)) // possibly specify a cut in configuration
+      eventTree -> Fill();
+      
+    beamSpot->Clear();
+    primaryVtx    -> Clear("C");
+    recoJets      -> Clear("C");
+    recoJPT       -> Clear("C");
+    recoMuons     -> Clear("C");
+    recoElectrons -> Clear("C");
+    recoPhotons   -> Clear("C");
+    triggerObjects-> Clear("C");
+    genJets       -> Clear("C");
+    genParticles  -> Clear("C");
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -903,15 +929,15 @@ void  ntupleProducer::beginJob()
   eventTree      = fs->make<TTree>("eventTree","eventTree");
   jobTree        = fs->make<TTree>("jobTree", "jobTree");
 
-  primaryVtx     = new TClonesArray("../interface/TCPrimaryVtx");
-  recoJets       = new TClonesArray("../interface/TCJet");
-  recoJPT        = new TClonesArray("../interface/TCJet");
-  recoElectrons  = new TClonesArray("../interface/TCElectron");
-  recoMuons      = new TClonesArray("../interface/TCMuon");
-  recoPhotons    = new TClonesArray("../interface/TCPhoton");
-  triggerObjects = new TClonesArray("../interface/TCTriggerObject");
-  genJets        = new TClonesArray("../interface/TCGenJet");
-  genParticles   = new TClonesArray("../interface/TCGenParticle");
+  primaryVtx     = new TClonesArray("TCPrimaryVtx");
+  recoJets       = new TClonesArray("TCJet");
+  recoJPT        = new TClonesArray("TCJet");
+  recoElectrons  = new TClonesArray("TCElectron");
+  recoMuons      = new TClonesArray("TCMuon");
+  recoPhotons    = new TClonesArray("TCPhoton");
+  triggerObjects = new TClonesArray("TCTriggerObject");
+  genJets        = new TClonesArray("TCGenJet");
+  genParticles   = new TClonesArray("TCGenParticle");
   beamSpot       = new TVector3();
   recoMET.reset(new TCMET);
   track_MET.reset(new TCMET);
@@ -1083,7 +1109,7 @@ bool ntupleProducer::isFilteredOutScraping( const edm::Event& iEvent, const edm:
 }
 
 
-bool ntupleProducer::associateJetToVertex(reco::PFJet inJet, Handle<reco::VertexCollection> vtxCollection, TCJet* outJet)
+bool ntupleProducer::associateJetToVertex(reco::PFJet inJet, Handle<reco::VertexCollection> vtxCollection, TCJet *outJet)
 {
   if(fabs(inJet.eta()) > 2.5){
     outJet->SetVtxSumPtFrac(-1);
