@@ -1480,8 +1480,10 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
   /////////////
   
   float MEdisc = MEDiscriminator(lepton1,lepton2,GP4);
-  if (MEdisc < 0.02) return kTRUE;
+  //if (MEdisc < 0.02) return kTRUE;
   //cout<<"MEDisc:\t"<<MEdisc<<endl;
+  hm->fillProfile((GP4+ZP4).M(),MEdisc,"p_MassVsME_SUFFIX", "Average ME value per Mass; m_{ll#gamma}; ME Disc", 45, 100, 190, eventWeight);
+  hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsME_SUFFIX","Mass vs ME; m_{ll#gamma}; ME Disc", 45,100,190,45,0,0.2,eventWeight);
   hm->fill1DHist(24,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");
   hm->fill1DHist(24,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
   ++nEvents[23];

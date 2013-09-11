@@ -46,7 +46,7 @@ cat > run.C << +EOF
      gROOT->LoadMacro("plugins/EGammaMvaEleEstimator.cc+");
      gROOT->LoadMacro("plugins/ZGAngles.cc+");
      gSystem->Load("libgfortran.so");
-     gSystem->Load("./hzgammaME/libmcfm_6p6.so");
+     gSystem->Load("./hzgammaME/MCFM-6.6/obj/libmcfm_6p6.so");
      gSystem->Load("./hzgammaME/libME.so");
 
 	  TChain* fChain = new TChain("ntupleProducer/eventTree");

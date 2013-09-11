@@ -8,7 +8,7 @@ using namespace std;
 //Specify parameters here. //
 /////////////////////////////
 
-static const string  selection      = "mumuGamma";
+static const string  selection      = "eeGamma";
 static const string  period         = "2012";
 static const int     JC_LVL         = 0;
 static const string  abcd           = "ABCD";
@@ -99,13 +99,13 @@ void higgsAnalyzerV2::Begin(TTree * tree)
   TH1::SetDefaultSumw2(kTRUE);
   TH2::SetDefaultSumw2(kTRUE);
 
-  histoFile = new TFile("higgsHistograms_ggM125_8TeV_pythia8_175_v2_mumuGamma_local.root", "RECREATE");
-  trainingFile = new TFile("higgsTraining_ggM125_8TeV_pythia8_175_v2_mumuGamma_local.root", "RECREATE");
-  sampleFile = new TFile("higgsSample_ggM125_8TeV_pythia8_175_v2_mumuGamma_local.root", "RECREATE");
-  higgsFile = new TFile("higgsFile_ggM125_8TeV_pythia8_175_v2_mumuGamma_local.root", "RECREATE");
-  eleSmearFile = new TFile("eleSmearFile_ggM125_8TeV_pythia8_175_v2_mumuGamma_local.root", "RECREATE");
-  eleIDISOFile = new TFile("eleIDISOFile_ggM125_8TeV_pythia8_175_v2_mumuGamma_local.root", "RECREATE");
-  m_llgFile = new TFile("m_llgFile_ggM125_8TeV_pythia8_175_v2_mumuGamma_local.root","RECREATE");
+  histoFile = new TFile("higgsHistograms_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root", "RECREATE");
+  trainingFile = new TFile("higgsTraining_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root", "RECREATE");
+  sampleFile = new TFile("higgsSample_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root", "RECREATE");
+  higgsFile = new TFile("higgsFile_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root", "RECREATE");
+  eleSmearFile = new TFile("eleSmearFile_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root", "RECREATE");
+  eleIDISOFile = new TFile("eleIDISOFile_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root", "RECREATE");
+  m_llgFile = new TFile("m_llgFile_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root","RECREATE");
 
   trainingFile->cd();
   trainingChain = new TTree("varMVA","hey everyone it's the training tree");
@@ -280,7 +280,7 @@ void higgsAnalyzerV2::Begin(TTree * tree)
       <<" "<<"pt/Mllg"
       <<endl<<endl;
 
-    finalDump.open("dumps/finalDump_mumuGamma_2012_Signal2012ggM125.txt");
+    finalDump.open("dumps/finalDump_eeGamma_2012_Signal2012ggM125.txt");
   }
 
   if (dataDumps && suffix == "DATA"){
@@ -1480,8 +1480,10 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
   /////////////
   
   float MEdisc = MEDiscriminator(lepton1,lepton2,GP4);
-  if (MEdisc < 0.063) return kTRUE;
+  //if (MEdisc < 0.02) return kTRUE;
   //cout<<"MEDisc:\t"<<MEdisc<<endl;
+  hm->fillProfile((GP4+ZP4).M(),MEdisc,"p_MassVsME_Signal2012ggM125", "Average ME value per Mass; m_{ll#gamma}; ME Disc", 45, 100, 190, eventWeight);
+  hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsME_Signal2012ggM125","Mass vs ME; m_{ll#gamma}; ME Disc", 45,100,190,45,0,0.2,eventWeight);
   hm->fill1DHist(24,"h1_acceptanceByCut_Signal2012ggM125", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");
   hm->fill1DHist(24,"h1_acceptanceByCutRaw_Signal2012ggM125", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
   ++nEvents[23];
