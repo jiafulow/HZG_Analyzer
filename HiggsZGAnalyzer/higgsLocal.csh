@@ -45,6 +45,7 @@ cat > run.C << +EOF
     gROOT->LoadMacro("LeptonScaleCorrections.h+");
     gROOT->LoadMacro("EGammaMvaEleEstimator.cc+");
     gROOT->LoadMacro("ZGAngles.cc+");
+    gROOT->LoadMacro("AnalysisParameters.cc+");
     gSystem->Load("libgfortran.so");
     gSystem->Load("../hzgammaME/MCFM-6.6/obj/libmcfm_6p6.so");
     gSystem->Load("../hzgammaME/libME.so");

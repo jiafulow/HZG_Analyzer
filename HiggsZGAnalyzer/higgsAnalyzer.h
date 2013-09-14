@@ -56,6 +56,7 @@
 #include "../interface/LeptonScaleCorrections.h"
 #include "../interface/EGammaMvaEleEstimator.h"
 #include "../interface/ZGAngles.h"
+#include "../interface/AnalysisParameters.h"
 #include "../hzgammaME/TVar.hh"
 #include "../hzgammaME/TEvtProb.cc"
 
@@ -66,6 +67,9 @@
 class higgsAnalyzer : public TSelector {
 
 	private:
+
+    //Params and Cuts:
+    Cuts* cuts;
 
 		TFile* histoFile;
 		TFile* trainingFile;

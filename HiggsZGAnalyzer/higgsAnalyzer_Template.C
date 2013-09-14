@@ -72,6 +72,8 @@ void higgsAnalyzer::Begin(TTree * tree)
     genAccept[i] = 0;
   }
 
+  cuts = Cuts::Instance();
+
   // Get trigger names from jobTree
   vector<string>* triggerNames = 0;
   TFile   *inFile         = tree->GetCurrentFile();
@@ -1202,7 +1204,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       if (engCor) uncorGP4 = *photonsIDIsoUnCor[i]; 
       if (eventNumber == EVENTNUMBER) cout<<"dr1: "<<GP4.DeltaR(lepton1)<<" dr2: "<<GP4.DeltaR(lepton2)<<endl<<" pt/M: "<<GP4.Pt()/(GP4+ZP4).M()<<endl;
       if ((GP4.DeltaR(lepton1)<drCut || GP4.DeltaR(lepton2)<drCut)) continue;
-      if (GP4.Pt()/(GP4+ZP4).M() > gammaPtCut[0] && GP4.Pt() > gammaPtCut[1]) goodPhoton = true;
+      //if (GP4.Pt()/(GP4+ZP4).M() > gammaPtCut[0] && GP4.Pt() > gammaPtCut[1]) goodPhoton = true;
+      if (GP4.Pt()/(GP4+ZP4).M() > gammaPtCut[0] && GP4.Pt() > (*cuts).gPt) goodPhoton = true;
       if(goodPhoton){
         R9 = photonsIDIso[i]->R9();
         R9Cor = R9;
