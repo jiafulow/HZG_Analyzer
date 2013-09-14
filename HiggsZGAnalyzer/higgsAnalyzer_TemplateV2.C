@@ -387,7 +387,7 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
 
   if (nEvents[0] == 1) weighter->SetDataBit(isRealData);
 
-  if (nEvents[0] % (int)1e5 == 0) cout<<nEvents[17]<<" events passed of "<<nEvents[0]<<" checked!"<<endl;
+  if (nEvents[0] % (int)1e5 == 0) cout<<nEvents[23]<<" events passed of "<<nEvents[0]<<" checked!"<<endl;
 
   m_llg = m_llgCAT1 = m_llgCAT2 = m_llgCAT3 = m_llgCAT4 = -1;
   unBinnedWeight = unBinnedLumiXS = 1;
@@ -1482,6 +1482,10 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
   float MEdisc = MEDiscriminator(lepton1,lepton2,GP4);
   //if (MEdisc < 0.02) return kTRUE;
   //cout<<"MEDisc:\t"<<MEdisc<<endl;
+  hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MEUpper_SUFFIX","Mass vs ME; m_{ll#gamma}; ME Disc", 45,100,190,45,0,0.2,eventWeight);
+  if (MEdisc > ((0.1/20)*(GP4+ZP4).M()-0.5)) return kTRUE;
+  //if (MEdisc < (0.06-(0.06/150)*(GP4+ZP4).M())) return kTRUE;
+  if (MEdisc < (-0.000029*pow(((GP4+ZP4).M()-135),2)+0.0225)) return kTRUE;
   hm->fillProfile((GP4+ZP4).M(),MEdisc,"p_MassVsME_SUFFIX", "Average ME value per Mass; m_{ll#gamma}; ME Disc", 45, 100, 190, eventWeight);
   hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsME_SUFFIX","Mass vs ME; m_{ll#gamma}; ME Disc", 45,100,190,45,0,0.2,eventWeight);
   hm->fill1DHist(24,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");

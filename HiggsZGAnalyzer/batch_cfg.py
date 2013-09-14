@@ -8,8 +8,8 @@ FuckEOS     = '/uscms_data/d2/bpollack/FuckEOS'
 outputPath  = '/uscms/home/bpollack/nobackup/BatchOutput'
 #outputPath  = '/eos/uscms/store/user/bpollack/BatchOutput'
 
-selection   = 'mumuGamma'
-#selection   = 'eeGamma'
+#selection   = 'mumuGamma'
+selection   = 'eeGamma'
 
 period      = '2012'
 #period      = '2011'
