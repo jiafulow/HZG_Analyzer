@@ -5,50 +5,11 @@
 using namespace std;
 using namespace parameters;
 
-
-/////////////////
-//Analysis cuts//
-/////////////////
-
-
-static const bool    VBFcuts         = false;
-
-static const bool    DYGammaVeto    = true;
-static const bool    customPhotoID  = false;
-static const bool    spikeVeto      = true;
-
-static const bool    R9switch       = false;
-
-static const bool    doEleMVA       = true;
-
-static const bool    doLooseMuIso   = true;
-
-static const bool    doAnglesMVA = false;
-
-///// debugging dumps /////
-static const bool dumps = false;
-static const bool dataDumps = false;
-static const int EVENTNUMBER = -999;
-
-//// energy corrections ////
-static const bool engCor = true;
-static const bool doR9Cor = true;
-static const bool doEleReg  = true;
-
-//// Scale Factors ////
-static const bool doScaleFactors = true;
-static const bool doLumiXS= false;
-
-///////////////////////////
-//Resources for weighting//
-///////////////////////////
-
-
 void higgsAnalyzer::Begin(TTree * tree)
 {
-/////////////////////////////
-//Specify parameters here. //
-/////////////////////////////
+  /////////////////////////////
+  //Specify parameters here. //
+  /////////////////////////////
 
   selection      = "SELECTION";
   period         = "PERIOD";
@@ -138,55 +99,6 @@ void higgsAnalyzer::Begin(TTree * tree)
   histoFile->mkdir("PreGen", "PreGen");
   histoFile->mkdir("PostGen", "PostGen");
   histoFile->mkdir("ZGAngles", "ZGAngles");
-
-  if (period.find("2012") != string::npos){
-    //combined rel ISO, 2012 Data, 0.5 GeV
-    EAMu[0] =   0.674; //         eta < 1.0
-    EAMu[1] =   0.565; // 1.0   < eta < 1.5
-    EAMu[2] =   0.442; // 1.5   < eta < 2.0
-    EAMu[3] =   0.515; // 2.0   < eta < 2.2
-    EAMu[4] =   0.821; // 2.2   < eta < 2.3
-    EAMu[5] =   0.660; // 2.3   < eta < 2.4
-
-    EAEle[0] =   0.208; //         eta < 1.0
-    EAEle[1] =   0.209; // 1.0   < eta < 1.5
-    EAEle[2] =   0.115; // 1.5   < eta < 2.0
-    EAEle[3] =   0.143; // 2.0   < eta < 2.2
-    EAEle[4] =   0.183; // 2.2   < eta < 2.3
-    EAEle[5] =   0.194; // 2.3   < eta < 2.4
-    EAEle[6] =   0.261; // 2.4   < eta
-
-
-  }else if (period.find("2011") != string::npos){
-    //combined rel ISO, 2011 Data, 0.5 GeV
-    EAMu[0] =   0.132; //         eta < 1.0
-    EAMu[1] =   0.120; // 1.0   < eta < 1.5
-    EAMu[2] =   0.114; // 1.5   < eta < 2.0
-    EAMu[3] =   0.139; // 2.0   < eta < 2.2
-    EAMu[4] =   0.168; // 2.2   < eta < 2.3
-    EAMu[5] =   0.189; // 2.3   < eta < 2.4
-
-
-  }else{
-    Abort("period != 2011 OR 2012, figure your shit out");
-  }
-
-  // ch      nh       ph
-  float EAPhoTemp[7][3] = {
-    {0.012,  0.030,   0.148}, //         eta < 1.0
-    {0.010,  0.057,   0.130}, // 1.0   < eta < 1.479
-    {0.014,  0.039,   0.112}, // 1.479 < eta < 2.0
-    {0.012,  0.015,   0.216}, // 2.0   < eta < 2.2
-    {0.016,  0.024,   0.262}, // 2.2   < eta < 2.3
-    {0.020,  0.039,   0.260}, // 2.3   < eta < 2.4
-    {0.012,  0.072,   0.266}  // 2.4   < eta 
-  };
-
-  for (unsigned int i =0; i<7; i++){
-    for (unsigned int j =0; j<3; j++){
-      EAPho[i][j] = EAPhoTemp[i][j];
-    }
-  }
 
   muonDump = false;
   electronDump = false;
@@ -677,7 +589,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     if(doEleMVA){
       bool passAll = false;
 
-      if(electronDump) MVADumper(thisElec, myMVATrig, rhoFactor, elDumpMVA);
+      if(electronDump) MVADumper(thisElec, myMVATrig, rhoFactor,cuts->looseElIso, cuts->EAEle, elDumpMVA);
 
       if (thisElec->IdMap("preSelPassV1")) electronsID.push_back(*thisElec);			
       double tmpMVAValue = myMVATrig->mvaValue(
@@ -706,10 +618,10 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
           false);                
                                                                   
       /// inner barrel
-      if (thisElec->IdMap("preSelPassV1") && thisElec->Pt() > 20 && tmpMVAValue > -0.5 && PassElectronIso(thisElec, looseElIso)){
+      if (thisElec->IdMap("preSelPassV1") && thisElec->Pt() > 20 && tmpMVAValue > -0.5 && PassElectronIso(thisElec, cuts->looseElIso, cuts->EAEle)){
         passAll = true;
       /// outer barrel
-      }else if (thisElec->IdMap("preSelPassV1") && thisElec->Pt() < 20 && tmpMVAValue > -0.90 && PassElectronIso(thisElec, looseElIso)){
+      }else if (thisElec->IdMap("preSelPassV1") && thisElec->Pt() < 20 && tmpMVAValue > -0.90 && PassElectronIso(thisElec, cuts->looseElIso, cuts->EAEle)){
         passAll = true;
       }
 
@@ -733,9 +645,9 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         cloneElectron = thisElec;
         thisElec->SetPtEtaPhiM(newPt,thisElec->Eta(),thisElec->Phi(),0.000511);
       }
-      if (electronDump) ElectronDump(thisElec, looseElID, looseElIso, elDump2);
-      if (PassElectronID(thisElec, looseElID)) electronsID.push_back(*thisElec);			
-      if (PassElectronID(thisElec, looseElID) && PassElectronIso(thisElec, looseElIso)){
+      if (electronDump) ElectronDump(thisElec, cuts->looseElID, cuts->looseElIso, cuts->EAEle, elDump2);
+      if (PassElectronID(thisElec, cuts->looseElID)) electronsID.push_back(*thisElec);			
+      if (PassElectronID(thisElec, cuts->looseElID) && PassElectronIso(thisElec, cuts->looseElIso, cuts->EAEle)){
         electronsIDIso.push_back(*thisElec);			
         if (engCor) electronsIDIsoUnCor.push_back(*cloneElectron);
       }
@@ -818,22 +730,22 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     // tight muon id
 
     if (doLooseMuIso){
-      if(muonDump) MuonDump(thisMuon, tightMuID, looseMuIso, muDump1);
+      if(muonDump) MuonDump(thisMuon, cuts->tightMuID, cuts->looseMuIso, muDump1);
     }else{
-      if(muonDump) MuonDump(thisMuon, tightMuID, tightMuIso, muDump1);
+      if(muonDump) MuonDump(thisMuon, cuts->tightMuID, cuts->tightMuIso, muDump1);
     }
 
-    if (PassMuonID(thisMuon, tightMuID)) muonsID.push_back(*thisMuon);
+    if (PassMuonID(thisMuon, cuts->tightMuID)) muonsID.push_back(*thisMuon);
 
     //tight ID and Iso
 
     if (doLooseMuIso){
-      if (PassMuonID(thisMuon, tightMuID) && PassMuonIso(thisMuon, looseMuIso)){
+      if (PassMuonID(thisMuon, cuts->tightMuID) && PassMuonIso(thisMuon, cuts->looseMuIso)){
         muonsIDIso.push_back(*thisMuon);
         if (engCor) muonsIDIsoUnCor.push_back(*cloneMuon);
       }
     }else{
-      if (PassMuonID(thisMuon, tightMuID) && PassMuonIso(thisMuon, tightMuIso)){
+      if (PassMuonID(thisMuon, cuts->tightMuID) && PassMuonIso(thisMuon, cuts->tightMuIso)){
         muonsIDIso.push_back(*thisMuon);
         if (engCor) muonsIDIsoUnCor.push_back(*cloneMuon);
       }
@@ -929,9 +841,9 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
       ////// Currently Using Cut-Based Photon ID, 2012
 
-      if (dumps) PhotonDump(thisPhoton, cuts->mediumPhID, cuts->mediumPhIso, phDump1);
+      if (dumps) PhotonDump(thisPhoton, cuts->mediumPhID, cuts->mediumPhIso, cuts->EAPho, phDump1);
       if (PassPhotonID(thisPhoton, cuts->mediumPhID)) photonsID.push_back(thisPhoton);
-      if (PassPhotonID(thisPhoton, cuts->mediumPhID) && PassPhotonIso(thisPhoton, cuts->mediumPhIso)){
+      if (PassPhotonID(thisPhoton, cuts->mediumPhID) && PassPhotonIso(thisPhoton, cuts->mediumPhIso, cuts->EAPho)){
         photonsIDIso.push_back(thisPhoton);
         if (engCor) photonsIDIsoUnCor.push_back(clonePhoton);
       }
@@ -1168,7 +1080,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   if (dumps){
     for (Int_t i = 0; i < photonsIDIso.size(); ++i) {
-      PhotonDump2(photonsIDIso[i], cuts->mediumPhID, cuts->mediumPhIso, lepton1, lepton2, phDump2);
+      PhotonDump2(photonsIDIso[i], cuts->mediumPhID, cuts->mediumPhIso, cuts->EAPho, lepton1, lepton2, phDump2);
     }
   }
 
@@ -1656,16 +1568,16 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     if (dumps){
       if (selection == "mumuGamma"){
         if (doLooseMuIso){
-          MuonDump(&muonsIDIso[lepton1int], tightMuID, looseMuIso, muDumpFinal);
-          MuonDump(&muonsIDIso[lepton2int], tightMuID, looseMuIso, muDumpFinal);
+          MuonDump(&muonsIDIso[lepton1int], cuts->tightMuID, cuts->looseMuIso, muDumpFinal);
+          MuonDump(&muonsIDIso[lepton2int], cuts->tightMuID, cuts->looseMuIso, muDumpFinal);
         }else{
-          MuonDump(&muonsIDIso[lepton1int], tightMuID, tightMuIso, muDumpFinal);
-          MuonDump(&muonsIDIso[lepton2int], tightMuID, tightMuIso, muDumpFinal);
+          MuonDump(&muonsIDIso[lepton1int], cuts->tightMuID, cuts->tightMuIso, muDumpFinal);
+          MuonDump(&muonsIDIso[lepton2int], cuts->tightMuID, cuts->tightMuIso, muDumpFinal);
         }
 
       } else if (selection == "eeGamma"){
-        ElectronDump(&electronsIDIso[lepton1int], looseElID, looseElIso, elDumpFinal);
-        ElectronDump(&electronsIDIso[lepton2int], looseElID, looseElIso, elDumpFinal);
+        ElectronDump(&electronsIDIso[lepton1int], cuts->looseElID, cuts->looseElIso, cuts->EAEle, elDumpFinal);
+        ElectronDump(&electronsIDIso[lepton2int], cuts->looseElID, cuts->looseElIso, cuts->EAEle, elDumpFinal);
       }
     }
 
@@ -2293,7 +2205,7 @@ float higgsAnalyzer::Zeppenfeld(TLorentzVector p, TLorentzVector pj1, TLorentzVe
 //////////////////////////////////
 
 
-bool higgsAnalyzer::PassMuonID(TCMuon *mu, muIDCuts cutLevel){
+bool higgsAnalyzer::PassMuonID(TCMuon *mu, Cuts::muIDCuts cutLevel){
 
   bool muPass = false;
 
@@ -2326,7 +2238,7 @@ bool higgsAnalyzer::PassMuonID(TCMuon *mu, muIDCuts cutLevel){
   return muPass;
 }
 
-bool higgsAnalyzer::PassMuonIso(TCMuon *mu, muIsoCuts cutLevel){
+bool higgsAnalyzer::PassMuonIso(TCMuon *mu, Cuts::muIsoCuts cutLevel){
 
   float combIso;
 
@@ -2339,7 +2251,7 @@ bool higgsAnalyzer::PassMuonIso(TCMuon *mu, muIsoCuts cutLevel){
 }
 
 
-bool higgsAnalyzer::PassElectronID(TCElectron *el, elIDCuts cutLevel)
+bool higgsAnalyzer::PassElectronID(TCElectron *el, Cuts::elIDCuts cutLevel)
 {
   bool elPass = false;
   if (fabs(el->SCEta()) > 2.5) return elPass;
@@ -2384,7 +2296,7 @@ bool higgsAnalyzer::PassElectronID(TCElectron *el, elIDCuts cutLevel)
        return elPass;
 }
 
-bool higgsAnalyzer::PassElectronIso(TCElectron *el, elIsoCuts cutLevel){
+bool higgsAnalyzer::PassElectronIso(TCElectron *el, Cuts::elIsoCuts cutLevel, float* EAEle){
   float thisEA = 0;
   if (fabs(el->Eta())     <  1.0) thisEA = EAEle[0];
   else if (fabs(el->Eta())     <  1.5) thisEA = EAEle[1];
@@ -2422,7 +2334,7 @@ bool higgsAnalyzer::PassPhotonID(TCPhoton *ph, Cuts::phIDCuts cutLevel){
   return phoPass;
 }
 
-bool higgsAnalyzer::PassPhotonIso(TCPhoton *ph, Cuts::phIsoCuts cutLevel){
+bool higgsAnalyzer::PassPhotonIso(TCPhoton *ph, Cuts::phIsoCuts cutLevel, float EAPho[7][3]){
   float chEA,nhEA,phEA,chIsoCor,nhIsoCor,phIsoCor,tmpEta;
   bool isoPass = false;
   tmpEta = ph->SCEta();
@@ -2501,7 +2413,7 @@ bool higgsAnalyzer::PassPhotonIso(TCPhoton *ph, Cuts::phIsoCuts cutLevel){
 //////////////////////////////
 
 
-void higgsAnalyzer::ElectronDump(TCElectron *el, elIDCuts cutLevelID, elIsoCuts cutLevelIso, ofstream & dump)
+void higgsAnalyzer::ElectronDump(TCElectron *el, Cuts::elIDCuts cutLevelID, Cuts::elIsoCuts cutLevelIso, float* EAEle, ofstream & dump)
 {
   float thisEA = 0;
   if (fabs(el->Eta())     <  1.0) thisEA = EAEle[0];
@@ -2513,7 +2425,7 @@ void higgsAnalyzer::ElectronDump(TCElectron *el, elIDCuts cutLevelID, elIsoCuts 
   else if (fabs(el->Eta())     >  2.4) thisEA = EAEle[6];
 
   bool idPass = PassElectronID(el, cutLevelID);
-  bool isoPass = PassElectronIso(el, cutLevelIso);
+  bool isoPass = PassElectronIso(el, cutLevelIso, EAEle);
 
   float combIso = (el->IsoMap("pfChIso_R04")
     + max(0.,(double)el->IsoMap("pfNeuIso_R04") + el->IsoMap("pfPhoIso_R04") - rhoFactor*el->IsoMap("EffArea_R04")));
@@ -2528,15 +2440,8 @@ void higgsAnalyzer::ElectronDump(TCElectron *el, elIDCuts cutLevelID, elIsoCuts 
        << endl;
 }
 
-void higgsAnalyzer::MuonDump(TCMuon *mu, muIDCuts cutLevelID, muIsoCuts cutLevelIso, ofstream & dump)
+void higgsAnalyzer::MuonDump(TCMuon *mu, Cuts::muIDCuts cutLevelID, Cuts::muIsoCuts cutLevelIso, ofstream & dump)
 {
-  float thisEA = 0;
-  if (fabs(mu->Eta())     <  1.0) thisEA = EAMu[0];
-  else if (fabs(mu->Eta())     <  1.5) thisEA = EAMu[1];
-  else if (fabs(mu->Eta())     <  2.0) thisEA = EAMu[2];
-  else if (fabs(mu->Eta())     <  2.2) thisEA = EAMu[3];
-  else if (fabs(mu->Eta())     <  2.3) thisEA = EAMu[4];
-  else if (fabs(mu->Eta())     <  2.4) thisEA = EAMu[5];
 
   bool idPass = PassMuonID(mu, cutLevelID);
   bool isoPass = PassMuonIso(mu, cutLevelIso);
@@ -2555,7 +2460,7 @@ void higgsAnalyzer::MuonDump(TCMuon *mu, muIDCuts cutLevelID, muIsoCuts cutLevel
        << endl;
 }
 
-void higgsAnalyzer::PhotonDump(TCPhoton *ph, Cuts::phIDCuts cutLevelID, Cuts::phIsoCuts cutLevelIso, ofstream & dump)
+void higgsAnalyzer::PhotonDump(TCPhoton *ph, Cuts::phIDCuts cutLevelID, Cuts::phIsoCuts cutLevelIso, float EAPho[7][3], ofstream & dump)
 {
   float chEA,nhEA,phEA,tmpEta;
   tmpEta = ph->SCEta();
@@ -2591,7 +2496,7 @@ void higgsAnalyzer::PhotonDump(TCPhoton *ph, Cuts::phIDCuts cutLevelID, Cuts::ph
   }
 
   bool idPass = PassPhotonID(ph, cutLevelID);
-  bool isoPass = PassPhotonIso(ph, cutLevelIso);
+  bool isoPass = PassPhotonIso(ph, cutLevelIso, EAPho);
 
   dump << runNumber << " "                   << eventNumber << " "                   << ph->Pt()
        << " "       << tmpEta                << " "         << ph->ConversionVeto()  << " "      << ph->HadOverEm()
@@ -2602,7 +2507,7 @@ void higgsAnalyzer::PhotonDump(TCPhoton *ph, Cuts::phIDCuts cutLevelID, Cuts::ph
        << endl;
 }
 
-void higgsAnalyzer::PhotonDump2(TCPhoton *ph, Cuts::phIDCuts cutLevelID, Cuts::phIsoCuts cutLevelIso, TLorentzVector lepton1, TLorentzVector lepton2, ofstream & dump)
+void higgsAnalyzer::PhotonDump2(TCPhoton *ph, Cuts::phIDCuts cutLevelID, Cuts::phIsoCuts cutLevelIso, float EAPho[7][3], TLorentzVector lepton1, TLorentzVector lepton2, ofstream & dump)
 {
   float chEA,nhEA,phEA,tmpEta;
   tmpEta = ph->SCEta();
@@ -2638,7 +2543,7 @@ void higgsAnalyzer::PhotonDump2(TCPhoton *ph, Cuts::phIDCuts cutLevelID, Cuts::p
   }
 
   bool idPass = PassPhotonID(ph, cutLevelID);
-  bool isoPass = PassPhotonIso(ph, cutLevelIso);
+  bool isoPass = PassPhotonIso(ph, cutLevelIso, EAPho);
 
   float dr1 = ph->DeltaR(lepton1);
   float dr2 = ph->DeltaR(lepton2);
@@ -2728,7 +2633,7 @@ void higgsAnalyzer::FinalDumper(TLorentzVector* lepton1, TLorentzVector* lepton2
   }
 }
 
-void higgsAnalyzer::MVADumper(TCElectron* ele, EGammaMvaEleEstimator* mvaMaker, double rhoFactor, ofstream & dump){
+void higgsAnalyzer::MVADumper(TCElectron* ele, EGammaMvaEleEstimator* mvaMaker, double rhoFactor, Cuts::elIsoCuts cutLevelIso, float* EAEle, ofstream & dump){
   bool passPreSel = false;
   bool passMVA = false;
   if (ele->IdMap("preSelPassV1")) passPreSel = true;			
@@ -2766,7 +2671,7 @@ void higgsAnalyzer::MVADumper(TCElectron* ele, EGammaMvaEleEstimator* mvaMaker, 
   }
 
   bool passIso = false;
-  passIso = PassElectronIso(ele, looseElIso);
+  passIso = PassElectronIso(ele, cutLevelIso, EAEle);
 
 dump << " run: "                   << setw(7)  << runNumber                            << " evt: "                   << setw(10) << eventNumber                          << " lumi: "                  << setw(5)  << lumiSection
      << " pt: "                    << setw(10) << ele->Pt()                            << " SCeta: "                 << setw(10) << ele->SCEta()                         << " fbrem: "                 << setw(10) << ele->IdMap("fbrem")

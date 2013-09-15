@@ -14,13 +14,33 @@ namespace parameters
   int     JC_LVL;
   string  abcd;
   string  suffix;
+
+  bool VBFcuts         = false;
+  bool DYGammaVeto    = true;
+  bool customPhotoID  = false;
+  bool spikeVeto      = true;
+
+  bool R9switch       = false;
+
+  bool doEleMVA       = true;
+
+  bool doLooseMuIso   = true;
+  bool doAnglesMVA = false;
+
+  ///// debugging dumps /////
+  bool dumps = false;
+  bool dataDumps = false;
+  int EVENTNUMBER = -999;
+
+  //// energy corrections ////
+  bool engCor = true;
+  bool doR9Cor = true;
+  bool doEleReg  = true;
+
+  //// Scale Factors ////
+  bool doScaleFactors = true;
+  bool doLumiXS= false;
 }
-
-//class Switches{
-//  public:
-//    static Switches* Instance();
-//    const bool 
-
 
 class Cuts{
   public:

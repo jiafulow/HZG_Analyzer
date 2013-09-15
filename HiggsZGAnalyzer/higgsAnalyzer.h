@@ -279,80 +279,12 @@ class higgsAnalyzer : public TSelector {
 
     void FindGenParticles(TClonesArray* genParticles, string selection, vector<TCGenParticle>& vetoPhotons, genHZGParticles& _genHZG);
     void CleanUpGen(genHZGParticles& _genHZG);
-
-    //////////////////////
-    // Cut and Iso Defs //
-    //////////////////////
-
-    float EAMu[6]; 
-    float EAEle[7]; 
-    float EAPho[7][3];
-
-    struct muIDCuts{
-      float IsPF;
-      float IsGLB;
-      float NormalizedChi2;
-      float NumberOfValidMuonHits;
-      float NumberOfMatchedStations;
-      float NumberOfValidPixelHits;
-      float TrackLayersWithMeasurement;
-      float dxy;
-      float dz;
-      string cutName;
-    } tightMuID;
-
-    struct muIsoCuts{
-      float chIso04;
-      float nhIso04;
-      float phIso04;
-      float relCombIso04;
-      string cutName;
-    } tightMuIso, looseMuIso;
-
-    struct elIDCuts{
-      //broken into [0] barrel and [1] endcap
-      float dEtaIn[2];
-      float dPhiIn[2];
-      float sigmaIetaIeta[2];
-      float HadOverEm[2];
-      float dxy[2];
-      float dz[2];
-      float fabsEPDiff[2];
-      float ConversionMissHits[2];
-      float PassedConversionProb[2];
-      string cutName;
-    } vetoElID,looseElID;
-
-    struct elIsoCuts{
-      float chIso04;
-      float nhIso04;
-      float phIso04;
-      float relCombIso04;
-      string cutName;
-    } looseElIso;
-
-    struct phIDCuts{
-      //broken into [0] barrel and [1] endcap
-      float PassedEleSafeVeto[2];
-      float HadOverEm[2];
-      float sigmaIetaIeta[2];
-      string cutName;
-    } loosePhID, mediumPhID;
-
-    struct phIsoCuts{
-      float chIso03[2];
-      float nhIso03[2];
-      float phIso03[2];
-      float relCombIso03[2];
-      string cutName;
-    } loosePhIso, mediumPhIso;
-
-    virtual bool      PassMuonID(TCMuon *mu, muIDCuts cutLevel);
-    virtual bool      PassMuonIso(TCMuon *mu, muIsoCuts cutLevel);
-    virtual bool      PassElectronID(TCElectron *el, elIDCuts cutLevel);
-    virtual bool      PassElectronIso(TCElectron *el, elIsoCuts cutLevel);
+    virtual bool      PassMuonID(TCMuon *mu, Cuts::muIDCuts cutLevel);
+    virtual bool      PassMuonIso(TCMuon *mu, Cuts::muIsoCuts cutLevel);
+    virtual bool      PassElectronID(TCElectron *el, Cuts::elIDCuts cutLevel);
+    virtual bool      PassElectronIso(TCElectron *el, Cuts::elIsoCuts cutLevel, float* EAEle);
     virtual bool      PassPhotonID(TCPhoton *ph, Cuts::phIDCuts cutLevel);
-    virtual bool      PassPhotonIso(TCPhoton *ph, Cuts::phIsoCuts cutLevel);
+    virtual bool      PassPhotonIso(TCPhoton *ph, Cuts::phIsoCuts cutLevel, float EAPho[7][3]);
 
     virtual void      LumiXSWeight(float *lumiXS);
 
@@ -361,11 +293,11 @@ class higgsAnalyzer : public TSelector {
     // Debugging Dumps //
     /////////////////////
 
-    virtual void  ElectronDump(TCElectron *el, elIDCuts cutLevelID, elIsoCuts cutLevelIso, ofstream & dump);
-    virtual void  MVADumper(TCElectron *ele, EGammaMvaEleEstimator* mvaMaker, double rhoFactor, ofstream & dump);
-    virtual void  MuonDump(TCMuon *mu, muIDCuts cutLevelID, muIsoCuts cutLevelIso, ofstream & dump);
-    virtual void  PhotonDump(TCPhoton *ph, Cuts::phIDCuts cutLevelID, Cuts::phIsoCuts cutLevelIso, ofstream & dump);
-    virtual void  PhotonDump2(TCPhoton *ph, Cuts::phIDCuts cutLevelID, Cuts::phIsoCuts cutLevelIso, TLorentzVector lepton1, TLorentzVector lepton2, ofstream & dump);
+    virtual void  ElectronDump(TCElectron *el, Cuts::elIDCuts cutLevelID, Cuts::elIsoCuts cutLevelIso, float* EAEle, ofstream & dump);
+    virtual void  MVADumper(TCElectron *ele, EGammaMvaEleEstimator* mvaMaker, double rhoFactor, Cuts::elIsoCuts cutLevelIso, float* EAEle, ofstream & dump);
+    virtual void  MuonDump(TCMuon *mu, Cuts::muIDCuts cutLevelID, Cuts::muIsoCuts cutLevelIso, ofstream & dump);
+    virtual void  PhotonDump(TCPhoton *ph, Cuts::phIDCuts cutLevelID, Cuts::phIsoCuts cutLevelIso, float EAPho[7][3], ofstream & dump);
+    virtual void  PhotonDump2(TCPhoton *ph, Cuts::phIDCuts cutLevelID, Cuts::phIsoCuts cutLevelIso, float EAPho[7][3], TLorentzVector lepton1, TLorentzVector lepton2, ofstream & dump);
     virtual void  DataDumper(TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* gamma, float R9, float SCEta, ofstream & dump, float eta1, float eta2);
     virtual void  DataDumper(TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* gamma,
         TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* uncorGamma, float R9, float SCEta, ofstream & dump, float eta1, float eta2);
@@ -478,127 +410,6 @@ void higgsAnalyzer::Init(TTree *tree)
 	fChain->SetBranchAddress("nPUVerticesTrue", &nPUVerticesTrue, &b_nPUVerticesTrue);
 	fChain->SetBranchAddress("triggerStatus", &triggerStatus, &b_triggerStatus);
 	fChain->SetBranchAddress("hltPrescale",&hltPrescale, &b_hltPrescale);
-
-  //jobTree->SetBranchAddress("nEvents", &unskimmedEvents, &b_unskimmedEvents);
-
-	// ADD THESE!
-	//eventTree->Branch("recoTaus",&recoTaus, 6400, 0);
-	//eventTree->Branch("beamSpot", &beamSpot, 6400, 0);
-	//eventTree->Branch("bunchCross",&bunchCross, "bunchCross/i");
-	//eventTree->Branch("qScale", &qScale, "qScale/F");
-	//eventTree->Branch("evtWeight", &evtWeight, "evtWeight/F");
-
-  ///////////////
-  // Cuts Init //
-  ///////////////
-
-
-  vetoElID.cutName =                     "vetoElID";
-  vetoElID.dEtaIn[0] =                   0.007;
-  vetoElID.dPhiIn[0] =                   0.8;
-  vetoElID.sigmaIetaIeta[0] =            0.01;
-  vetoElID.HadOverEm[0] =                0.15;
-  vetoElID.dxy[0] =                      0.04;
-  vetoElID.dz[0] =                       0.2;
-  vetoElID.fabsEPDiff[0] =               99999;
-  vetoElID.ConversionMissHits[0] =       99999;
-  vetoElID.PassedConversionProb[0] =     1;
-
-  vetoElID.dEtaIn[1] =                   0.01;
-  vetoElID.dPhiIn[1] =                   0.7;
-  vetoElID.sigmaIetaIeta[1] =            0.03;
-  vetoElID.HadOverEm[1] =                999999;
-  vetoElID.dxy[1] =                      0.04;
-  vetoElID.dz[1] =                       0.2;
-  vetoElID.fabsEPDiff[1] =               999999;
-  vetoElID.ConversionMissHits[1] =       999999;
-  vetoElID.PassedConversionProb[1] =     1;
-
-  looseElID.cutName =                     "looseElID";
-  looseElID.dEtaIn[0] =                   0.007;
-  looseElID.dPhiIn[0] =                   0.15;
-  looseElID.sigmaIetaIeta[0] =            0.01;
-  looseElID.HadOverEm[0] =                0.12;
-  looseElID.dxy[0] =                      0.02;
-  looseElID.dz[0] =                       0.2;
-  looseElID.fabsEPDiff[0] =               0.05;
-  looseElID.ConversionMissHits[0] =       1;
-  looseElID.PassedConversionProb[0] =     1;
-
-  looseElID.dEtaIn[1] =                   0.009;
-  looseElID.dPhiIn[1] =                   0.10;
-  looseElID.sigmaIetaIeta[1] =            0.03;
-  looseElID.HadOverEm[1] =                0.10;
-  looseElID.dxy[1] =                      0.02;
-  looseElID.dz[1] =                       0.2;
-  looseElID.fabsEPDiff[1] =               0.05;
-  looseElID.ConversionMissHits[1] =       1;
-  looseElID.PassedConversionProb[1] =     1;
-  
-  looseElIso.cutName =                    "looseElIso";
-  looseElIso.chIso04 =                    99999;
-  looseElIso.nhIso04 =                    99999;
-  looseElIso.phIso04 =                    99999;
-  looseElIso.relCombIso04 =               0.4;
-
-  tightMuID.cutName =                     "tightMuID";
-  tightMuID.IsPF =                        1;
-  tightMuID.IsGLB =                       1;
-  tightMuID.NormalizedChi2 =              10;
-  tightMuID.NumberOfValidMuonHits =       0;
-  tightMuID.NumberOfMatchedStations =     1;
-  tightMuID.NumberOfValidPixelHits =      0;
-  tightMuID.TrackLayersWithMeasurement =  5;
-  tightMuID.dxy =                         0.2;
-  tightMuID.dz =                          0.5;
-  
-  tightMuIso.cutName =                    "tightMuIso";
-  tightMuIso.chIso04 =                    99999;
-  tightMuIso.nhIso04 =                    99999;
-  tightMuIso.phIso04 =                    99999;
-  tightMuIso.relCombIso04 =               0.12;
-
-  looseMuIso.cutName =                    "looseMuIso";
-  looseMuIso.chIso04 =                    99999;
-  looseMuIso.nhIso04 =                    99999;
-  looseMuIso.phIso04 =                    99999;
-  looseMuIso.relCombIso04 =               0.4;
-
-  loosePhID.cutName =                     "loosePhID";
-  loosePhID.PassedEleSafeVeto[0] =        1;
-  loosePhID.HadOverEm[0] =                0.05;
-  loosePhID.sigmaIetaIeta[0] =            0.012;
-
-  loosePhID.PassedEleSafeVeto[1] =        1;
-  loosePhID.HadOverEm[1] =                0.05;
-  loosePhID.sigmaIetaIeta[1] =            0.034;
-
-  loosePhIso.cutName =                    "loosePhIso";
-  loosePhIso.chIso03[0] =                 2.6;
-  loosePhIso.nhIso03[0] =                 3.5;
-  loosePhIso.phIso03[0] =                 1.3;
-
-  loosePhIso.chIso03[1] =                 2.3;
-  loosePhIso.nhIso03[1] =                 2.9;
-  loosePhIso.phIso03[1] =                 99999;
-
-  mediumPhID.cutName =                     "mediumPhID";
-  mediumPhID.PassedEleSafeVeto[0] =        1;
-  mediumPhID.HadOverEm[0] =                0.05;
-  mediumPhID.sigmaIetaIeta[0] =            0.011;
-
-  mediumPhID.PassedEleSafeVeto[1] =        1;
-  mediumPhID.HadOverEm[1] =                0.05;
-  mediumPhID.sigmaIetaIeta[1] =            0.033;
-
-  mediumPhIso.cutName =                    "mediumPhIso";
-  mediumPhIso.chIso03[0] =                 1.5;
-  mediumPhIso.nhIso03[0] =                 1.0;
-  mediumPhIso.phIso03[0] =                 0.7;
-
-  mediumPhIso.chIso03[1] =                 1.2;
-  mediumPhIso.nhIso03[1] =                 1.5;
-  mediumPhIso.phIso03[1] =                 1.0;
 
 
   ///////////////////////
