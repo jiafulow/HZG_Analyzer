@@ -351,8 +351,8 @@ class higgsAnalyzer : public TSelector {
     virtual bool      PassMuonIso(TCMuon *mu, muIsoCuts cutLevel);
     virtual bool      PassElectronID(TCElectron *el, elIDCuts cutLevel);
     virtual bool      PassElectronIso(TCElectron *el, elIsoCuts cutLevel);
-    virtual bool      PassPhotonID(TCPhoton *ph, phIDCuts cutLevel);
-    virtual bool      PassPhotonIso(TCPhoton *ph, phIsoCuts cutLevel);
+    virtual bool      PassPhotonID(TCPhoton *ph, Cuts::phIDCuts cutLevel);
+    virtual bool      PassPhotonIso(TCPhoton *ph, Cuts::phIsoCuts cutLevel);
 
     virtual void      LumiXSWeight(float *lumiXS);
 
@@ -364,8 +364,8 @@ class higgsAnalyzer : public TSelector {
     virtual void  ElectronDump(TCElectron *el, elIDCuts cutLevelID, elIsoCuts cutLevelIso, ofstream & dump);
     virtual void  MVADumper(TCElectron *ele, EGammaMvaEleEstimator* mvaMaker, double rhoFactor, ofstream & dump);
     virtual void  MuonDump(TCMuon *mu, muIDCuts cutLevelID, muIsoCuts cutLevelIso, ofstream & dump);
-    virtual void  PhotonDump(TCPhoton *ph, phIDCuts cutLevelID, phIsoCuts cutLevelIso, ofstream & dump);
-    virtual void  PhotonDump2(TCPhoton *ph, phIDCuts cutLevelID, phIsoCuts cutLevelIso, TLorentzVector lepton1, TLorentzVector lepton2, ofstream & dump);
+    virtual void  PhotonDump(TCPhoton *ph, Cuts::phIDCuts cutLevelID, Cuts::phIsoCuts cutLevelIso, ofstream & dump);
+    virtual void  PhotonDump2(TCPhoton *ph, Cuts::phIDCuts cutLevelID, Cuts::phIsoCuts cutLevelIso, TLorentzVector lepton1, TLorentzVector lepton2, ofstream & dump);
     virtual void  DataDumper(TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* gamma, float R9, float SCEta, ofstream & dump, float eta1, float eta2);
     virtual void  DataDumper(TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* gamma,
         TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* uncorGamma, float R9, float SCEta, ofstream & dump, float eta1, float eta2);
