@@ -3,9 +3,6 @@
 #include <iostream>
 
 
-//TCPhoton::TCPhoton() { }
-
-
 TCPhoton::TCPhoton() {
   _crysArray = new CrystalInfo[100];
 

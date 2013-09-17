@@ -1,7 +1,9 @@
 #include "../interface/AnalysisParameters.h"
+#include "../interface/AnalysisParametersLinkDef.h"
 
 using namespace std;
 
+Cuts::~Cuts(){}
 Cuts::Cuts():
   leadJetPt(30),
   trailJetPt(30),
@@ -158,6 +160,14 @@ void Cuts::InitEA(string year)
     EAMu[4] =   0.168; // 2.2   < eta < 2.3
     EAMu[5] =   0.189; // 2.3   < eta < 2.4
 
+    EAEle[0] =   0.208; //         eta < 1.0
+    EAEle[1] =   0.209; // 1.0   < eta < 1.5
+    EAEle[2] =   0.115; // 1.5   < eta < 2.0
+    EAEle[3] =   0.143; // 2.0   < eta < 2.2
+    EAEle[4] =   0.183; // 2.2   < eta < 2.3
+    EAEle[5] =   0.194; // 2.3   < eta < 2.4
+    EAEle[6] =   0.261; // 2.4   < eta
+
 
   }else{
     cerr<<"period != 2011 OR 2012, figure your shit out"<<endl;
@@ -182,16 +192,7 @@ void Cuts::InitEA(string year)
   }
 }
 
-Cuts* Cuts::m_pInstance = NULL;
 
-Cuts* Cuts::Instance(string year)
-{
-  if (!m_pInstance){
-    m_pInstance = new Cuts();
-    m_pInstance->InitEA(year);
-  }
-  return m_pInstance;
-}
 
 
 //static const float jetPtCut[] = {30,30}, muPtCut[] = {20,10}, elePtCut[] = {20,10}, gammaPtCut[] = {15./110.,15.}, zMassCut[] = {50,99999.}, metCut[] = {-9999.,9999.},

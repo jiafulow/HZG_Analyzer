@@ -57,6 +57,7 @@
 #include "../interface/EGammaMvaEleEstimator.h"
 #include "../interface/ZGAngles.h"
 #include "../interface/AnalysisParameters.h"
+#include "../interface/ParticleSelectors.h"
 #include "../hzgammaME/TVar.hh"
 #include "../hzgammaME/TEvtProb.cc"
 
@@ -220,7 +221,7 @@ class higgsAnalyzer : public TSelector {
     int          genAccept[2];
 
 		higgsAnalyzer(TTree * /*tree*/ =0): fChain(0){ }
-		virtual ~higgsAnalyzer() { }
+		virtual ~higgsAnalyzer() {delete cuts;cout<<"destruct HA"<<endl; }
 		virtual int     Version() const { return 2; }
 		virtual void    Begin(TTree *tree);
 		//virtual void    SlaveBegin(TTree *tree) { TString option = GetOption();};
@@ -235,7 +236,7 @@ class higgsAnalyzer : public TSelector {
 		virtual void    SlaveTerminate() {};
 		virtual void    Terminate();
 
-    static bool P4SortCondition(const TLorentzVector& p1, const TLorentzVector& p2) {return (p1.Pt() > p2.Pt());} 
+    static bool P4SortCondition(const TLorentzVector* p1, const TLorentzVector* p2) {return (p1->Pt() > p2->Pt());} 
     static bool VertexSortCondition(const TCPrimaryVtx& pv1, const TCPrimaryVtx& pv2) {return (pv1.SumPt2Trks() > pv2.SumPt2Trks());}
 
     virtual float   Dz(TVector3 objVtx, TLorentzVector objP4, TVector3 vtx);
@@ -243,7 +244,7 @@ class higgsAnalyzer : public TSelector {
 		virtual void    MetPlusZPlots(TLorentzVector metP4, TLorentzVector ZP4, float evtWeight);
 		virtual void    MetPlusLeptonPlots(TLorentzVector metP4, TLorentzVector p1, TLorentzVector p2, float evtWeight);
 		virtual void    LeptonBasicPlots(TLorentzVector p1, TLorentzVector p2, float evtWeight);
-		virtual void    GenPlots(vector<TCGenParticle> Zs, vector<TCGenParticle> leps, vector<TCGenParticle> phots, vector<TCGenParticle> Hs, TLorentzVector ZP4,TLorentzVector GP4, float evtWeight); 
+		virtual void    GenPlots(vector<TCGenParticle*> Zs, vector<TCGenParticle*> leps, vector<TCGenParticle*> phots, vector<TCGenParticle*> Hs, TLorentzVector ZP4,TLorentzVector GP4, float evtWeight); 
     virtual void    StandardPlots(TLorentzVector p1, TLorentzVector p2, TLorentzVector gamma, float evtWeight,string tag, string folder);
     virtual void    AnglePlots(ZGAngles &zga, float eventWeight);
 		virtual void    DileptonBasicPlots(TLorentzVector ZP4, float evtWeight);
@@ -257,10 +258,10 @@ class higgsAnalyzer : public TSelector {
     virtual float          CalculateX2(TLorentzVector p1, TLorentzVector p2);
     virtual float          Zeppenfeld(TLorentzVector p, TLorentzVector pj1, TLorentzVector pj2);
 
-    virtual bool           FindGoodZElectron(vector<TCElectron> electronList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* ZP4, float* eta1, float* eta2, int* int1, int* int2); 
-    virtual bool           FindGoodZMuon(vector<TCMuon> muonList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* ZP4, int* int1, int* int2 ); 
-    virtual bool           FindGoodZElectron(vector<TCElectron> electronList, vector<TCElectron> uncorElectronList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* ZP4, float* eta1, float* eta2, int* int1, int* int2); 
-    virtual bool           FindGoodZMuon(vector<TCMuon> muonList, vector<TCMuon> uncorMuonList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* ZP4, int* int1, int* int2); 
+    virtual bool           FindGoodZElectron(vector<TCElectron*> electronList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* ZP4, float* eta1, float* eta2, int* int1, int* int2); 
+    virtual bool           FindGoodZMuon(vector<TCMuon*> muonList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* ZP4, int* int1, int* int2 ); 
+    virtual bool           FindGoodZElectron(vector<TCElectron*> electronList, vector<TCElectron*> uncorElectronList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* ZP4, float* eta1, float* eta2, int* int1, int* int2); 
+    virtual bool           FindGoodZMuon(vector<TCMuon*> muonList, vector<TCMuon*> uncorMuonList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* ZP4, int* int1, int* int2); 
 
     virtual float          MEDiscriminator(TCPhysObject lepton1, TCPhysObject lepton2, TLorentzVector gamma);
 
@@ -277,12 +278,12 @@ class higgsAnalyzer : public TSelector {
       TCGenParticle* lm;
     }genHZG;
 
-    void FindGenParticles(TClonesArray* genParticles, string selection, vector<TCGenParticle>& vetoPhotons, genHZGParticles& _genHZG);
+    void FindGenParticles(TClonesArray* genParticles, string selection, vector<TCGenParticle*>& vetoPhotons, genHZGParticles& _genHZG);
     void CleanUpGen(genHZGParticles& _genHZG);
     virtual bool      PassMuonID(TCMuon *mu, Cuts::muIDCuts cutLevel);
     virtual bool      PassMuonIso(TCMuon *mu, Cuts::muIsoCuts cutLevel);
     virtual bool      PassElectronID(TCElectron *el, Cuts::elIDCuts cutLevel);
-    virtual bool      PassElectronIso(TCElectron *el, Cuts::elIsoCuts cutLevel, float* EAEle);
+    virtual bool      PassElectronIso(TCElectron *el, Cuts::elIsoCuts cutLevel, float EAEle[7]);
     virtual bool      PassPhotonID(TCPhoton *ph, Cuts::phIDCuts cutLevel);
     virtual bool      PassPhotonIso(TCPhoton *ph, Cuts::phIsoCuts cutLevel, float EAPho[7][3]);
 
@@ -293,8 +294,8 @@ class higgsAnalyzer : public TSelector {
     // Debugging Dumps //
     /////////////////////
 
-    virtual void  ElectronDump(TCElectron *el, Cuts::elIDCuts cutLevelID, Cuts::elIsoCuts cutLevelIso, float* EAEle, ofstream & dump);
-    virtual void  MVADumper(TCElectron *ele, EGammaMvaEleEstimator* mvaMaker, double rhoFactor, Cuts::elIsoCuts cutLevelIso, float* EAEle, ofstream & dump);
+    virtual void  ElectronDump(TCElectron *el, Cuts::elIDCuts cutLevelID, Cuts::elIsoCuts cutLevelIso, float EAEle[7], ofstream & dump);
+    virtual void  MVADumper(TCElectron *ele, EGammaMvaEleEstimator* mvaMaker, double rhoFactor, Cuts::elIsoCuts cutLevelIso, float EAEle[7], ofstream & dump);
     virtual void  MuonDump(TCMuon *mu, Cuts::muIDCuts cutLevelID, Cuts::muIsoCuts cutLevelIso, ofstream & dump);
     virtual void  PhotonDump(TCPhoton *ph, Cuts::phIDCuts cutLevelID, Cuts::phIsoCuts cutLevelIso, float EAPho[7][3], ofstream & dump);
     virtual void  PhotonDump2(TCPhoton *ph, Cuts::phIDCuts cutLevelID, Cuts::phIsoCuts cutLevelIso, float EAPho[7][3], TLorentzVector lepton1, TLorentzVector lepton2, ofstream & dump);

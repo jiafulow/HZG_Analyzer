@@ -1,5 +1,5 @@
 #ifndef ANALYSISPARAMETERS_H
-#define ANALYSISPARAMETERS_H
+#define ANALYSISPARAMETERS_H 
 
 #include <stddef.h>
 #include <iostream>
@@ -44,7 +44,7 @@ namespace parameters
 
 class Cuts{
   public:
-    static Cuts* Instance(string);
+    Cuts();
     const float leadJetPt, trailJetPt, leadMuPt, trailMuPt, leadElePt, trailElePt, gPtOverMass, gPt,
       zMassLow, zMassHigh, metLow, metHigh, zgMassLow, zgMassHigh, mzPmzg, dR, ME ;
     float EAMu[6]; 
@@ -109,10 +109,8 @@ class Cuts{
       float relCombIso03[2];
       string cutName;
     } loosePhIso, mediumPhIso;
-  private:
-    Cuts();
+    ~Cuts();
     void InitEA(string);
-    static Cuts* m_pInstance;
 };
 
 

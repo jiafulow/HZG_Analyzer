@@ -13,9 +13,9 @@ def ComparisonSuite():
   File1mu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/localHistos/higgsHistograms_ggM125_8TeV_mumuGamma_local.root")
   File2mu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/localHistos/higgsHistograms_ggM125_8TeV_pythia8_175_v2_mumuGamma_local.root")
   File1el= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/localHistos/higgsHistograms_ggM125_8TeV_eeGamma_local.root")
-  File2el= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/localHistos/higgsHistograms_ggM125_8TeV_pythia8_175_v2_eeGamma_local.root")
+  File2el= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/localHistos/higgsHistograms_ggM125_8TeV_pythia8_175_v3_eeGamma_local.root")
 
-  selection = ['el','mu']
+  selection = ['el']
   plotList = []
   labelList = ['pythia6','pythia8']
   colorList = [kRed,kBlue]

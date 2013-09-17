@@ -12,9 +12,6 @@ using namespace std;
 
 class TCPhoton : public TCPhysObject {
 public:
-    TCPhoton();
-    virtual ~TCPhoton();
-
     struct CrystalInfo{
       int rawId;
       int ieta;
@@ -26,6 +23,10 @@ public:
       double timeErr;
       int recoFlag;
     };
+
+    TCPhoton();
+    virtual ~TCPhoton();
+
 
 private:
 
