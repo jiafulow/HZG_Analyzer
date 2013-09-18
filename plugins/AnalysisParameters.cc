@@ -1,5 +1,4 @@
 #include "../interface/AnalysisParameters.h"
-#include "../interface/AnalysisParametersLinkDef.h"
 
 using namespace std;
 

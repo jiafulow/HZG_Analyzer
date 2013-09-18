@@ -1,6 +1,7 @@
 #include "../interface/TCPhoton.h"
 #include "TCPhotonLinkDef.h"
 #include <iostream>
+ClassImp(TCPhoton);
 
 
 TCPhoton::TCPhoton() {

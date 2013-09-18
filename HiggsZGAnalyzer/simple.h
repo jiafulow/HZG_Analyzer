@@ -28,6 +28,8 @@
 #include "../interface/TCGenParticle.h"
 #include "../interface/HistManager.h"
 #include "../interface/ZGAngles.h"
+#include "../interface/AnalysisParameters.h"
+#include "../interface/ParticleSelectors.h"
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 

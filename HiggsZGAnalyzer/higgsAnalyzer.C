@@ -44,6 +44,8 @@ void higgsAnalyzer::Begin(TTree * tree)
   rMuRun          = new TRandom3(187);
   phoCorrector    = new zgamma::PhosphorCorrectionFunctor("../plugins/PHOSPHOR_NUMBERS_EXPFIT_ERRORS.txt", true);
   Xcal2           = new TEvtProb();
+  particleSelector = new ParticleSelector(cuts, isRealData, runNumber, rEl);
+
 
   genHZG = {0,0,0,0,0,0};
 
@@ -1002,8 +1004,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   float SCetaEl2 = -99999;
   if(selection == "eeGamma"){
     if (eventNumber == EVENTNUMBER) cout<<goodZ<<endl;
-    if (engCor || doEleReg) goodZ = FindGoodZElectron(electronsIDIso,electronsIDIsoUnCor,&lepton1,&lepton2,&uncorLepton1,&uncorLepton2,&ZP4,&SCetaEl1,&SCetaEl2,&lepton1int,&lepton2int);
-    else goodZ = FindGoodZElectron(electronsIDIso,&lepton1,&lepton2,&ZP4,&SCetaEl1,&SCetaEl2,&lepton1int,&lepton2int);
+    if (engCor || doEleReg) goodZ = particleSelector->FindGoodZElectron(electronsIDIso,electronsIDIsoUnCor,&lepton1,&lepton2,&uncorLepton1,&uncorLepton2,&ZP4,&SCetaEl1,&SCetaEl2,&lepton1int,&lepton2int);
+    else goodZ = particleSelector->FindGoodZElectron(electronsIDIso,&lepton1,&lepton2,&ZP4,&SCetaEl1,&SCetaEl2,&lepton1int,&lepton2int);
     if (eventNumber == EVENTNUMBER) cout<<"el num: "<<electronsIDIso.size()<<" goodZ: "<<goodZ<<endl;
     if (!goodZ) return kTRUE;
     if (!isRealData){ 
@@ -1029,8 +1031,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     }
     //cout<<eventWeight<<endl;
   }else{
-    if (engCor) goodZ = FindGoodZMuon(muonsIDIso,muonsIDIsoUnCor,&lepton1,&lepton2,&uncorLepton1,&uncorLepton2,&ZP4,&lepton1int,&lepton2int);
-    else goodZ = FindGoodZMuon(muonsIDIso,&lepton1,&lepton2,&ZP4,&lepton1int,&lepton2int);
+    if (engCor) goodZ = particleSelector->FindGoodZMuon(muonsIDIso,muonsIDIsoUnCor,&lepton1,&lepton2,&uncorLepton1,&uncorLepton2,&ZP4,&lepton1int,&lepton2int);
+    else goodZ = particleSelector->FindGoodZMuon(muonsIDIso,&lepton1,&lepton2,&ZP4,&lepton1int,&lepton2int);
     if (eventNumber == EVENTNUMBER) cout<<"goodZ?: "<<goodZ<<endl;
     if (!goodZ) return kTRUE;
     if (eventNumber == EVENTNUMBER) cout<<"goodZ?: "<<goodZ<<endl;
@@ -2697,152 +2699,6 @@ dump << " run: "                   << setw(7)  << runNumber                     
      << " mva Value: " << setw(10) << tmpMVAValue << " pass PreSel: " << setw(5) << passPreSel << " pass MVA: " << setw(5) << passMVA << " pass ISO: " << setw(5) << passIso
      << endl;
 }
-
-bool higgsAnalyzer::FindGoodZElectron(vector<TCElectron*> electronList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* ZP4,float* eta1, float* eta2, int* int1, int* int2){
-  TLorentzVector tmpZ;
-  bool goodZ = false;
-  float ZmassDiff=99999;
-  for(unsigned int i =0; i<electronList.size(); i++){
-    if (electronList[i]->Pt() > cuts->leadElePt){
-      for(unsigned int j =1; j<electronList.size(); j++){
-        if (electronList[j]->Pt() > cuts->trailElePt && electronList[j]->Charge() != electronList[i]->Charge()){
-          goodZ = true;
-          tmpZ = (*electronList[i]+*electronList[j]);
-          if(fabs(91.1876-tmpZ.M()) < ZmassDiff){
-            *ZP4 = (*electronList[i]+*electronList[j]);
-            *lepton1 = *electronList[i];
-            *int1 = i;
-            *lepton2 = *electronList[j];
-            *int2 = j;
-            *eta1 = electronList[i]->SCEta();
-            *eta2 = electronList[j]->SCEta();
-            ZmassDiff = fabs(91.1876-tmpZ.M());
-          }
-        }
-      }
-    }
-  }
-  return goodZ;
-}
-          
-bool higgsAnalyzer::FindGoodZElectron(vector<TCElectron*> electronList, vector<TCElectron*> uncorElectronList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* ZP4, float* eta1, float* eta2, int* int1, int* int2){
-  TLorentzVector tmpZ;
-  bool goodZ = false;
-  float ZmassDiff=99999;
-  for(unsigned int i =0; i<electronList.size(); i++){
-    if (electronList[i]->Pt() > cuts->leadElePt){
-      for(unsigned int j =1; j<electronList.size(); j++){
-        if (electronList[j]->Pt() > cuts->trailElePt && electronList[j]->Charge() != electronList[i]->Charge()){
-          goodZ = true;
-          /// do regression
-          if (doEleReg && period.find("2012") != string::npos){
-            if (electronList[i]->RegressionMomCombP4().E() != 0){
-              electronList[i]->SetPtEtaPhiE(electronList[i]->RegressionMomCombP4().E()/cosh(electronList[i]->RegressionMomCombP4().Eta()),electronList[i]->RegressionMomCombP4().Eta(),electronList[i]->RegressionMomCombP4().Phi(),electronList[i]->RegressionMomCombP4().E());
-              //electronList[i]->SetPtEtaPhiE(electronList[i]->RegressionMomCombP4().Pt(),electronList[i]->RegressionMomCombP4().Eta(),electronList[i]->RegressionMomCombP4().Phi(),electronList[i]->RegressionMomCombP4().E());
-            }
-            if (electronList[j]->RegressionMomCombP4().E() != 0){
-              electronList[j]->SetPtEtaPhiE(electronList[j]->RegressionMomCombP4().E()/cosh(electronList[j]->RegressionMomCombP4().Eta()),electronList[j]->RegressionMomCombP4().Eta(),electronList[j]->RegressionMomCombP4().Phi(),electronList[j]->RegressionMomCombP4().E());
-              //electronList[j]->SetPtEtaPhiE(electronList[j]->RegressionMomCombP4().Pt(),electronList[j]->RegressionMomCombP4().Eta(),electronList[j]->RegressionMomCombP4().Phi(),electronList[j]->RegressionMomCombP4().E());
-            }
-          }
-          /// do eng cor
-          if(engCor){
-            float energyElCorI;
-            float energyElCorJ;
-            if ( period.find("2011") != string::npos ){
-              energyElCorI = correctedElectronEnergy( electronList[i]->E(), electronList[i]->SCEta(), electronList[i]->R9(), runNumber, 0, "2011", !isRealData, rEl );
-              energyElCorJ = correctedElectronEnergy( electronList[j]->E(), electronList[j]->SCEta(), electronList[j]->R9(), runNumber, 0, "2011", !isRealData, rEl );
-            }else{
-              if(doEleReg && electronList[i]->RegressionMomCombP4().E() != 0){
-                energyElCorI = correctedElectronEnergy( electronList[i]->E(), electronList[i]->SCEta(), electronList[i]->R9(), runNumber, 1, "Moriond2013", !isRealData, rEl );
-              }else{
-                energyElCorI = correctedElectronEnergy( electronList[i]->E(), electronList[i]->SCEta(), electronList[i]->R9(), runNumber, 0, "HCP2012", !isRealData, rEl );
-              }
-              if(doEleReg && electronList[j]->RegressionMomCombP4().E() != 0){
-                energyElCorJ = correctedElectronEnergy( electronList[j]->E(), electronList[j]->SCEta(), electronList[j]->R9(), runNumber, 1, "Moriond2013", !isRealData, rEl );
-              }else{
-                energyElCorJ = correctedElectronEnergy( electronList[j]->E(), electronList[j]->SCEta(), electronList[j]->R9(), runNumber, 0, "HCP2012", !isRealData, rEl );
-              }
-            }
-            //float newPtI = sqrt((pow(energyElCorI,2)-pow(0.000511,2))/pow(cosh(electronList[i]->Eta()),2));
-            //float newPtJ = sqrt((pow(energyElCorJ,2)-pow(0.000511,2))/pow(cosh(electronList[j]->Eta()),2));
-            float newPtI = energyElCorI/cosh(electronList[i]->Eta());
-            float newPtJ = energyElCorJ/cosh(electronList[j]->Eta());
-            electronList[i]->SetPtEtaPhiM(newPtI,electronList[i]->Eta(),electronList[i]->Phi(),0.000511);
-            electronList[j]->SetPtEtaPhiM(newPtJ,electronList[j]->Eta(),electronList[j]->Phi(),0.000511);
-          }
-          tmpZ = (*electronList[i]+*electronList[j]);
-          if(fabs(91.1876-tmpZ.M()) < ZmassDiff){
-            *ZP4 = (*electronList[i]+*electronList[j]);
-            *lepton1 = *electronList[i];
-            *lepton2 = *electronList[j];
-            *int1 = i;
-            *int2 = j;
-            *eta1 = electronList[i]->SCEta();
-            *eta2 = electronList[j]->SCEta();
-            *uncorLepton1 = *uncorElectronList[i];
-            *uncorLepton2 = *uncorElectronList[j];
-            ZmassDiff = fabs(91.1876-tmpZ.M());
-          }
-        }
-      }
-    }
-  }
-  return goodZ;
-}
-          
-bool higgsAnalyzer::FindGoodZMuon(vector<TCMuon*> muonList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* ZP4, int* int1, int* int2){
-  TLorentzVector tmpZ;
-  bool goodZ = false;
-  float ZmassDiff=99999;
-  for(unsigned int i =0; i<muonList.size(); i++){
-    if (muonList[i]->Pt() > cuts->leadMuPt){
-      for(unsigned int j =1; j<muonList.size(); j++){
-        if (muonList[j]->Pt() > cuts->trailMuPt && muonList[j]->Charge() != muonList[i]->Charge()){
-          goodZ = true;
-          tmpZ = (*muonList[i]+*muonList[j]);
-          if(fabs(91.1876-tmpZ.M()) < ZmassDiff){
-            *ZP4 = (*muonList[i]+*muonList[j]);
-            *lepton1 = *muonList[i];
-            *lepton2 = *muonList[j];
-            *int1 = i;
-            *int2 = j;
-            ZmassDiff = fabs(91.1876-tmpZ.M());
-          }
-        }
-      }
-    }
-  }
-  return goodZ;
-}
-
-bool higgsAnalyzer::FindGoodZMuon(vector<TCMuon*> muonList, vector<TCMuon*> uncorMuonList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* ZP4, int* int1, int* int2){
-  TLorentzVector tmpZ;
-  bool goodZ = false;
-  float ZmassDiff=99999;
-  for(unsigned int i =0; i<muonList.size(); i++){
-    if (muonList[i]->Pt() > cuts->leadMuPt){
-      for(unsigned int j =1; j<muonList.size(); j++){
-        if (muonList[j]->Pt() > cuts->trailMuPt && muonList[j]->Charge() != muonList[i]->Charge()){
-          goodZ = true;
-          tmpZ = (*muonList[i]+*muonList[j]);
-          if(fabs(91.1876-tmpZ.M()) < ZmassDiff){
-            *ZP4 = (*muonList[i]+*muonList[j]);
-            *lepton1 = *muonList[i];
-            *lepton2 = *muonList[j];
-            *uncorLepton1 = *uncorMuonList[i];
-            *uncorLepton2 = *uncorMuonList[j];
-            *int1 = i;
-            *int2 = j;
-            ZmassDiff = fabs(91.1876-tmpZ.M());
-          }
-        }
-      }
-    }
-  }
-  return goodZ;
-}
-
 
 void higgsAnalyzer::LumiXSWeight(float * LumiXSWeight){
   if (!isRealData){

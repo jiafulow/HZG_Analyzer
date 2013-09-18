@@ -113,6 +113,7 @@ class higgsAnalyzer : public TSelector {
     // Selectors
     //GenParticleSelector genParticleSelector;
     TriggerSelector *triggerSelector;
+    ParticleSelector *particleSelector;
 
     // Utilities
     WeightUtils *weighter;
@@ -258,10 +259,6 @@ class higgsAnalyzer : public TSelector {
     virtual float          CalculateX2(TLorentzVector p1, TLorentzVector p2);
     virtual float          Zeppenfeld(TLorentzVector p, TLorentzVector pj1, TLorentzVector pj2);
 
-    virtual bool           FindGoodZElectron(vector<TCElectron*> electronList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* ZP4, float* eta1, float* eta2, int* int1, int* int2); 
-    virtual bool           FindGoodZMuon(vector<TCMuon*> muonList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* ZP4, int* int1, int* int2 ); 
-    virtual bool           FindGoodZElectron(vector<TCElectron*> electronList, vector<TCElectron*> uncorElectronList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* ZP4, float* eta1, float* eta2, int* int1, int* int2); 
-    virtual bool           FindGoodZMuon(vector<TCMuon*> muonList, vector<TCMuon*> uncorMuonList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* ZP4, int* int1, int* int2); 
 
     virtual float          MEDiscriminator(TCPhysObject lepton1, TCPhysObject lepton2, TLorentzVector gamma);
 
