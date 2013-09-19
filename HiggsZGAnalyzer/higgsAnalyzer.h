@@ -114,6 +114,7 @@ class higgsAnalyzer : public TSelector {
     //GenParticleSelector genParticleSelector;
     TriggerSelector *triggerSelector;
     ParticleSelector *particleSelector;
+    ParticleSelector::genHZGParticles genHZG;
 
     // Utilities
     WeightUtils *weighter;
@@ -253,38 +254,12 @@ class higgsAnalyzer : public TSelector {
 		virtual float   CalculateTransMass(TLorentzVector p1, TLorentzVector p2);
 		virtual float   CalculateTransMassAlt(TLorentzVector p1, TLorentzVector p2);
     virtual float   GetPhotonMass();
-
-    virtual float          CalculateM12sqrd(TLorentzVector p1, TLorentzVector p2);
-    virtual float          CalculateX1(TLorentzVector p1,TLorentzVector p2);
-    virtual float          CalculateX2(TLorentzVector p1, TLorentzVector p2);
-    virtual float          Zeppenfeld(TLorentzVector p, TLorentzVector pj1, TLorentzVector pj2);
-
-
-    virtual float          MEDiscriminator(TCPhysObject lepton1, TCPhysObject lepton2, TLorentzVector gamma);
-
-    /////////////////////
-    // Gen Level Stuff //
-    /////////////////////
-
-    struct genHZGParticles{
-      TCGenParticle* h;
-      TCGenParticle* z;
-      TCGenParticle* w;
-      TCGenParticle* g;
-      TCGenParticle* lp;
-      TCGenParticle* lm;
-    }genHZG;
-
-    void FindGenParticles(TClonesArray* genParticles, string selection, vector<TCGenParticle*>& vetoPhotons, genHZGParticles& _genHZG);
-    void CleanUpGen(genHZGParticles& _genHZG);
-    virtual bool      PassMuonID(TCMuon *mu, Cuts::muIDCuts cutLevel);
-    virtual bool      PassMuonIso(TCMuon *mu, Cuts::muIsoCuts cutLevel);
-    virtual bool      PassElectronID(TCElectron *el, Cuts::elIDCuts cutLevel);
-    virtual bool      PassElectronIso(TCElectron *el, Cuts::elIsoCuts cutLevel, float EAEle[7]);
-    virtual bool      PassPhotonID(TCPhoton *ph, Cuts::phIDCuts cutLevel);
-    virtual bool      PassPhotonIso(TCPhoton *ph, Cuts::phIsoCuts cutLevel, float EAPho[7][3]);
-
-    virtual void      LumiXSWeight(float *lumiXS);
+    virtual float   CalculateM12sqrd(TLorentzVector p1, TLorentzVector p2);
+    virtual float   CalculateX1(TLorentzVector p1,TLorentzVector p2);
+    virtual float   CalculateX2(TLorentzVector p1, TLorentzVector p2);
+    virtual float   Zeppenfeld(TLorentzVector p, TLorentzVector pj1, TLorentzVector pj2);
+    virtual float   MEDiscriminator(TCPhysObject lepton1, TCPhysObject lepton2, TLorentzVector gamma);
+    virtual void    LumiXSWeight(float *lumiXS);
 
 
     /////////////////////

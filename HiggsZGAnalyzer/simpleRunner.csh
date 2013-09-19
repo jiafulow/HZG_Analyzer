@@ -17,22 +17,20 @@ cat > run.C << +EOF
   void run() {
 
     gROOT->SetMacroPath(".:../src/:../interface/:../plugins/");
-    gROOT->LoadMacro("TCPhysObject.cc++g");
-    gROOT->LoadMacro("TCJet.cc++g");
-    gROOT->LoadMacro("TCMET.cc++g");
-    gROOT->LoadMacro("TCElectron.cc++g");
-    gROOT->LoadMacro("TCMuon.cc++g");
-    gROOT->LoadMacro("TCTau.cc++g");
-    gROOT->LoadMacro("TCPhoton.cc++g");
-    gROOT->LoadMacro("TCGenJet.cc++g");
-    gROOT->LoadMacro("TCGenParticle.cc++g");
-    gROOT->LoadMacro("TCPrimaryVtx.cc++g");
-    gROOT->LoadMacro("TCTriggerObject.cc++g");
+    gROOT->LoadMacro("TCPhysObject.cc++");
+    gROOT->LoadMacro("TCJet.cc++");
+    gROOT->LoadMacro("TCMET.cc++");
+    gROOT->LoadMacro("TCElectron.cc++");
+    gROOT->LoadMacro("TCMuon.cc++");
+    gROOT->LoadMacro("TCTau.cc++");
+    gROOT->LoadMacro("TCPhoton.cc++");
+    gROOT->LoadMacro("TCGenJet.cc++");
+    gROOT->LoadMacro("TCGenParticle.cc++");
+    gROOT->LoadMacro("TCPrimaryVtx.cc++");
+    gROOT->LoadMacro("TCTriggerObject.cc++");
 
-    gROOT->LoadMacro("HistManager.cc++g");
-    gROOT->LoadMacro("ZGAngles.cc++g");
-    gROOT->LoadMacro("AnalysisParameters.cc++g");
-    gROOT->LoadMacro("ParticleSelectors.cc++g");
+    gROOT->LoadMacro("HistManager.cc++");
+    gROOT->LoadMacro("ZGAngles.cc++");
 
     TChain* fChain = new TChain("ntupleProducer/eventTree");
 
@@ -61,7 +59,7 @@ cat > run.C << +EOF
 
 +EOF
 
-#root -l -b -q run.C
+root -l -b -q run.C
 
-#rm run.C
-#rm simple.C
+rm run.C
+rm simple.C

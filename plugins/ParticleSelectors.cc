@@ -7,6 +7,14 @@ ParticleSelector::ParticleSelector(Cuts* cuts, bool isRealData, int runNumber, T
   _rEl = rEl;
 }
 
+void ParticleSelector::SetPv(TVector3* pv){
+  _pv = pv;
+}
+
+void ParticleSelector::SetRho(float rhoFactor){
+  _rhoFactor = rhoFactor;
+}
+
 bool ParticleSelector::FindGoodZElectron(vector<TCElectron*> electronList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* ZP4,float* eta1, float* eta2, int* int1, int* int2){
   TLorentzVector tmpZ;
   bool goodZ = false;
@@ -150,4 +158,297 @@ bool ParticleSelector::FindGoodZMuon(vector<TCMuon*> muonList, vector<TCMuon*> u
     }
   }
   return goodZ;
+}
+
+void  ParticleSelector::FindGenParticles(TClonesArray *genParticles, string selection, vector<TCGenParticle*>& vetoPhotons, genHZGParticles& _genHZG){
+  vector<TCGenParticle*> genElectrons;
+  vector<TCGenParticle*> genMuons;
+  vector<TCGenParticle*> genZs;
+  vector<TCGenParticle*> genWs;
+  vector<TCGenParticle*> genHs;
+  vector<TCGenParticle*> genPhotons;
+  vector<TCGenParticle*> genLeptons;
+  bool isMuMuGamma = false;
+  bool isEEGamma = false;
+  bool goodPhot = false;
+
+  for (int i = 0; i < genParticles->GetSize(); ++i) {
+    TCGenParticle* thisGen = (TCGenParticle*) genParticles->At(i);    
+  //  cout<<thisGen->GetPDGId()<<endl;
+    if (abs(thisGen->GetPDGId()) == 11){
+      genElectrons.push_back(thisGen);
+      if (thisGen->Mother() && abs(thisGen->Mother()->GetPDGId())==23) isEEGamma = true;
+    }else if (abs(thisGen->GetPDGId()) == 13){
+      genMuons.push_back(thisGen);
+      if (thisGen->Mother() && abs(thisGen->Mother()->GetPDGId())==23) isMuMuGamma = true;
+    }else if (abs(thisGen->GetPDGId()) == 23) genZs.push_back(thisGen);
+    else if (abs(thisGen->GetPDGId()) == 24) genWs.push_back(thisGen);
+    else if (abs(thisGen->GetPDGId()) == 22) genPhotons.push_back(thisGen);
+    else if (abs(thisGen->GetPDGId()) == 25) genHs.push_back(thisGen);
+  }
+  ///////// sort gen particles by PT ///////////
+
+  sort(genElectrons.begin(), genElectrons.end(), P4SortCondition);
+  sort(genMuons.begin(), genMuons.end(), P4SortCondition);
+  sort(genZs.begin(), genZs.end(), P4SortCondition);
+  sort(genWs.begin(), genWs.end(), P4SortCondition);
+  sort(genPhotons.begin(), genPhotons.end(), P4SortCondition);
+  sort(genHs.begin(), genHs.end(), P4SortCondition);
+
+  vetoPhotons = genPhotons;
+
+  if (isMuMuGamma && (selection == "mumuGamma")) genLeptons = genMuons;
+  else if (isEEGamma && (selection == "eeGamma")) genLeptons = genElectrons;
+  
+  if (_genHZG.lp){
+    cout<<"well here's your fucking problem"<<endl;
+    _genHZG.lp->Print();
+    cout<<endl;
+  }
+  
+  bool posLep = false;
+  bool negLep = false;
+  vector<TCGenParticle*>::iterator testIt;
+
+  if (genLeptons.size() > 1){
+    for (testIt=genLeptons.begin(); testIt<genLeptons.end(); testIt++){
+      if((*testIt)->Mother() && (*testIt)->Mother()->GetPDGId() == 23 && (*testIt)->Charge() == 1 ){
+        _genHZG.lp = new TCGenParticle(*(*testIt));
+        posLep = true;
+      }else if((*testIt)->Mother() && (*testIt)->Mother()->GetPDGId()== 23 && (*testIt)->Charge() == -1){
+        _genHZG.lm = new TCGenParticle((*(*testIt)));
+        negLep = true;
+      }
+      if (posLep && negLep) break;
+    }
+  }else { return;}
+
+  if (genPhotons.size() > 0 && posLep && negLep){
+      for (testIt=genPhotons.begin(); testIt<genPhotons.end(); testIt++){
+        //cout<<"mother: "<<testIt->Mother()<<"\tstatus: "<<testIt->GetStatus()<<endl;
+        if ((*testIt)->Mother() && (*testIt)->Mother()->GetPDGId() == 25 && fabs((*(*testIt)+*_genHZG.lm+*_genHZG.lp).M()-125.0) < 0.1) _genHZG.g = new TCGenParticle(*(*testIt)); goodPhot = true; break;
+      }
+      if (!goodPhot) return;
+    //_genHZG.g = new TCGenParticle(genPhotons.front());
+  }else{ return;}
+
+
+  if (genZs.size() > 0) _genHZG.z = new TCGenParticle(*genZs.front());
+  if (genWs.size() > 0) _genHZG.w = new TCGenParticle(*genWs.front());
+  if (genHs.size() > 0) _genHZG.h = new TCGenParticle(*genHs.front());
+
+  return;
+}
+
+void ParticleSelector::CleanUpGen(genHZGParticles& _genHZG){
+  if (_genHZG.lp) delete _genHZG.lp;
+  if (_genHZG.lm) delete _genHZG.lm;
+  if (_genHZG.g) delete _genHZG.g;
+  if (_genHZG.w) delete _genHZG.w;
+  if (_genHZG.z) delete _genHZG.z;
+  if (_genHZG.h) delete _genHZG.h;
+}
+
+bool ParticleSelector::PassMuonID(TCMuon *mu, Cuts::muIDCuts cutLevel){
+
+  bool muPass = false;
+
+  if (parameters::suffix.find("2011") != string::npos){
+    if (
+        fabs(mu->Eta()) < 2.4
+        && mu->IsGLB()                         == cutLevel.IsGLB
+        && mu->NormalizedChi2()                < cutLevel.NormalizedChi2
+        && mu->NumberOfValidMuonHits()         > cutLevel.NumberOfValidMuonHits
+        && mu->NumberOfMatchedStations()       > cutLevel.NumberOfMatchedStations
+        && mu->NumberOfValidPixelHits()        > cutLevel.NumberOfValidPixelHits
+        && mu->TrackLayersWithMeasurement()    > cutLevel.TrackLayersWithMeasurement
+        && fabs(mu->Dxy(_pv))           < cutLevel.dxy
+        && fabs(mu->Dz(_pv))            < cutLevel.dz
+       ) muPass = true;
+  }else{
+    if (
+        fabs(mu->Eta()) < 2.4
+        && mu->IsPF()                          == cutLevel.IsPF
+        && mu->IsGLB()                         == cutLevel.IsGLB
+        && mu->NormalizedChi2()                < cutLevel.NormalizedChi2
+        && mu->NumberOfValidMuonHits()         > cutLevel.NumberOfValidMuonHits
+        && mu->NumberOfMatchedStations()       > cutLevel.NumberOfMatchedStations
+        && mu->NumberOfValidPixelHits()        > cutLevel.NumberOfValidPixelHits
+        && mu->TrackLayersWithMeasurement()    > cutLevel.TrackLayersWithMeasurement
+        && fabs(mu->Dxy(_pv))           < cutLevel.dxy
+        && fabs(mu->Dz(_pv))            < cutLevel.dz
+       ) muPass = true;
+  }
+  return muPass;
+}
+
+bool ParticleSelector::PassMuonIso(TCMuon *mu, Cuts::muIsoCuts cutLevel){
+
+  float combIso;
+
+  combIso = (mu->IsoMap("pfChargedHadronPt_R04")
+    + max(0.,(double)mu->IsoMap("pfNeutralHadronEt_R04") + mu->IsoMap("pfPhotonEt_R04") - 0.5*mu->IsoMap("pfPUPt_R04")));
+
+  bool isoPass = false;
+  if (combIso/mu->Pt() < cutLevel.relCombIso04) isoPass = true;
+  return isoPass;
+}
+
+
+bool ParticleSelector::PassElectronID(TCElectron *el, Cuts::elIDCuts cutLevel, TClonesArray* recoMuons)
+{
+  bool elPass = false;
+  if (fabs(el->SCEta()) > 2.5) return elPass;
+  if (fabs(el->SCEta()) > 1.4442 && fabs(el->SCEta()) < 1.566) return elPass;
+  if (
+    (fabs(el->Eta()) < 1.566
+      && fabs(el->DetaSuperCluster())    < cutLevel.dEtaIn[0]
+      && fabs(el->DphiSuperCluster())    < cutLevel.dPhiIn[0]
+      && el->SigmaIEtaIEta()             < cutLevel.sigmaIetaIeta[0]
+      && el->HadOverEm()                 < cutLevel.HadOverEm[0]
+      && fabs(el->Dxy(_pv))       < cutLevel.dxy[0]
+      && fabs(el->Dz(_pv))        < cutLevel.dz[0]
+      && el->IdMap("fabsEPDiff")         < cutLevel.fabsEPDiff[0]
+      && el->ConversionMissHits()        <= cutLevel.ConversionMissHits[0]
+      && el->ConversionVeto()            == cutLevel.PassedConversionProb[0]
+      ) ||
+    (fabs(el->Eta()) > 1.566  
+      && fabs(el->DetaSuperCluster())    < cutLevel.dEtaIn[1]
+      && fabs(el->DphiSuperCluster())    < cutLevel.dPhiIn[1]
+      && el->SigmaIEtaIEta()             < cutLevel.sigmaIetaIeta[1]
+      && el->HadOverEm()                 < cutLevel.HadOverEm[1]
+      && fabs(el->Dxy(_pv))       < cutLevel.dxy[1]
+      && fabs(el->Dz(_pv))        < cutLevel.dz[1]
+      && el->IdMap("fabsEPDiff")         < cutLevel.fabsEPDiff[1]
+      && el->ConversionMissHits()        <= cutLevel.ConversionMissHits[1]
+      && el->ConversionVeto()            == cutLevel.PassedConversionProb[1]
+      )
+      ) elPass = true; 
+    //   cout<<"evt: "<<eventNumber<<" muon num: "<<recoMuons->GetSize()<<endl;
+       for (int j = 0; j < recoMuons->GetSize(); ++ j)
+       {
+         TCMuon* thisMuon = (TCMuon*) recoMuons->At(j);    
+    //     if (eventNumber==11944 || eventNumber==1780) cout<<thisMuon->DeltaR(*el)<<endl;
+         if (thisMuon->DeltaR(*el) < 0.05){
+           //cout<<"event: "<<eventNumber<<endl;
+           //cout<<"unclean"<<endl;
+           //el->Print();
+           elPass = false;
+           break;
+         }
+       }
+       return elPass;
+}
+
+bool ParticleSelector::PassElectronIso(TCElectron *el, Cuts::elIsoCuts cutLevel, float EAEle[7]){
+  float thisEA = 0;
+  if (fabs(el->Eta())     <  1.0) thisEA = EAEle[0];
+  else if (fabs(el->Eta())     <  1.5) thisEA = EAEle[1];
+  else if (fabs(el->Eta())     <  2.0) thisEA = EAEle[2];
+  else if (fabs(el->Eta())     <  2.2) thisEA = EAEle[3];
+  else if (fabs(el->Eta())     <  2.3) thisEA = EAEle[4];
+  else if (fabs(el->Eta())     <  2.4) thisEA = EAEle[5];
+  else if (fabs(el->Eta())     >  2.4) thisEA = EAEle[6];
+
+  float combIso = (el->IsoMap("pfChIso_R04")
+    + max(0.,(double)el->IsoMap("pfNeuIso_R04") + el->IsoMap("pfPhoIso_R04") - _rhoFactor*thisEA));
+  bool isoPass = false;
+  if (combIso/el->Pt() < cutLevel.relCombIso04) isoPass = true;
+  return isoPass;
+}
+
+bool ParticleSelector::PassPhotonID(TCPhoton *ph, Cuts::phIDCuts cutLevel){
+  float tmpEta;
+  bool phoPass = false;
+  tmpEta = ph->SCEta();
+  if (fabs(tmpEta) > 2.5) return phoPass;
+  if (fabs(tmpEta) > 1.4442 && fabs(tmpEta) < 1.566) return phoPass;
+  if(
+      (fabs(tmpEta)  < 1.4442
+       && ph->ConversionVeto()       == cutLevel.PassedEleSafeVeto[0]
+       && ph->HadOverEm()               < cutLevel.HadOverEm[0]
+       && ph->SigmaIEtaIEta()           < cutLevel.sigmaIetaIeta[0]
+      ) ||
+      (fabs(tmpEta)  > 1.566
+       && ph->ConversionVeto()       == cutLevel.PassedEleSafeVeto[1]
+       && ph->HadOverEm()               < cutLevel.HadOverEm[1]
+       && ph->SigmaIEtaIEta()           < cutLevel.sigmaIetaIeta[1]
+      )
+    ) phoPass = true;
+  return phoPass;
+}
+
+bool ParticleSelector::PassPhotonIso(TCPhoton *ph, Cuts::phIsoCuts cutLevel, float EAPho[7][3]){
+  float chEA,nhEA,phEA,chIsoCor,nhIsoCor,phIsoCor,tmpEta;
+  bool isoPass = false;
+  tmpEta = ph->SCEta();
+
+  if(fabs(tmpEta) > 2.5) return isoPass;
+
+  if (fabs(tmpEta) < 1.0){
+    chEA = EAPho[0][0];
+    nhEA = EAPho[0][1];
+    phEA = EAPho[0][2];
+  }else if (fabs(tmpEta) < 1.479){
+    chEA = EAPho[1][0];
+    nhEA = EAPho[1][1];
+    phEA = EAPho[1][2];
+  }else if (fabs(tmpEta) < 2.0){
+    chEA = EAPho[2][0];
+    nhEA = EAPho[2][1];
+    phEA = EAPho[2][2];
+  }else if (fabs(tmpEta) < 2.2){
+    chEA = EAPho[3][0];
+    nhEA = EAPho[3][1];
+    phEA = EAPho[3][2];
+  }else if (fabs(tmpEta) < 2.3){ 
+    chEA = EAPho[4][0];
+    nhEA = EAPho[4][1];
+    phEA = EAPho[4][2];
+  }else if (fabs(tmpEta) < 2.4){
+    chEA = EAPho[5][0];
+    nhEA = EAPho[5][1];
+    phEA = EAPho[5][2];
+  }else{                                  
+    chEA = EAPho[6][0];
+    nhEA = EAPho[6][1];
+    phEA = EAPho[6][2];
+  }
+
+  chIsoCor = ph->IsoMap("chIso03")-_rhoFactor*chEA;
+  nhIsoCor = ph->IsoMap("nhIso03")-_rhoFactor*nhEA;
+  phIsoCor = ph->IsoMap("phIso03")-_rhoFactor*phEA;
+
+  if (cutLevel.cutName == "loosePhIso"){
+    if (
+        (fabs(tmpEta) < 1.4442
+        //(fabs(ph->Eta())  < 1.566
+         && max((double)chIsoCor,0.)          < cutLevel.chIso03[0]
+         && max((double)nhIsoCor,0.)          < cutLevel.nhIso03[0] + 0.04*ph->Pt()
+         && max((double)phIsoCor,0.)          < cutLevel.phIso03[0] + 0.005*ph->Pt() 
+        ) ||
+        (fabs(tmpEta) > 1.566
+        //(fabs(ph->Eta())  > 1.566
+         && max((double)chIsoCor,0.)          < cutLevel.chIso03[1]
+         && max((double)nhIsoCor,0.)          < cutLevel.nhIso03[1] + 0.04*ph->Pt() 
+         //&& phoCut["phIso03"]/ph->Pt() < nuthin
+        )
+       ) isoPass = true;
+  } else {
+    if (
+        //(fabs(ph->Eta())  < 1.566
+        (fabs(tmpEta) < 1.4442
+         && max((double)chIsoCor,0.)          < cutLevel.chIso03[0]
+         && max((double)nhIsoCor,0.)          < cutLevel.nhIso03[0] + 0.04*ph->Pt()
+         && max((double)phIsoCor,0.)          < cutLevel.phIso03[0] + 0.005*ph->Pt() 
+        ) ||
+        //(fabs(ph->Eta())  > 1.566
+        (fabs(tmpEta) > 1.566
+         && max((double)chIsoCor,0.)          < cutLevel.chIso03[1]
+         && max((double)nhIsoCor,0.)          < cutLevel.nhIso03[1] + 0.04*ph->Pt() 
+         && max((double)phIsoCor,0.)          < cutLevel.phIso03[1] + 0.005*ph->Pt() 
+        )
+       ) isoPass = true;
+  }
+  return isoPass;
 }

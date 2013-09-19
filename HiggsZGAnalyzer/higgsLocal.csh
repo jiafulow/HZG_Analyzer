@@ -39,8 +39,8 @@ cat > run.C << +EOF
     gROOT->LoadMacro("WeightUtils.cc+");
     gROOT->LoadMacro("TriggerSelector.cc+");
     gROOT->LoadMacro("ElectronFunctions.cc+");
-    gROOT->LoadMacro("rochcor_2011.cc++");
-    gROOT->LoadMacro("rochcor2012v2.C++");
+    gROOT->LoadMacro("rochcor_2011.cc+");
+    gROOT->LoadMacro("rochcor2012v2.C+");
     gROOT->LoadMacro("PhosphorCorrectorFunctor.cc+");
     gROOT->LoadMacro("LeptonScaleCorrections.h+");
     gROOT->LoadMacro("EGammaMvaEleEstimator.cc+");
@@ -92,5 +92,5 @@ cat > run.C << +EOF
 
 root -l -b -q run.C
 
-#rm run.C
-#mv *local.root localHistos/.
+rm run.C
+mv *local.root localHistos/.

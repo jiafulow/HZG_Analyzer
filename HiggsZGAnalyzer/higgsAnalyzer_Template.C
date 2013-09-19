@@ -300,17 +300,19 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   m_llg = m_llgCAT1 = m_llgCAT2 = m_llgCAT3 = m_llgCAT4 = -1;
   unBinnedWeight = unBinnedLumiXS = 1;
 
+  particleSelector->SetRho(rhoFactor);
+
   ///////////////////
   // Gen Particles //
   ///////////////////
   
 
   vector<TCGenParticle*> vetoPhotons;
-  CleanUpGen(genHZG);
+  particleSelector->CleanUpGen(genHZG);
   genHZG = {0,0,0,0,0,0};
   if(!isRealData){
     ///////// load all the relevent particles into a struct /////////
-    FindGenParticles(genParticles, selection, vetoPhotons, genHZG);
+    particleSelector->FindGenParticles(genParticles, selection, vetoPhotons, genHZG);
 
     ///////// whzh decomposition /////////////////
 
@@ -355,15 +357,15 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         //cout<<"photon mother ID:"<<endl;
         for (testIt=vetoPhotons.begin(); testIt<vetoPhotons.end(); testIt++){
             // if the photon's mother and grandmother is a lepton, kill it
-          if ( (abs((*testIt)->Mother()->GetPDGId()) == 11 || abs((*testIt)->Mother()->GetPDGId()) == 13 || abs((*testIt)->Mother()->GetPDGId()) == 15) && ((*testIt)->Mother()->Mother())
+          if ((*testIt)->Mother() && (abs((*testIt)->Mother()->GetPDGId()) == 11 || abs((*testIt)->Mother()->GetPDGId()) == 13 || abs((*testIt)->Mother()->GetPDGId()) == 15) && ((*testIt)->Mother()->Mother())
               && (abs((*testIt)->Mother()->Mother()->GetPDGId()) == 11 || abs((*testIt)->Mother()->Mother()->GetPDGId()) == 13 || abs((*testIt)->Mother()->Mother()->GetPDGId()) == 15) ) return kTRUE; 
             // if the photon's mother is a lepton, and the grandmother is a Z or W, kill it
-          if ( (abs((*testIt)->Mother()->GetPDGId()) == 11 || abs((*testIt)->Mother()->GetPDGId()) == 13 || abs((*testIt)->Mother()->GetPDGId()) == 15) && ((*testIt)->Mother()->Mother())
+          if ((*testIt)->Mother() && (abs((*testIt)->Mother()->GetPDGId()) == 11 || abs((*testIt)->Mother()->GetPDGId()) == 13 || abs((*testIt)->Mother()->GetPDGId()) == 15) && ((*testIt)->Mother()->Mother())
               && (abs((*testIt)->Mother()->Mother()->GetPDGId()) == 23 || abs((*testIt)->Mother()->Mother()->GetPDGId()) == 24) ) return kTRUE;
             // if the photon's mother is a photon, and the grandmother is an electron, kill it 
-          if ( abs((*testIt)->Mother()->GetPDGId()) == 22 && ((*testIt)->Mother()->Mother()) && abs((*testIt)->Mother()->Mother()->GetPDGId()) == 11) return kTRUE;
+          if ((*testIt)->Mother() && abs((*testIt)->Mother()->GetPDGId()) == 22 && ((*testIt)->Mother()->Mother()) && abs((*testIt)->Mother()->Mother()->GetPDGId()) == 11) return kTRUE;
             // if the photon's mother is a gluon (?!) or a quark, kill it
-          if ( abs((*testIt)->Mother()->GetPDGId()) == 21 || abs((*testIt)->Mother()->GetPDGId()) < 7) return kTRUE;
+          if ((*testIt)->Mother() && abs((*testIt)->Mother()->GetPDGId()) == 21 || abs((*testIt)->Mother()->GetPDGId()) < 7) return kTRUE;
         }
 
 
@@ -621,10 +623,10 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
           false);                
                                                                   
       /// inner barrel
-      if (thisElec->IdMap("preSelPassV1") && thisElec->Pt() > 20 && tmpMVAValue > -0.5 && PassElectronIso(thisElec, cuts->looseElIso, cuts->EAEle)){
+      if (thisElec->IdMap("preSelPassV1") && thisElec->Pt() > 20 && tmpMVAValue > -0.5 && particleSelector->PassElectronIso(thisElec, cuts->looseElIso, cuts->EAEle)){
         passAll = true;
       /// outer barrel
-      }else if (thisElec->IdMap("preSelPassV1") && thisElec->Pt() < 20 && tmpMVAValue > -0.90 && PassElectronIso(thisElec, cuts->looseElIso, cuts->EAEle)){
+      }else if (thisElec->IdMap("preSelPassV1") && thisElec->Pt() < 20 && tmpMVAValue > -0.90 && particleSelector->PassElectronIso(thisElec, cuts->looseElIso, cuts->EAEle)){
         passAll = true;
       }
 
@@ -649,8 +651,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         thisElec->SetPtEtaPhiM(newPt,thisElec->Eta(),thisElec->Phi(),0.000511);
       }
       if (electronDump) ElectronDump(thisElec, cuts->looseElID, cuts->looseElIso, cuts->EAEle, elDump2);
-      if (PassElectronID(thisElec, cuts->looseElID)) electronsID.push_back(thisElec);			
-      if (PassElectronID(thisElec, cuts->looseElID) && PassElectronIso(thisElec, cuts->looseElIso, cuts->EAEle)){
+      if (particleSelector->PassElectronID(thisElec, cuts->looseElID, recoMuons)) electronsID.push_back(thisElec);			
+      if (particleSelector->PassElectronID(thisElec, cuts->looseElID, recoMuons) && particleSelector->PassElectronIso(thisElec, cuts->looseElIso, cuts->EAEle)){
         electronsIDIso.push_back(thisElec);			
         if (engCor) electronsIDIsoUnCor.push_back(cloneElectron);
       }
@@ -738,17 +740,17 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       if(muonDump) MuonDump(thisMuon, cuts->tightMuID, cuts->tightMuIso, muDump1);
     }
 
-    if (PassMuonID(thisMuon, cuts->tightMuID)) muonsID.push_back(thisMuon);
+    if (particleSelector->PassMuonID(thisMuon, cuts->tightMuID)) muonsID.push_back(thisMuon);
 
     //tight ID and Iso
 
     if (doLooseMuIso){
-      if (PassMuonID(thisMuon, cuts->tightMuID) && PassMuonIso(thisMuon, cuts->looseMuIso)){
+      if (particleSelector->PassMuonID(thisMuon, cuts->tightMuID) && particleSelector->PassMuonIso(thisMuon, cuts->looseMuIso)){
         muonsIDIso.push_back(thisMuon);
         if (engCor) muonsIDIsoUnCor.push_back(cloneMuon);
       }
     }else{
-      if (PassMuonID(thisMuon, cuts->tightMuID) && PassMuonIso(thisMuon, cuts->tightMuIso)){
+      if (particleSelector->PassMuonID(thisMuon, cuts->tightMuID) && particleSelector->PassMuonIso(thisMuon, cuts->tightMuIso)){
         muonsIDIso.push_back(thisMuon);
         if (engCor) muonsIDIsoUnCor.push_back(cloneMuon);
       }
@@ -821,7 +823,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
           TCGenParticle goodGenPhoton;
           float testDr = 9999;
           for (UInt_t j = 0; j<vetoPhotons.size(); j++){
-            if(thisPhoton->DeltaR(*vetoPhotons[j]) < 0.2 && vetoPhotons[j]->GetStatus()==1 && fabs(vetoPhotons[j]->Mother()->GetPDGId()) == 22){
+            if(thisPhoton->DeltaR(*vetoPhotons[j]) < 0.2 && vetoPhotons[j]->GetStatus()==1 && vetoPhotons[j]->Mother() && fabs(vetoPhotons[j]->Mother()->GetPDGId()) == 22){
               if(thisPhoton->DeltaR(*vetoPhotons[j])<testDr){
                 goodGenPhoton = *vetoPhotons[j];
                 testDr = thisPhoton->DeltaR(*vetoPhotons[j]);
@@ -845,8 +847,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       ////// Currently Using Cut-Based Photon ID, 2012
 
       if (dumps) PhotonDump(thisPhoton, cuts->mediumPhID, cuts->mediumPhIso, cuts->EAPho, phDump1);
-      if (PassPhotonID(thisPhoton, cuts->mediumPhID)) photonsID.push_back(thisPhoton);
-      if (PassPhotonID(thisPhoton, cuts->mediumPhID) && PassPhotonIso(thisPhoton, cuts->mediumPhIso, cuts->EAPho)){
+      if (particleSelector->PassPhotonID(thisPhoton, cuts->mediumPhID)) photonsID.push_back(thisPhoton);
+      if (particleSelector->PassPhotonID(thisPhoton, cuts->mediumPhID) && particleSelector->PassPhotonIso(thisPhoton, cuts->mediumPhIso, cuts->EAPho)){
         photonsIDIso.push_back(thisPhoton);
         if (engCor) photonsIDIsoUnCor.push_back(clonePhoton);
       }
@@ -2017,11 +2019,11 @@ void higgsAnalyzer::GenPlots(vector<TCGenParticle*> Zs, vector<TCGenParticle*> l
 
   if (leps.size() > 1){
     for (lepIt=leps.begin(); lepIt<leps.end(); lepIt++){
-      if (oneSet && abs((*lepIt)->Mother()->GetPDGId()) == 23){
+      if (oneSet && (*lepIt)->Mother() && abs((*lepIt)->Mother()->GetPDGId()) == 23){
         zMuon2 = **lepIt;
         break;
       }
-      if (!oneSet && abs((*lepIt)->Mother()->GetPDGId()) == 23){
+      if (!oneSet && (*lepIt)->Mother() && abs((*lepIt)->Mother()->GetPDGId()) == 23){
         zMuon1 = **lepIt;
         oneSet = true;
       }
@@ -2039,7 +2041,7 @@ void higgsAnalyzer::GenPlots(vector<TCGenParticle*> Zs, vector<TCGenParticle*> l
       vector<TCGenParticle*>::iterator photIt;
       for (photIt=leps.begin(); photIt<leps.end(); photIt++){
         //cout<<(*photIt).Mother()<<endl;
-        if ((*photIt)->Mother()->GetPDGId()==23){
+        if ((*photIt)->Mother() && (*photIt)->Mother()->GetPDGId()==23){
           hPhot = **photIt;
           break;
         }
@@ -2208,214 +2210,6 @@ float higgsAnalyzer::Zeppenfeld(TLorentzVector p, TLorentzVector pj1, TLorentzVe
 }
 
 
-//////////////////////////////////
-// ID Cut and Iso Cut Functions //
-//////////////////////////////////
-
-
-bool higgsAnalyzer::PassMuonID(TCMuon *mu, Cuts::muIDCuts cutLevel){
-
-  bool muPass = false;
-
-  if (suffix.find("2011") != string::npos){
-    if (
-        fabs(mu->Eta()) < 2.4
-        && mu->IsGLB()                         == cutLevel.IsGLB
-        && mu->NormalizedChi2()                < cutLevel.NormalizedChi2
-        && mu->NumberOfValidMuonHits()         > cutLevel.NumberOfValidMuonHits
-        && mu->NumberOfMatchedStations()       > cutLevel.NumberOfMatchedStations
-        && mu->NumberOfValidPixelHits()        > cutLevel.NumberOfValidPixelHits
-        && mu->TrackLayersWithMeasurement()    > cutLevel.TrackLayersWithMeasurement
-        && fabs(mu->Dxy(pvPosition))           < cutLevel.dxy
-        && fabs(mu->Dz(pvPosition))            < cutLevel.dz
-       ) muPass = true;
-  }else{
-    if (
-        fabs(mu->Eta()) < 2.4
-        && mu->IsPF()                          == cutLevel.IsPF
-        && mu->IsGLB()                         == cutLevel.IsGLB
-        && mu->NormalizedChi2()                < cutLevel.NormalizedChi2
-        && mu->NumberOfValidMuonHits()         > cutLevel.NumberOfValidMuonHits
-        && mu->NumberOfMatchedStations()       > cutLevel.NumberOfMatchedStations
-        && mu->NumberOfValidPixelHits()        > cutLevel.NumberOfValidPixelHits
-        && mu->TrackLayersWithMeasurement()    > cutLevel.TrackLayersWithMeasurement
-        && fabs(mu->Dxy(pvPosition))           < cutLevel.dxy
-        && fabs(mu->Dz(pvPosition))            < cutLevel.dz
-       ) muPass = true;
-  }
-  return muPass;
-}
-
-bool higgsAnalyzer::PassMuonIso(TCMuon *mu, Cuts::muIsoCuts cutLevel){
-
-  float combIso;
-
-  combIso = (mu->IsoMap("pfChargedHadronPt_R04")
-    + max(0.,(double)mu->IsoMap("pfNeutralHadronEt_R04") + mu->IsoMap("pfPhotonEt_R04") - 0.5*mu->IsoMap("pfPUPt_R04")));
-
-  bool isoPass = false;
-  if (combIso/mu->Pt() < cutLevel.relCombIso04) isoPass = true;
-  return isoPass;
-}
-
-
-bool higgsAnalyzer::PassElectronID(TCElectron *el, Cuts::elIDCuts cutLevel)
-{
-  bool elPass = false;
-  if (fabs(el->SCEta()) > 2.5) return elPass;
-  if (fabs(el->SCEta()) > 1.4442 && fabs(el->SCEta()) < 1.566) return elPass;
-  if (
-    (fabs(el->Eta()) < 1.566
-      && fabs(el->DetaSuperCluster())    < cutLevel.dEtaIn[0]
-      && fabs(el->DphiSuperCluster())    < cutLevel.dPhiIn[0]
-      && el->SigmaIEtaIEta()             < cutLevel.sigmaIetaIeta[0]
-      && el->HadOverEm()                 < cutLevel.HadOverEm[0]
-      && fabs(el->Dxy(pvPosition))       < cutLevel.dxy[0]
-      && fabs(el->Dz(pvPosition))        < cutLevel.dz[0]
-      && el->IdMap("fabsEPDiff")         < cutLevel.fabsEPDiff[0]
-      && el->ConversionMissHits()        <= cutLevel.ConversionMissHits[0]
-      && el->ConversionVeto()            == cutLevel.PassedConversionProb[0]
-      ) ||
-    (fabs(el->Eta()) > 1.566  
-      && fabs(el->DetaSuperCluster())    < cutLevel.dEtaIn[1]
-      && fabs(el->DphiSuperCluster())    < cutLevel.dPhiIn[1]
-      && el->SigmaIEtaIEta()             < cutLevel.sigmaIetaIeta[1]
-      && el->HadOverEm()                 < cutLevel.HadOverEm[1]
-      && fabs(el->Dxy(pvPosition))       < cutLevel.dxy[1]
-      && fabs(el->Dz(pvPosition))        < cutLevel.dz[1]
-      && el->IdMap("fabsEPDiff")         < cutLevel.fabsEPDiff[1]
-      && el->ConversionMissHits()        <= cutLevel.ConversionMissHits[1]
-      && el->ConversionVeto()            == cutLevel.PassedConversionProb[1]
-      )
-      ) elPass = true; 
-    //   cout<<"evt: "<<eventNumber<<" muon num: "<<recoMuons->GetSize()<<endl;
-       for (int j = 0; j < recoMuons->GetSize(); ++ j)
-       {
-         TCMuon* thisMuon = (TCMuon*) recoMuons->At(j);    
-    //     if (eventNumber==11944 || eventNumber==1780) cout<<thisMuon->DeltaR(*el)<<endl;
-         if (thisMuon->DeltaR(*el) < 0.05){
-           //cout<<"event: "<<eventNumber<<endl;
-           //cout<<"unclean"<<endl;
-           //el->Print();
-           elPass = false;
-           break;
-         }
-       }
-       return elPass;
-}
-
-bool higgsAnalyzer::PassElectronIso(TCElectron *el, Cuts::elIsoCuts cutLevel, float EAEle[7]){
-  float thisEA = 0;
-  if (fabs(el->Eta())     <  1.0) thisEA = EAEle[0];
-  else if (fabs(el->Eta())     <  1.5) thisEA = EAEle[1];
-  else if (fabs(el->Eta())     <  2.0) thisEA = EAEle[2];
-  else if (fabs(el->Eta())     <  2.2) thisEA = EAEle[3];
-  else if (fabs(el->Eta())     <  2.3) thisEA = EAEle[4];
-  else if (fabs(el->Eta())     <  2.4) thisEA = EAEle[5];
-  else if (fabs(el->Eta())     >  2.4) thisEA = EAEle[6];
-
-  float combIso = (el->IsoMap("pfChIso_R04")
-    + max(0.,(double)el->IsoMap("pfNeuIso_R04") + el->IsoMap("pfPhoIso_R04") - rhoFactor*thisEA));
-  bool isoPass = false;
-  if (combIso/el->Pt() < cutLevel.relCombIso04) isoPass = true;
-  return isoPass;
-}
-
-bool higgsAnalyzer::PassPhotonID(TCPhoton *ph, Cuts::phIDCuts cutLevel){
-  float tmpEta;
-  bool phoPass = false;
-  tmpEta = ph->SCEta();
-  if (fabs(tmpEta) > 2.5) return phoPass;
-  if (fabs(tmpEta) > 1.4442 && fabs(tmpEta) < 1.566) return phoPass;
-  if(
-      (fabs(tmpEta)  < 1.4442
-       && ph->ConversionVeto()       == cutLevel.PassedEleSafeVeto[0]
-       && ph->HadOverEm()               < cutLevel.HadOverEm[0]
-       && ph->SigmaIEtaIEta()           < cutLevel.sigmaIetaIeta[0]
-      ) ||
-      (fabs(tmpEta)  > 1.566
-       && ph->ConversionVeto()       == cutLevel.PassedEleSafeVeto[1]
-       && ph->HadOverEm()               < cutLevel.HadOverEm[1]
-       && ph->SigmaIEtaIEta()           < cutLevel.sigmaIetaIeta[1]
-      )
-    ) phoPass = true;
-  return phoPass;
-}
-
-bool higgsAnalyzer::PassPhotonIso(TCPhoton *ph, Cuts::phIsoCuts cutLevel, float EAPho[7][3]){
-  float chEA,nhEA,phEA,chIsoCor,nhIsoCor,phIsoCor,tmpEta;
-  bool isoPass = false;
-  tmpEta = ph->SCEta();
-
-  if(fabs(tmpEta) > 2.5) return isoPass;
-
-  if (fabs(tmpEta) < 1.0){
-    chEA = EAPho[0][0];
-    nhEA = EAPho[0][1];
-    phEA = EAPho[0][2];
-  }else if (fabs(tmpEta) < 1.479){
-    chEA = EAPho[1][0];
-    nhEA = EAPho[1][1];
-    phEA = EAPho[1][2];
-  }else if (fabs(tmpEta) < 2.0){
-    chEA = EAPho[2][0];
-    nhEA = EAPho[2][1];
-    phEA = EAPho[2][2];
-  }else if (fabs(tmpEta) < 2.2){
-    chEA = EAPho[3][0];
-    nhEA = EAPho[3][1];
-    phEA = EAPho[3][2];
-  }else if (fabs(tmpEta) < 2.3){ 
-    chEA = EAPho[4][0];
-    nhEA = EAPho[4][1];
-    phEA = EAPho[4][2];
-  }else if (fabs(tmpEta) < 2.4){
-    chEA = EAPho[5][0];
-    nhEA = EAPho[5][1];
-    phEA = EAPho[5][2];
-  }else{                                  
-    chEA = EAPho[6][0];
-    nhEA = EAPho[6][1];
-    phEA = EAPho[6][2];
-  }
-
-  chIsoCor = ph->IsoMap("chIso03")-rhoFactor*chEA;
-  nhIsoCor = ph->IsoMap("nhIso03")-rhoFactor*nhEA;
-  phIsoCor = ph->IsoMap("phIso03")-rhoFactor*phEA;
-
-  if (cutLevel.cutName == "loosePhIso"){
-    if (
-        (fabs(tmpEta) < 1.4442
-        //(fabs(ph->Eta())  < 1.566
-         && max((double)chIsoCor,0.)          < cutLevel.chIso03[0]
-         && max((double)nhIsoCor,0.)          < cutLevel.nhIso03[0] + 0.04*ph->Pt()
-         && max((double)phIsoCor,0.)          < cutLevel.phIso03[0] + 0.005*ph->Pt() 
-        ) ||
-        (fabs(tmpEta) > 1.566
-        //(fabs(ph->Eta())  > 1.566
-         && max((double)chIsoCor,0.)          < cutLevel.chIso03[1]
-         && max((double)nhIsoCor,0.)          < cutLevel.nhIso03[1] + 0.04*ph->Pt() 
-         //&& phoCut["phIso03"]/ph->Pt() < nuthin
-        )
-       ) isoPass = true;
-  } else {
-    if (
-        //(fabs(ph->Eta())  < 1.566
-        (fabs(tmpEta) < 1.4442
-         && max((double)chIsoCor,0.)          < cutLevel.chIso03[0]
-         && max((double)nhIsoCor,0.)          < cutLevel.nhIso03[0] + 0.04*ph->Pt()
-         && max((double)phIsoCor,0.)          < cutLevel.phIso03[0] + 0.005*ph->Pt() 
-        ) ||
-        //(fabs(ph->Eta())  > 1.566
-        (fabs(tmpEta) > 1.566
-         && max((double)chIsoCor,0.)          < cutLevel.chIso03[1]
-         && max((double)nhIsoCor,0.)          < cutLevel.nhIso03[1] + 0.04*ph->Pt() 
-         && max((double)phIsoCor,0.)          < cutLevel.phIso03[1] + 0.005*ph->Pt() 
-        )
-       ) isoPass = true;
-  }
-  return isoPass;
-}
 //////////////////////////////
 // Debugging Dump Functions //
 //////////////////////////////
@@ -2432,8 +2226,8 @@ void higgsAnalyzer::ElectronDump(TCElectron *el, Cuts::elIDCuts cutLevelID, Cuts
   else if (fabs(el->Eta())     <  2.4) thisEA = EAEle[5];
   else if (fabs(el->Eta())     >  2.4) thisEA = EAEle[6];
 
-  bool idPass = PassElectronID(el, cutLevelID);
-  bool isoPass = PassElectronIso(el, cutLevelIso, EAEle);
+  bool idPass = particleSelector->PassElectronID(el, cutLevelID, recoMuons);
+  bool isoPass = particleSelector->PassElectronIso(el, cutLevelIso, EAEle);
 
   float combIso = (el->IsoMap("pfChIso_R04")
     + max(0.,(double)el->IsoMap("pfNeuIso_R04") + el->IsoMap("pfPhoIso_R04") - rhoFactor*el->IsoMap("EffArea_R04")));
@@ -2451,8 +2245,8 @@ void higgsAnalyzer::ElectronDump(TCElectron *el, Cuts::elIDCuts cutLevelID, Cuts
 void higgsAnalyzer::MuonDump(TCMuon *mu, Cuts::muIDCuts cutLevelID, Cuts::muIsoCuts cutLevelIso, ofstream & dump)
 {
 
-  bool idPass = PassMuonID(mu, cutLevelID);
-  bool isoPass = PassMuonIso(mu, cutLevelIso);
+  bool idPass = particleSelector->PassMuonID(mu, cutLevelID);
+  bool isoPass = particleSelector->PassMuonIso(mu, cutLevelIso);
 
   float combIso; 
   combIso = (mu->IsoMap("pfChargedHadronPt_R04")
@@ -2503,8 +2297,8 @@ void higgsAnalyzer::PhotonDump(TCPhoton *ph, Cuts::phIDCuts cutLevelID, Cuts::ph
     phEA = EAPho[6][2];
   }
 
-  bool idPass = PassPhotonID(ph, cutLevelID);
-  bool isoPass = PassPhotonIso(ph, cutLevelIso, EAPho);
+  bool idPass = particleSelector->PassPhotonID(ph, cutLevelID);
+  bool isoPass = particleSelector->PassPhotonIso(ph, cutLevelIso, EAPho);
 
   dump << runNumber << " "                   << eventNumber << " "                   << ph->Pt()
        << " "       << tmpEta                << " "         << ph->ConversionVeto()  << " "      << ph->HadOverEm()
@@ -2550,8 +2344,8 @@ void higgsAnalyzer::PhotonDump2(TCPhoton *ph, Cuts::phIDCuts cutLevelID, Cuts::p
     phEA = EAPho[6][2];
   }
 
-  bool idPass = PassPhotonID(ph, cutLevelID);
-  bool isoPass = PassPhotonIso(ph, cutLevelIso, EAPho);
+  bool idPass = particleSelector->PassPhotonID(ph, cutLevelID);
+  bool isoPass = particleSelector->PassPhotonIso(ph, cutLevelIso, EAPho);
 
   float dr1 = ph->DeltaR(lepton1);
   float dr2 = ph->DeltaR(lepton2);
@@ -2679,7 +2473,7 @@ void higgsAnalyzer::MVADumper(TCElectron* ele, EGammaMvaEleEstimator* mvaMaker, 
   }
 
   bool passIso = false;
-  passIso = PassElectronIso(ele, cutLevelIso, EAEle);
+  passIso = particleSelector->PassElectronIso(ele, cutLevelIso, EAEle);
 
 dump << " run: "                   << setw(7)  << runNumber                            << " evt: "                   << setw(10) << eventNumber                          << " lumi: "                  << setw(5)  << lumiSection
      << " pt: "                    << setw(10) << ele->Pt()                            << " SCeta: "                 << setw(10) << ele->SCEta()                         << " fbrem: "                 << setw(10) << ele->IdMap("fbrem")
@@ -2938,95 +2732,6 @@ void higgsAnalyzer::MVACalulator (mvaVarStruct vars, mvaInitStruct inits, TMVA::
 
 }
 
-
-void  higgsAnalyzer::FindGenParticles(TClonesArray *genParticles, string selection, vector<TCGenParticle*>& vetoPhotons, genHZGParticles& _genHZG){
-  vector<TCGenParticle*> genElectrons;
-  vector<TCGenParticle*> genMuons;
-  vector<TCGenParticle*> genZs;
-  vector<TCGenParticle*> genWs;
-  vector<TCGenParticle*> genHs;
-  vector<TCGenParticle*> genPhotons;
-  vector<TCGenParticle*> genLeptons;
-  bool isMuMuGamma = false;
-  bool isEEGamma = false;
-  bool goodPhot = false;
-
-  for (int i = 0; i < genParticles->GetSize(); ++i) {
-    TCGenParticle* thisGen = (TCGenParticle*) genParticles->At(i);    
-  //  cout<<thisGen->GetPDGId()<<endl;
-    if (abs(thisGen->GetPDGId()) == 11){
-      genElectrons.push_back(thisGen);
-      if (abs(thisGen->Mother()->GetPDGId())==23) isEEGamma = true;
-    }else if (abs(thisGen->GetPDGId()) == 13){
-      genMuons.push_back(thisGen);
-      if (abs(thisGen->Mother()->GetPDGId())==23) isMuMuGamma = true;
-    }else if (abs(thisGen->GetPDGId()) == 23) genZs.push_back(thisGen);
-    else if (abs(thisGen->GetPDGId()) == 24) genWs.push_back(thisGen);
-    else if (abs(thisGen->GetPDGId()) == 22) genPhotons.push_back(thisGen);
-    else if (abs(thisGen->GetPDGId()) == 25) genHs.push_back(thisGen);
-  }
-  ///////// sort gen particles by PT ///////////
-
-  sort(genElectrons.begin(), genElectrons.end(), P4SortCondition);
-  sort(genMuons.begin(), genMuons.end(), P4SortCondition);
-  sort(genZs.begin(), genZs.end(), P4SortCondition);
-  sort(genWs.begin(), genWs.end(), P4SortCondition);
-  sort(genPhotons.begin(), genPhotons.end(), P4SortCondition);
-  sort(genHs.begin(), genHs.end(), P4SortCondition);
-
-  vetoPhotons = genPhotons;
-
-  if (isMuMuGamma && (selection == "mumuGamma")) genLeptons = genMuons;
-  else if (isEEGamma && (selection == "eeGamma")) genLeptons = genElectrons;
-  
-  if (_genHZG.lp){
-    cout<<"well here's your fucking problem"<<endl;
-    _genHZG.lp->Print();
-    cout<<endl;
-  }
-  
-  bool posLep = false;
-  bool negLep = false;
-  vector<TCGenParticle*>::iterator testIt;
-
-  if (genLeptons.size() > 1){
-    for (testIt=genLeptons.begin(); testIt<genLeptons.end(); testIt++){
-      if((*testIt)->Mother()->GetPDGId() == 23 && (*testIt)->Charge() == 1 ){
-        _genHZG.lp = new TCGenParticle(*(*testIt));
-        posLep = true;
-      }else if((*testIt)->Mother()->GetPDGId()== 23 && (*testIt)->Charge() == -1){
-        _genHZG.lm = new TCGenParticle((*(*testIt)));
-        negLep = true;
-      }
-      if (posLep && negLep) break;
-    }
-  }else { return;}
-
-  if (genPhotons.size() > 0 && posLep && negLep){
-      for (testIt=genPhotons.begin(); testIt<genPhotons.end(); testIt++){
-        //cout<<"mother: "<<testIt->Mother()<<"\tstatus: "<<testIt->GetStatus()<<endl;
-        if ((*testIt)->Mother()->GetPDGId() == 25 && fabs((*(*testIt)+*_genHZG.lm+*_genHZG.lp).M()-125.0) < 0.1) _genHZG.g = new TCGenParticle(*(*testIt)); goodPhot = true; break;
-      }
-      if (!goodPhot) return;
-    //_genHZG.g = new TCGenParticle(genPhotons.front());
-  }else{ return;}
-
-
-  if (genZs.size() > 0) _genHZG.z = new TCGenParticle(*genZs.front());
-  if (genWs.size() > 0) _genHZG.w = new TCGenParticle(*genWs.front());
-  if (genHs.size() > 0) _genHZG.h = new TCGenParticle(*genHs.front());
-
-  return;
-}
-
-void higgsAnalyzer::CleanUpGen(genHZGParticles& _genHZG){
-  if (_genHZG.lp) delete _genHZG.lp;
-  if (_genHZG.lm) delete _genHZG.lm;
-  if (_genHZG.g) delete _genHZG.g;
-  if (_genHZG.w) delete _genHZG.w;
-  if (_genHZG.z) delete _genHZG.z;
-  if (_genHZG.h) delete _genHZG.h;
-}
 
 float higgsAnalyzer::MEDiscriminator(TCPhysObject lepton1, TCPhysObject lepton2, TLorentzVector gamma){
   //modified from kevin kelly
