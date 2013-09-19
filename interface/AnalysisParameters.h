@@ -15,31 +15,31 @@ namespace parameters
   string  abcd;
   string  suffix;
 
-  bool VBFcuts         = false;
-  bool DYGammaVeto    = true;
-  bool customPhotoID  = false;
-  bool spikeVeto      = true;
+  bool VBFcuts                 = false;
+  bool DYGammaVeto             = true;
+  bool customPhotoID           = false;
+  bool spikeVeto               = true;
 
-  bool R9switch       = false;
+  bool R9switch                = false;
 
-  bool doEleMVA       = true;
+  bool doEleMVA                = true;
 
-  bool doLooseMuIso   = true;
-  bool doAnglesMVA = false;
+  bool doLooseMuIso            = true;
+  bool doAnglesMVA             = false;
 
   ///// debugging dumps /////
-  bool dumps = false;
-  bool dataDumps = false;
-  int EVENTNUMBER = -999;
+  bool dumps                   = false;
+  bool dataDumps               = false;
+  int EVENTNUMBER              = -999;
 
   //// energy corrections ////
-  bool engCor = true;
-  bool doR9Cor = true;
-  bool doEleReg  = true;
+  bool engCor                  = true;
+  bool doR9Cor                 = true;
+  bool doEleReg                = true;
 
   //// Scale Factors ////
-  bool doScaleFactors = true;
-  bool doLumiXS= false;
+  bool doScaleFactors          = true;
+  bool doLumiXS                = false;
 }
 
 class Cuts{
