@@ -1480,11 +1480,12 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
   /////////////
   
   float MEdisc = MEDiscriminator(lepton1,lepton2,GP4);
-  //if (MEdisc < 0.02) return kTRUE;
+  if (MEdisc < 0.02) return kTRUE;
   //cout<<"MEDisc:\t"<<MEdisc<<endl;
-  if (MEdisc > ((0.1/20)*(GP4+ZP4).M()-0.5)) return kTRUE;
+  hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MEUpper_Signal2012ggM125","Mass vs ME; m_{ll#gamma}; ME Disc", 45,100,190,45,0,0.2,eventWeight);
+  //if (MEdisc > ((0.1/20)*(GP4+ZP4).M()-0.5)) return kTRUE;
   //if (MEdisc < (0.06-(0.06/150)*(GP4+ZP4).M())) return kTRUE;
-  if (MEdisc < (-0.000029*pow(((GP4+ZP4).M()-135),2)+0.0225)) return kTRUE;
+  //if (MEdisc < (-0.000029*pow(((GP4+ZP4).M()-135),2)+0.0225)) return kTRUE;
   hm->fillProfile((GP4+ZP4).M(),MEdisc,"p_MassVsME_Signal2012ggM125", "Average ME value per Mass; m_{ll#gamma}; ME Disc", 45, 100, 190, eventWeight);
   hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsME_Signal2012ggM125","Mass vs ME; m_{ll#gamma}; ME Disc", 45,100,190,45,0,0.2,eventWeight);
   hm->fill1DHist(24,"h1_acceptanceByCut_Signal2012ggM125", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");
@@ -1950,10 +1951,10 @@ void higgsAnalyzerV2::Terminate()
   cout << "| 100-190 weighted (pho):            |\t" << eventHisto->Integral(52,52) << "\t|" << endl;
   cout << "| 100-190 weighted (trig):           |\t" << eventHisto->Integral(53,53) << "\t|" << endl;
   cout << "| 100-190 weighted (lep):            |\t" << eventHisto->Integral(54,54) << "\t|" << endl;
-  cout << "| CAT 1:                             |\t" << nEvents[61]                   << "\t|" << endl;
-  cout << "| CAT 2:                             |\t" << nEvents[62]                   << "\t|" << endl;
-  cout << "| CAT 3:                             |\t" << nEvents[63]                   << "\t|" << endl;
-  cout << "| CAT 4:                             |\t" << nEvents[64]                   << "\t|" << endl;
+  cout << "| CAT 1:                    |\t" << nEvents[61] <<"\t"<< eventHisto->Integral(60,60) << "\t|" << endl;
+  cout << "| CAT 2:                    |\t" << nEvents[62] <<"\t"<< eventHisto->Integral(61,61)                  << "\t|" << endl;
+  cout << "| CAT 3:                    |\t" << nEvents[63] <<"\t"<< eventHisto->Integral(62,62)                  << "\t|" << endl;
+  cout << "| CAT 4:                    |\t" << nEvents[64] <<"\t"<< eventHisto->Integral(63,63)                  << "\t|" << endl;
   cout << "| GEN ACCEPTANCE Leptons:            |\t" << genAccept[0]                  << "\t|" << endl;
   cout << "| GEN ACCEPTANCE Total:              |\t" << genAccept[1]                  << "\t|" << endl;
 
