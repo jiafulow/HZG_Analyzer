@@ -58,6 +58,7 @@
 #include "../interface/ZGAngles.h"
 #include "../interface/AnalysisParameters.h"
 #include "../interface/ParticleSelectors.h"
+#include "../interface/Dumper.h"
 #include "../hzgammaME/TVar.hh"
 #include "../hzgammaME/TEvtProb.cc"
 
@@ -71,6 +72,7 @@ class higgsAnalyzer : public TSelector {
 
     //Params and Cuts:
     Cuts* cuts;
+    Dumper* dumper;
 
 		TFile* histoFile;
 		TFile* trainingFile;

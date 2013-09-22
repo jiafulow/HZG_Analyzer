@@ -47,6 +47,7 @@ cat > run.C << +EOF
     gROOT->LoadMacro("ZGAngles.cc+");
     gROOT->LoadMacro("AnalysisParameters.cc+");
     gROOT->LoadMacro("ParticleSelectors.cc+");
+    gROOT->LoadMacro("Dumper.cc+");
     gSystem->Load("libgfortran.so");
     gSystem->Load("../hzgammaME/MCFM-6.6/obj/libmcfm_6p6.so");
     gSystem->Load("../hzgammaME/libME.so");

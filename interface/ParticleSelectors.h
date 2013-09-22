@@ -18,6 +18,7 @@ class ParticleSelector {
     ParticleSelector(Cuts* cuts, bool isRealData, int runNumber, TRandom3* rEl);
     void SetPv(TVector3*);
     void SetRho(float);
+    void SetEventNumber(int);
     bool FindGoodZElectron(vector<TCElectron*> electronList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* ZP4, float* eta1, float* eta2, int* int1, int* int2); 
     bool FindGoodZMuon(vector<TCMuon*> muonList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* ZP4, int* int1, int* int2); 
     bool FindGoodZElectron(vector<TCElectron*> electronList, vector<TCElectron*> uncorElectronList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* ZP4, float* eta1, float* eta2, int* int1, int* int2); 
@@ -48,8 +49,9 @@ class ParticleSelector {
     bool _isRealData;
     int _runNumber;
     TRandom3* _rEl;
-    TVector3* _pv;
+    TVector3 _pv;
     float _rhoFactor;
+    int _evtnum;
 };
 
 

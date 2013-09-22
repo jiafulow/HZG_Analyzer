@@ -14,6 +14,8 @@ namespace parameters
   int     JC_LVL;
   string  abcd;
   string  suffix;
+  string  dataname;
+  string  jobCount;
 
   bool VBFcuts                 = false;
   bool DYGammaVeto             = true;
@@ -28,7 +30,7 @@ namespace parameters
   bool doAnglesMVA             = false;
 
   ///// debugging dumps /////
-  bool dumps                   = false;
+  bool dumps                   = true;
   bool dataDumps               = false;
   int EVENTNUMBER              = -999;
 

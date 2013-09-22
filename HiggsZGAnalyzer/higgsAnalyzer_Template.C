@@ -16,9 +16,9 @@ void higgsAnalyzer::Begin(TTree * tree)
   JC_LVL         = 0;
   abcd           = "ABCD";
   suffix         = "SUFFIX";
+  dataname       = "DATANAME";
+  jobCount          = "COUNT";
 
-  cuts = new Cuts();
-  cuts->InitEA(period);
 
   for (int i =0; i<100; i++){
     nEvents[i] = 0;
@@ -36,6 +36,8 @@ void higgsAnalyzer::Begin(TTree * tree)
   jobTree->GetEntry();
 
   // Initialize utilities and selectors here //
+  cuts = new Cuts();
+  cuts->InitEA(period);
   weighter        = new WeightUtils(suffix, period, abcd, selection, isRealData);
   triggerSelector = new TriggerSelector(selection, period, *triggerNames);
   rmcor2011       = new rochcor_2011(229);
@@ -45,6 +47,9 @@ void higgsAnalyzer::Begin(TTree * tree)
   phoCorrector    = new zgamma::PhosphorCorrectionFunctor("../plugins/PHOSPHOR_NUMBERS_EXPFIT_ERRORS.txt", true);
   Xcal2           = new TEvtProb();
   particleSelector = new ParticleSelector(cuts, isRealData, runNumber, rEl);
+  dumper          = new Dumper();
+  dumper->SetCuts(cuts);
+  dumper->SetPSelect(particleSelector);
 
 
   genHZG = {0,0,0,0,0,0};
@@ -103,6 +108,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   histoFile->mkdir("PostGen", "PostGen");
   histoFile->mkdir("ZGAngles", "ZGAngles");
 
+  /*
   muonDump = false;
   electronDump = false;
   if (dumps){
@@ -195,6 +201,7 @@ void higgsAnalyzer::Begin(TTree * tree)
     dataDump.open("dataDump_DATANAME_COUNT.txt");
     if (!dataDump.good()) cout << "ERROR: can't open file for writing." << endl;
   }
+  */
 
 
   sampleChain->Branch("diffZGscalar",&diffZGscalar,"diffZGscalar/F");
@@ -301,6 +308,10 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   unBinnedWeight = unBinnedLumiXS = 1;
 
   particleSelector->SetRho(rhoFactor);
+  dumper->SetRho(rhoFactor);
+  dumper->SetRun(runNumber);
+  dumper->SetEvent(eventNumber);
+  dumper->SetLumi(lumiSection);
 
   ///////////////////
   // Gen Particles //
@@ -551,6 +562,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   pvPosition = new TVector3();
   *pvPosition = goodVertices[0];
+  particleSelector->SetPv(pvPosition);
+  dumper->SetPv(pvPosition);
 
 
 
@@ -594,7 +607,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     if(doEleMVA){
       bool passAll = false;
 
-      if(electronDump) MVADumper(thisElec, myMVATrig, rhoFactor,cuts->looseElIso, cuts->EAEle, elDumpMVA);
+      //if(electronDump) MVADumper(thisElec, myMVATrig, rhoFactor,cuts->looseElIso, cuts->EAEle, elDumpMVA);
+      dumper->MVADumper(thisElec, myMVATrig); 
 
       if (thisElec->IdMap("preSelPassV1")) electronsID.push_back(thisElec);			
       double tmpMVAValue = myMVATrig->mvaValue(
@@ -650,7 +664,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         cloneElectron = thisElec;
         thisElec->SetPtEtaPhiM(newPt,thisElec->Eta(),thisElec->Phi(),0.000511);
       }
-      if (electronDump) ElectronDump(thisElec, cuts->looseElID, cuts->looseElIso, cuts->EAEle, elDump2);
+      //if (electronDump) ElectronDump(thisElec, cuts->looseElID, cuts->looseElIso, cuts->EAEle, elDump2);
+      dumper->ElectronDump(thisElec, recoMuons);
       if (particleSelector->PassElectronID(thisElec, cuts->looseElID, recoMuons)) electronsID.push_back(thisElec);			
       if (particleSelector->PassElectronID(thisElec, cuts->looseElID, recoMuons) && particleSelector->PassElectronIso(thisElec, cuts->looseElIso, cuts->EAEle)){
         electronsIDIso.push_back(thisElec);			
@@ -734,13 +749,18 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
     // tight muon id
 
+    /*
     if (doLooseMuIso){
       if(muonDump) MuonDump(thisMuon, cuts->tightMuID, cuts->looseMuIso, muDump1);
     }else{
       if(muonDump) MuonDump(thisMuon, cuts->tightMuID, cuts->tightMuIso, muDump1);
     }
+    */
+    dumper->MuonDump(thisMuon);
 
-    if (particleSelector->PassMuonID(thisMuon, cuts->tightMuID)) muonsID.push_back(thisMuon);
+    if (particleSelector->PassMuonID(thisMuon, cuts->tightMuID)){
+      muonsID.push_back(thisMuon);
+    }
 
     //tight ID and Iso
 
@@ -846,7 +866,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
       ////// Currently Using Cut-Based Photon ID, 2012
 
-      if (dumps) PhotonDump(thisPhoton, cuts->mediumPhID, cuts->mediumPhIso, cuts->EAPho, phDump1);
+      //if (dumps) PhotonDump(thisPhoton, cuts->mediumPhID, cuts->mediumPhIso, cuts->EAPho, phDump1);
+      dumper->PhotonDump(thisPhoton); 
       if (particleSelector->PassPhotonID(thisPhoton, cuts->mediumPhID)) photonsID.push_back(thisPhoton);
       if (particleSelector->PassPhotonID(thisPhoton, cuts->mediumPhID) && particleSelector->PassPhotonIso(thisPhoton, cuts->mediumPhIso, cuts->EAPho)){
         photonsIDIso.push_back(thisPhoton);
@@ -1083,9 +1104,11 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   ++nEvents[8];
   hm->fill1DHist(ZP4.M(),"h1_diLeptonMassPreSel_SUFFIX", "M_{ll}; M_{ll};N_{evts}", 40, 70., 110.,eventWeight,"PreSel");
 
+
   if (dumps){
     for (Int_t i = 0; i < photonsIDIso.size(); ++i) {
-      PhotonDump2(photonsIDIso[i], cuts->mediumPhID, cuts->mediumPhIso, cuts->EAPho, lepton1, lepton2, phDump2);
+      //PhotonDump2(photonsIDIso[i], cuts->mediumPhID, cuts->mediumPhIso, cuts->EAPho, lepton1, lepton2, phDump2);
+      dumper->PhotonDump2(photonsIDIso[i], lepton1, lepton2);
     }
   }
 
@@ -1572,6 +1595,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
     if (dumps){
       if (selection == "mumuGamma"){
+        /*
         if (doLooseMuIso){
           MuonDump(muonsIDIso[lepton1int], cuts->tightMuID, cuts->looseMuIso, muDumpFinal);
           MuonDump(muonsIDIso[lepton2int], cuts->tightMuID, cuts->looseMuIso, muDumpFinal);
@@ -1579,10 +1603,15 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
           MuonDump(muonsIDIso[lepton1int], cuts->tightMuID, cuts->tightMuIso, muDumpFinal);
           MuonDump(muonsIDIso[lepton2int], cuts->tightMuID, cuts->tightMuIso, muDumpFinal);
         }
+        */
+        dumper->MuonDump(muonsIDIso[lepton1int],true);
+        dumper->MuonDump(muonsIDIso[lepton2int],true);
 
       } else if (selection == "eeGamma"){
-        ElectronDump(electronsIDIso[lepton1int], cuts->looseElID, cuts->looseElIso, cuts->EAEle, elDumpFinal);
-        ElectronDump(electronsIDIso[lepton2int], cuts->looseElID, cuts->looseElIso, cuts->EAEle, elDumpFinal);
+        //ElectronDump(electronsIDIso[lepton1int], cuts->looseElID, cuts->looseElIso, cuts->EAEle, elDumpFinal);
+        //ElectronDump(electronsIDIso[lepton2int], cuts->looseElID, cuts->looseElIso, cuts->EAEle, elDumpFinal);
+        dumper->ElectronDump(electronsIDIso[lepton1int],recoMuons,true);
+        dumper->ElectronDump(electronsIDIso[lepton2int],recoMuons,true);
       }
     }
 
@@ -1680,11 +1709,13 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
     if (dataDumps && isRealData){
       //if(engCor) DataDumper(&lepton1, &lepton2, &GP4, &uncorLepton1, &uncorLepton2, &uncorGP4, R9Cor, GP4scEta, dataDump,SCetaEl1,SCetaEl2);
-      DataDumper(&lepton1, &lepton2, &GP4, R9Cor, GP4scEta, dataDump,SCetaEl1,SCetaEl2);
+      //DataDumper(&lepton1, &lepton2, &GP4, R9Cor, GP4scEta, dataDump,SCetaEl1,SCetaEl2);
+      dumper->DataDumper(&lepton1, &lepton2, &GP4, R9Cor, GP4scEta, SCetaEl1,SCetaEl2);
     }
 
     if (dumps){
-      FinalDumper(&lepton1, &lepton2, &GP4, catNum, finalDump);
+      //FinalDumper(&lepton1, &lepton2, &GP4, catNum, finalDump);
+      dumper->FinalDumper(&lepton1, &lepton2, &GP4, catNum);
     }
 
     unBinnedWeight = eventWeight;
@@ -1852,7 +1883,6 @@ void higgsAnalyzer::Terminate()
   cout << "| GEN ACCEPTANCE Leptons:            |\t" << genAccept[0]                  << "\t|" << endl;
   cout << "| GEN ACCEPTANCE Total:              |\t" << genAccept[1]                  << "\t|" << endl;
 
-  cout<<"what"<<endl;
   //hm->writeHists();
   trainingFile->Write();
   sampleFile->Write();
@@ -1869,27 +1899,26 @@ void higgsAnalyzer::Terminate()
   eleIDISOFile->Close();
   m_llgFile->Close();
 
-  cout<<"what2"<<endl;
+  dumper->CloseDumps();
+  /*
   if(electronDump){
     elDump2.close();
     elDumpFinal.close();
   }
-  cout<<"what3"<<endl;
   if(muonDump){
     muDump1.close();
     muDumpFinal.close();
   }
-  cout<<"what4"<<endl;
   if(dumps){
     phDump1.close();
     phDump2.close();
     finalDump.close();
   }
 
-  cout<<"what5"<<endl;
   if(dataDumps && isRealData){
     dataDump.close();
   }
+  */
 }
 
 ////////////////////////////

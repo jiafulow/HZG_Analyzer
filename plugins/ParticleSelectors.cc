@@ -8,11 +8,15 @@ ParticleSelector::ParticleSelector(Cuts* cuts, bool isRealData, int runNumber, T
 }
 
 void ParticleSelector::SetPv(TVector3* pv){
-  _pv = pv;
+  _pv = *pv;
 }
 
 void ParticleSelector::SetRho(float rhoFactor){
   _rhoFactor = rhoFactor;
+}
+
+void ParticleSelector::SetEventNumber(int evtnum){
+  _evtnum = evtnum;
 }
 
 bool ParticleSelector::FindGoodZElectron(vector<TCElectron*> electronList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* ZP4,float* eta1, float* eta2, int* int1, int* int2){
@@ -262,8 +266,8 @@ bool ParticleSelector::PassMuonID(TCMuon *mu, Cuts::muIDCuts cutLevel){
         && mu->NumberOfMatchedStations()       > cutLevel.NumberOfMatchedStations
         && mu->NumberOfValidPixelHits()        > cutLevel.NumberOfValidPixelHits
         && mu->TrackLayersWithMeasurement()    > cutLevel.TrackLayersWithMeasurement
-        && fabs(mu->Dxy(_pv))           < cutLevel.dxy
-        && fabs(mu->Dz(_pv))            < cutLevel.dz
+        && fabs(mu->Dxy(&_pv))           < cutLevel.dxy
+        && fabs(mu->Dz(&_pv))            < cutLevel.dz
        ) muPass = true;
   }else{
     if (
@@ -275,8 +279,8 @@ bool ParticleSelector::PassMuonID(TCMuon *mu, Cuts::muIDCuts cutLevel){
         && mu->NumberOfMatchedStations()       > cutLevel.NumberOfMatchedStations
         && mu->NumberOfValidPixelHits()        > cutLevel.NumberOfValidPixelHits
         && mu->TrackLayersWithMeasurement()    > cutLevel.TrackLayersWithMeasurement
-        && fabs(mu->Dxy(_pv))           < cutLevel.dxy
-        && fabs(mu->Dz(_pv))            < cutLevel.dz
+        && fabs(mu->Dxy(&_pv))           < cutLevel.dxy
+        && fabs(mu->Dz(&_pv))            < cutLevel.dz
        ) muPass = true;
   }
   return muPass;
@@ -306,8 +310,8 @@ bool ParticleSelector::PassElectronID(TCElectron *el, Cuts::elIDCuts cutLevel, T
       && fabs(el->DphiSuperCluster())    < cutLevel.dPhiIn[0]
       && el->SigmaIEtaIEta()             < cutLevel.sigmaIetaIeta[0]
       && el->HadOverEm()                 < cutLevel.HadOverEm[0]
-      && fabs(el->Dxy(_pv))       < cutLevel.dxy[0]
-      && fabs(el->Dz(_pv))        < cutLevel.dz[0]
+      && fabs(el->Dxy(&_pv))       < cutLevel.dxy[0]
+      && fabs(el->Dz(&_pv))        < cutLevel.dz[0]
       && el->IdMap("fabsEPDiff")         < cutLevel.fabsEPDiff[0]
       && el->ConversionMissHits()        <= cutLevel.ConversionMissHits[0]
       && el->ConversionVeto()            == cutLevel.PassedConversionProb[0]
@@ -317,8 +321,8 @@ bool ParticleSelector::PassElectronID(TCElectron *el, Cuts::elIDCuts cutLevel, T
       && fabs(el->DphiSuperCluster())    < cutLevel.dPhiIn[1]
       && el->SigmaIEtaIEta()             < cutLevel.sigmaIetaIeta[1]
       && el->HadOverEm()                 < cutLevel.HadOverEm[1]
-      && fabs(el->Dxy(_pv))       < cutLevel.dxy[1]
-      && fabs(el->Dz(_pv))        < cutLevel.dz[1]
+      && fabs(el->Dxy(&_pv))       < cutLevel.dxy[1]
+      && fabs(el->Dz(&_pv))        < cutLevel.dz[1]
       && el->IdMap("fabsEPDiff")         < cutLevel.fabsEPDiff[1]
       && el->ConversionMissHits()        <= cutLevel.ConversionMissHits[1]
       && el->ConversionVeto()            == cutLevel.PassedConversionProb[1]
