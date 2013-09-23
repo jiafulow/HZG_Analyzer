@@ -155,7 +155,7 @@ void Dumper::ElectronDump(TCElectron *el,TClonesArray* recoMuons, bool final)
   bool isoPass = _psel->PassElectronIso(el, _cuts->looseElIso, _cuts->EAEle);
 
   float combIso = (el->IsoMap("pfChIso_R04")
-    + max(0.,(double)el->IsoMap("pfNeuIso_R04") + el->IsoMap("pfPhoIso_R04") - _rhoFactor*el->IsoMap("EffArea_R04")));
+    + max(0.,(double)el->IsoMap("pfNeuIso_R04") + el->IsoMap("pfPhoIso_R04") - _rhoFactor*thisEA));
   ofstream* dump;
   if (final) dump = &elDumpFinal;
   else dump = &elDump2;
