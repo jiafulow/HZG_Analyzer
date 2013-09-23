@@ -1,5 +1,5 @@
 #include "../interface/Dumper.h"
-#include "DumperLinkDef.h"
+
 Dumper::Dumper(){
   InitDumps();
 }
@@ -156,11 +156,11 @@ void Dumper::ElectronDump(TCElectron *el,TClonesArray* recoMuons, bool final)
 
   float combIso = (el->IsoMap("pfChIso_R04")
     + max(0.,(double)el->IsoMap("pfNeuIso_R04") + el->IsoMap("pfPhoIso_R04") - _rhoFactor*el->IsoMap("EffArea_R04")));
-  ofstream dump;
-  if (final) dump = elDumpFinal;
-  else dump = elDump2;
+  ofstream* dump;
+  if (final) dump = &elDumpFinal;
+  else dump = &elDump2;
 
-  dump << _runNumber << " "                          << _eventNumber << " "                                 << el->Pt()
+  *dump << _runNumber << " "                          << _eventNumber << " "                                 << el->Pt()
        << " "       << el->Eta()                    << " "         << el->DetaSuperCluster()              << " "      << el->DphiSuperCluster()
        << " "       << el->SigmaIEtaIEta()          << " "         << el->HadOverEm()                     << " "      << el->IdMap("fabsEPDiff")
        << " "       << el->ConversionVeto()         << " "         << el->ConversionMissHits()            << " "      << el->Dxy(_pv)
@@ -185,11 +185,11 @@ void Dumper::MuonDump(TCMuon *mu, bool final)
   float combIso; 
   combIso = (mu->IsoMap("pfChargedHadronPt_R04")
     + max(0.,(double)mu->IsoMap("pfNeutralHadronEt_R04") + mu->IsoMap("pfPhotonEt_R04") - 0.5*mu->IsoMap("pfPUPt_R04")));
-  ofstream dump;
-  if (final) dump = muDumpFinal;
-  else dump = muDump1;
+  ofstream* dump;
+  if (final) dump = &muDumpFinal;
+  else dump = &muDump1;
 
-  dump << _runNumber << " "                              << _eventNumber << " "                                 << mu->Pt()
+  *dump << _runNumber << " "                              << _eventNumber << " "                                 << mu->Pt()
        << " "       << mu->Eta()                        << " "         << mu->IsGLB()                         << " "      << mu->IsPF()
        << " "       << mu->NormalizedChi2()             << " "         << mu->NumberOfValidMuonHits()         << " "      << mu->NumberOfMatchedStations()
        << " "       << mu->Dxy(_pv)              << " "         << mu->Dz(_pv)                  << " "      << mu->NumberOfValidPixelHits()

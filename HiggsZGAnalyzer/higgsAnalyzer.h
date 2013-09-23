@@ -86,22 +86,6 @@ class higgsAnalyzer : public TSelector {
     HistManager* hmEleIDISO;
     HistManager* hmEleSmear;
 
-    ofstream muDump1;
-    ofstream elDump2;
-    ofstream elDumpMVA;
-    ofstream phDump1;
-    ofstream phDump2;
-
-    ofstream muDumpFinal;
-    ofstream elDumpFinal;
-
-    ofstream dataDump;
-
-    ofstream finalDump;
-
-    bool electronDump;
-    bool muonDump;
-    
     float unskimmedEventsTotal;
     int fileCount;
 
@@ -262,21 +246,6 @@ class higgsAnalyzer : public TSelector {
     virtual float   Zeppenfeld(TLorentzVector p, TLorentzVector pj1, TLorentzVector pj2);
     virtual float   MEDiscriminator(TCPhysObject lepton1, TCPhysObject lepton2, TLorentzVector gamma);
     virtual void    LumiXSWeight(float *lumiXS);
-
-
-    /////////////////////
-    // Debugging Dumps //
-    /////////////////////
-
-    virtual void  ElectronDump(TCElectron *el, Cuts::elIDCuts cutLevelID, Cuts::elIsoCuts cutLevelIso, float EAEle[7], ofstream & dump);
-    virtual void  MVADumper(TCElectron *ele, EGammaMvaEleEstimator* mvaMaker, double rhoFactor, Cuts::elIsoCuts cutLevelIso, float EAEle[7], ofstream & dump);
-    virtual void  MuonDump(TCMuon *mu, Cuts::muIDCuts cutLevelID, Cuts::muIsoCuts cutLevelIso, ofstream & dump);
-    virtual void  PhotonDump(TCPhoton *ph, Cuts::phIDCuts cutLevelID, Cuts::phIsoCuts cutLevelIso, float EAPho[7][3], ofstream & dump);
-    virtual void  PhotonDump2(TCPhoton *ph, Cuts::phIDCuts cutLevelID, Cuts::phIsoCuts cutLevelIso, float EAPho[7][3], TLorentzVector lepton1, TLorentzVector lepton2, ofstream & dump);
-    virtual void  DataDumper(TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* gamma, float R9, float SCEta, ofstream & dump, float eta1, float eta2);
-    virtual void  DataDumper(TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* gamma,
-        TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* uncorGamma, float R9, float SCEta, ofstream & dump, float eta1, float eta2);
-    virtual void  FinalDumper(TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* gamma, int catNum, ofstream & dump);
 
 
     ///////////////////////

@@ -1,6 +1,13 @@
 #ifndef DUMPER_H
 #define DUMPER_H
 
+#include <iostream>
+#include <fstream>
+#include "TClonesArray.h"
+#include "TCMuon.h"
+#include "TCElectron.h"
+#include "TCPhoton.h"
+#include "TLorentzVector.h"
 #include "AnalysisParameters.h"
 #include "ParticleSelectors.h"
 #include "EGammaMvaEleEstimator.h"
@@ -25,6 +32,7 @@ class Dumper{
     void  DataDumper(TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* gamma, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* uncorGamma, float R9, float SCEta, float eta1, float eta2);
     void  FinalDumper(TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* gamma, int catNum);
     void  CloseDumps();
+    
   private:
     ofstream muDump1;
     ofstream elDump2;
