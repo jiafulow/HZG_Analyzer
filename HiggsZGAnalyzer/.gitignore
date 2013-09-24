@@ -1,3 +1,4 @@
 *.root
 higgsAnalyzer.C
 simple.C
+*.txt

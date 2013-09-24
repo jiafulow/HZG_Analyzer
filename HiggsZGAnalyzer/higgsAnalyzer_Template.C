@@ -539,11 +539,20 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
           thisElec->Pt(),
           false);                
                                                                   
+      /*
       /// inner barrel
       if (thisElec->IdMap("preSelPassV1") && thisElec->Pt() > 20 && tmpMVAValue > -0.5 && particleSelector->PassElectronIso(thisElec, cuts->looseElIso, cuts->EAEle)){
         passAll = true;
       /// outer barrel
       }else if (thisElec->IdMap("preSelPassV1") && thisElec->Pt() < 20 && tmpMVAValue > -0.90 && particleSelector->PassElectronIso(thisElec, cuts->looseElIso, cuts->EAEle)){
+        passAll = true;
+      }
+      */
+      /// inner barrel
+      if (thisElec->IdMap("preSelPassV1") && thisElec->Pt() > 20 && thisElec->MvaID() > -0.5 && particleSelector->PassElectronIso(thisElec, cuts->looseElIso, cuts->EAEle)){
+        passAll = true;
+      /// outer barrel
+      }else if (thisElec->IdMap("preSelPassV1") && thisElec->Pt() < 20 && thisElec->MvaID() > -0.90 && particleSelector->PassElectronIso(thisElec, cuts->looseElIso, cuts->EAEle)){
         passAll = true;
       }
 
@@ -1297,7 +1306,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   /////////////
   
   float MEdisc = MEDiscriminator(lepton1,lepton2,GP4);
-  if (MEdisc < cuts->ME) return kTRUE;
+  //if (MEdisc < cuts->ME) return kTRUE;
   hm->fill1DHist(24,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");
   hm->fill1DHist(24,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
   ++nEvents[23];

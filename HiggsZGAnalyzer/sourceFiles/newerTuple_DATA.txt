@@ -1,0 +1,1 @@
+/uscms_data/d2/bpollack/ntuplesGit/CMSSW_5_3_11_patch6/src/NWU/ntupleProducer/test/nuTuple_DATA.root
