@@ -60,7 +60,7 @@ void Dumper::InitDumps(){
     phDump2.open(buffer);
     if (!phDump2.good()) cout << "ERROR: can't open file for writing." << endl;
 
-    sprintf(buffer, "dumps/electronDumpFinal_%s.txt",parameters::suffix.c_str());
+    sprintf(buffer, "dumps/electronDumpFinal_%s_NEW.txt",parameters::suffix.c_str());
     elDumpFinal.open(buffer);
     if (!elDumpFinal.good()) cout << "ERROR: can't open file for writing." << endl;
     elDumpFinal<<"run"             <<" "<<"event"       <<" "<<"pt"

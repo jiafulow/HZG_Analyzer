@@ -539,7 +539,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
           thisElec->Pt(),
           false);                
                                                                   
-      /*
       /// inner barrel
       if (thisElec->IdMap("preSelPassV1") && thisElec->Pt() > 20 && tmpMVAValue > -0.5 && particleSelector->PassElectronIso(thisElec, cuts->looseElIso, cuts->EAEle)){
         passAll = true;
@@ -547,7 +546,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       }else if (thisElec->IdMap("preSelPassV1") && thisElec->Pt() < 20 && tmpMVAValue > -0.90 && particleSelector->PassElectronIso(thisElec, cuts->looseElIso, cuts->EAEle)){
         passAll = true;
       }
-      */
+      /*
       /// inner barrel
       if (thisElec->IdMap("preSelPassV1") && thisElec->Pt() > 20 && thisElec->MvaID() > -0.5 && particleSelector->PassElectronIso(thisElec, cuts->looseElIso, cuts->EAEle)){
         passAll = true;
@@ -555,6 +554,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       }else if (thisElec->IdMap("preSelPassV1") && thisElec->Pt() < 20 && thisElec->MvaID() > -0.90 && particleSelector->PassElectronIso(thisElec, cuts->looseElIso, cuts->EAEle)){
         passAll = true;
       }
+      */
 
       if (passAll){
         cloneElectron = thisElec;
