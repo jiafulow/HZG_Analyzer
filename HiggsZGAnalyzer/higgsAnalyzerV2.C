@@ -1480,7 +1480,7 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
   /////////////
   
   float MEdisc = MEDiscriminator(lepton1,lepton2,GP4);
-  if (MEdisc < 0.02) return kTRUE;
+  //if (MEdisc < 0.02) return kTRUE;
   //cout<<"MEDisc:\t"<<MEdisc<<endl;
   hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MEUpper_Signal2012ggM125","Mass vs ME; m_{ll#gamma}; ME Disc", 45,100,190,45,0,0.2,eventWeight);
   //if (MEdisc > ((0.1/20)*(GP4+ZP4).M()-0.5)) return kTRUE;
@@ -1707,6 +1707,7 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
         hmHiggs->fill1DHist(R9Cor, "h1_R9CorCAT1_Signal2012ggM125","R9Cor;R9Cor;Entries",100,0,1,eventWeight);
         hm->fill1DHist(R9Cor, "h1_R9CorCAT1_Signal2012ggM125","R9Cor;R9Cor;Entries",100,0,1,eventWeight);
         hm->fill2DHist(lepton1.Eta(),lepton2.Eta(),"h2_dilepEtaCAT1_Signal2012ggM125","Dilepton Eta CAT1; Eta (leading); Eta (trailing)", 50,-2.5,2.5,50,-2.5,2.5,eventWeight,"CAT1");
+        hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsMECAT1_Signal2012ggM125","Mass vs ME; m_{ll#gamma}; ME Disc", 45,100,190,45,0,0.2,eventWeight);
         m_llgCAT1 = (GP4+ZP4).M();
         hm->fill1DHist(60,"h1_acceptanceByCut_Signal2012ggM125", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5,eventWeight,"Misc");
         hm->fill1DHist(60,"h1_acceptanceByCutRaw_Signal2012ggM125", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
@@ -1723,6 +1724,7 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
         hmHiggs->fill1DHist(R9Cor, "h1_R9CorCAT4_Signal2012ggM125","R9Cor;R9Cor;Entries",100,0,1,eventWeight);
         hm->fill1DHist(R9Cor, "h1_R9CorCAT4_Signal2012ggM125","R9Cor;R9Cor;Entries",100,0,1,eventWeight);
         hm->fill2DHist(lepton1.Eta(),lepton2.Eta(),"h2_dilepEtaCAT4_Signal2012ggM125","Dilepton Eta CAT4; Eta (leading); Eta (trailing)", 50,-2.5,2.5,50,-2.5,2.5,eventWeight,"CAT4");
+        hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsMECAT4_Signal2012ggM125","Mass vs ME; m_{ll#gamma}; ME Disc", 45,100,190,45,0,0.2,eventWeight);
         m_llgCAT4 = (GP4+ZP4).M();
         hm->fill1DHist(63,"h1_acceptanceByCut_Signal2012ggM125", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5,eventWeight,"Misc");
         hm->fill1DHist(63,"h1_acceptanceByCutRaw_Signal2012ggM125", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
@@ -1740,6 +1742,7 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
       hmHiggs->fill1DHist(R9Cor, "h1_R9CorCAT2_Signal2012ggM125","R9Cor;R9Cor;Entries",100,0,1,eventWeight);
       hm->fill1DHist(R9Cor, "h1_R9CorCAT2_Signal2012ggM125","R9Cor;R9Cor;Entries",100,0,1,eventWeight);
       hm->fill2DHist(lepton1.Eta(),lepton2.Eta(),"h2_dilepEtaCAT2_Signal2012ggM125","Dilepton Eta CAT2; Eta (leading); Eta (trailing)", 50,-2.5,2.5,50,-2.5,2.5,eventWeight,"CAT2");
+      hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsMECAT2_Signal2012ggM125","Mass vs ME; m_{ll#gamma}; ME Disc", 45,100,190,45,0,0.2,eventWeight);
       m_llgCAT2 = (GP4+ZP4).M();
       hm->fill1DHist(61,"h1_acceptanceByCut_Signal2012ggM125", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5,eventWeight,"Misc");
       hm->fill1DHist(61,"h1_acceptanceByCutRaw_Signal2012ggM125", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
@@ -1757,6 +1760,7 @@ Bool_t higgsAnalyzerV2::Process(Long64_t entry)
       StandardPlots(lepton1,lepton2,GP4,eventWeight,"CAT3", "CAT3");
       hm->fill2DHist(lepton1.Eta(),lepton2.Eta(),"h2_dilepEtaCAT3_Signal2012ggM125","Dilepton Eta CAT3; Eta (leading); Eta (trailing)", 50,-2.5,2.5,50,-2.5,2.5,eventWeight,"CAT3");
       hm->fill2DHist(GP4.Eta(),GP4.Phi(),"h2_EtaVsPhiCAT3_Signal2012ggM125","Photon Eta vs Phi CAT3; Eta Photon; Phi Photon", 50,-2.5,2.5,50,-TMath::Pi(),TMath::Pi(),eventWeight,"CAT3");
+      hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsMECAT3_Signal2012ggM125","Mass vs ME; m_{ll#gamma}; ME Disc", 45,100,190,45,0,0.2,eventWeight);
       if (GP4.Eta() > -2.0 && GP4.Eta() < -1.5 && GP4.Phi() > 1.0 && GP4.Phi() < 2){
         hm->fill2DHist(GP4.Eta(),GP4.Phi(),"h2_EtaVsPhiCAT3Zoom_Signal2012ggM125","Photon Eta vs Phi CAT3; Eta Photon; Phi Photon", 50,-2.0,-1.5,100,1.0,2.0,eventWeight,"CAT3");
       }
