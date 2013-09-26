@@ -1,7 +1,7 @@
 #!/bin/csh
 source /uscmst1/prod/sw/cms/cshrc prod
-scram pro CMSSW CMSSW_5_3_6
-cd CMSSW_5_3_6/src
+scram pro CMSSW CMSSW_5_3_8_patch1
+cd CMSSW_5_3_8_patch1/src
 cmsenv 
 cd ${_CONDOR_SCRATCH_DIR}
 #### Leave this blank #######
@@ -23,18 +23,6 @@ set period    = $6
 tar -zxf stageball.tar.gz
 
 cp higgsAnalyzer_Template.C higgsAnalyzer.C
-#cp higgsAnalyzer.h .
-#cp TC*.cc .
-#cp TC*.h .
-#cp -r otherHistos/*root otherHistos/.
-#cp -r plugins/* plugins/.
-
-#cp $srcDir/higgsAnalyzer_Template.C ./higgsAnalyzer.C
-#cp $srcDir/higgsAnalyzer.h .
-#cp $srcDir/TC*.cc .
-#cp $srcDir/TC*.h .
-#cp -r $srcDir/otherHistos/*root otherHistos/.
-#cp -r $srcDir/plugins/* plugins/.
 
 sed -i "s/SUFFIX/$suffix/g" higgsAnalyzer.C
 sed -i "s/ABCD/$abcd/g" higgsAnalyzer.C
@@ -42,7 +30,7 @@ sed -i "s/SELECTION/$selection/g" higgsAnalyzer.C
 sed -i "s/PERIOD/$period/g" higgsAnalyzer.C
 sed -i "s/COUNT/$count/g" higgsAnalyzer.C
 sed -i "s/DATANAME/$dataName/g" higgsAnalyzer.C
-sed -i "s/\.\.\/src/src/g" higgsAnalyzer.h
+#sed -i "s/\.\.\/src/src/g" higgsAnalyzer.h
 
 ls
 cat > run.C << +EOF
@@ -57,27 +45,34 @@ cat > run.C << +EOF
 
   void run() {
 
-    gROOT->LoadMacro("src/TCPhysObject.cc+");
-    gROOT->LoadMacro("src/TCJet.cc+");
-    gROOT->LoadMacro("src/TCMET.cc+");
-    gROOT->LoadMacro("src/TCElectron.cc+");
-    gROOT->LoadMacro("src/TCMuon.cc+");
-    gROOT->LoadMacro("src/TCTau.cc+");
-    gROOT->LoadMacro("src/TCPhoton.cc+");
-    gROOT->LoadMacro("src/TCGenJet.cc+");
-    gROOT->LoadMacro("src/TCGenParticle.cc+");
-    gROOT->LoadMacro("src/TCPrimaryVtx.cc+");
-    gROOT->LoadMacro("src/TCTriggerObject.cc+");
-    gROOT->LoadMacro("plugins/MetCorrector.cc+");
-    gROOT->LoadMacro("plugins/HistManager.cc+");
-    gROOT->LoadMacro("plugins/WeightUtils.cc+");
-    gROOT->LoadMacro("plugins/TriggerSelector.cc+");
-    gROOT->LoadMacro("plugins/ElectronFunctions.cc+");
-    gROOT->LoadMacro("plugins/rochcor_2011.cc+");
-    gROOT->LoadMacro("plugins/rochcor2012v2.C+");
-    gROOT->LoadMacro("plugins/PhosphorCorrectorFunctor.cc+");
-    gROOT->LoadMacro("plugins/LeptonScaleCorrections.h+");
-    gROOT->LoadMacro("plugins/EGammaMvaEleEstimator.cc+");
+    gROOT->SetMacroPath(".:../src/:../interface/:../plugins/");
+    gROOT->LoadMacro("TCPhysObject.cc+");
+    gROOT->LoadMacro("TCJet.cc+");
+    gROOT->LoadMacro("TCMET.cc+");
+    gROOT->LoadMacro("TCElectron.cc+");
+    gROOT->LoadMacro("TCMuon.cc+");
+    gROOT->LoadMacro("TCTau.cc+");
+    gROOT->LoadMacro("TCPhoton.cc+");
+    gROOT->LoadMacro("TCGenJet.cc+");
+    gROOT->LoadMacro("TCGenParticle.cc+");
+    gROOT->LoadMacro("TCPrimaryVtx.cc+");
+    gROOT->LoadMacro("TCTriggerObject.cc+");
+    gROOT->LoadMacro("HistManager.cc+");
+    gROOT->LoadMacro("WeightUtils.cc+");
+    gROOT->LoadMacro("TriggerSelector.cc+");
+    gROOT->LoadMacro("ElectronFunctions.cc+");
+    gROOT->LoadMacro("rochcor_2011.cc+");
+    gROOT->LoadMacro("rochcor2012v2.C+");
+    gROOT->LoadMacro("PhosphorCorrectorFunctor.cc+");
+    gROOT->LoadMacro("LeptonScaleCorrections.h+");
+    gROOT->LoadMacro("EGammaMvaEleEstimator.cc+");
+    gROOT->LoadMacro("ZGAngles.cc+");
+    gROOT->LoadMacro("AnalysisParameters.cc+");
+    gROOT->LoadMacro("ParticleSelectors.cc+");
+    gROOT->LoadMacro("Dumper.cc+");
+    gSystem->Load("libgfortran.so");
+    gSystem->Load("../hzgammaME/MCFM-6.6/obj/libmcfm_6p6.so");
+    gSystem->Load("../hzgammaME/libME.so");
 
     TChain* fChain = new TChain("ntupleProducer/eventTree");
 
@@ -114,3 +109,9 @@ root -l -b -q run.C
 rm higgsAnalyzer*
 rm input.txt 
 rm run.C
+rm input.DAT
+rm process.DAT
+rm stageball.tar.gz
+rm garbage.txt
+rm br.sm1
+rm br.sm2
