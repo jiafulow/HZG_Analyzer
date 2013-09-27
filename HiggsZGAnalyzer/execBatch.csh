@@ -20,7 +20,14 @@ set period    = $6
 #mkdir printouts
 
 
-tar -zxf stageball.tar.gz
+tar -vzxf stageball.tar.gz
+mkdir -v higgsDir
+mv -v higgsAnalyzer_Template.C higgsDir/.
+mv -v higgsAnalyzer.h higgsDir/.
+mv -v input.txt higgsDir/.
+cd -v higgsDir
+mkdir -v otherHistos
+mv -v ../*.root otherHistos/.
 
 cp higgsAnalyzer_Template.C higgsAnalyzer.C
 
@@ -46,33 +53,35 @@ cat > run.C << +EOF
   void run() {
 
     gROOT->SetMacroPath(".:../src/:../interface/:../plugins/");
-    gROOT->LoadMacro("TCPhysObject.cc+");
-    gROOT->LoadMacro("TCJet.cc+");
-    gROOT->LoadMacro("TCMET.cc+");
-    gROOT->LoadMacro("TCElectron.cc+");
-    gROOT->LoadMacro("TCMuon.cc+");
-    gROOT->LoadMacro("TCTau.cc+");
-    gROOT->LoadMacro("TCPhoton.cc+");
-    gROOT->LoadMacro("TCGenJet.cc+");
-    gROOT->LoadMacro("TCGenParticle.cc+");
-    gROOT->LoadMacro("TCPrimaryVtx.cc+");
-    gROOT->LoadMacro("TCTriggerObject.cc+");
-    gROOT->LoadMacro("HistManager.cc+");
-    gROOT->LoadMacro("WeightUtils.cc+");
-    gROOT->LoadMacro("TriggerSelector.cc+");
-    gROOT->LoadMacro("ElectronFunctions.cc+");
-    gROOT->LoadMacro("rochcor_2011.cc+");
-    gROOT->LoadMacro("rochcor2012v2.C+");
-    gROOT->LoadMacro("PhosphorCorrectorFunctor.cc+");
-    gROOT->LoadMacro("LeptonScaleCorrections.h+");
-    gROOT->LoadMacro("EGammaMvaEleEstimator.cc+");
-    gROOT->LoadMacro("ZGAngles.cc+");
-    gROOT->LoadMacro("AnalysisParameters.cc+");
-    gROOT->LoadMacro("ParticleSelectors.cc+");
-    gROOT->LoadMacro("Dumper.cc+");
+    gROOT->LoadMacro("TCPhysObject.cc++");
+    gROOT->LoadMacro("TCJet.cc++");
+    gROOT->LoadMacro("TCMET.cc++");
+    gROOT->LoadMacro("TCElectron.cc++");
+    gROOT->LoadMacro("TCMuon.cc++");
+    gROOT->LoadMacro("TCTau.cc++");
+    gROOT->LoadMacro("TCPhoton.cc++");
+    gROOT->LoadMacro("TCGenJet.cc++");
+    gROOT->LoadMacro("TCGenParticle.cc++");
+    gROOT->LoadMacro("TCPrimaryVtx.cc++");
+    gROOT->LoadMacro("TCTriggerObject.cc++");
+    gROOT->LoadMacro("HistManager.cc++");
+    gROOT->LoadMacro("WeightUtils.cc++");
+    gROOT->LoadMacro("TriggerSelector.cc++");
+    gROOT->LoadMacro("ElectronFunctions.cc++");
+    gROOT->LoadMacro("rochcor_2011.cc++");
+    gROOT->LoadMacro("rochcor2012v2.C++");
+    gROOT->LoadMacro("PhosphorCorrectorFunctor.cc++");
+    gROOT->LoadMacro("LeptonScaleCorrections.h++");
+    gROOT->LoadMacro("EGammaMvaEleEstimator.cc++");
+    gROOT->LoadMacro("ZGAngles.cc++");
+    gROOT->LoadMacro("AnalysisParameters.cc++");
+    gROOT->LoadMacro("ParticleSelectors.cc++");
+    gROOT->LoadMacro("Dumper.cc++");
+    cout<<"loading fortran"<<endl;
     gSystem->Load("libgfortran.so");
     gSystem->Load("../hzgammaME/MCFM-6.6/obj/libmcfm_6p6.so");
     gSystem->Load("../hzgammaME/libME.so");
+    cout<<"fortran and ME loaded"<<endl;
 
     TChain* fChain = new TChain("ntupleProducer/eventTree");
 
@@ -98,18 +107,17 @@ cat > run.C << +EOF
     TStopwatch timer;
     timer.Start();
 
-    fChain->Process("higgsAnalyzer.C+");
+    fChain->Process("higgsAnalyzer.C++");
   }
                                           
 +EOF
 
 root -l -b -q run.C
 
-
+mv *.root ../.
 rm higgsAnalyzer*
-rm input.txt 
+rm ../input.txt 
 rm run.C
-rm input.DAT
 rm process.DAT
 rm stageball.tar.gz
 rm garbage.txt
