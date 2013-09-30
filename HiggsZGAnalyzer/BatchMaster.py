@@ -1,19 +1,18 @@
-import sys, os, subprocess, fileinput, pickle, math, tempfile, shutil, glob
+#! /usr/bin/env python
+
+import sys, os, subprocess, fileinput, math, tempfile, shutil, glob
+
+#Small modifications on original BatchMaster by Nate Odell
 
 class JobConfig():
     '''Class for storing configuration for each dataset'''
-    def __init__(self, dataName = 'TEST', inDir = '/uscms/home/naodell/nobackup/TEST', nJobs = 1, arguments = 'TEST 0 muon', selection = 'muon'):
+    def __init__(self, dataName = 'TEST', inDir = '/eos/uscms/store/user/bpollack/V08_00_8TeV/ggHZG_M125_Pythia8_175_v3', nJobs = 2, arguments = 'Signal2012ggM125 ABCD mumuGamma 2012', selection = 'mumuGamma'):
         self._dataName  = dataName
         self._inDir     = inDir
         self._nJobs     = nJobs
         self._args      = arguments
         self._selection = selection
 
-    def GetMembers(self, verbose = False):
-        '''Returns data members of class instance'''
-        if verbose:
-            print 'dataset: %s \t number of jobs: %i \t triggers: %s' % (self._dataName, self._nJobs, self._triggers)
-        return (self._dataName, self._inDir, self._nJobs, self._triggers)
 
 class BatchMaster():
     '''A tool for submitting batch jobs'''
@@ -31,6 +30,7 @@ class BatchMaster():
             os.system('mkdir -p '+filePath+'/res')
         elif clear:
             os.system('rm '+filePath+'/*')
+            os.system('rm '+filePath+'/res/*')
 
     def SplitJobs(self, directory, nJobs):
         '''Split jobs by dataset'''
@@ -44,7 +44,7 @@ class BatchMaster():
 
         return fileSplit
 
-    def MakeExecutable(self, config, sourceFiles, count):
+    def MakeExecutable(self, config, sourceFiles):
         '''Writes config into executable'''
         infile   = open(self._executable, 'r')
         exec_tmp = tempfile.NamedTemporaryFile(prefix = config._dataName+'_'+config._selection+'_', delete=False)
@@ -53,63 +53,55 @@ class BatchMaster():
             if i != 6:
                 exec_tmp.write(line)
             else:
-                path = ''
-                if config._inDir[:5] == '/pnfs':
-                  path = 'dcap://cmsdca1.fnal.gov:24140/pnfs/fnal.gov/usr'+config._inDir[5:]
-                else:
-                  path = config._inDir
+                path = config._inDir
                 for file in sourceFiles:
+                  if 'pnfs' in path:
+                    exec_tmp.write('echo '+repr('dcache:'+path+'/'+file)+' >> input.txt\n')
+                  else:
                     exec_tmp.write('echo '+repr(path+'/'+file)+' >> input.txt\n')
 
         exec_tmp.seek(0)
         infile.close()
         return exec_tmp
 
-    def MakeBatchConfig(self, config, count, exec_tmp, sourceFiles):
+    def MakeBatchConfig(self, config, nJob, exec_tmp):
         '''Write batch configuration file'''
-        batch_tmp = 'Arguments  = %s %s %s' % (str(count+1), config._dataName, config._args)
-        batch_tmp = batch_tmp+'\nExecutable = %s' % exec_tmp.name
-        batch_tmp = batch_tmp+'\nShould_Transfer_Files = YES'
-        batch_tmp = batch_tmp+'\nWhenToTransferOutput = ON_EXIT'
-        batch_tmp = batch_tmp+'\nTransfer_Input_Files = stageball.tar.gz'
-
-        batch_tmp = batch_tmp+'''
-universe              = vanilla
-Requirements          = Memory >= 199 &&OpSys == "LINUX"&& (Arch != "DUMMY" )&& Disk > 1000000
-+LENGTH               = "LONG"
-Output                = res/report_$(Cluster)_$(Process).stdout
-Error                 = res/report_$(Cluster)_$(Process).stderr
-Log                   = res/report_$(Cluster)_$(Process).log
-notify_user           = FAKENAME@fake.notreal
-Queue
-'''
         batch_submit_file = tempfile.NamedTemporaryFile(prefix = 'batch_submit_file', delete=False)
-        batch_submit_file.write(batch_tmp)
+        batch_submit_file.write('Arguments  = {0} {1} {2}\n'.format(nJob, config._dataName, config._args))
+        batch_submit_file.write('Executable = {0}\n'.format(exec_tmp.name))
+        batch_submit_file.write('Should_Transfer_Files = YES\n')
+        batch_submit_file.write('WhenToTransferOutput = ON_EXIT\n')
+        batch_submit_file.write('Transfer_Input_Files = stageball.tar.gz\n')
+        batch_submit_file.write('universe              = vanilla\n')
+        batch_submit_file.write('Requirements          = Memory >= 199 &&OpSys == "LINUX"&& (Arch != "DUMMY" )&& Disk > 1000000\n')
+        batch_submit_file.write('+LENGTH               = "LONG"\n')
+        batch_submit_file.write('Output                = res/report_$(Cluster)_$(Process).stdout\n')
+        batch_submit_file.write('Error                 = res/report_$(Cluster)_$(Process).stderr\n')
+        batch_submit_file.write('Log                   = res/report_$(Cluster)_$(Process).log\n')
+        batch_submit_file.write('notify_user           = FAKENAME@fake.notreal\n')
+        batch_submit_file.write('Queue\n')
         batch_submit_file.seek(0)
         return batch_submit_file
 
+
     def SubmitToLPC(self):
         '''Submits batch jobs to lpc batch'''
-        self.MakeDirectory(self._outDir, clear = False)
         for j,cfg in enumerate(self._configList):
-            self.MakeDirectory(self._outDir+'/'+cfg._selection, clear = False)
+            self.MakeDirectory(self._outDir+'/'+cfg._selection+'/'+cfg._dataName, clear = True)
 
-            # copy files to staging so they cant be hurt during submission
             sourceFiles = self.SplitJobs(cfg._inDir, cfg._nJobs)
 
+            # copy files to staging so they cant be modified during submission
             if j ==0:
-
-              if not os.path.exists(self._outDir+'/'+cfg._selection+'/stageball.tar.gz'):
-                os.system('cp stageball.tar.gz '+self._outDir+'/'+cfg._selection+'/.' )
-              if not os.path.exists(self._outDir+'/'+cfg._selection+'/execBatch.csh'):
-                os.system('cp execBatch.csh '+self._outDir+'/'+cfg._selection+'/.' )
-              os.chdir(self._outDir+'/'+cfg._selection)
-              #os.system('tar -zxf stageball.tar.gz')
-            #os.system('cd '+self._outDir+'/'+cfg._selection)
+              if not os.path.exists(self._outDir+'/'+cfg._selection+'/'+cfg._dataName+'/stageball.tar.gz'):
+                os.system('cp stageball.tar.gz '+self._outDir+'/'+cfg._selection+'/'+cfg._dataName+'/.' )
+              if not os.path.exists(self._outDir+'/'+cfg._selection+'/'+cfg._dataName+'/execBatch.csh'):
+                os.system('cp execBatch.csh '+self._outDir+'/'+cfg._selection+'/'+cfg._dataName+'/.' )
+              os.chdir(self._outDir+'/'+cfg._selection+'/'+cfg._dataName)
 
             for i, source in enumerate(sourceFiles):
-                exec_tmp  = self.MakeExecutable(cfg, source, i)
-                batch_tmp = self.MakeBatchConfig(cfg, i, exec_tmp, source)
+                exec_tmp  = self.MakeExecutable(cfg, source)
+                batch_tmp = self.MakeBatchConfig(cfg, i, exec_tmp)
                 subprocess.call('condor_submit ' + batch_tmp.name , shell=True)
                 exec_tmp.close()
                 batch_tmp.close()

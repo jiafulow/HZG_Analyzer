@@ -1307,6 +1307,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   
   float MEdisc = MEDiscriminator(lepton1,lepton2,GP4);
   //if (MEdisc < cuts->ME) return kTRUE;
+  hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsME_SUFFIX","Mass vs ME; m_{ll#gamma}; ME Disc", 45,100,190,45,0,0.2,eventWeight);
   hm->fill1DHist(24,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");
   hm->fill1DHist(24,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
   ++nEvents[23];
@@ -1522,6 +1523,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         hm->fill1DHist(R9Cor, "h1_R9CorCAT1_SUFFIX","R9Cor;R9Cor;Entries",100,0,1,eventWeight);
         hm->fill2DHist(lepton1.Eta(),lepton2.Eta(),"h2_dilepEtaCAT1_SUFFIX","Dilepton Eta CAT1; Eta (leading); Eta (trailing)", 50,-2.5,2.5,50,-2.5,2.5,eventWeight,"CAT1");
         m_llgCAT1 = (GP4+ZP4).M();
+        hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsMECAT1_SUFFIX","Mass vs ME; m_{ll#gamma}; ME Disc", 45,100,190,45,0,0.2,eventWeight);
         hm->fill1DHist(60,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5,eventWeight,"Misc");
         hm->fill1DHist(60,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
         ++nEvents[61];
@@ -1538,6 +1540,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         hm->fill1DHist(R9Cor, "h1_R9CorCAT4_SUFFIX","R9Cor;R9Cor;Entries",100,0,1,eventWeight);
         hm->fill2DHist(lepton1.Eta(),lepton2.Eta(),"h2_dilepEtaCAT4_SUFFIX","Dilepton Eta CAT4; Eta (leading); Eta (trailing)", 50,-2.5,2.5,50,-2.5,2.5,eventWeight,"CAT4");
         m_llgCAT4 = (GP4+ZP4).M();
+        hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsMECAT4_SUFFIX","Mass vs ME; m_{ll#gamma}; ME Disc", 45,100,190,45,0,0.2,eventWeight);
         hm->fill1DHist(63,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5,eventWeight,"Misc");
         hm->fill1DHist(63,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
         ++nEvents[64];
@@ -1555,6 +1558,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       hm->fill1DHist(R9Cor, "h1_R9CorCAT2_SUFFIX","R9Cor;R9Cor;Entries",100,0,1,eventWeight);
       hm->fill2DHist(lepton1.Eta(),lepton2.Eta(),"h2_dilepEtaCAT2_SUFFIX","Dilepton Eta CAT2; Eta (leading); Eta (trailing)", 50,-2.5,2.5,50,-2.5,2.5,eventWeight,"CAT2");
       m_llgCAT2 = (GP4+ZP4).M();
+      hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsMECAT2_SUFFIX","Mass vs ME; m_{ll#gamma}; ME Disc", 45,100,190,45,0,0.2,eventWeight);
       hm->fill1DHist(61,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5,eventWeight,"Misc");
       hm->fill1DHist(61,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
       ++nEvents[62];
@@ -1578,6 +1582,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         hm->fill1DHist(runNumber,"h1_spikeVsRunCAT3_SUFFIX","runNumber for eta/phi spike CAT3; runNumber; entries", 6075,190456,196531,eventWeight,"CAT3");
       }
       m_llgCAT3 = (GP4+ZP4).M();
+      hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsMECAT3_SUFFIX","Mass vs ME; m_{ll#gamma}; ME Disc", 45,100,190,45,0,0.2,eventWeight);
       hm->fill1DHist(62,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5,eventWeight,"Misc");
       hm->fill1DHist(62,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
       ++nEvents[63];
@@ -1764,10 +1769,10 @@ void higgsAnalyzer::Terminate()
   cout << "| 100-190 weighted (pho):            |\t" << eventHisto->Integral(52,52) << "\t|" << endl;
   cout << "| 100-190 weighted (trig):           |\t" << eventHisto->Integral(53,53) << "\t|" << endl;
   cout << "| 100-190 weighted (lep):            |\t" << eventHisto->Integral(54,54) << "\t|" << endl;
-  cout << "| CAT 1:                             |\t" << nEvents[61]                   << "\t|" << endl;
-  cout << "| CAT 2:                             |\t" << nEvents[62]                   << "\t|" << endl;
-  cout << "| CAT 3:                             |\t" << nEvents[63]                   << "\t|" << endl;
-  cout << "| CAT 4:                             |\t" << nEvents[64]                   << "\t|" << endl;
+  cout << "| CAT 1:                    |\t" << nEvents[61] <<"\t"<< eventHisto->Integral(60,60) << "\t|" << endl;
+  cout << "| CAT 2:                    |\t" << nEvents[62] <<"\t"<< eventHisto->Integral(61,61)                  << "\t|" << endl;
+  cout << "| CAT 3:                    |\t" << nEvents[63] <<"\t"<< eventHisto->Integral(62,62)                  << "\t|" << endl;
+  cout << "| CAT 4:                    |\t" << nEvents[64] <<"\t"<< eventHisto->Integral(63,63)                  << "\t|" << endl;
   cout << "| GEN ACCEPTANCE Leptons:            |\t" << genAccept[0]                  << "\t|" << endl;
   cout << "| GEN ACCEPTANCE Total:              |\t" << genAccept[1]                  << "\t|" << endl;
 

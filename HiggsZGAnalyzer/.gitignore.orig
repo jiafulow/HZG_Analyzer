@@ -1,0 +1,8 @@
+*.root
+<<<<<<< HEAD
+higgsAnalyzer.C
+simple.C
+*.txt
+=======
+garbage.txt
+>>>>>>> devME
