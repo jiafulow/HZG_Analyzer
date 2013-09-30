@@ -8,8 +8,8 @@ FuckEOS     = '/uscms_data/d2/bpollack/FuckEOS'
 outputPath  = '/uscms/home/bpollack/nobackup/BatchOutput'
 #outputPath  = '/eos/uscms/store/user/bpollack/BatchOutput'
 
-#selection   = 'mumuGamma'
-selection   = 'eeGamma'
+selection   = 'mumuGamma'
+#selection   = 'eeGamma'
 
 period      = '2012'
 #period      = '2011'
@@ -19,7 +19,7 @@ period      = '2012'
 period2     = 'ABCD'
 
 doBG     = False
-doSignal = True
+doSignal = False
 doData   = True
 
 
@@ -178,7 +178,7 @@ os.system('rm -r '+outputPath+'/'+selection+'_Combined/*')
 #os.system('rm outputBatch/*')
 os.system('rm dumps/dataDump_'+selection+'.txt')
 
-os.system('tar -zcvf stageball.tar.gz higgsAnalyzer_Template.C higgsAnalyzer.h ../src/*.cc ../src/*.h otherHistos/*.root plugins/*.C plugins/*.cc plugins/*.h* plugins/PHOSPHOR_NUMBERS_EXPFIT.txt plugins/PHOSPHOR_NUMBERS_EXPFIT_ERRORS.txt plugins/PHOSPHOR_Corr plugins/MVAWeights/*')
+os.system('tar -zcvf stageball.tar.gz higgsAnalyzer_TemplateV2.C higgsAnalyzerV2.h ../src/*.cc ../src/*.h otherHistos/*.root plugins/*.C plugins/*.cc plugins/*.h* plugins/PHOSPHOR_NUMBERS_EXPFIT.txt plugins/PHOSPHOR_NUMBERS_EXPFIT_ERRORS.txt plugins/PHOSPHOR_Corr plugins/MVAWeights/* hzgammaME input.DAT process.DAT Pdfdata br.sm1 br.sm2')
 if doData:
   batcher = b.BatchMaster(data, outputPath,'execBatch.csh')
   batcher.SubmitToLPC()
