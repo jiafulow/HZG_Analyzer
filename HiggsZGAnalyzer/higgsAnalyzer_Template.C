@@ -4,6 +4,7 @@
 
 using namespace std;
 using namespace parameters;
+string  str(int i) {return static_cast<ostringstream*>( &(ostringstream() << i) )->str();}
 
 void higgsAnalyzer::Begin(TTree * tree)
 {
@@ -36,57 +37,57 @@ void higgsAnalyzer::Begin(TTree * tree)
   jobTree->GetEntry();
 
   // Initialize utilities and selectors here //
-  cuts = new Cuts();
+  cuts.reset(new Cuts);
   cuts->InitEA(period);
-  weighter        = new WeightUtils(suffix, period, abcd, selection, isRealData);
-  triggerSelector = new TriggerSelector(selection, period, *triggerNames);
-  rmcor2011       = new rochcor_2011(229);
-  rmcor2012       = new rochcor2012(229);
-  rEl             = new TRandom3(1234);
-  rMuRun          = new TRandom3(187);
-  phoCorrector    = new zgamma::PhosphorCorrectionFunctor("../plugins/PHOSPHOR_NUMBERS_EXPFIT_ERRORS.txt", true);
-  Xcal2           = new TEvtProb();
-  particleSelector = new ParticleSelector(cuts, isRealData, runNumber, rEl);
-  dumper          = new Dumper();
-  dumper->SetCuts(cuts);
-  dumper->SetPSelect(particleSelector);
+  weighter.reset(new WeightUtils(suffix, period, abcd, selection, isRealData));
+  triggerSelector.reset(new TriggerSelector(selection, period, *triggerNames));
+  rmcor2011.reset(new rochcor_2011(229));
+  rmcor2012.reset(new rochcor2012(229));
+  rEl.reset(new TRandom3(1234));
+  rMuRun.reset(new TRandom3(187));
+  phoCorrector.reset(new zgamma::PhosphorCorrectionFunctor("../plugins/PHOSPHOR_NUMBERS_EXPFIT_ERRORS.txt", true));
+  Xcal2.reset(new TEvtProb);
+  particleSelector.reset(new ParticleSelector(cuts.get(), isRealData, runNumber, rEl.get()));
+  dumper.reset(new Dumper());
+  dumper->SetCuts(cuts.get());
+  dumper->SetPSelect(particleSelector.get());
 
 
   genHZG = {0,0,0,0,0,0};
 
   // Random numbers! //
-  rnGenerator = new TRandom3();
+  rnGenerator.reset(new TRandom3);
 
   TString option = GetOption();
   TH1::SetDefaultSumw2(kTRUE);
   TH2::SetDefaultSumw2(kTRUE);
 
-  histoFile = new TFile("higgsHistograms_DATANAME_SELECTION_COUNT.root", "RECREATE");
-  trainingFile = new TFile("higgsTraining_DATANAME_SELECTION_COUNT.root", "RECREATE");
-  sampleFile = new TFile("higgsSample_DATANAME_SELECTION_COUNT.root", "RECREATE");
-  higgsFile = new TFile("higgsFile_DATANAME_SELECTION_COUNT.root", "RECREATE");
-  eleSmearFile = new TFile("eleSmearFile_DATANAME_SELECTION_COUNT.root", "RECREATE");
-  eleIDISOFile = new TFile("eleIDISOFile_DATANAME_SELECTION_COUNT.root", "RECREATE");
-  m_llgFile = new TFile("m_llgFile_DATANAME_SELECTION_COUNT.root","RECREATE");
+  histoFile.reset(new TFile("higgsHistograms_DATANAME_SELECTION_COUNT.root", "RECREATE"));
+  trainingFile.reset(new TFile("higgsTraining_DATANAME_SELECTION_COUNT.root", "RECREATE"));
+  sampleFile.reset(new TFile("higgsSample_DATANAME_SELECTION_COUNT.root", "RECREATE"));
+  higgsFile.reset(new TFile("higgsFile_DATANAME_SELECTION_COUNT.root", "RECREATE"));
+  eleSmearFile.reset(new TFile("eleSmearFile_DATANAME_SELECTION_COUNT.root", "RECREATE"));
+  eleIDISOFile.reset(new TFile("eleIDISOFile_DATANAME_SELECTION_COUNT.root", "RECREATE"));
+  m_llgFile.reset(new TFile("m_llgFile_DATANAME_SELECTION_COUNT.root","RECREATE"));
 
   trainingFile->cd();
-  trainingChain = new TTree("varMVA","hey everyone it's the training tree");
+  trainingChain.reset(new TTree("varMVA","hey everyone it's the training tree"));
   sampleFile->cd();
-  sampleChain   = new TTree("varMVA","ZOMG the sample tree!");
+  sampleChain.reset(new TTree("varMVA","ZOMG the sample tree!"));
 
   m_llgFile->cd();
-  m_llgChain = new TTree("m_llg_SUFFIX","three body mass values");
+  m_llgChain.reset(new TTree("m_llg_SUFFIX","three body mass values"));
 
   initializeEfficiencyWeights( "otherHistos/elsf2011.root", "otherHistos/elsf2012.root");
   eleSmearFile->cd();
-  hmEleSmear = new HistManager(eleSmearFile);
+  hmEleSmear.reset(new HistManager(eleSmearFile.get()));
   eleIDISOFile->cd();
-  hmEleIDISO = new HistManager(eleIDISOFile);
+  hmEleIDISO.reset(new HistManager(eleIDISOFile.get()));
 
   higgsFile->cd();
-  hmHiggs   = new HistManager(higgsFile);
+  hmHiggs.reset(new HistManager(higgsFile.get()));
   histoFile->cd();
-  hm        = new HistManager(histoFile);
+  hm.reset(new HistManager(histoFile.get()));
   histoFile->mkdir("Misc", "Misc");
   histoFile->mkdir("Lepton", "Lepton");
   histoFile->mkdir("Jet", "Jet");
@@ -107,6 +108,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   histoFile->mkdir("PreGen", "PreGen");
   histoFile->mkdir("PostGen", "PostGen");
   histoFile->mkdir("ZGAngles", "ZGAngles");
+  histoFile->mkdir("PhotonPurity", "PhotonPurity");
 
   sampleChain->Branch("diffZGscalar",&diffZGscalar,"diffZGscalar/F");
   trainingChain->Branch("diffZGscalar",&diffZGscalar,"diffZGscalar/F");
@@ -167,7 +169,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   myManualCatWeigthsTrig.push_back("../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat5.weights.xml");
   myManualCatWeigthsTrig.push_back("../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat6.weights.xml");
 
-  myMVATrig = new EGammaMvaEleEstimator();
+  myMVATrig.reset(new EGammaMvaEleEstimator());
   myMVATrig->initialize("BDT",
       EGammaMvaEleEstimator::kTrig,
       true,
@@ -222,12 +224,12 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   ///////////////////
   
 
-  vector<TCGenParticle*> vetoPhotons;
+  vector<TCGenParticle> vetoPhotons;
   particleSelector->CleanUpGen(genHZG);
   genHZG = {0,0,0,0,0,0};
   if(!isRealData){
     ///////// load all the relevent particles into a struct /////////
-    particleSelector->FindGenParticles(genParticles, selection, vetoPhotons, genHZG);
+    particleSelector->FindGenParticles(*genParticles, selection, vetoPhotons, genHZG);
 
     ///////// whzh decomposition /////////////////
 
@@ -265,22 +267,22 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     }
 
     //////////// DYJets Gamma Veto ////////////
-    vector<TCGenParticle*>::iterator testIt;
+    vector<TCGenParticle>::iterator testIt;
 
-    if (DYGammaVeto && (suffix.find("ZJets") != string::npos)){
+    if (DYGammaVeto && (suffix.find("DYJets") != string::npos)){
       if (vetoPhotons.size() > 0){
         //cout<<"photon mother ID:"<<endl;
         for (testIt=vetoPhotons.begin(); testIt<vetoPhotons.end(); testIt++){
             // if the photon's mother and grandmother is a lepton, kill it
-          if ((*testIt)->Mother() && (abs((*testIt)->Mother()->GetPDGId()) == 11 || abs((*testIt)->Mother()->GetPDGId()) == 13 || abs((*testIt)->Mother()->GetPDGId()) == 15) && ((*testIt)->Mother()->Mother())
-              && (abs((*testIt)->Mother()->Mother()->GetPDGId()) == 11 || abs((*testIt)->Mother()->Mother()->GetPDGId()) == 13 || abs((*testIt)->Mother()->Mother()->GetPDGId()) == 15) ) return kTRUE; 
+          if ((*testIt).Mother() && (abs((*testIt).Mother()->GetPDGId()) == 11 || abs((*testIt).Mother()->GetPDGId()) == 13 || abs((*testIt).Mother()->GetPDGId()) == 15) && ((*testIt).Mother()->Mother())
+              && (abs((*testIt).Mother()->Mother()->GetPDGId()) == 11 || abs((*testIt).Mother()->Mother()->GetPDGId()) == 13 || abs((*testIt).Mother()->Mother()->GetPDGId()) == 15) ) return kTRUE; 
             // if the photon's mother is a lepton, and the grandmother is a Z or W, kill it
-          if ((*testIt)->Mother() && (abs((*testIt)->Mother()->GetPDGId()) == 11 || abs((*testIt)->Mother()->GetPDGId()) == 13 || abs((*testIt)->Mother()->GetPDGId()) == 15) && ((*testIt)->Mother()->Mother())
-              && (abs((*testIt)->Mother()->Mother()->GetPDGId()) == 23 || abs((*testIt)->Mother()->Mother()->GetPDGId()) == 24) ) return kTRUE;
+          if ((*testIt).Mother() && (abs((*testIt).Mother()->GetPDGId()) == 11 || abs((*testIt).Mother()->GetPDGId()) == 13 || abs((*testIt).Mother()->GetPDGId()) == 15) && ((*testIt).Mother()->Mother())
+              && (abs((*testIt).Mother()->Mother()->GetPDGId()) == 23 || abs((*testIt).Mother()->Mother()->GetPDGId()) == 24) ) return kTRUE;
             // if the photon's mother is a photon, and the grandmother is an electron, kill it 
-          if ((*testIt)->Mother() && abs((*testIt)->Mother()->GetPDGId()) == 22 && ((*testIt)->Mother()->Mother()) && abs((*testIt)->Mother()->Mother()->GetPDGId()) == 11) return kTRUE;
+          if ((*testIt).Mother() && abs((*testIt).Mother()->GetPDGId()) == 22 && ((*testIt).Mother()->Mother()) && abs((*testIt).Mother()->Mother()->GetPDGId()) == 11) return kTRUE;
             // if the photon's mother is a gluon (?!) or a quark, kill it
-          if ((*testIt)->Mother() && abs((*testIt)->Mother()->GetPDGId()) == 21 || abs((*testIt)->Mother()->GetPDGId()) < 7) return kTRUE;
+          if ((*testIt).Mother() && abs((*testIt).Mother()->GetPDGId()) == 21 || abs((*testIt).Mother()->GetPDGId()) < 7) return kTRUE;
         }
 
 
@@ -359,38 +361,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     }
   }
 
-  ///////////////////////////
-  // Electron Preselection //
-  ///////////////////////////
-
-  /*
-  if (selection == "eeGamma"){
-    if (recoElectrons->GetSize() < 2) return kTRUE;  
-
-    bool leadingEl = false;
-    int leadingPos = -1;
-    for (int i = 0; i <  recoElectrons->GetSize(); ++i) {
-      TCElectron* thisElec = (TCElectron*) recoElectrons->At(i);    
-      if (thisElec->Pt() > 20){
-        leadingEl = true;
-        leadingPos = i;
-        break;
-      }
-    }
-    if (!leadingEl) return kTRUE;
-
-    bool trailingEl = false;
-    for (int i = 0; i <  recoElectrons->GetSize(); ++i) {
-      TCElectron* thisElec = (TCElectron*) recoElectrons->At(i);    
-      if ((i != leadingPos) && (thisElec->Pt() > 10)){
-        trailingEl = true;
-        break;
-      }
-    }
-    if (!trailingEl) return kTRUE;
-  }
-*/
-
   hm->fill1DHist(2,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
   hm->fill1DHist(2,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
   if (!isRealData) hm->fill1DHist(nPUVerticesTrue,"h1_simVertexMultTrueUltraFine_SUFFIX", "Multiplicity of simulated vertices true", 500, 0, 100,1,"Misc");
@@ -464,10 +434,10 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   hm->fill1DHist(4,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
   ++nEvents[3];
 
-  pvPosition = new TVector3();
+  pvPosition.reset(new TVector3());
   *pvPosition = goodVertices[0];
-  particleSelector->SetPv(pvPosition);
-  dumper->SetPv(pvPosition);
+  particleSelector->SetPv(pvPosition.get());
+  dumper->SetPv(pvPosition.get());
 
 
 
@@ -486,10 +456,10 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   // electrons //
   ///////////////
 
-  vector<TLorentzVector*> extraLeptons;
-  vector<TCElectron*> electronsID;
-  vector<TCElectron*> electronsIDIso;
-  vector<TCElectron*> electronsIDIsoUnCor;
+  vector<TLorentzVector> extraLeptons;
+  vector<TCElectron> electronsID;
+  vector<TCElectron> electronsIDIso;
+  vector<TCElectron> electronsIDIsoUnCor;
   TCElectron * cloneElectron;
   //int eleCount = 0;
 
@@ -511,9 +481,9 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     if(doEleMVA){
       bool passAll = false;
 
-      dumper->MVADumper(thisElec, myMVATrig); 
+      dumper->MVADumper(*thisElec, myMVATrig.get()); 
 
-      if (thisElec->IdMap("preSelPassV1")) electronsID.push_back(thisElec);			
+      if (thisElec->IdMap("preSelPassV1")) electronsID.push_back(*thisElec);			
       double tmpMVAValue = myMVATrig->mvaValue(
           thisElec->IdMap("fbrem"),    
           thisElec->IdMap("kfChi2"),                            
@@ -540,10 +510,10 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
           false);                
                                                                   
       /// inner barrel
-      if (thisElec->IdMap("preSelPassV1") && thisElec->Pt() > 20 && tmpMVAValue > -0.5 && particleSelector->PassElectronIso(thisElec, cuts->looseElIso, cuts->EAEle)){
+      if (thisElec->IdMap("preSelPassV1") && thisElec->Pt() > 20 && tmpMVAValue > -0.5 && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
         passAll = true;
       /// outer barrel
-      }else if (thisElec->IdMap("preSelPassV1") && thisElec->Pt() < 20 && tmpMVAValue > -0.90 && particleSelector->PassElectronIso(thisElec, cuts->looseElIso, cuts->EAEle)){
+      }else if (thisElec->IdMap("preSelPassV1") && thisElec->Pt() < 20 && tmpMVAValue > -0.90 && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
         passAll = true;
       }
       /*
@@ -558,9 +528,9 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
       if (passAll){
         cloneElectron = thisElec;
-        electronsIDIso.push_back(thisElec);			
+        electronsIDIso.push_back(*thisElec);			
         if (EVENTNUMBER == eventNumber) cout<<"regE: "<<thisElec->IdMap("EnergyRegression")<<" regE-p: "<<thisElec->RegressionMomCombP4().E()<<endl;
-        if (engCor || doEleReg) electronsIDIsoUnCor.push_back(cloneElectron);
+        if (engCor || doEleReg) electronsIDIsoUnCor.push_back(*cloneElectron);
       }
                                                                   
 
@@ -568,19 +538,19 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       if(engCor){
         float energyElCor;
         if ( period.find("2011") != string::npos ){
-          energyElCor = correctedElectronEnergy( thisElec->E(), thisElec->SCEta(), thisElec->R9(), runNumber, 0, "2011", !isRealData, rEl );
+          energyElCor = correctedElectronEnergy( thisElec->E(), thisElec->SCEta(), thisElec->R9(), runNumber, 0, "2011", !isRealData, rEl.get() );
         }else{
-          energyElCor = correctedElectronEnergy( thisElec->E(), thisElec->SCEta(), thisElec->R9(), runNumber, 0, "HCP2012", !isRealData, rEl );
+          energyElCor = correctedElectronEnergy( thisElec->E(), thisElec->SCEta(), thisElec->R9(), runNumber, 0, "HCP2012", !isRealData, rEl.get() );
         }
         float newPt = sqrt((pow(energyElCor,2)-pow(0.000511,2))/pow(cosh(thisElec->Eta()),2));
         cloneElectron = thisElec;
         thisElec->SetPtEtaPhiM(newPt,thisElec->Eta(),thisElec->Phi(),0.000511);
       }
-      dumper->ElectronDump(thisElec, recoMuons, false);
-      if (particleSelector->PassElectronID(thisElec, cuts->looseElID, recoMuons)) electronsID.push_back(thisElec);			
-      if (particleSelector->PassElectronID(thisElec, cuts->looseElID, recoMuons) && particleSelector->PassElectronIso(thisElec, cuts->looseElIso, cuts->EAEle)){
-        electronsIDIso.push_back(thisElec);			
-        if (engCor) electronsIDIsoUnCor.push_back(cloneElectron);
+      dumper->ElectronDump(*thisElec, *recoMuons, false);
+      if (particleSelector->PassElectronID(*thisElec, cuts->looseElID, *recoMuons)) electronsID.push_back(*thisElec);			
+      if (particleSelector->PassElectronID(*thisElec, cuts->looseElID, *recoMuons) && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
+        electronsIDIso.push_back(*thisElec);			
+        if (engCor) electronsIDIsoUnCor.push_back(*cloneElectron);
       }
     } 
 
@@ -596,9 +566,9 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   // muons //
   ///////////
 
-  vector<TCMuon*> muonsID;
-  vector<TCMuon*> muonsIDIso;
-  vector<TCMuon*> muonsIDIsoUnCor;
+  vector<TCMuon> muonsID;
+  vector<TCMuon> muonsIDIso;
+  vector<TCMuon> muonsIDIsoUnCor;
   TLorentzVector tmpMuCor;
   TCMuon* cloneMuon;
 
@@ -660,23 +630,23 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
     // tight muon id
 
-    dumper->MuonDump(thisMuon, false);
+    dumper->MuonDump(*thisMuon, false);
 
-    if (particleSelector->PassMuonID(thisMuon, cuts->tightMuID)){
-      muonsID.push_back(thisMuon);
+    if (particleSelector->PassMuonID(*thisMuon, cuts->tightMuID)){
+      muonsID.push_back(*thisMuon);
     }
 
     //tight ID and Iso
 
     if (doLooseMuIso){
-      if (particleSelector->PassMuonID(thisMuon, cuts->tightMuID) && particleSelector->PassMuonIso(thisMuon, cuts->looseMuIso)){
-        muonsIDIso.push_back(thisMuon);
-        if (engCor) muonsIDIsoUnCor.push_back(cloneMuon);
+      if (particleSelector->PassMuonID(*thisMuon, cuts->tightMuID) && particleSelector->PassMuonIso(*thisMuon, cuts->looseMuIso)){
+        muonsIDIso.push_back(*thisMuon);
+        if (engCor) muonsIDIsoUnCor.push_back(*cloneMuon);
       }
     }else{
-      if (particleSelector->PassMuonID(thisMuon, cuts->tightMuID) && particleSelector->PassMuonIso(thisMuon, cuts->tightMuIso)){
-        muonsIDIso.push_back(thisMuon);
-        if (engCor) muonsIDIsoUnCor.push_back(cloneMuon);
+      if (particleSelector->PassMuonID(*thisMuon, cuts->tightMuID) && particleSelector->PassMuonIso(*thisMuon, cuts->tightMuIso)){
+        muonsIDIso.push_back(*thisMuon);
+        if (engCor) muonsIDIsoUnCor.push_back(*cloneMuon);
       }
     }
 
@@ -691,9 +661,13 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   // photons //
   /////////////
 
-  vector<TCPhoton*> photonsID; 
-  vector<TCPhoton*> photonsIDIso; 
-  vector<TCPhoton*> photonsIDIsoUnCor; 
+  vector<TCPhoton> photonsID; 
+  vector<TCPhoton> photonsIDIso; 
+  vector<TCPhoton> photonsLIDMIso; 
+  vector<TCPhoton> photonsMIDLIso; 
+  vector<TCPhoton> photonsLIDLIso; 
+  vector<TCPhoton> photonsNOIDIso; 
+  vector<TCPhoton> photonsIDIsoUnCor; 
   TCPhoton* clonePhoton;
 
 
@@ -747,10 +721,10 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
           TCGenParticle goodGenPhoton;
           float testDr = 9999;
           for (UInt_t j = 0; j<vetoPhotons.size(); j++){
-            if(thisPhoton->DeltaR(*vetoPhotons[j]) < 0.2 && vetoPhotons[j]->GetStatus()==1 && vetoPhotons[j]->Mother() && fabs(vetoPhotons[j]->Mother()->GetPDGId()) == 22){
-              if(thisPhoton->DeltaR(*vetoPhotons[j])<testDr){
-                goodGenPhoton = *vetoPhotons[j];
-                testDr = thisPhoton->DeltaR(*vetoPhotons[j]);
+            if(thisPhoton->DeltaR(vetoPhotons[j]) < 0.2 && vetoPhotons[j].GetStatus()==1 && vetoPhotons[j].Mother() && fabs(vetoPhotons[j].Mother()->GetPDGId()) == 22){
+              if(thisPhoton->DeltaR(vetoPhotons[j])<testDr){
+                goodGenPhoton = vetoPhotons[j];
+                testDr = thisPhoton->DeltaR(vetoPhotons[j]);
               }
             }
           }
@@ -770,12 +744,23 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
       ////// Currently Using Cut-Based Photon ID, 2012
 
-      dumper->PhotonDump(thisPhoton); 
-      if (particleSelector->PassPhotonID(thisPhoton, cuts->mediumPhID)) photonsID.push_back(thisPhoton);
-      if (particleSelector->PassPhotonID(thisPhoton, cuts->mediumPhID) && particleSelector->PassPhotonIso(thisPhoton, cuts->mediumPhIso, cuts->EAPho)){
-        photonsIDIso.push_back(thisPhoton);
-        if (engCor) photonsIDIsoUnCor.push_back(clonePhoton);
+      dumper->PhotonDump(*thisPhoton); 
+      if (particleSelector->PassPhotonID(*thisPhoton, cuts->mediumPhID)) photonsID.push_back(*thisPhoton);
+      if (particleSelector->PassPhotonID(*thisPhoton, cuts->mediumPhID) && particleSelector->PassPhotonIso(*thisPhoton, cuts->mediumPhIso, cuts->EAPho)){
+        //standard selection photons
+        photonsIDIso.push_back(*thisPhoton);
+        if (engCor) photonsIDIsoUnCor.push_back(*clonePhoton);
       }
+      if (particleSelector->PassPhotonID(*thisPhoton, cuts->loosePhID) && particleSelector->PassPhotonIso(*thisPhoton, cuts->mediumPhIso, cuts->EAPho)){
+        photonsLIDMIso.push_back(*thisPhoton);
+      }
+      if (particleSelector->PassPhotonID(*thisPhoton, cuts->mediumPhID) && particleSelector->PassPhotonIso(*thisPhoton, cuts->loosePhIso, cuts->EAPho)){
+        photonsMIDLIso.push_back(*thisPhoton);
+      }
+      if (particleSelector->PassPhotonID(*thisPhoton, cuts->loosePhID) && particleSelector->PassPhotonIso(*thisPhoton, cuts->loosePhIso, cuts->EAPho)){
+        photonsLIDLIso.push_back(*thisPhoton);
+      }
+      photonsNOIDIso.push_back(*thisPhoton);
 
 
 
@@ -786,6 +771,10 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     //return kTRUE;
     sort(photonsID.begin(), photonsID.end(), P4SortCondition);
     sort(photonsIDIso.begin(), photonsIDIso.end(), P4SortCondition);
+    sort(photonsLIDMIso.begin(), photonsLIDMIso.end(), P4SortCondition);
+    sort(photonsMIDLIso.begin(), photonsMIDLIso.end(), P4SortCondition);
+    sort(photonsLIDLIso.begin(), photonsLIDLIso.end(), P4SortCondition);
+    sort(photonsNOIDIso.begin(), photonsNOIDIso.end(), P4SortCondition);
   }
 
   //////////
@@ -799,7 +788,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   TLorentzVector ZP4;
   TLorentzVector ZP4Gen;
   TLorentzVector GP4;
-  TLorentzVector uncorGP4;
   TLorentzVector GP4Gen;
   TLorentzVector JetOne, JetTwo;
   float GP4scEta = -9999;
@@ -829,9 +817,9 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     bool firstEl = false;
     bool bothEls = false;
     for (UInt_t i = 0; i<electronsID.size(); i++){
-      if (!firstEl && (electronsID[i]->Pt() >cuts->trailElePt)){
+      if (!firstEl && (electronsID[i].Pt() >cuts->trailElePt)){
         firstEl = true;
-      }else if (firstEl && (electronsID[i]->Pt() >cuts->trailElePt)){
+      }else if (firstEl && (electronsID[i].Pt() >cuts->trailElePt)){
         bothEls = true;
         break;
       }
@@ -846,9 +834,9 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     firstEl = false;
     bothEls = false;
     for (UInt_t i = 0; i<electronsIDIso.size(); i++){
-      if (!firstEl && (electronsIDIso[i]->Pt() >cuts->trailElePt)){
+      if (!firstEl && (electronsIDIso[i].Pt() >cuts->trailElePt)){
         firstEl = true;
-      }else if (firstEl && (electronsIDIso[i]->Pt() >cuts->trailElePt)){
+      }else if (firstEl && (electronsIDIso[i].Pt() >cuts->trailElePt)){
         bothEls = true;
         break;
       }
@@ -871,9 +859,9 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     bool firstMu = false;
     bool bothMus = false;
     for (UInt_t i = 0; i<muonsID.size(); i++){
-      if (!firstMu && (muonsID[i]->Pt() >cuts->trailMuPt)){
+      if (!firstMu && (muonsID[i].Pt() >cuts->trailMuPt)){
         firstMu = true;
-      }else if (firstMu && (muonsID[i]->Pt() >cuts->trailMuPt)){
+      }else if (firstMu && (muonsID[i].Pt() >cuts->trailMuPt)){
         bothMus = true;
         break;
       }
@@ -889,9 +877,9 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     firstMu = false;
     bothMus = false;
     for (UInt_t i = 0; i<muonsIDIso.size(); i++){
-      if (!firstMu && (muonsIDIso[i]->Pt() >cuts->trailMuPt)){
+      if (!firstMu && (muonsIDIso[i].Pt() >cuts->trailMuPt)){
         firstMu = true;
-      }else if (firstMu && (muonsIDIso[i]->Pt() >cuts->trailMuPt)){
+      }else if (firstMu && (muonsIDIso[i].Pt() >cuts->trailMuPt)){
         bothMus = true;
         break;
       }
@@ -930,8 +918,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   float SCetaEl2 = -99999;
   if(selection == "eeGamma"){
     if (eventNumber == EVENTNUMBER) cout<<goodZ<<endl;
-    if (engCor || doEleReg) goodZ = particleSelector->FindGoodZElectron(electronsIDIso,electronsIDIsoUnCor,&lepton1,&lepton2,&uncorLepton1,&uncorLepton2,&ZP4,&SCetaEl1,&SCetaEl2,&lepton1int,&lepton2int);
-    else goodZ = particleSelector->FindGoodZElectron(electronsIDIso,&lepton1,&lepton2,&ZP4,&SCetaEl1,&SCetaEl2,&lepton1int,&lepton2int);
+    if (engCor || doEleReg) goodZ = particleSelector->FindGoodZElectron(electronsIDIso,electronsIDIsoUnCor,lepton1,lepton2,uncorLepton1,uncorLepton2,ZP4,SCetaEl1,SCetaEl2,lepton1int,lepton2int);
+    else goodZ = particleSelector->FindGoodZElectron(electronsIDIso,lepton1,lepton2,ZP4,SCetaEl1,SCetaEl2,lepton1int,lepton2int);
     if (eventNumber == EVENTNUMBER) cout<<"el num: "<<electronsIDIso.size()<<" goodZ: "<<goodZ<<endl;
     if (!goodZ) return kTRUE;
     if (!isRealData){ 
@@ -957,8 +945,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     }
     //cout<<eventWeight<<endl;
   }else{
-    if (engCor) goodZ = particleSelector->FindGoodZMuon(muonsIDIso,muonsIDIsoUnCor,&lepton1,&lepton2,&uncorLepton1,&uncorLepton2,&ZP4,&lepton1int,&lepton2int);
-    else goodZ = particleSelector->FindGoodZMuon(muonsIDIso,&lepton1,&lepton2,&ZP4,&lepton1int,&lepton2int);
+    if (engCor) goodZ = particleSelector->FindGoodZMuon(muonsIDIso,muonsIDIsoUnCor,lepton1,lepton2,uncorLepton1,uncorLepton2,ZP4,lepton1int,lepton2int);
+    else goodZ = particleSelector->FindGoodZMuon(muonsIDIso,lepton1,lepton2,ZP4,lepton1int,lepton2int);
     if (eventNumber == EVENTNUMBER) cout<<"goodZ?: "<<goodZ<<endl;
     if (!goodZ) return kTRUE;
     if (eventNumber == EVENTNUMBER) cout<<"goodZ?: "<<goodZ<<endl;
@@ -986,7 +974,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
 
   if (photonsIDIso.size()>0 && ZP4.M() > cuts->zMassLow ){
-    StandardPlots(lepton1,lepton2,*photonsIDIso[0],eventWeight,"PreSel", "PreSel");
+    StandardPlots(lepton1,lepton2,photonsIDIso[0],eventWeight,"PreSel", "PreSel");
   }else if (ZP4.M() > cuts->zMassLow){
     TLorentzVector noPhoton;
     noPhoton.SetPtEtaPhiE(0.00001,0,0,0.00001);
@@ -1022,35 +1010,35 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   //**ZGamma** Gamma Energy //
   ////////////////////////////
 
+  vector<TCPhoton> photonVector = photonsIDIso;
   if(selection == "mumuGamma" || selection == "eeGamma")
   {
 
-    if (photonsIDIso.size() < 1) return kTRUE;
-    //if (photonsIDIso.size() > 1) cout<<"more than one good photon?! no fuckin way man"<<endl;
+    if (photonVector.size() < 1) return kTRUE;
+    //if (photonVector.size() > 1) cout<<"more than one good photon?! no fuckin way man"<<endl;
     //if (R9switch && (R9Cor < R9Cut)) return kTRUE;
 
     bool goodPhoton = false;
-    for (UInt_t i = 0; i<photonsIDIso.size(); i++){
+    for (UInt_t i = 0; i<photonVector.size(); i++){
 
-      GP4 = *photonsIDIso[i];    // define GP4
-      GP4scEta = photonsIDIso[i]->SCEta();
-      if (engCor) uncorGP4 = *photonsIDIsoUnCor[i]; 
+      GP4 = photonVector[i];    // define GP4
+      GP4scEta = photonVector[i].SCEta();
       if (eventNumber == EVENTNUMBER) cout<<"dr1: "<<GP4.DeltaR(lepton1)<<" dr2: "<<GP4.DeltaR(lepton2)<<endl<<" pt/M: "<<GP4.Pt()/(GP4+ZP4).M()<<endl;
       if ((GP4.DeltaR(lepton1)<cuts->dR || GP4.DeltaR(lepton2)<cuts->dR)) continue;
       if (GP4.Pt()/(GP4+ZP4).M() > cuts->gPtOverMass && GP4.Pt() > cuts->gPt) goodPhoton = true;
       if(goodPhoton){
-        R9 = photonsIDIso[i]->R9();
+        R9 = photonVector[i].R9();
         R9Cor = R9;
         if (doR9Cor){
           if (suffix != "DATA"){
             if (period == "2011"){
-              if (fabs(photonsIDIso[i]->SCEta()) < 1.479){
+              if (fabs(photonVector[i].SCEta()) < 1.479){
                 R9Cor = R9*1.0048;
               }else{
                 R9Cor = R9*1.00492;
               }
             } else if (period == "2012"){
-              if (fabs(photonsIDIso[i]->SCEta()) < 1.479){
+              if (fabs(photonVector[i].SCEta()) < 1.479){
                 R9Cor = R9*1.0045 + 0.0010;
               }else{
                 R9Cor = R9*1.0086 - 0.0007;
@@ -1182,11 +1170,11 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     TLorentzVector Lep1Boost;
     TLorentzVector Lep2Boost;
     if (selection == "mumuGamma"){
-      Lep1Boost = *muonsIDIso[0];
-      Lep2Boost = *muonsIDIso[1];
+      Lep1Boost = muonsIDIso[0];
+      Lep2Boost = muonsIDIso[1];
     }else{
-      Lep1Boost = *electronsIDIso[0];
-      Lep2Boost = *electronsIDIso[1];
+      Lep1Boost = electronsIDIso[0];
+      Lep2Boost = electronsIDIso[1];
     }
 
     TVector3 v_z(0.,0.,1.);
@@ -1221,7 +1209,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
 
     //Define angles between gamma and leptons
-    if ((selection == "mumuGamma" && muonsIDIso[0]->Charge() < 0) || (selection == "eeGamma" && electronsIDIso[0]->Charge() <0 )){
+    if ((selection == "mumuGamma" && muonsIDIso[0].Charge() < 0) || (selection == "eeGamma" && electronsIDIso[0].Charge() <0 )){
       angleGLepNeg = GBoost.Angle(Lep1Boost.Vect());
       angleGLepPos = GBoost.Angle(Lep2Boost.Vect());
     } else {
@@ -1347,15 +1335,15 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   if (selection == "muon" || selection == "mumuGamma") {
 
-    LeptonBasicPlots(*muonsIDIso[0], *muonsIDIso[1], eventWeight);
-    hm->fill1DHist(muonsIDIso[0]->Charge(),"h1_leadLeptonCharge_SUFFIX", "Charge leading lepton;Charge;N_{evts}", 5, -2.5, 2.5, eventWeight,"Lepton");     
-    hm->fill1DHist(muonsIDIso[1]->Charge(),"h1_trailingLeptonCharge_SUFFIX", "Charge trailing lepton;Charge;N_{evts}", 5, -2.5, 2.5, eventWeight,"Lepton");     
+    LeptonBasicPlots(muonsIDIso[0], muonsIDIso[1], eventWeight);
+    hm->fill1DHist(muonsIDIso[0].Charge(),"h1_leadLeptonCharge_SUFFIX", "Charge leading lepton;Charge;N_{evts}", 5, -2.5, 2.5, eventWeight,"Lepton");     
+    hm->fill1DHist(muonsIDIso[1].Charge(),"h1_trailingLeptonCharge_SUFFIX", "Charge trailing lepton;Charge;N_{evts}", 5, -2.5, 2.5, eventWeight,"Lepton");     
 
   } else if (selection == "electron" || selection == "eeGamma") {
 
-    LeptonBasicPlots(*electronsIDIso[0], *electronsIDIso[1], eventWeight);
-    hm->fill1DHist(electronsIDIso[0]->Charge(),"h1_leadLeptonCharge_SUFFIX", "Charge leading lepton;Charge;N_{evts}", 5, -2.5, 2.5, eventWeight,"Lepton");     
-    hm->fill1DHist(electronsIDIso[1]->Charge(),"h1_trailingLeptonCharge_SUFFIX", "Charge trailing lepton;Charge;N_{evts}", 5, -2.5, 2.5, eventWeight,"Lepton");     
+    LeptonBasicPlots(electronsIDIso[0], electronsIDIso[1], eventWeight);
+    hm->fill1DHist(electronsIDIso[0].Charge(),"h1_leadLeptonCharge_SUFFIX", "Charge leading lepton;Charge;N_{evts}", 5, -2.5, 2.5, eventWeight,"Lepton");     
+    hm->fill1DHist(electronsIDIso[1].Charge(),"h1_trailingLeptonCharge_SUFFIX", "Charge trailing lepton;Charge;N_{evts}", 5, -2.5, 2.5, eventWeight,"Lepton");     
   } 
 
   DileptonBasicPlots(ZP4, eventWeight);
@@ -1375,21 +1363,21 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   if (selection == "eeGamma"){
     //cout<<"ele thing firing off"<<endl;
-    TRandom3 *rl1 = new TRandom3(0);
-    TRandom3 *rl2 = new TRandom3(0);
+    auto_ptr<TRandom3> rl1(new TRandom3(0));
+    auto_ptr<TRandom3> rl2(new TRandom3(0));
 
     float wgt1        = getEfficiencyWeight( &lepton1, CorrectionType::CENTRAL, atoi(period.c_str()));
     float wgt_hi1     = getEfficiencyWeight( &lepton1, CorrectionType::UPPER, atoi(period.c_str()));
     float wgt_lo1     = getEfficiencyWeight( &lepton1, CorrectionType::LOWER, atoi(period.c_str()));
-    float ptcorr1     = getCorrectedPt( &lepton1, CorrectionType::CENTRAL, atoi(period.c_str()),rl1);
-    float ptcorr_hi1  = getCorrectedPt( &lepton1, CorrectionType::UPPER, atoi(period.c_str()),rl1);
-    float ptcorr_lo1  = getCorrectedPt( &lepton1, CorrectionType::LOWER, atoi(period.c_str()),rl1);
+    float ptcorr1     = getCorrectedPt( &lepton1, CorrectionType::CENTRAL, atoi(period.c_str()),rl1.get());
+    float ptcorr_hi1  = getCorrectedPt( &lepton1, CorrectionType::UPPER, atoi(period.c_str()),rl1.get());
+    float ptcorr_lo1  = getCorrectedPt( &lepton1, CorrectionType::LOWER, atoi(period.c_str()),rl1.get());
     float wgt2        = getEfficiencyWeight( &lepton2, CorrectionType::CENTRAL, atoi(period.c_str()));
     float wgt_hi2     = getEfficiencyWeight( &lepton2, CorrectionType::UPPER, atoi(period.c_str()));
     float wgt_lo2     = getEfficiencyWeight( &lepton2, CorrectionType::LOWER, atoi(period.c_str()));
-    float ptcorr2     = getCorrectedPt( &lepton2, CorrectionType::CENTRAL, atoi(period.c_str()),rl2);
-    float ptcorr_hi2  = getCorrectedPt( &lepton2, CorrectionType::UPPER, atoi(period.c_str()),rl2);
-    float ptcorr_lo2  = getCorrectedPt( &lepton2, CorrectionType::LOWER, atoi(period.c_str()),rl2);
+    float ptcorr2     = getCorrectedPt( &lepton2, CorrectionType::CENTRAL, atoi(period.c_str()),rl2.get());
+    float ptcorr_hi2  = getCorrectedPt( &lepton2, CorrectionType::UPPER, atoi(period.c_str()),rl2.get());
+    float ptcorr_lo2  = getCorrectedPt( &lepton2, CorrectionType::LOWER, atoi(period.c_str()),rl2.get());
 
     //cout<<"mid: "<<ptcorr1<<" plus: "<<ptcorr_hi1-ptcorr1<<" minus: "<<ptcorr1-ptcorr_lo1<<endl;
 
@@ -1429,8 +1417,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     float elEffSig1  = max(fabs(wgt1-wgt_hi1),fabs(wgt1-wgt_lo1));
     float elEffMean2 = wgt2;
     float elEffSig2  = max(fabs(wgt2-wgt_hi2),fabs(wgt2-wgt_lo2));
-    TRandom3 *g1 = new TRandom3(0);
-    TRandom3 *g2 = new TRandom3(0);
+    auto_ptr<TRandom3> g1(new TRandom3(0));
+    auto_ptr<TRandom3> g2(new TRandom3(0));
     float tw1,tw2 = 0;
     stringstream itoa;
     for (int i =0; i<100; i++){
@@ -1502,8 +1490,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         dumper->MuonDump(muonsIDIso[lepton2int],true);
 
       } else if (selection == "eeGamma"){
-        dumper->ElectronDump(electronsIDIso[lepton1int],recoMuons,true);
-        dumper->ElectronDump(electronsIDIso[lepton2int],recoMuons,true);
+        dumper->ElectronDump(electronsIDIso[lepton1int],*recoMuons,true);
+        dumper->ElectronDump(electronsIDIso[lepton2int],*recoMuons,true);
       }
     }
 
@@ -1511,84 +1499,36 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     // If lep1 or lep2 is in 0.9 and both are in 2.1 //
     if (goodLep && (fabs(GP4scEta) < 1.4442) ){
       if (R9Cor >= 0.94){
-        //CAT 1
         catNum = 1;
-        hmHiggs->fill1DHist((ZP4+GP4).M(),"h1_InvariantMassReco1GevCAT1FULLRANGE_SUFFIX","Invariant Mass (H->Z#gamma);Mass (GeV);Entries",90,90,190,eventWeight);
-        if (genHZG.h) hmHiggs->fill1DHist(genHZG.h->M()-(ZP4+GP4).M(),"h1_genHiggsMassResCAT1_SUFFIX", "Gen-Reco M_{ll#gamma} CAT1; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight);
-        hm->fill1DHist((ZP4+GP4).M(),"h1_InvariantMassReco1GevCAT1FULLRANGE_SUFFIX","Invariant Mass (H->Z#gamma);Mass (GeV);Entries",90,90,190,eventWeight);
-        StandardPlots(lepton1,lepton2,GP4,eventWeight,"CAT1", "CAT1");
-        hmHiggs->fill1DHist(R9, "h1_R9CAT1_SUFFIX","R9;R9;Entries",100,0,1,eventWeight);
-        hm->fill1DHist(R9, "h1_R9CAT1_SUFFIX","R9;R9;Entries",100,0,1,eventWeight);
-        hmHiggs->fill1DHist(R9Cor, "h1_R9CorCAT1_SUFFIX","R9Cor;R9Cor;Entries",100,0,1,eventWeight);
-        hm->fill1DHist(R9Cor, "h1_R9CorCAT1_SUFFIX","R9Cor;R9Cor;Entries",100,0,1,eventWeight);
-        hm->fill2DHist(lepton1.Eta(),lepton2.Eta(),"h2_dilepEtaCAT1_SUFFIX","Dilepton Eta CAT1; Eta (leading); Eta (trailing)", 50,-2.5,2.5,50,-2.5,2.5,eventWeight,"CAT1");
         m_llgCAT1 = (GP4+ZP4).M();
-        hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsMECAT1_SUFFIX","Mass vs ME; m_{ll#gamma}; ME Disc", 45,100,190,45,0,0.2,eventWeight);
-        hm->fill1DHist(60,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5,eventWeight,"Misc");
-        hm->fill1DHist(60,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
-        ++nEvents[61];
       }else{
-        //CAT 4
         catNum = 4;
-        hmHiggs->fill1DHist((ZP4+GP4).M(),"h1_InvariantMassReco1GevCAT4FULLRANGE_SUFFIX","Invariant Mass (H->Z#gamma);Mass (GeV);Entries",90,90,190,eventWeight);
-        if (genHZG.h) hmHiggs->fill1DHist(genHZG.h->M()-(ZP4+GP4).M(),"h1_genHiggsMassResCAT4_SUFFIX", "Gen-Reco M_{ll#gamma} CAT4; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight);
-        hm->fill1DHist((ZP4+GP4).M(),"h1_InvariantMassReco1GevCAT4FULLRANGE_SUFFIX","Invariant Mass (H->Z#gamma);Mass (GeV);Entries",90,90,190,eventWeight);
-        StandardPlots(lepton1,lepton2,GP4,eventWeight,"CAT4", "CAT4");
-        hmHiggs->fill1DHist(R9, "h1_R9CAT4_SUFFIX","R9;R9;Entries",100,0,1,eventWeight);
-        hm->fill1DHist(R9, "h1_R9CAT4_SUFFIX","R9;R9;Entries",100,0,1,eventWeight);
-        hmHiggs->fill1DHist(R9Cor, "h1_R9CorCAT4_SUFFIX","R9Cor;R9Cor;Entries",100,0,1,eventWeight);
-        hm->fill1DHist(R9Cor, "h1_R9CorCAT4_SUFFIX","R9Cor;R9Cor;Entries",100,0,1,eventWeight);
-        hm->fill2DHist(lepton1.Eta(),lepton2.Eta(),"h2_dilepEtaCAT4_SUFFIX","Dilepton Eta CAT4; Eta (leading); Eta (trailing)", 50,-2.5,2.5,50,-2.5,2.5,eventWeight,"CAT4");
         m_llgCAT4 = (GP4+ZP4).M();
-        hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsMECAT4_SUFFIX","Mass vs ME; m_{ll#gamma}; ME Disc", 45,100,190,45,0,0.2,eventWeight);
-        hm->fill1DHist(63,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5,eventWeight,"Misc");
-        hm->fill1DHist(63,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
-        ++nEvents[64];
       }
     } else if ( fabs(GP4scEta) < 1.4442){
-      // CAT 2
       catNum = 2;
-      hmHiggs->fill1DHist((ZP4+GP4).M(),"h1_InvariantMassReco1GevCAT2FULLRANGE_SUFFIX","Invariant Mass (H->Z#gamma);Mass (GeV);Entries",90,90,190,eventWeight);
-      if (genHZG.h) hmHiggs->fill1DHist(genHZG.h->M()-(ZP4+GP4).M(),"h1_genHiggsMassResCAT2_SUFFIX", "Gen-Reco M_{ll#gamma} CAT2; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight);
-      hm->fill1DHist((ZP4+GP4).M(),"h1_InvariantMassReco1GevCAT2FULLRANGE_SUFFIX","Invariant Mass (H->Z#gamma);Mass (GeV);Entries",90,90,190,eventWeight);
-      StandardPlots(lepton1,lepton2,GP4,eventWeight,"CAT2", "CAT2");
-      hmHiggs->fill1DHist(R9, "h1_R9CAT2_SUFFIX","R9;R9;Entries",100,0,1,eventWeight);
-      hm->fill1DHist(R9, "h1_R9CAT2_SUFFIX","R9;R9;Entries",100,0,1,eventWeight);
-      hmHiggs->fill1DHist(R9Cor, "h1_R9CorCAT2_SUFFIX","R9Cor;R9Cor;Entries",100,0,1,eventWeight);
-      hm->fill1DHist(R9Cor, "h1_R9CorCAT2_SUFFIX","R9Cor;R9Cor;Entries",100,0,1,eventWeight);
-      hm->fill2DHist(lepton1.Eta(),lepton2.Eta(),"h2_dilepEtaCAT2_SUFFIX","Dilepton Eta CAT2; Eta (leading); Eta (trailing)", 50,-2.5,2.5,50,-2.5,2.5,eventWeight,"CAT2");
       m_llgCAT2 = (GP4+ZP4).M();
-      hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsMECAT2_SUFFIX","Mass vs ME; m_{ll#gamma}; ME Disc", 45,100,190,45,0,0.2,eventWeight);
-      hm->fill1DHist(61,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5,eventWeight,"Misc");
-      hm->fill1DHist(61,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
-      ++nEvents[62];
     } else {
-      // CAT 3
       catNum = 3;
-      hm->fill1DHist((ZP4+GP4).M(),"h1_InvariantMassReco1GevCAT3FULLRANGE_SUFFIX","Invariant Mass (H->Z#gamma);Mass (GeV);Entries",90,90,190,eventWeight);
-      if (genHZG.h) hmHiggs->fill1DHist(genHZG.h->M()-(ZP4+GP4).M(),"h1_genHiggsMassResCAT3_SUFFIX", "Gen-Reco M_{ll#gamma} CAT3; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight);
-      hmHiggs->fill1DHist((ZP4+GP4).M(),"h1_InvariantMassReco1GevCAT3FULLRANGE_SUFFIX","Invariant Mass (H->Z#gamma);Mass (GeV);Entries",90,90,190,eventWeight);
-      hmHiggs->fill1DHist(R9, "h1_R9CAT3_SUFFIX","R9;R9;Entries",100,0,1,eventWeight);
-      hm->fill1DHist(R9, "h1_R9CAT3_SUFFIX","R9;R9;Entries",100,0,1,eventWeight);
-      hmHiggs->fill1DHist(R9Cor, "h1_R9CorCAT3_SUFFIX","R9Cor;R9Cor;Entries",100,0,1,eventWeight);
-      hm->fill1DHist(R9Cor, "h1_R9CorCAT3_SUFFIX","R9Cor;R9Cor;Entries",100,0,1,eventWeight);
-      StandardPlots(lepton1,lepton2,GP4,eventWeight,"CAT3", "CAT3");
-      hm->fill2DHist(lepton1.Eta(),lepton2.Eta(),"h2_dilepEtaCAT3_SUFFIX","Dilepton Eta CAT3; Eta (leading); Eta (trailing)", 50,-2.5,2.5,50,-2.5,2.5,eventWeight,"CAT3");
-      hm->fill2DHist(GP4.Eta(),GP4.Phi(),"h2_EtaVsPhiCAT3_SUFFIX","Photon Eta vs Phi CAT3; Eta Photon; Phi Photon", 50,-2.5,2.5,50,-TMath::Pi(),TMath::Pi(),eventWeight,"CAT3");
-      if (GP4.Eta() > -2.0 && GP4.Eta() < -1.5 && GP4.Phi() > 1.0 && GP4.Phi() < 2){
-        hm->fill2DHist(GP4.Eta(),GP4.Phi(),"h2_EtaVsPhiCAT3Zoom_SUFFIX","Photon Eta vs Phi CAT3; Eta Photon; Phi Photon", 50,-2.0,-1.5,100,1.0,2.0,eventWeight,"CAT3");
-      }
-      if (GP4.Eta() > -1.80 && GP4.Eta() < -1.75 && GP4.Phi() > 1.35 && GP4.Phi() < 1.40){
-        hm->fill1DHist(runNumber,"h1_spikeVsRunCAT3_SUFFIX","runNumber for eta/phi spike CAT3; runNumber; entries", 6075,190456,196531,eventWeight,"CAT3");
-      }
       m_llgCAT3 = (GP4+ZP4).M();
-      hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsMECAT3_SUFFIX","Mass vs ME; m_{ll#gamma}; ME Disc", 45,100,190,45,0,0.2,eventWeight);
-      hm->fill1DHist(62,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5,eventWeight,"Misc");
-      hm->fill1DHist(62,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
-      ++nEvents[63];
+    }
+        //CAT 1
+
+    hmHiggs->fill1DHist((ZP4+GP4).M(),"h1_InvariantMassReco1GevCAT"+str(catNum)+"FULLRANGE_SUFFIX","Invariant Mass (H->Z#gamma);Mass (GeV);Entries",90,90,190,eventWeight);
+    if (genHZG.h) hmHiggs->fill1DHist(genHZG.h->M()-(ZP4+GP4).M(),"h1_genHiggsMassResCAT"+str(catNum)+"_SUFFIX", "Gen-Reco M_{ll#gamma} CAT"+str(catNum)+"; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight);
+    hm->fill1DHist((ZP4+GP4).M(),"h1_InvariantMassReco1GevCAT"+str(catNum)+"FULLRANGE_SUFFIX","Invariant Mass (H->Z#gamma);Mass (GeV);Entries",90,90,190,eventWeight);
+    StandardPlots(lepton1,lepton2,GP4,eventWeight,"CAT"+str(catNum)+"", "CAT"+str(catNum)+"");
+    hmHiggs->fill1DHist(R9, "h1_R9CAT"+str(catNum)+"_SUFFIX","R9;R9;Entries",100,0,1,eventWeight);
+    hm->fill1DHist(R9, "h1_R9CAT"+str(catNum)+"_SUFFIX","R9;R9;Entries",100,0,1,eventWeight);
+    hmHiggs->fill1DHist(R9Cor, "h1_R9CorCAT"+str(catNum)+"_SUFFIX","R9Cor;R9Cor;Entries",100,0,1,eventWeight);
+    hm->fill1DHist(R9Cor, "h1_R9CorCAT"+str(catNum)+"_SUFFIX","R9Cor;R9Cor;Entries",100,0,1,eventWeight);
+    hm->fill2DHist(lepton1.Eta(),lepton2.Eta(),"h2_dilepEtaCAT"+str(catNum)+"_SUFFIX","Dilepton Eta CAT"+str(catNum)+"; Eta (leading); Eta (trailing)", 50,-2.5,2.5,50,-2.5,2.5,eventWeight,"CAT"+str(catNum)+"");
+    hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsMECAT"+str(catNum)+"_SUFFIX","Mass vs ME; m_{ll#gamma}; ME Disc", 45,100,190,45,0,0.2,eventWeight);
+    hm->fill1DHist(59+catNum,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5,eventWeight,"Misc");
+    hm->fill1DHist(59+catNum,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
+    ++nEvents[60+catNum];
 
       
-    }
 
     //High R9
     if (R9Cor>0.94){
@@ -1604,11 +1544,11 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     }
 
     if (dataDumps && isRealData){
-      dumper->DataDumper(&lepton1, &lepton2, &GP4, R9Cor, GP4scEta, SCetaEl1,SCetaEl2);
+      dumper->DataDumper(lepton1, lepton2, GP4, R9Cor, GP4scEta, SCetaEl1,SCetaEl2);
     }
 
     if (dumps){
-      dumper->FinalDumper(&lepton1, &lepton2, &GP4, catNum);
+      dumper->FinalDumper(lepton1, lepton2, GP4, catNum);
     }
 
     unBinnedWeight = eventWeight;
@@ -1637,7 +1577,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     hm->fill2DHist((ZP4+GP4).M(),ZP4.Pt(),"h2_3BodyVsZPt_SUFFIX","3-Body Mass vs #Z p_{T};Z#gamma;Z p_{T}",20,100,190,20,0,60,eventWeight,"ZGamma");
     hm->fillProfile(CalculateX1(ZP4,GP4),CalculateX2(ZP4,GP4),"profile_X1X2Pro_SUFFIX","x1 vs x2;x1;x2",50,0,0.4,0,0.4,eventWeight,"ZGamma");
     hm->fill1DHist(lepton1.Pt()/lepton2.Pt(),"h1_MuonRatPt_SUFFIX","leading/trailing p_{T};p_{T} Ratio;Entries",15,0,5,eventWeight,"ZGamma");
-    hm->fill1DHist(photonsIDIso.size(),"h1_photonMult_SUFFIX","Photon Multiplicity;nPhoton;Entries",10,0.5,10.5,eventWeight,"ZGamma");
+    hm->fill1DHist(photonVector.size(),"h1_photonMult_SUFFIX","Photon Multiplicity;nPhoton;Entries",10,0.5,10.5,eventWeight,"ZGamma");
     hm->fill1DHist(fabs(ZP4.DeltaPhi(GP4)),"h1_DeltaPhiZG_SUFFIX","#Delta#phi (Z,#gamma);#Delta#phi (rad);Entries",20,0,TMath::Pi()+0.5,eventWeight,"ZGamma");
     if (suffix.find("GammaStar") !=string::npos){
       hm->fill1DHist(ZP4.M(),"h1_gammaStarMll1_SUFFIX","gammaStar M_ll full range; M_ll (GeV);Entries",120,-5,115,eventWeight,"ZGamma");
@@ -1717,7 +1657,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     hm->fill1DHist(runNumber,"h1_goodRuns_SUFFIX", "Number of events passing selection cuts by run;Run number; nEvents", 9200, 160000., 175000.,1,"Misc");
     hm->fillProfile(runNumber,primaryVtx->GetSize(),"p1_nVtcs", "Average number of vertices per run; Run Number; nVertices", 8700.0, 135000.0, 144200.0, 0.0, 6.0, 1,"Misc");
   }
-  pvPosition->Delete();
 
   if (nEvents[0]%2 == 0){
     trainingChain->Fill();
@@ -1900,34 +1839,34 @@ void higgsAnalyzer::DileptonBasicPlots(TLorentzVector ZP4, float eventWeight)
   hm->fill1DHist(ZP4.Pt(),"h1_diLeptonQt_SUFFIX", "q_{T};Q_{T};N_{evts}", 50, 0., 500., eventWeight,"Lepton");       
 }
 
-void higgsAnalyzer::GenPlots(vector<TCGenParticle*> Zs, vector<TCGenParticle*> leps, vector<TCGenParticle*> phots, vector<TCGenParticle*> Hs, TLorentzVector ZP4, TLorentzVector GP4, float eventWeight)
+void higgsAnalyzer::GenPlots(vector<TCGenParticle> Zs, vector<TCGenParticle> leps, vector<TCGenParticle> phots, vector<TCGenParticle> Hs, TLorentzVector ZP4, TLorentzVector GP4, float eventWeight)
 {
   //cout<<"gen function has activated"<<endl;
   if (Zs.size()>0){
     //cout<<"yarp there's some Zs"<<endl;
-    hm->fill1DHist(Zs[0]->M(),"h1_genZMass_SUFFIX", "GEN M_{Z}; M_{Z};N_{evts}", 40, 70., 110., eventWeight,"GenLvl");     
-    hm->fill1DHist(Zs[0]->Pt(),"h1_genZQt_SUFFIX", "q_{T};Q_{T};N_{evts}", 50, 0., 500., eventWeight,"GenLvl");       
+    hm->fill1DHist(Zs[0].M(),"h1_genZMass_SUFFIX", "GEN M_{Z}; M_{Z};N_{evts}", 40, 70., 110., eventWeight,"GenLvl");     
+    hm->fill1DHist(Zs[0].Pt(),"h1_genZQt_SUFFIX", "q_{T};Q_{T};N_{evts}", 50, 0., 500., eventWeight,"GenLvl");       
   }
   if (Hs.size()>0){
     //cout<<"yarp there's some Zs"<<endl;
-    hmHiggs->fill1DHist(Hs[0]->M(),"h1_genHMass_SUFFIX", "GEN M_{H}; M_{H};N_{evts}", 90, 90., 190., eventWeight);     
-    hm->fill1DHist(Hs[0]->M(),"h1_genHMass_SUFFIX", "GEN M_{H}; M_{H};N_{evts}", 90, 90., 190., eventWeight,"GenLvl");     
-    hm->fill1DHist(Hs[0]->Pt(),"h1_genHQt_SUFFIX", "H p_{T};Q_{T};N_{evts}", 50, 0., 500., eventWeight,"GenLvl");       
+    hmHiggs->fill1DHist(Hs[0].M(),"h1_genHMass_SUFFIX", "GEN M_{H}; M_{H};N_{evts}", 90, 90., 190., eventWeight);     
+    hm->fill1DHist(Hs[0].M(),"h1_genHMass_SUFFIX", "GEN M_{H}; M_{H};N_{evts}", 90, 90., 190., eventWeight,"GenLvl");     
+    hm->fill1DHist(Hs[0].Pt(),"h1_genHQt_SUFFIX", "H p_{T};Q_{T};N_{evts}", 50, 0., 500., eventWeight,"GenLvl");       
   }
 
-  vector<TCGenParticle*>::iterator lepIt;
+  vector<TCGenParticle>::iterator lepIt;
   TCGenParticle zMuon1;
   TCGenParticle zMuon2;
   bool oneSet = false;
 
   if (leps.size() > 1){
     for (lepIt=leps.begin(); lepIt<leps.end(); lepIt++){
-      if (oneSet && (*lepIt)->Mother() && abs((*lepIt)->Mother()->GetPDGId()) == 23){
-        zMuon2 = **lepIt;
+      if (oneSet && (*lepIt).Mother() && abs((*lepIt).Mother()->GetPDGId()) == 23){
+        zMuon2 = *lepIt;
         break;
       }
-      if (!oneSet && (*lepIt)->Mother() && abs((*lepIt)->Mother()->GetPDGId()) == 23){
-        zMuon1 = **lepIt;
+      if (!oneSet && (*lepIt).Mother() && abs((*lepIt).Mother()->GetPDGId()) == 23){
+        zMuon1 = *lepIt;
         oneSet = true;
       }
     }
@@ -1941,41 +1880,41 @@ void higgsAnalyzer::GenPlots(vector<TCGenParticle*> Zs, vector<TCGenParticle*> l
     if(suffix == "HZG125Signal"){
       //cout<<"SIGNAL GEN SHIT"<<endl;
       TCGenParticle hPhot;
-      vector<TCGenParticle*>::iterator photIt;
+      vector<TCGenParticle>::iterator photIt;
       for (photIt=leps.begin(); photIt<leps.end(); photIt++){
         //cout<<(*photIt).Mother()<<endl;
-        if ((*photIt)->Mother() && (*photIt)->Mother()->GetPDGId()==23){
-          hPhot = **photIt;
+        if ((*photIt).Mother() && (*photIt).Mother()->GetPDGId()==23){
+          hPhot = *photIt;
           break;
         }
       }
       //cout<<"End PhotoLoop"<<endl;
       //cout<<"Gen: "<<(Hs[0]).M()<<endl;
       //cout<<"Reco: "<<(ZP4+GP4).M()<<endl;
-      hm->fill1DHist((Hs[0])->M()-(ZP4+GP4).M(),"h1_genGamDiLeptonMassRes_SUFFIX", "Gen-Reco M_{ll#gamma} Total Acc; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight,"GenLvl");
+      hm->fill1DHist((Hs[0]).M()-(ZP4+GP4).M(),"h1_genGamDiLeptonMassRes_SUFFIX", "Gen-Reco M_{ll#gamma} Total Acc; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight,"GenLvl");
       // gamma barrel, Z barrel
       if (fabs(GP4.Eta())<1.4442 && fabs(ZP4.Eta())<1.4442){
-        hm->fill1DHist((Hs[0])->M()-(ZP4+GP4).M(),"h1_genGamDiLeptonMassResBB_SUFFIX", "Gen-Reco M_{ll#gamma} Barrel Only; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight,"GenLvl");
+        hm->fill1DHist((Hs[0]).M()-(ZP4+GP4).M(),"h1_genGamDiLeptonMassResBB_SUFFIX", "Gen-Reco M_{ll#gamma} Barrel Only; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight,"GenLvl");
       }
       // gamma barrel, Z endcap
       if (fabs(GP4.Eta())<1.4442 && fabs(ZP4.Eta())>1.566){
-        hm->fill1DHist((Hs[0])->M()-(ZP4+GP4).M(),"h1_genGamDiLeptonMassResBE_SUFFIX", "Gen-Reco M_{ll#gamma} #gamma Barrel, diLep Endcap; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight,"GenLvl");
+        hm->fill1DHist((Hs[0]).M()-(ZP4+GP4).M(),"h1_genGamDiLeptonMassResBE_SUFFIX", "Gen-Reco M_{ll#gamma} #gamma Barrel, diLep Endcap; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight,"GenLvl");
       }
       // gamma endcap, Z barrel
       if (fabs(GP4.Eta())>1.566 && fabs(ZP4.Eta())<1.4442){
-        hm->fill1DHist((Hs[0])->M()-(ZP4+GP4).M(),"h1_genGamDiLeptonMassResEB_SUFFIX", "Gen-Reco M_{ll#gamma} #gamma Endcap, diLep Barrel; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight,"GenLvl");
+        hm->fill1DHist((Hs[0]).M()-(ZP4+GP4).M(),"h1_genGamDiLeptonMassResEB_SUFFIX", "Gen-Reco M_{ll#gamma} #gamma Endcap, diLep Barrel; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight,"GenLvl");
       }
       // gamma endcap, Z endcap
       if (fabs(GP4.Eta())>1.566 && fabs(ZP4.Eta())>1.566){
-        hm->fill1DHist((Hs[0])->M()-(ZP4+GP4).M(),"h1_genGamDiLeptonMassResEE_SUFFIX", "Gen-Reco M_{ll#gamma} Endcap Only; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight,"GenLvl");
+        hm->fill1DHist((Hs[0]).M()-(ZP4+GP4).M(),"h1_genGamDiLeptonMassResEE_SUFFIX", "Gen-Reco M_{ll#gamma} Endcap Only; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight,"GenLvl");
       }
       // gamma endcap, Z both
       if (fabs(GP4.Eta())>1.566){
-        hm->fill1DHist((Hs[0])->M()-(ZP4+GP4).M(),"h1_genGamDiLeptonMassResE_SUFFIX", "Gen-Reco M_{ll#gamma} #gamma Endcap, diLep Both; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight,"GenLvl");
+        hm->fill1DHist((Hs[0]).M()-(ZP4+GP4).M(),"h1_genGamDiLeptonMassResE_SUFFIX", "Gen-Reco M_{ll#gamma} #gamma Endcap, diLep Both; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight,"GenLvl");
       }
       // gamma barrel, Z both
       if (fabs(GP4.Eta())<1.4442){
-        hm->fill1DHist((Hs[0])->M()-(ZP4+GP4).M(),"h1_genGamDiLeptonMassResB_SUFFIX", "Gen-Reco M_{ll#gamma} #gamma Barrel, diLep Both; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight,"GenLvl");
+        hm->fill1DHist((Hs[0]).M()-(ZP4+GP4).M(),"h1_genGamDiLeptonMassResB_SUFFIX", "Gen-Reco M_{ll#gamma} #gamma Barrel, diLep Both; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight,"GenLvl");
       }
     }
 
@@ -2012,7 +1951,7 @@ void higgsAnalyzer::GenPlots(vector<TCGenParticle*> Zs, vector<TCGenParticle*> l
   }
 
   if (phots.size() > 1){
-    hm->fill1DHist(phots[0]->Pt(),"h1_genLeadPhotonPt_SUFFIX", "p_{T} gamma;p_{T};N_{evts}", 16, 0., 80., eventWeight,"GenLvl");
+    hm->fill1DHist(phots[0].Pt(),"h1_genLeadPhotonPt_SUFFIX", "p_{T} gamma;p_{T};N_{evts}", 16, 0., 80., eventWeight,"GenLvl");
   }
 
 }

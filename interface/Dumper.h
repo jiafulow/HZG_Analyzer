@@ -23,14 +23,14 @@ class Dumper{
     void  SetEvent(int);
     void  SetLumi(int);
     void  SetPv(TVector3*);
-    void  ElectronDump(TCElectron *el, TClonesArray* recoMuons, bool final);
-    void  MVADumper(TCElectron *ele, EGammaMvaEleEstimator* mvaMaker);
-    void  MuonDump(TCMuon *mu, bool final);
-    void  PhotonDump(TCPhoton *ph);
-    void  PhotonDump2(TCPhoton *ph, TLorentzVector lepton1, TLorentzVector lepton2);
-    void  DataDumper(TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* gamma, float R9, float SCEta, float eta1, float eta2);
-    void  DataDumper(TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* gamma, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* uncorGamma, float R9, float SCEta, float eta1, float eta2);
-    void  FinalDumper(TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* gamma, int catNum);
+    void  ElectronDump(const TCElectron& el, const TClonesArray& recoMuons, bool final);
+    void  MVADumper(const TCElectron& ele, EGammaMvaEleEstimator* mvaMaker);
+    void  MuonDump(const TCMuon& mu, bool final);
+    void  PhotonDump(const TCPhoton& ph);
+    void  PhotonDump2(const TCPhoton& ph, const TLorentzVector& lepton1, const TLorentzVector& lepton2);
+    void  DataDumper(const TLorentzVector& lepton1, const TLorentzVector& lepton2, const TLorentzVector& gamma, float R9, float SCEta, float eta1, float eta2);
+    void  DataDumper(const TLorentzVector& lepton1, const TLorentzVector& lepton2, const TLorentzVector& gamma, const TLorentzVector& uncorLepton1, const TLorentzVector& uncorLepton2, const TLorentzVector& uncorGamma, float R9, float SCEta, float eta1, float eta2);
+    void  FinalDumper(const TLorentzVector& lepton1, const TLorentzVector& lepton2, const TLorentzVector& gamma, int catNum);
     void  CloseDumps();
     
   private:

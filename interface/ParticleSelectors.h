@@ -19,12 +19,12 @@ class ParticleSelector {
     void SetPv(TVector3*);
     void SetRho(float);
     void SetEventNumber(int);
-    bool FindGoodZElectron(vector<TCElectron*> electronList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* ZP4, float* eta1, float* eta2, int* int1, int* int2); 
-    bool FindGoodZMuon(vector<TCMuon*> muonList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* ZP4, int* int1, int* int2); 
-    bool FindGoodZElectron(vector<TCElectron*> electronList, vector<TCElectron*> uncorElectronList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* ZP4, float* eta1, float* eta2, int* int1, int* int2); 
-    bool FindGoodZMuon(vector<TCMuon*> muonList, vector<TCMuon*> uncorMuonList, TCPhysObject* lepton1, TCPhysObject* lepton2, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* ZP4, int* int1, int* int2); 
+    bool FindGoodZElectron(const vector<TCElectron>& electronList, TCPhysObject& lepton1, TCPhysObject& lepton2, TLorentzVector& ZP4, float& eta1, float& eta2, int& int1, int& int2); 
+    bool FindGoodZMuon(const vector<TCMuon>& muonList, TCPhysObject& lepton1, TCPhysObject& lepton2, TLorentzVector& ZP4, int& int1, int& int2); 
+    bool FindGoodZElectron(vector<TCElectron>& electronList, const vector<TCElectron>& uncorElectronList, TCPhysObject& lepton1, TCPhysObject& lepton2, TLorentzVector& uncorLepton1, TLorentzVector& uncorLepton2, TLorentzVector& ZP4, float& eta1, float& eta2, int& int1, int& int2); 
+    bool FindGoodZMuon(const vector<TCMuon>& muonList, const vector<TCMuon>& uncorMuonList, TCPhysObject& lepton1, TCPhysObject& lepton2, TLorentzVector& uncorLepton1, TLorentzVector& uncorLepton2, TLorentzVector& ZP4, int& int1, int& int2); 
 
-    static bool P4SortCondition(const TLorentzVector* p1, const TLorentzVector* p2) {return (p1->Pt() > p2->Pt());} 
+    static bool P4SortCondition(const TLorentzVector& p1, const TLorentzVector& p2) {return (p1.Pt() > p2.Pt());} 
     struct genHZGParticles{
       TCGenParticle* h;
       TCGenParticle* z;
@@ -34,15 +34,15 @@ class ParticleSelector {
       TCGenParticle* lm;
     }genHZG;
 
-    void FindGenParticles(TClonesArray* genParticles, string selection, vector<TCGenParticle*>& vetoPhotons, genHZGParticles& _genHZG);
+    void FindGenParticles(const TClonesArray& genParticles, string selection, vector<TCGenParticle>& vetoPhotons, genHZGParticles& _genHZG);
     void CleanUpGen(genHZGParticles& _genHZG);
 
-    bool PassMuonID(TCMuon *mu, Cuts::muIDCuts cutLevel);
-    bool PassMuonIso(TCMuon *mu, Cuts::muIsoCuts cutLevel);
-    bool PassElectronID(TCElectron *el, Cuts::elIDCuts cutLevel, TClonesArray*);
-    bool PassElectronIso(TCElectron *el, Cuts::elIsoCuts cutLevel, float EAEle[7]);
-    bool PassPhotonID(TCPhoton *ph, Cuts::phIDCuts cutLevel);
-    bool PassPhotonIso(TCPhoton *ph, Cuts::phIsoCuts cutLevel, float EAPho[7][3]);
+    bool PassMuonID(const TCMuon& mu, const Cuts::muIDCuts& cutLevel);
+    bool PassMuonIso(const TCMuon& mu, const Cuts::muIsoCuts& cutLevel);
+    bool PassElectronID(const TCElectron& el, const Cuts::elIDCuts& cutLevel, const TClonesArray&);
+    bool PassElectronIso(const TCElectron& el, const Cuts::elIsoCuts& cutLevel, float EAEle[7]);
+    bool PassPhotonID(const TCPhoton& ph, const Cuts::phIDCuts& cutLevel);
+    bool PassPhotonIso(const TCPhoton& ph, const Cuts::phIsoCuts& cutLevel, float EAPho[7][3]);
 
   private:
     Cuts* _cuts;

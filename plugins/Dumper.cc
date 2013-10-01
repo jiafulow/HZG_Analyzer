@@ -139,38 +139,38 @@ void Dumper::InitDumps(){
   }
 }
 
-void Dumper::ElectronDump(TCElectron *el,TClonesArray* recoMuons, bool final)
+void Dumper::ElectronDump(const TCElectron& el, const TClonesArray& recoMuons, bool final)
 {
   if(!electronDump) return;
   float thisEA = 0;
-  if (fabs(el->Eta())     <  1.0) thisEA = _cuts->EAEle[0];
-  else if (fabs(el->Eta())     <  1.5) thisEA = _cuts->EAEle[1];
-  else if (fabs(el->Eta())     <  2.0) thisEA = _cuts->EAEle[2];
-  else if (fabs(el->Eta())     <  2.2) thisEA = _cuts->EAEle[3];
-  else if (fabs(el->Eta())     <  2.3) thisEA = _cuts->EAEle[4];
-  else if (fabs(el->Eta())     <  2.4) thisEA = _cuts->EAEle[5];
-  else if (fabs(el->Eta())     >  2.4) thisEA = _cuts->EAEle[6];
+  if (fabs(el.Eta())     <  1.0) thisEA = _cuts->EAEle[0];
+  else if (fabs(el.Eta())     <  1.5) thisEA = _cuts->EAEle[1];
+  else if (fabs(el.Eta())     <  2.0) thisEA = _cuts->EAEle[2];
+  else if (fabs(el.Eta())     <  2.2) thisEA = _cuts->EAEle[3];
+  else if (fabs(el.Eta())     <  2.3) thisEA = _cuts->EAEle[4];
+  else if (fabs(el.Eta())     <  2.4) thisEA = _cuts->EAEle[5];
+  else if (fabs(el.Eta())     >  2.4) thisEA = _cuts->EAEle[6];
 
   bool idPass = _psel->PassElectronID(el, _cuts->looseElID, recoMuons);
   bool isoPass = _psel->PassElectronIso(el, _cuts->looseElIso, _cuts->EAEle);
 
-  float combIso = (el->IsoMap("pfChIso_R04")
-    + max(0.,(double)el->IsoMap("pfNeuIso_R04") + el->IsoMap("pfPhoIso_R04") - _rhoFactor*thisEA));
+  float combIso = (el.IsoMap("pfChIso_R04")
+    + max(0.,(double)el.IsoMap("pfNeuIso_R04") + el.IsoMap("pfPhoIso_R04") - _rhoFactor*thisEA));
   ofstream* dump;
   if (final) dump = &elDumpFinal;
   else dump = &elDump2;
 
-  *dump << _runNumber << " "                          << _eventNumber << " "                                 << el->Pt()
-       << " "       << el->Eta()                    << " "         << el->DetaSuperCluster()              << " "      << el->DphiSuperCluster()
-       << " "       << el->SigmaIEtaIEta()          << " "         << el->HadOverEm()                     << " "      << el->IdMap("fabsEPDiff")
-       << " "       << el->ConversionVeto()         << " "         << el->ConversionMissHits()            << " "      << el->Dxy(_pv)
-       << " "       << el->Dz(_pv)           << " "         << el->IsoMap("pfChIso_R04")           << " "      << el->IsoMap("pfNeuIso_R04")
-       << " "       << el->IsoMap("pfPhoIso_R04")   << " "         << combIso                             << " "      << _rhoFactor
+  *dump << _runNumber << " "                          << _eventNumber << " "                                 << el.Pt()
+       << " "       << el.Eta()                    << " "         << el.DetaSuperCluster()              << " "      << el.DphiSuperCluster()
+       << " "       << el.SigmaIEtaIEta()          << " "         << el.HadOverEm()                     << " "      << el.IdMap("fabsEPDiff")
+       << " "       << el.ConversionVeto()         << " "         << el.ConversionMissHits()            << " "      << el.Dxy(_pv)
+       << " "       << el.Dz(_pv)           << " "         << el.IsoMap("pfChIso_R04")           << " "      << el.IsoMap("pfNeuIso_R04")
+       << " "       << el.IsoMap("pfPhoIso_R04")   << " "         << combIso                             << " "      << _rhoFactor
        << " "       << thisEA                       << " "         << idPass                              << " "      << isoPass
        << endl;
 }
 
-void Dumper::MuonDump(TCMuon *mu, bool final) 
+void Dumper::MuonDump(const TCMuon& mu, bool final) 
 {
   if(!muonDump) return;
 
@@ -183,27 +183,27 @@ void Dumper::MuonDump(TCMuon *mu, bool final)
   }
 
   float combIso; 
-  combIso = (mu->IsoMap("pfChargedHadronPt_R04")
-    + max(0.,(double)mu->IsoMap("pfNeutralHadronEt_R04") + mu->IsoMap("pfPhotonEt_R04") - 0.5*mu->IsoMap("pfPUPt_R04")));
+  combIso = (mu.IsoMap("pfChargedHadronPt_R04")
+    + max(0.,(double)mu.IsoMap("pfNeutralHadronEt_R04") + mu.IsoMap("pfPhotonEt_R04") - 0.5*mu.IsoMap("pfPUPt_R04")));
   ofstream* dump;
   if (final) dump = &muDumpFinal;
   else dump = &muDump1;
 
-  *dump << _runNumber << " "                              << _eventNumber << " "                                 << mu->Pt()
-       << " "       << mu->Eta()                        << " "         << mu->IsGLB()                         << " "      << mu->IsPF()
-       << " "       << mu->NormalizedChi2()             << " "         << mu->NumberOfValidMuonHits()         << " "      << mu->NumberOfMatchedStations()
-       << " "       << mu->Dxy(_pv)              << " "         << mu->Dz(_pv)                  << " "      << mu->NumberOfValidPixelHits()
-       << " "       << mu->TrackLayersWithMeasurement() << " "         << mu->IsoMap("pfChargedHadronPt_R04") << " "      << mu->IsoMap("pfNeutralHadronEt_R04")
-       << " "       << mu->IsoMap("pfPhotonEt_R04")     << " "         << combIso                             << " "      << mu->IsoMap("pfPUPt_R04")
+  *dump << _runNumber << " "                              << _eventNumber << " "                                 << mu.Pt()
+       << " "       << mu.Eta()                        << " "         << mu.IsGLB()                         << " "      << mu.IsPF()
+       << " "       << mu.NormalizedChi2()             << " "         << mu.NumberOfValidMuonHits()         << " "      << mu.NumberOfMatchedStations()
+       << " "       << mu.Dxy(_pv)              << " "         << mu.Dz(_pv)                  << " "      << mu.NumberOfValidPixelHits()
+       << " "       << mu.TrackLayersWithMeasurement() << " "         << mu.IsoMap("pfChargedHadronPt_R04") << " "      << mu.IsoMap("pfNeutralHadronEt_R04")
+       << " "       << mu.IsoMap("pfPhotonEt_R04")     << " "         << combIso                             << " "      << mu.IsoMap("pfPUPt_R04")
        << " "         << idPass                              << " "      << isoPass
        << endl;
 }
 
-void Dumper::PhotonDump(TCPhoton *ph) 
+void Dumper::PhotonDump(const TCPhoton& ph) 
 {
   if(!parameters::dumps) return;
   float chEA,nhEA,phEA,tmpEta;
-  tmpEta = ph->SCEta();
+  tmpEta = ph.SCEta();
 
   if (fabs(tmpEta) < 1.0){
     chEA = _cuts->EAPho[0][0];
@@ -238,20 +238,20 @@ void Dumper::PhotonDump(TCPhoton *ph)
   bool idPass = _psel->PassPhotonID(ph, _cuts->mediumPhID);
   bool isoPass = _psel->PassPhotonIso(ph, _cuts->mediumPhIso, _cuts->EAPho);
 
-  phDump1 << _runNumber << " "                   << _eventNumber << " "                   << ph->Pt()
-       << " "       << tmpEta                << " "         << ph->ConversionVeto()  << " "      << ph->HadOverEm()
-       << " "       << ph->SigmaIEtaIEta()   << " "         << ph->IsoMap("chIso03") << " "      << ph->IsoMap("nhIso03")
-       << " "       << ph->IsoMap("phIso03") << " "         << _rhoFactor             << " "      << chEA
+  phDump1 << _runNumber << " "                   << _eventNumber << " "                   << ph.Pt()
+       << " "       << tmpEta                << " "         << ph.ConversionVeto()  << " "      << ph.HadOverEm()
+       << " "       << ph.SigmaIEtaIEta()   << " "         << ph.IsoMap("chIso03") << " "      << ph.IsoMap("nhIso03")
+       << " "       << ph.IsoMap("phIso03") << " "         << _rhoFactor             << " "      << chEA
        << " "       << nhEA                  << " "         << phEA                  << " "      << idPass
        << " "       << isoPass
        << endl;
 }
 
-void Dumper::PhotonDump2(TCPhoton *ph, TLorentzVector lepton1, TLorentzVector lepton2)
+void Dumper::PhotonDump2(const TCPhoton& ph, const TLorentzVector& lepton1, const TLorentzVector& lepton2)
 {
   if(!parameters::dumps) return;
   float chEA,nhEA,phEA,tmpEta;
-  tmpEta = ph->SCEta();
+  tmpEta = ph.SCEta();
 
   if (fabs(tmpEta) < 1.0){
     chEA = _cuts->EAPho[0][0];
@@ -286,26 +286,26 @@ void Dumper::PhotonDump2(TCPhoton *ph, TLorentzVector lepton1, TLorentzVector le
   bool idPass = _psel->PassPhotonID(ph, _cuts->mediumPhID);
   bool isoPass = _psel->PassPhotonIso(ph, _cuts->mediumPhIso, _cuts->EAPho);
 
-  float dr1 = ph->DeltaR(lepton1);
-  float dr2 = ph->DeltaR(lepton2);
+  float dr1 = ph.DeltaR(lepton1);
+  float dr2 = ph.DeltaR(lepton2);
 
-  float scaledPt = ph->Pt()/(*ph+lepton1+lepton2).M();
+  float scaledPt = ph.Pt()/(ph+lepton1+lepton2).M();
 
-  phDump2 << _runNumber << " "                   << _eventNumber << " "                   << ph->Pt()
-       << " "       << tmpEta                << " "         << ph->ConversionVeto()  << " "      << ph->HadOverEm()
-       << " "       << ph->SigmaIEtaIEta()   << " "         << ph->IsoMap("chIso03") << " "      << ph->IsoMap("nhIso03")
-       << " "       << ph->IsoMap("phIso03") << " "         << _rhoFactor             << " "      << chEA
+  phDump2 << _runNumber << " "                   << _eventNumber << " "                   << ph.Pt()
+       << " "       << tmpEta                << " "         << ph.ConversionVeto()  << " "      << ph.HadOverEm()
+       << " "       << ph.SigmaIEtaIEta()   << " "         << ph.IsoMap("chIso03") << " "      << ph.IsoMap("nhIso03")
+       << " "       << ph.IsoMap("phIso03") << " "         << _rhoFactor             << " "      << chEA
        << " "       << nhEA                  << " "         << phEA                  << " "      << idPass
        << " "       << isoPass               << " "         << dr1                   << " "      << dr2
        << " "       << scaledPt              << endl;
 }
 
-void Dumper::DataDumper(TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* gamma, float R9input, float SCEta, float eta1, float eta2){
+void Dumper::DataDumper(const TLorentzVector& lepton1, const TLorentzVector& lepton2, const TLorentzVector& gamma, float R9input, float SCEta, float eta1, float eta2){
   if(!parameters::dataDumps) return;
   int cat = -1;
   bool goodLep = false;
   if (parameters::selection == "mumuGamma"){
-    goodLep = (fabs(lepton1->Eta()) < 0.9 || fabs(lepton2->Eta()) < 0.9) && (fabs(lepton1->Eta()) < 2.1 && fabs(lepton2->Eta()) < 2.1);
+    goodLep = (fabs(lepton1.Eta()) < 0.9 || fabs(lepton2.Eta()) < 0.9) && (fabs(lepton1.Eta()) < 2.1 && fabs(lepton2.Eta()) < 2.1);
   }else if (parameters::selection == "eeGamma"){
     goodLep = (fabs(eta1) < 1.4442 && fabs(eta2) < 1.4442);
   }
@@ -318,22 +318,22 @@ void Dumper::DataDumper(TLorentzVector* lepton1, TLorentzVector* lepton2, TLoren
   } else {
     cat = 2;
   }
-  float mll = (*lepton1 + *lepton2).M();
-  float mllg = (*lepton1 + *lepton2 + *gamma).M();
+  float mll = (lepton1 + lepton2).M();
+  float mllg = (lepton1 + lepton2 + gamma).M();
 
   dataDump << "cat: "     << setw(2)  << cat         << " run: "   << setw(7)  << _runNumber      << " evt: "   << setw(10) << _eventNumber
-       << " lumi: "   << setw(5)  << _lumiSection << " mll: "   << setw(10) << mll            << " phopt: " << setw(10) << gamma->Pt()
-       << " mllg: "   << setw(10) << mllg        << " l1eta: " << setw(10) << lepton1->Eta() << " l2eta: " << setw(10) << lepton2->Eta()
+       << " lumi: "   << setw(5)  << _lumiSection << " mll: "   << setw(10) << mll            << " phopt: " << setw(10) << gamma.Pt()
+       << " mllg: "   << setw(10) << mllg        << " l1eta: " << setw(10) << lepton1.Eta() << " l2eta: " << setw(10) << lepton2.Eta()
        << " pSCeta: " << setw(10) << SCEta       << " r9: "    << setw(10) << R9input        << endl;
 
 }
 
-void Dumper::DataDumper(TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* gamma, TLorentzVector* uncorLepton1, TLorentzVector* uncorLepton2, TLorentzVector* uncorGamma, float R9input, float SCEta, float eta1, float eta2){
+void Dumper::DataDumper(const TLorentzVector& lepton1, const TLorentzVector& lepton2, const TLorentzVector& gamma, const TLorentzVector& uncorLepton1, const TLorentzVector& uncorLepton2, const TLorentzVector& uncorGamma, float R9input, float SCEta, float eta1, float eta2){
   if(!parameters::dataDumps) return;
   int cat = -1;
   bool goodLep = false;
   if (parameters::selection == "mumuGamma"){
-    goodLep = (fabs(lepton1->Eta()) < 0.9 || fabs(lepton2->Eta()) < 0.9) && (fabs(lepton1->Eta()) < 2.1 && fabs(lepton2->Eta()) < 2.1);
+    goodLep = (fabs(lepton1.Eta()) < 0.9 || fabs(lepton2.Eta()) < 0.9) && (fabs(lepton1.Eta()) < 2.1 && fabs(lepton2.Eta()) < 2.1);
   }else if (parameters::selection == "eeGamma"){
     goodLep = (fabs(eta1) < 1.4442 && fabs(eta2) < 1.4442);
   }
@@ -346,73 +346,73 @@ void Dumper::DataDumper(TLorentzVector* lepton1, TLorentzVector* lepton2, TLoren
   } else {
     cat = 2;
   }
-  float mll = (*lepton1 + *lepton2).M();
-  float mllg = (*lepton1 + *lepton2 + *gamma).M();
-  float mllUncor = (*uncorLepton1 + *uncorLepton2).M();
-  float mllgUncor = (*uncorLepton1 + *uncorLepton2 + *uncorGamma).M();
+  float mll = (lepton1 + lepton2).M();
+  float mllg = (lepton1 + lepton2 + gamma).M();
+  float mllUncor = (uncorLepton1 + uncorLepton2).M();
+  float mllgUncor = (uncorLepton1 + uncorLepton2 + uncorGamma).M();
 
   dataDump << "cat: "      << setw(2)  << cat           << " run: "      << setw(7)  << _runNumber           << " evt: "     << setw(10) << _eventNumber
-       << " lumi: "    << setw(5)  << _lumiSection   << " mll: "      << setw(10) << mllUncor            << " phopt: "   << setw(10) << uncorGamma->Pt()
-       << " mllg: "    << setw(10) << mllgUncor     << " l1eta: "    << setw(10) << uncorLepton1->Eta() << " l2eta: "   << setw(10) << uncorLepton2->Eta()
+       << " lumi: "    << setw(5)  << _lumiSection   << " mll: "      << setw(10) << mllUncor            << " phopt: "   << setw(10) << uncorGamma.Pt()
+       << " mllg: "    << setw(10) << mllgUncor     << " l1eta: "    << setw(10) << uncorLepton1.Eta() << " l2eta: "   << setw(10) << uncorLepton2.Eta()
        << " pSCeta: "  << setw(10) << SCEta
 
-       << " mllCor: "  << setw(10) << mll           << " phoptCor: " << setw(10) << gamma->Pt()         << " l1PtCor: " << setw(10) << lepton1->Pt()
-       << " l2PtCor: " << setw(10) << lepton2->Pt() << " mllgCor: "  << setw(10) << mllg
+       << " mllCor: "  << setw(10) << mll           << " phoptCor: " << setw(10) << gamma.Pt()         << " l1PtCor: " << setw(10) << lepton1.Pt()
+       << " l2PtCor: " << setw(10) << lepton2.Pt() << " mllgCor: "  << setw(10) << mllg
        << " r9: "      << setw(10) << R9input       << endl;
 }
 
-void Dumper::FinalDumper(TLorentzVector* lepton1, TLorentzVector* lepton2, TLorentzVector* gamma, int catNum){
+void Dumper::FinalDumper(const TLorentzVector& lepton1, const TLorentzVector& lepton2, const TLorentzVector& gamma, int catNum){
   if(!parameters::dumps) return;
-  float mll = (*lepton1 + *lepton2).M();
-  float mllg = (*lepton1 + *lepton2 + *gamma).M();
+  float mll = (lepton1 + lepton2).M();
+  float mllg = (lepton1 + lepton2 + gamma).M();
 
   if (parameters::doEleReg){
-     finalDump << "cat: "   << setw(2)  << catNum        << " evt: "   << setw(10) << _eventNumber << " l1RegE-P: " << setw(10) << lepton1->E() << " l1pt: " << setw(10) << lepton1->Pt()
-         << " l2RegE-P: " << setw(10) << lepton2->E() << " l2pt: " << setw(10) << lepton2->Pt() << " l1eta: " << setw(10) << lepton1->Eta() << " l2eta: " << setw(10) << lepton2->Eta() << " phopt: " << setw(10) << gamma->Pt() << " mll: "  << setw(10) << mll
+     finalDump << "cat: "   << setw(2)  << catNum        << " evt: "   << setw(10) << _eventNumber << " l1RegE-P: " << setw(10) << lepton1.E() << " l1pt: " << setw(10) << lepton1.Pt()
+         << " l2RegE-P: " << setw(10) << lepton2.E() << " l2pt: " << setw(10) << lepton2.Pt() << " l1eta: " << setw(10) << lepton1.Eta() << " l2eta: " << setw(10) << lepton2.Eta() << " phopt: " << setw(10) << gamma.Pt() << " mll: "  << setw(10) << mll
          << " mllg: " << setw(10) << mllg          << endl;
   }else{
-    finalDump << "cat: "   << setw(2)  << catNum        << " evt: "   << setw(10) << _eventNumber << " l1pt: " << setw(10) << lepton1->Pt()
-         << " l2pt: " << setw(10) << lepton2->Pt() << " l1eta: " << setw(10) << lepton1->Eta() << " l2eta: " << setw(10) << lepton2->Eta() << " phopt: " << setw(10) << gamma->Pt() << " mll: "  << setw(10) << mll
+    finalDump << "cat: "   << setw(2)  << catNum        << " evt: "   << setw(10) << _eventNumber << " l1pt: " << setw(10) << lepton1.Pt()
+         << " l2pt: " << setw(10) << lepton2.Pt() << " l1eta: " << setw(10) << lepton1.Eta() << " l2eta: " << setw(10) << lepton2.Eta() << " phopt: " << setw(10) << gamma.Pt() << " mll: "  << setw(10) << mll
          << " mllg: " << setw(10) << mllg          << endl;
   }
 }
 
-void Dumper::MVADumper(TCElectron* ele, EGammaMvaEleEstimator* mvaMaker)
+void Dumper::MVADumper(const TCElectron& ele, EGammaMvaEleEstimator* mvaMaker)
 {
   if(!electronDump || !parameters::doEleMVA) return;
   bool passPreSel = false;
   bool passMVA = false;
-  if (ele->IdMap("preSelPassV1")) passPreSel = true;			
+  if (ele.IdMap("preSelPassV1")) passPreSel = true;			
   double tmpMVAValue = mvaMaker->mvaValue(
-      ele->IdMap("fbrem"),    
-      ele->IdMap("kfChi2"),                            
-      ele->IdMap("kfNLayers"),                            
-      ele->IdMap("gsfChi2"),                           
-      ele->IdMap("dEta"),
-      ele->IdMap("dPhi"),            
-      ele->IdMap("dEtaAtCalo"),
-      ele->SigmaIEtaIEta(), 
-      ele->IdMap("SigmaIPhiIPhi"),
-      ele->IdMap("SCEtaWidth"),
-      ele->IdMap("SCPhiWidth"),
-      ele->IdMap("ome1x5oe5x5"),
-      ele->IdMap("R9"),
-      ele->HadOverEm(),
-      ele->IdMap("EoP"),
-      ele->IdMap("ooemoopV1"), 
-      ele->IdMap("eopOut"), 
-      ele->IdMap("preShowerORaw"), 
-      ele->IdMap("d0"),
-      ele->IdMap("ip3d"), 
-      ele->SCEta(),
-      ele->Pt(),
+      ele.IdMap("fbrem"),    
+      ele.IdMap("kfChi2"),                            
+      ele.IdMap("kfNLayers"),                            
+      ele.IdMap("gsfChi2"),                           
+      ele.IdMap("dEta"),
+      ele.IdMap("dPhi"),            
+      ele.IdMap("dEtaAtCalo"),
+      ele.SigmaIEtaIEta(), 
+      ele.IdMap("SigmaIPhiIPhi"),
+      ele.IdMap("SCEtaWidth"),
+      ele.IdMap("SCPhiWidth"),
+      ele.IdMap("ome1x5oe5x5"),
+      ele.IdMap("R9"),
+      ele.HadOverEm(),
+      ele.IdMap("EoP"),
+      ele.IdMap("ooemoopV1"), 
+      ele.IdMap("eopOut"), 
+      ele.IdMap("preShowerORaw"), 
+      ele.IdMap("d0"),
+      ele.IdMap("ip3d"), 
+      ele.SCEta(),
+      ele.Pt(),
       false);                
 
-  if (fabs(ele->SCEta()) < 0.8 && tmpMVAValue > 0.5){
+  if (fabs(ele.SCEta()) < 0.8 && tmpMVAValue > 0.5){
     passMVA = true;
-  }else if (fabs(ele->SCEta()) > 0.8 && fabs(ele->SCEta()) < 1.479 && tmpMVAValue > 0.12){
+  }else if (fabs(ele.SCEta()) > 0.8 && fabs(ele.SCEta()) < 1.479 && tmpMVAValue > 0.12){
     passMVA = true;
-  }else if (fabs(ele->SCEta()) > 1.479 && tmpMVAValue > 0.6){
+  }else if (fabs(ele.SCEta()) > 1.479 && tmpMVAValue > 0.6){
     passMVA = true;
   }
 
@@ -420,20 +420,20 @@ void Dumper::MVADumper(TCElectron* ele, EGammaMvaEleEstimator* mvaMaker)
   passIso = _psel->PassElectronIso(ele, _cuts->looseElIso, _cuts->EAEle);
 
 elDumpMVA << " run: "                   << setw(7)  << _runNumber                            << " evt: "                   << setw(10) << _eventNumber                          << " lumi: "                  << setw(5)  << _lumiSection
-     << " pt: "                    << setw(10) << ele->Pt()                            << " SCeta: "                 << setw(10) << ele->SCEta()                         << " fbrem: "                 << setw(10) << ele->IdMap("fbrem")
-     << " kfChi2: "                << setw(10) << ele->IdMap("kfChi2")                 << " kfHits: "                << setw(10) << ele->IdMap("kfNLayers")              << " gsfChi2: "               << setw(10) << ele->IdMap("gsfChi2")
-     << " dEta: "                  << setw(10) << ele->IdMap("dEta")                   << " dPhi: "                  << setw(10) << ele->IdMap("dPhi")                   << " dEtaCalo: "              << setw(10) << ele->IdMap("dEtaAtCalo")
-     << " sieie: "                 << setw(10) << ele->SigmaIEtaIEta()                 << " sipip: "                 << setw(10) << ele->IdMap("SigmaIPhiIPhi")          << " etaWidth: "              << setw(10) << ele->IdMap("SCEtaWidth")
-     << " phiWidth: "              << setw(10) << ele->IdMap("SCPhiWidth")             << " ome1x5oe5x5: "           << setw(10) << ele->IdMap("ome1x5oe5x5")            << " R9: "                    << setw(10) << ele->IdMap("R9")
-     << " HoE: "                   << setw(10) << ele->HadOverEm()                     << " EoP: "                   << setw(10) << ele->IdMap("EoP")                    << " ooemoop: "               << setw(10) << ele->IdMap("ooemoopV1")
-     << " EoPout: "                << setw(10) << ele->IdMap("eopOut")                 << " preShowerOverRaw: "      << setw(10) << ele->IdMap("preShowerORaw")          << " d0: "                    << setw(10) << ele->IdMap("d0")
-     << " ip3d: "                  << setw(10) << ele->IdMap("ip3d")                   << " ChargedIso_DR0p0To0p1: " << setw(10) << ele->IsoMap("ChargedIso_DR0p0To0p1") << " ChargedIso_DR0p1To0p2: " << setw(10) << ele->IsoMap("ChargedIso_DR0p1To0p2")
-     << " ChargedIso_DR0p2To0p3: " << setw(10) << ele->IsoMap("ChargedIso_DR0p2To0p3") << " ChargedIso_DR0p3To0p4: " << setw(10) << ele->IsoMap("ChargedIso_DR0p3To0p4") << " ChargedIso_DR0p4To0p5: " << setw(10) << ele->IsoMap("ChargedIso_DR0p4To0p5")
-     << " GammaIso_DR0p0To0p1: "   << setw(10) << ele->IsoMap("GammaIso_DR0p0To0p1")   << " GammaIso_DR0p1To0p2: "   << setw(10) << ele->IsoMap("GammaIso_DR0p1To0p2")   << " GammaIso_DR0p2To0p3: "   << setw(10) << ele->IsoMap("GammaIso_DR0p2To0p3")
-     << " GammaIso_DR0p3To0p4: "   << setw(10) << ele->IsoMap("GammaIso_DR0p3To0p4")   << " GammaIso_DR0p4To0p5: "   << setw(10) << ele->IsoMap("GammaIso_DR0p4To0p5")
-     << " NeutralHadronIso_DR0p0To0p1: " << setw(10) << ele->IsoMap("NeutralHadronIso_DR0p0To0p1") << " NeutralHadronIso_DR0p1To0p2: " << setw(10) << ele->IsoMap("NeutralHadronIso_DR0p1To0p2")
-     << " NeutralHadronIso_DR0p2To0p3: " << setw(10) << ele->IsoMap("NeutralHadronIso_DR0p2To0p3") << " NeutralHadronIso_DR0p3To0p4: " << setw(10) << ele->IsoMap("NeutralHadronIso_DR0p3To0p4")
-     << " NeutralHadronIso_DR0p4To0p5: " << setw(10) << ele->IsoMap("NeutralHadronIso_DR0p4To0p5") << " _rhoFactor: "                   << setw(10) << _rhoFactor
+     << " pt: "                    << setw(10) << ele.Pt()                            << " SCeta: "                 << setw(10) << ele.SCEta()                         << " fbrem: "                 << setw(10) << ele.IdMap("fbrem")
+     << " kfChi2: "                << setw(10) << ele.IdMap("kfChi2")                 << " kfHits: "                << setw(10) << ele.IdMap("kfNLayers")              << " gsfChi2: "               << setw(10) << ele.IdMap("gsfChi2")
+     << " dEta: "                  << setw(10) << ele.IdMap("dEta")                   << " dPhi: "                  << setw(10) << ele.IdMap("dPhi")                   << " dEtaCalo: "              << setw(10) << ele.IdMap("dEtaAtCalo")
+     << " sieie: "                 << setw(10) << ele.SigmaIEtaIEta()                 << " sipip: "                 << setw(10) << ele.IdMap("SigmaIPhiIPhi")          << " etaWidth: "              << setw(10) << ele.IdMap("SCEtaWidth")
+     << " phiWidth: "              << setw(10) << ele.IdMap("SCPhiWidth")             << " ome1x5oe5x5: "           << setw(10) << ele.IdMap("ome1x5oe5x5")            << " R9: "                    << setw(10) << ele.IdMap("R9")
+     << " HoE: "                   << setw(10) << ele.HadOverEm()                     << " EoP: "                   << setw(10) << ele.IdMap("EoP")                    << " ooemoop: "               << setw(10) << ele.IdMap("ooemoopV1")
+     << " EoPout: "                << setw(10) << ele.IdMap("eopOut")                 << " preShowerOverRaw: "      << setw(10) << ele.IdMap("preShowerORaw")          << " d0: "                    << setw(10) << ele.IdMap("d0")
+     << " ip3d: "                  << setw(10) << ele.IdMap("ip3d")                   << " ChargedIso_DR0p0To0p1: " << setw(10) << ele.IsoMap("ChargedIso_DR0p0To0p1") << " ChargedIso_DR0p1To0p2: " << setw(10) << ele.IsoMap("ChargedIso_DR0p1To0p2")
+     << " ChargedIso_DR0p2To0p3: " << setw(10) << ele.IsoMap("ChargedIso_DR0p2To0p3") << " ChargedIso_DR0p3To0p4: " << setw(10) << ele.IsoMap("ChargedIso_DR0p3To0p4") << " ChargedIso_DR0p4To0p5: " << setw(10) << ele.IsoMap("ChargedIso_DR0p4To0p5")
+     << " GammaIso_DR0p0To0p1: "   << setw(10) << ele.IsoMap("GammaIso_DR0p0To0p1")   << " GammaIso_DR0p1To0p2: "   << setw(10) << ele.IsoMap("GammaIso_DR0p1To0p2")   << " GammaIso_DR0p2To0p3: "   << setw(10) << ele.IsoMap("GammaIso_DR0p2To0p3")
+     << " GammaIso_DR0p3To0p4: "   << setw(10) << ele.IsoMap("GammaIso_DR0p3To0p4")   << " GammaIso_DR0p4To0p5: "   << setw(10) << ele.IsoMap("GammaIso_DR0p4To0p5")
+     << " NeutralHadronIso_DR0p0To0p1: " << setw(10) << ele.IsoMap("NeutralHadronIso_DR0p0To0p1") << " NeutralHadronIso_DR0p1To0p2: " << setw(10) << ele.IsoMap("NeutralHadronIso_DR0p1To0p2")
+     << " NeutralHadronIso_DR0p2To0p3: " << setw(10) << ele.IsoMap("NeutralHadronIso_DR0p2To0p3") << " NeutralHadronIso_DR0p3To0p4: " << setw(10) << ele.IsoMap("NeutralHadronIso_DR0p3To0p4")
+     << " NeutralHadronIso_DR0p4To0p5: " << setw(10) << ele.IsoMap("NeutralHadronIso_DR0p4To0p5") << " _rhoFactor: "                   << setw(10) << _rhoFactor
      << " mva Value: " << setw(10) << tmpMVAValue << " pass PreSel: " << setw(5) << passPreSel << " pass MVA: " << setw(5) << passMVA << " pass ISO: " << setw(5) << passIso
      << endl;
 }

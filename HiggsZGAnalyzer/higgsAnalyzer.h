@@ -71,42 +71,42 @@ class higgsAnalyzer : public TSelector {
 	private:
 
     //Params and Cuts:
-    Cuts* cuts;
-    Dumper* dumper;
+    auto_ptr<Cuts> cuts;
+    auto_ptr<Dumper> dumper;
 
-		TFile* histoFile;
-		TFile* trainingFile;
-		TFile* sampleFile;
-		TFile* higgsFile;
-    TFile* eleSmearFile;
-    TFile* eleIDISOFile;
-    TFile* m_llgFile;
-    HistManager* hm;
-    HistManager* hmHiggs;
-    HistManager* hmEleIDISO;
-    HistManager* hmEleSmear;
+		auto_ptr<TFile> histoFile;
+		auto_ptr<TFile> trainingFile;
+		auto_ptr<TFile> sampleFile;
+		auto_ptr<TFile> higgsFile;
+    auto_ptr<TFile> eleSmearFile;
+    auto_ptr<TFile> eleIDISOFile;
+    auto_ptr<TFile> m_llgFile;
+    auto_ptr<HistManager> hm;
+    auto_ptr<HistManager> hmHiggs;
+    auto_ptr<HistManager> hmEleIDISO;
+    auto_ptr<HistManager> hmEleSmear;
 
     float unskimmedEventsTotal;
     int fileCount;
 
-    TVector3 *pvPosition;
+    auto_ptr<TVector3> pvPosition;
 
     // Random number generator
-    TRandom3* rnGenerator;
-    TRandom3* rEl;
-    TRandom3* rMuRun;
+    auto_ptr<TRandom3> rnGenerator;
+    auto_ptr<TRandom3> rEl;
+    auto_ptr<TRandom3> rMuRun;
 
     // Selectors
     //GenParticleSelector genParticleSelector;
-    TriggerSelector *triggerSelector;
-    ParticleSelector *particleSelector;
+    auto_ptr<TriggerSelector> triggerSelector;
+    auto_ptr<ParticleSelector> particleSelector;
     ParticleSelector::genHZGParticles genHZG;
 
     // Utilities
-    WeightUtils *weighter;
-    rochcor_2011 * rmcor2011;
-    rochcor2012 * rmcor2012;
-    zgamma::PhosphorCorrectionFunctor* phoCorrector;
+    auto_ptr<WeightUtils> weighter;
+    auto_ptr<rochcor_2011> rmcor2011;
+    auto_ptr<rochcor2012> rmcor2012;
+    auto_ptr<zgamma::PhosphorCorrectionFunctor> phoCorrector;
 
     //Unskimmed events
     TTree *thisTree;
@@ -118,19 +118,18 @@ class higgsAnalyzer : public TSelector {
     float R9Cor;
 
     //ElectronMVA selection
-    EGammaMvaEleEstimator* myMVATrig;
-
-    TMVA::Reader             *myTMVAReader;
+    auto_ptr<EGammaMvaEleEstimator> myMVATrig;
+    auto_ptr<TMVA::Reader> myTMVAReader;
 
     //ZGAngles ME shit
 
-    TEvtProb* Xcal2;
+    auto_ptr<TEvtProb> Xcal2;
 
   public :
     TTree          *fChain;   //!pointer to the analyzed TTree or TChain
-    TTree          *sampleChain; 
-    TTree          *trainingChain; 
-    TTree          *m_llgChain;
+    auto_ptr<TTree> sampleChain; 
+    auto_ptr<TTree> trainingChain; 
+    auto_ptr<TTree> m_llgChain;
 
     //MVA Branches
     float          diffZGscalar;
@@ -209,7 +208,7 @@ class higgsAnalyzer : public TSelector {
     int          genAccept[2];
 
 		higgsAnalyzer(TTree * /*tree*/ =0): fChain(0){ }
-		virtual ~higgsAnalyzer() {delete cuts;cout<<"destruct HA"<<endl; }
+		virtual ~higgsAnalyzer() {}
 		virtual int     Version() const { return 2; }
 		virtual void    Begin(TTree *tree);
 		//virtual void    SlaveBegin(TTree *tree) { TString option = GetOption();};
@@ -224,7 +223,7 @@ class higgsAnalyzer : public TSelector {
 		virtual void    SlaveTerminate() {};
 		virtual void    Terminate();
 
-    static bool P4SortCondition(const TLorentzVector* p1, const TLorentzVector* p2) {return (p1->Pt() > p2->Pt());} 
+    static bool P4SortCondition(const TLorentzVector& p1, const TLorentzVector& p2) {return (p1.Pt() > p2.Pt());} 
     static bool VertexSortCondition(const TCPrimaryVtx& pv1, const TCPrimaryVtx& pv2) {return (pv1.SumPt2Trks() > pv2.SumPt2Trks());}
 
     virtual float   Dz(TVector3 objVtx, TLorentzVector objP4, TVector3 vtx);
@@ -232,7 +231,7 @@ class higgsAnalyzer : public TSelector {
 		virtual void    MetPlusZPlots(TLorentzVector metP4, TLorentzVector ZP4, float evtWeight);
 		virtual void    MetPlusLeptonPlots(TLorentzVector metP4, TLorentzVector p1, TLorentzVector p2, float evtWeight);
 		virtual void    LeptonBasicPlots(TLorentzVector p1, TLorentzVector p2, float evtWeight);
-		virtual void    GenPlots(vector<TCGenParticle*> Zs, vector<TCGenParticle*> leps, vector<TCGenParticle*> phots, vector<TCGenParticle*> Hs, TLorentzVector ZP4,TLorentzVector GP4, float evtWeight); 
+		virtual void    GenPlots(vector<TCGenParticle> Zs, vector<TCGenParticle> leps, vector<TCGenParticle> phots, vector<TCGenParticle> Hs, TLorentzVector ZP4,TLorentzVector GP4, float evtWeight); 
     virtual void    StandardPlots(TLorentzVector p1, TLorentzVector p2, TLorentzVector gamma, float evtWeight,string tag, string folder);
     virtual void    AnglePlots(ZGAngles &zga, float eventWeight);
 		virtual void    DileptonBasicPlots(TLorentzVector ZP4, float evtWeight);
