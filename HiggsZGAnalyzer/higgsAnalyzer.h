@@ -151,13 +151,14 @@ class higgsAnalyzer : public TSelector {
     float          scaleFactor;
 
     //M_llg branches
-    float          m_llg;
-    float          m_llgCAT1;
-    float          m_llgCAT2;
-    float          m_llgCAT3;
-    float          m_llgCAT4;
-    float          unBinnedWeight;
-    float          unBinnedLumiXS;
+    double          m_llg;
+    double          m_llgCAT1;
+    double          m_llgCAT2;
+    double          m_llgCAT3;
+    double          m_llgCAT4;
+    double          m_llgCAT5;
+    double          unBinnedWeight;
+    double          unBinnedLumiXS;
 
 		// Declaration of leaf types
 		TClonesArray  *recoJets;
@@ -242,9 +243,8 @@ class higgsAnalyzer : public TSelector {
     virtual float   CalculateM12sqrd(TLorentzVector p1, TLorentzVector p2);
     virtual float   CalculateX1(TLorentzVector p1,TLorentzVector p2);
     virtual float   CalculateX2(TLorentzVector p1, TLorentzVector p2);
-    virtual float   Zeppenfeld(TLorentzVector p, TLorentzVector pj1, TLorentzVector pj2);
     virtual float   MEDiscriminator(TCPhysObject lepton1, TCPhysObject lepton2, TLorentzVector gamma);
-    virtual void    LumiXSWeight(float *lumiXS);
+    virtual void    LumiXSWeight(double *lumiXS);
 
 
     ///////////////////////

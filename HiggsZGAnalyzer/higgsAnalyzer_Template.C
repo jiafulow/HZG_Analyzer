@@ -18,7 +18,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   abcd           = "ABCD";
   suffix         = "SUFFIX";
   dataname       = "DATANAME";
-  jobCount          = "COUNT";
+  jobCount       = "COUNT";
 
 
   for (int i =0; i<100; i++){
@@ -105,6 +105,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   histoFile->mkdir("CAT2", "CAT2");
   histoFile->mkdir("CAT3", "CAT3");
   histoFile->mkdir("CAT4", "CAT4");
+  histoFile->mkdir("CAT5", "CAT5");
   histoFile->mkdir("PreGen", "PreGen");
   histoFile->mkdir("PostGen", "PostGen");
   histoFile->mkdir("ZGAngles", "ZGAngles");
@@ -145,13 +146,14 @@ void higgsAnalyzer::Begin(TTree * tree)
   sampleChain->Branch("scaleFactor",&scaleFactor,"scaleFactor/F");
   trainingChain->Branch("scaleFactor",&scaleFactor,"scaleFactor/F");
 
-  m_llgChain->Branch("m_llg_SUFFIX", &m_llg, "m_llg/F");
-  m_llgChain->Branch("m_llgCAT1_SUFFIX", &m_llgCAT1, "m_llgCAT1/F");
-  m_llgChain->Branch("m_llgCAT2_SUFFIX", &m_llgCAT2, "m_llgCAT2/F");
-  m_llgChain->Branch("m_llgCAT3_SUFFIX", &m_llgCAT3, "m_llgCAT3/F");
-  m_llgChain->Branch("m_llgCAT4_SUFFIX", &m_llgCAT4, "m_llgCAT4/F");
-  m_llgChain->Branch("unBinnedWeight_SUFFIX", &unBinnedWeight, "unBinnedWeight/F");
-  m_llgChain->Branch("unBinnedLumiXS_SUFFIX", &unBinnedLumiXS, "unBinnedLumiXS/F");
+  m_llgChain->Branch("m_llg_SUFFIX", &m_llg, "m_llg/D");
+  m_llgChain->Branch("m_llgCAT1_SUFFIX", &m_llgCAT1, "m_llgCAT1/D");
+  m_llgChain->Branch("m_llgCAT2_SUFFIX", &m_llgCAT2, "m_llgCAT2/D");
+  m_llgChain->Branch("m_llgCAT3_SUFFIX", &m_llgCAT3, "m_llgCAT3/D");
+  m_llgChain->Branch("m_llgCAT4_SUFFIX", &m_llgCAT4, "m_llgCAT4/D");
+  m_llgChain->Branch("m_llgCAT5_SUFFIX", &m_llgCAT5, "m_llgCAT5/D");
+  m_llgChain->Branch("unBinnedWeight_SUFFIX", &unBinnedWeight, "unBinnedWeight/D");
+  m_llgChain->Branch("unBinnedLumiXS_SUFFIX", &unBinnedLumiXS, "unBinnedLumiXS/D");
 
   //MVA Angles shit
 
@@ -210,7 +212,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   if (nEvents[0] % (int)1e5 == 0) cout<<nEvents[17]<<" events passed of "<<nEvents[0]<<" checked!"<<endl;
 
-  m_llg = m_llgCAT1 = m_llgCAT2 = m_llgCAT3 = m_llgCAT4 = -1;
+  m_llg = m_llgCAT1 = m_llgCAT2 = m_llgCAT3 = m_llgCAT4 = m_llgCAT5 = -1;
   unBinnedWeight = unBinnedLumiXS = 1;
 
   particleSelector->SetRho(rhoFactor);
@@ -781,6 +783,13 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   // Jets //
   //////////
 
+  vector<TCJet> jetsID;
+  for (Int_t i = 0; i < recoJets->GetSize(); ++i) {
+    TCJet* thisJet = (TCJet*) recoJets->At(i);
+    if (particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), cuts->vbfJetID)) jetsID.push_back(*thisJet);
+  }
+  sort(jetsID.begin(), jetsID.end(), P4SortCondition);
+
   ////////////////////////
   // Analysis selection //
   ////////////////////////
@@ -1306,6 +1315,15 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   // Non-Cuts //
   //////////////
 
+
+  // VBF determination
+  bool isVBF = false;
+
+  if (jetsID.size() > 1){
+    TCJet jet1, jet2;
+    isVBF = particleSelector->FindGoodDiJets(jetsID, lepton1, lepton2, GP4, jet1, jet2);
+  }
+
   // Cross Section Weighting //
   LumiXSWeight(&unBinnedLumiXS);
   if(doLumiXS) eventWeight *= unBinnedLumiXS;
@@ -1469,19 +1487,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       goodLep = (fabs(SCetaEl1) < 1.4442 && fabs(SCetaEl2) < 1.4442);
     }
 
-    /*
-    float PhoRegWeight;
-    if (selection == "mumuGamma"){
-      if (suffix.find("Signal") != string::npos){
-        PhoRegWeight = 0.219;
-      }else PhoRegWeight = 0.587;
-    }else{
-      if (suffix.find("Signal") != string::npos){
-        PhoRegWeight = 0.219;
-      }else PhoRegWeight = 0.515;
-    }
-*/
-
     m_llg = (GP4+ZP4).M();
 
     if (dumps){
@@ -1495,9 +1500,13 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       }
     }
 
+
     int catNum = -1;
     // If lep1 or lep2 is in 0.9 and both are in 2.1 //
-    if (goodLep && (fabs(GP4scEta) < 1.4442) ){
+    if (isVBF){
+      catNum = 5;
+      m_llgCAT5 = (GP4+ZP4).M();
+    }else if (goodLep && (fabs(GP4scEta) < 1.4442) ){
       if (R9Cor >= 0.94){
         catNum = 1;
         m_llgCAT1 = (GP4+ZP4).M();
@@ -1512,7 +1521,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       catNum = 3;
       m_llgCAT3 = (GP4+ZP4).M();
     }
-        //CAT 1
 
     hmHiggs->fill1DHist((ZP4+GP4).M(),"h1_InvariantMassReco1GevCAT"+str(catNum)+"FULLRANGE_SUFFIX","Invariant Mass (H->Z#gamma);Mass (GeV);Entries",90,90,190,eventWeight);
     if (genHZG.h) hmHiggs->fill1DHist(genHZG.h->M()-(ZP4+GP4).M(),"h1_genHiggsMassResCAT"+str(catNum)+"_SUFFIX", "Gen-Reco M_{ll#gamma} CAT"+str(catNum)+"; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight);
@@ -1712,6 +1720,7 @@ void higgsAnalyzer::Terminate()
   cout << "| CAT 2:                    |\t" << nEvents[62] <<"\t"<< eventHisto->Integral(61,61)                  << "\t|" << endl;
   cout << "| CAT 3:                    |\t" << nEvents[63] <<"\t"<< eventHisto->Integral(62,62)                  << "\t|" << endl;
   cout << "| CAT 4:                    |\t" << nEvents[64] <<"\t"<< eventHisto->Integral(63,63)                  << "\t|" << endl;
+  cout << "| CAT 5:                    |\t" << nEvents[65] <<"\t"<< eventHisto->Integral(64,64)                  << "\t|" << endl;
   cout << "| GEN ACCEPTANCE Leptons:            |\t" << genAccept[0]                  << "\t|" << endl;
   cout << "| GEN ACCEPTANCE Total:              |\t" << genAccept[1]                  << "\t|" << endl;
 
@@ -2045,18 +2054,13 @@ float higgsAnalyzer::CalculateM12sqrd(TLorentzVector p1, TLorentzVector p2)
   return M12sqrd;
 }
 
-float higgsAnalyzer::Zeppenfeld(TLorentzVector p, TLorentzVector pj1, TLorentzVector pj2)
-{
-  float zep = p.Eta()-(pj1.Eta()+pj2.Eta())/2.;
-  return zep;
-}
 
 //////////////////////////////////
 // Lumi Reweighing (old values) //
 //////////////////////////////////
 
 
-void higgsAnalyzer::LumiXSWeight(float * LumiXSWeight){
+void higgsAnalyzer::LumiXSWeight(double * LumiXSWeight){
   if (!isRealData){
     if(period.find("2011") != string::npos){
 

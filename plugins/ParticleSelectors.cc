@@ -164,6 +164,28 @@ bool ParticleSelector::FindGoodZMuon(const vector<TCMuon>& muonList, const vecto
   return goodZ;
 }
 
+bool ParticleSelector::FindGoodDiJets(const vector<TCJet>& jetList, const TCPhysObject& lepton1, const TCPhysObject& lepton2, const TLorentzVector& gamma, TCJet& jet1, TCJet& jet2){
+  bool goodDiJets = false;
+  if (jetList[0].Pt() < _cuts->leadJetPt) return goodDiJets;
+  for (unsigned int i = 0; i < jetList.size(); i++){
+    if (jetList[i].Pt() < _cuts->leadJetPt) return goodDiJets;
+    if (fabs(jetList[i].Eta()) > 4.7) continue;
+    jet1 = jetList[i];
+    for (unsigned int j = i; j < jetList.size(); j++){
+      if (jetList[j].Pt() < _cuts->leadJetPt) break; 
+      if (fabs(jetList[j].Eta()) > 4.7) continue;
+      jet2 = jetList[j];
+      if (fabs(jet1.Eta() - jet2.Eta()) < _cuts->dEtaJet) continue;
+      if (Zeppenfeld((lepton1+lepton2+gamma),jet1,jet2) > _cuts->zepp) continue;
+      if ((jet1+jet2).M() < _cuts->mjj) continue;
+      if ((jet1+jet2).DeltaPhi(lepton1+lepton2+gamma) < _cuts->dPhiJet) continue;
+      goodDiJets = true;
+      return goodDiJets;
+    }
+  }
+  return goodDiJets;
+}
+
 void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, string selection, vector<TCGenParticle>& vetoPhotons, genHZGParticles& _genHZG){
   vector<TCGenParticle> genElectrons;
   vector<TCGenParticle> genMuons;
@@ -456,3 +478,37 @@ bool ParticleSelector::PassPhotonIso(const TCPhoton& ph, const Cuts::phIsoCuts& 
   }
   return isoPass;
 }
+
+bool ParticleSelector::PassJetID(const TCJet& jet, int nVtx, const Cuts::jetIDCuts& cutLevel){
+  bool idPass = false;
+
+  if (fabs(jet.Eta()) < 2.5){
+    if(
+          jet.BetaStarClassic()/log(nVtx-0.64)  < cutLevel.betaStarC[0]
+       && jet.DR2Mean()                         < cutLevel.dR2Mean[0]
+      ) idPass = true;
+  }else if (fabs(jet.Eta()) < 2.75){
+    if(
+          jet.BetaStarClassic()/log(nVtx-0.64)  < cutLevel.betaStarC[1]
+       && jet.DR2Mean()                         < cutLevel.dR2Mean[1]
+      ) idPass = true;
+  }else if (fabs(jet.Eta()) < 3.0){
+    if(
+          jet.DR2Mean()                         < cutLevel.dR2Mean[2]
+      ) idPass = true;
+  }else{ 
+    if(
+          jet.DR2Mean()                         < cutLevel.dR2Mean[3]
+      ) idPass = true;
+  }
+  return idPass;
+}
+        
+    
+float ParticleSelector::Zeppenfeld(const TLorentzVector& p, const TLorentzVector& pj1, const TLorentzVector& pj2)
+{
+  float zep = p.Eta()-(pj1.Eta()+pj2.Eta())/2.;
+  return zep;
+}
+
+

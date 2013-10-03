@@ -20,7 +20,12 @@ Cuts::Cuts():
   zgMassHigh(190),
   mzPmzg(185),
   dR(0.4),
-  ME(0.063)
+  ME(0.063),
+  dRJet(0.5),
+  dEtaJet(3.5),
+  zepp(2.5),
+  mjj(500),
+  dPhiJet(2.4)
 {
   vetoElID.cutName =                     "vetoElID";
   vetoElID.dEtaIn[0] =                   0.007;
@@ -128,6 +133,17 @@ Cuts::Cuts():
   mediumPhIso.chIso03[1] =                 1.2;
   mediumPhIso.nhIso03[1] =                 1.5;
   mediumPhIso.phIso03[1] =                 1.0;
+
+  vbfJetID.cutName =                       "vbfJetID";
+  vbfJetID.betaStarC[0] =                  0.2;
+  vbfJetID.dR2Mean[0] =                    0.06;
+
+  vbfJetID.betaStarC[1] =                  0.3;
+  vbfJetID.dR2Mean[1] =                    0.05;
+
+  vbfJetID.dR2Mean[2] =                    0.05;
+
+  vbfJetID.dR2Mean[3] =                    0.055;
 }
 
 void Cuts::InitEA(string year)

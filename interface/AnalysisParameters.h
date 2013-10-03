@@ -48,7 +48,7 @@ class Cuts{
   public:
     Cuts();
     const float leadJetPt, trailJetPt, leadMuPt, trailMuPt, leadElePt, trailElePt, gPtOverMass, gPt,
-      zMassLow, zMassHigh, metLow, metHigh, zgMassLow, zgMassHigh, mzPmzg, dR, ME ;
+      zMassLow, zMassHigh, metLow, metHigh, zgMassLow, zgMassHigh, mzPmzg, dR, ME, dRJet, dEtaJet, zepp, mjj, dPhiJet ;
     float EAMu[6]; 
     float EAEle[7]; 
     float EAPho[7][3];
@@ -111,6 +111,13 @@ class Cuts{
       float relCombIso03[2];
       string cutName;
     } loosePhIso, mediumPhIso;
+
+    struct jetIDCuts{
+      float betaStarC[2];
+      float dR2Mean[4];
+      string cutName;
+    } vbfJetID;
+
     ~Cuts();
     void InitEA(string);
 };

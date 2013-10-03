@@ -6,6 +6,7 @@
 #include "TCElectron.h"
 #include "TCPhoton.h"
 #include "TCGenParticle.h"
+#include "TCJet.h"
 #include "LeptonScaleCorrections.h"
 #include "TRandom3.h"
 #include "TClonesArray.h"
@@ -23,6 +24,7 @@ class ParticleSelector {
     bool FindGoodZMuon(const vector<TCMuon>& muonList, TCPhysObject& lepton1, TCPhysObject& lepton2, TLorentzVector& ZP4, int& int1, int& int2); 
     bool FindGoodZElectron(vector<TCElectron>& electronList, const vector<TCElectron>& uncorElectronList, TCPhysObject& lepton1, TCPhysObject& lepton2, TLorentzVector& uncorLepton1, TLorentzVector& uncorLepton2, TLorentzVector& ZP4, float& eta1, float& eta2, int& int1, int& int2); 
     bool FindGoodZMuon(const vector<TCMuon>& muonList, const vector<TCMuon>& uncorMuonList, TCPhysObject& lepton1, TCPhysObject& lepton2, TLorentzVector& uncorLepton1, TLorentzVector& uncorLepton2, TLorentzVector& ZP4, int& int1, int& int2); 
+    bool FindGoodDiJets(const vector<TCJet>& jetList, const TCPhysObject& lepton1, const TCPhysObject& lepton2, const TLorentzVector& gamma, TCJet& jet1, TCJet& jet2); 
 
     static bool P4SortCondition(const TLorentzVector& p1, const TLorentzVector& p2) {return (p1.Pt() > p2.Pt());} 
     struct genHZGParticles{
@@ -43,6 +45,8 @@ class ParticleSelector {
     bool PassElectronIso(const TCElectron& el, const Cuts::elIsoCuts& cutLevel, float EAEle[7]);
     bool PassPhotonID(const TCPhoton& ph, const Cuts::phIDCuts& cutLevel);
     bool PassPhotonIso(const TCPhoton& ph, const Cuts::phIsoCuts& cutLevel, float EAPho[7][3]);
+    bool PassJetID(const TCJet& jet, int nVtx, const Cuts::jetIDCuts& cutLevel);
+    float   Zeppenfeld(const TLorentzVector& p, const TLorentzVector& pj1, const TLorentzVector& pj2);
 
   private:
     Cuts* _cuts;
