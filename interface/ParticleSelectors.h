@@ -15,7 +15,6 @@
 
 class ParticleSelector {
   public:
-    ParticleSelector(){};
     ParticleSelector(Cuts* cuts, bool isRealData, int runNumber, TRandom3* rEl);
     void SetPv(TVector3*);
     void SetRho(float);
@@ -28,6 +27,7 @@ class ParticleSelector {
 
     static bool P4SortCondition(const TLorentzVector& p1, const TLorentzVector& p2) {return (p1.Pt() > p2.Pt());} 
     struct genHZGParticles{
+      genHZGParticles():h(0),z(0),w(0),g(0),lp(0),lm(0){};
       TCGenParticle* h;
       TCGenParticle* z;
       TCGenParticle* w;

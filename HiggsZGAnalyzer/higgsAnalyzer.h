@@ -128,7 +128,7 @@ class higgsAnalyzer : public TSelector {
   public :
     TTree          *fChain;   //!pointer to the analyzed TTree or TChain
     auto_ptr<TTree> sampleChain; 
-    auto_ptr<TTree> trainingChain; 
+    TTree* trainingChain; 
     auto_ptr<TTree> m_llgChain;
 
     //MVA Branches
@@ -244,7 +244,7 @@ class higgsAnalyzer : public TSelector {
     virtual float   CalculateX1(TLorentzVector p1,TLorentzVector p2);
     virtual float   CalculateX2(TLorentzVector p1, TLorentzVector p2);
     virtual float   MEDiscriminator(TCPhysObject lepton1, TCPhysObject lepton2, TLorentzVector gamma);
-    virtual void    LumiXSWeight(double *lumiXS);
+    virtual void    LumiXSWeight(double *_LumiXSWeight);
 
 
     ///////////////////////
@@ -290,7 +290,7 @@ class higgsAnalyzer : public TSelector {
     } mvaVars; 
 
     virtual TMVA::Reader*   MVAInitializer(mvaVarStruct vars, mvaInitStruct inits);
-    virtual void MVACalulator (mvaVarStruct vars, mvaInitStruct inits, TMVA::Reader* tmvaReader);
+    virtual void MVACalulator (mvaVarStruct vars, mvaInitStruct inits, TMVA::Reader* _tmvaReader);
 
 
 

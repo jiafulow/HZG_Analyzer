@@ -1,10 +1,14 @@
 #include "../interface/ParticleSelectors.h"
 
-ParticleSelector::ParticleSelector(Cuts* cuts, bool isRealData, int runNumber, TRandom3* rEl){
-  _cuts = cuts;
-  _isRealData = isRealData;
-  _runNumber = runNumber;
-  _rEl = rEl;
+ParticleSelector::ParticleSelector(Cuts* cuts, bool isRealData, int runNumber, TRandom3* rEl):
+  _cuts(cuts),
+  _isRealData(isRealData),
+  _runNumber(runNumber),
+  _rEl(rEl),
+  _pv(),
+  _rhoFactor(-1),
+  _evtnum(-1)
+{
 }
 
 void ParticleSelector::SetPv(TVector3* pv){
@@ -252,6 +256,7 @@ void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, strin
   if (genPhotons.size() > 0 && posLep && negLep){
       for (testIt=genPhotons.begin(); testIt<genPhotons.end(); testIt++){
         //cout<<"mother: "<<testIt->Mother()<<"\tstatus: "<<testIt->GetStatus()<<endl;
+        if (fabs((*testIt+*_genHZG.lm+*_genHZG.lp).M()-125.0) < 0.1) _genHZG.g = new TCGenParticle(*testIt); goodPhot = true; break;
         if ((*testIt).Mother() && (*testIt).Mother()->GetPDGId() == 25 && fabs((*testIt+*_genHZG.lm+*_genHZG.lp).M()-125.0) < 0.1) _genHZG.g = new TCGenParticle(*testIt); goodPhot = true; break;
       }
       if (!goodPhot) return;
@@ -273,6 +278,7 @@ void ParticleSelector::CleanUpGen(genHZGParticles& _genHZG){
   if (_genHZG.w) delete _genHZG.w;
   if (_genHZG.z) delete _genHZG.z;
   if (_genHZG.h) delete _genHZG.h;
+  _genHZG.lp = _genHZG.lm = _genHZG.g = _genHZG.w = _genHZG.z = _genHZG.h = 0;
 }
 
 bool ParticleSelector::PassMuonID(const TCMuon& mu, const Cuts::muIDCuts& cutLevel){

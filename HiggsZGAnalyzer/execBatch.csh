@@ -20,14 +20,15 @@ set period    = $6
 #mkdir printouts
 
 
+ls
+setenv MALLOC_CHECK_ 2
 tar -vzxf stageball.tar.gz
 mkdir -v higgsDir
 mv -v higgsAnalyzer_Template.C higgsDir/.
 mv -v higgsAnalyzer.h higgsDir/.
 mv -v input.txt higgsDir/.
+mv -v otherHistos higgsDir/.
 cd -v higgsDir
-mkdir -v otherHistos
-mv -v ../*.root otherHistos/.
 
 cp higgsAnalyzer_Template.C higgsAnalyzer.C
 

@@ -53,7 +53,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   dumper->SetPSelect(particleSelector.get());
 
 
-  genHZG = {0,0,0,0,0,0};
+  //genHZG = {0,0,0,0,0,0};
 
   // Random numbers! //
   rnGenerator.reset(new TRandom3);
@@ -71,7 +71,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   m_llgFile.reset(new TFile("m_llgFile_DATANAME_SELECTION_COUNT.root","RECREATE"));
 
   trainingFile->cd();
-  trainingChain.reset(new TTree("varMVA","hey everyone it's the training tree"));
+  trainingChain = new TTree("varMVA","hey everyone it's the training tree");
   sampleFile->cd();
   sampleChain.reset(new TTree("varMVA","ZOMG the sample tree!"));
 
@@ -111,8 +111,11 @@ void higgsAnalyzer::Begin(TTree * tree)
   histoFile->mkdir("ZGAngles", "ZGAngles");
   histoFile->mkdir("PhotonPurity", "PhotonPurity");
 
+  diffZGscalar = diffZGvector = threeBodyMass = threeBodyPt = divPt = cosZ = cosG = METdivQt = GPt = ZPt = DPhi = diffPlaneMVA = vtxVariable = dr1 = dr2 = M12 = scaleFactor = -99999;
+
   sampleChain->Branch("diffZGscalar",&diffZGscalar,"diffZGscalar/F");
   trainingChain->Branch("diffZGscalar",&diffZGscalar,"diffZGscalar/F");
+  /*
   sampleChain->Branch("diffZGvector",&diffZGvector,"diffZGvector/F");
   trainingChain->Branch("diffZGvector",&diffZGvector,"diffZGvector/F");
   sampleChain->Branch("threeBodyMass",&threeBodyMass,"threeBodyMass/F");
@@ -144,6 +147,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   sampleChain->Branch("M12",&M12,"M12/F");
   trainingChain->Branch("M12",&M12,"M12/F");
   sampleChain->Branch("scaleFactor",&scaleFactor,"scaleFactor/F");
+  */
   trainingChain->Branch("scaleFactor",&scaleFactor,"scaleFactor/F");
 
   m_llgChain->Branch("m_llg_SUFFIX", &m_llg, "m_llg/D");
@@ -207,6 +211,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   hm->fill1DHist(1,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
   hm->fill1DHist(1,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
   ++nEvents[0];
+  if (nEvents[0] > 10) Abort("quick terminate");
 
   if (nEvents[0] == 1) weighter->SetDataBit(isRealData);
 
@@ -228,7 +233,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   vector<TCGenParticle> vetoPhotons;
   particleSelector->CleanUpGen(genHZG);
-  genHZG = {0,0,0,0,0,0};
+  //genHZG = {0,0,0,0,0,0};
   if(!isRealData){
     ///////// load all the relevent particles into a struct /////////
     particleSelector->FindGenParticles(*genParticles, selection, vetoPhotons, genHZG);
@@ -284,7 +289,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
             // if the photon's mother is a photon, and the grandmother is an electron, kill it 
           if ((*testIt).Mother() && abs((*testIt).Mother()->GetPDGId()) == 22 && ((*testIt).Mother()->Mother()) && abs((*testIt).Mother()->Mother()->GetPDGId()) == 11) return kTRUE;
             // if the photon's mother is a gluon (?!) or a quark, kill it
-          if ((*testIt).Mother() && abs((*testIt).Mother()->GetPDGId()) == 21 || abs((*testIt).Mother()->GetPDGId()) < 7) return kTRUE;
+          if (((*testIt).Mother() && abs((*testIt).Mother()->GetPDGId()) == 21) || (abs((*testIt).Mother()->GetPDGId()) < 7)) return kTRUE;
         }
 
 
@@ -1006,7 +1011,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
 
   if (dumps){
-    for (Int_t i = 0; i < photonsIDIso.size(); ++i) {
+    for (unsigned int i = 0; i < photonsIDIso.size(); ++i) {
       dumper->PhotonDump2(photonsIDIso[i], lepton1, lepton2);
     }
   }
@@ -1724,7 +1729,7 @@ void higgsAnalyzer::Terminate()
   cout << "| GEN ACCEPTANCE Leptons:            |\t" << genAccept[0]                  << "\t|" << endl;
   cout << "| GEN ACCEPTANCE Total:              |\t" << genAccept[1]                  << "\t|" << endl;
 
-  //hm->writeHists();
+  hm->writeHists();
   trainingFile->Write();
   sampleFile->Write();
   histoFile->Write();
@@ -2060,115 +2065,115 @@ float higgsAnalyzer::CalculateM12sqrd(TLorentzVector p1, TLorentzVector p2)
 //////////////////////////////////
 
 
-void higgsAnalyzer::LumiXSWeight(double * LumiXSWeight){
+void higgsAnalyzer::LumiXSWeight(double * _LumiXSWeight){
   if (!isRealData){
     if(period.find("2011") != string::npos){
 
       if(suffix.find("gg") != string::npos){
-        if(suffix.find("120")!=string::npos) *LumiXSWeight = 99990/(16.65*0.00111*0.10098*1000);
-        if(suffix.find("125")!=string::npos) *LumiXSWeight = 95193/(15.32*0.00154*0.10098*1000);
-        if(suffix.find("130")!=string::npos) *LumiXSWeight = 99992/(14.16*0.00195*0.10098*1000);
-        if(suffix.find("135")!=string::npos) *LumiXSWeight = 99995/(13.11*0.00227*0.10098*1000);
-        if(suffix.find("140")!=string::npos) *LumiXSWeight = 99988/(12.18*0.00246*0.10098*1000);
-        if(suffix.find("145")!=string::npos) *LumiXSWeight = 99997/(11.33*0.00248*0.10098*1000);
-        if(suffix.find("150")!=string::npos) *LumiXSWeight = 99998/(10.58*0.00231*0.10098*1000);
+        if(suffix.find("120")!=string::npos) *_LumiXSWeight = 99990/(16.65*0.00111*0.10098*1000);
+        if(suffix.find("125")!=string::npos) *_LumiXSWeight = 95193/(15.32*0.00154*0.10098*1000);
+        if(suffix.find("130")!=string::npos) *_LumiXSWeight = 99992/(14.16*0.00195*0.10098*1000);
+        if(suffix.find("135")!=string::npos) *_LumiXSWeight = 99995/(13.11*0.00227*0.10098*1000);
+        if(suffix.find("140")!=string::npos) *_LumiXSWeight = 99988/(12.18*0.00246*0.10098*1000);
+        if(suffix.find("145")!=string::npos) *_LumiXSWeight = 99997/(11.33*0.00248*0.10098*1000);
+        if(suffix.find("150")!=string::npos) *_LumiXSWeight = 99998/(10.58*0.00231*0.10098*1000);
 
       }else if(suffix.find("vbf") != string::npos){
-        if(suffix.find("120")!=string::npos) *LumiXSWeight = 99885/(1.269*0.00111*0.10098*1000);
-        if(suffix.find("125")!=string::npos) *LumiXSWeight = 99890/(1.211*0.00154*0.10098*1000);
-        if(suffix.find("130")!=string::npos) *LumiXSWeight = 99899/(1.154*0.00195*0.10098*1000);
-        if(suffix.find("135")!=string::npos) *LumiXSWeight = 99913/(1.100*0.00227*0.10098*1000);
-        if(suffix.find("140")!=string::npos) *LumiXSWeight = 99882/(1.052*0.00246*0.10098*1000);
-        if(suffix.find("145")!=string::npos) *LumiXSWeight = 99893/(1.023*0.00248*0.10098*1000);
-        if(suffix.find("150")!=string::npos) *LumiXSWeight = 99892/(0.9800*0.00231*0.10098*1000);
+        if(suffix.find("120")!=string::npos) *_LumiXSWeight = 99885/(1.269*0.00111*0.10098*1000);
+        if(suffix.find("125")!=string::npos) *_LumiXSWeight = 99890/(1.211*0.00154*0.10098*1000);
+        if(suffix.find("130")!=string::npos) *_LumiXSWeight = 99899/(1.154*0.00195*0.10098*1000);
+        if(suffix.find("135")!=string::npos) *_LumiXSWeight = 99913/(1.100*0.00227*0.10098*1000);
+        if(suffix.find("140")!=string::npos) *_LumiXSWeight = 99882/(1.052*0.00246*0.10098*1000);
+        if(suffix.find("145")!=string::npos) *_LumiXSWeight = 99893/(1.023*0.00248*0.10098*1000);
+        if(suffix.find("150")!=string::npos) *_LumiXSWeight = 99892/(0.9800*0.00231*0.10098*1000);
 
       }else if(suffix.find("tth") != string::npos){
-        if(suffix.find("120")!=string::npos) *LumiXSWeight = 99999/(0.0976*0.00111*0.10098*1000);
-        if(suffix.find("125")!=string::npos) *LumiXSWeight = 99999/(0.0863*0.00154*0.10098*1000);
-        if(suffix.find("130")!=string::npos) *LumiXSWeight = 100076/(0.0766*0.00195*0.10098*1000);
-        if(suffix.find("135")!=string::npos) *LumiXSWeight = 99999/(0.0681*0.00227*0.10098*1000);
-        if(suffix.find("140")!=string::npos) *LumiXSWeight = 99999/(0.0607*0.00246*0.10098*1000);
-        if(suffix.find("145")!=string::npos) *LumiXSWeight = 100284/(0.0544*0.00248*0.10098*1000);
-        if(suffix.find("150")!=string::npos) *LumiXSWeight = 100000/(0.0487*0.00231*0.10098*1000);
+        if(suffix.find("120")!=string::npos) *_LumiXSWeight = 99999/(0.0976*0.00111*0.10098*1000);
+        if(suffix.find("125")!=string::npos) *_LumiXSWeight = 99999/(0.0863*0.00154*0.10098*1000);
+        if(suffix.find("130")!=string::npos) *_LumiXSWeight = 100076/(0.0766*0.00195*0.10098*1000);
+        if(suffix.find("135")!=string::npos) *_LumiXSWeight = 99999/(0.0681*0.00227*0.10098*1000);
+        if(suffix.find("140")!=string::npos) *_LumiXSWeight = 99999/(0.0607*0.00246*0.10098*1000);
+        if(suffix.find("145")!=string::npos) *_LumiXSWeight = 100284/(0.0544*0.00248*0.10098*1000);
+        if(suffix.find("150")!=string::npos) *_LumiXSWeight = 100000/(0.0487*0.00231*0.10098*1000);
 
       }else if(suffix.find("wh") != string::npos){
-        if(suffix.find("120")!=string::npos) *LumiXSWeight = 65152/(0.6561*0.00111*0.10098*1000);
-        if(suffix.find("125")!=string::npos) *LumiXSWeight = 65507/(0.5729*0.00154*0.10098*1000);
-        if(suffix.find("130")!=string::npos) *LumiXSWeight = 65659/(0.5008*0.00195*0.10098*1000);
-        if(suffix.find("135")!=string::npos) *LumiXSWeight = 65461/(0.4390*0.00227*0.10098*1000);
-        if(suffix.find("140")!=string::npos) *LumiXSWeight = 65491/(0.3857*0.00246*0.10098*1000);
-        if(suffix.find("145")!=string::npos) *LumiXSWeight = 65491/(0.3406*0.00248*0.10098*1000);
-        if(suffix.find("150")!=string::npos) *LumiXSWeight = 65205/(0.3001*0.00231*0.10098*1000);
+        if(suffix.find("120")!=string::npos) *_LumiXSWeight = 65152/(0.6561*0.00111*0.10098*1000);
+        if(suffix.find("125")!=string::npos) *_LumiXSWeight = 65507/(0.5729*0.00154*0.10098*1000);
+        if(suffix.find("130")!=string::npos) *_LumiXSWeight = 65659/(0.5008*0.00195*0.10098*1000);
+        if(suffix.find("135")!=string::npos) *_LumiXSWeight = 65461/(0.4390*0.00227*0.10098*1000);
+        if(suffix.find("140")!=string::npos) *_LumiXSWeight = 65491/(0.3857*0.00246*0.10098*1000);
+        if(suffix.find("145")!=string::npos) *_LumiXSWeight = 65491/(0.3406*0.00248*0.10098*1000);
+        if(suffix.find("150")!=string::npos) *_LumiXSWeight = 65205/(0.3001*0.00231*0.10098*1000);
 
       }else if(suffix.find("zh") != string::npos){
-        if(suffix.find("120")!=string::npos) *LumiXSWeight = 34294/(0.3598*0.00111*0.10098*1000);
-        if(suffix.find("125")!=string::npos) *LumiXSWeight = 34492/(0.3158*0.00154*0.10098*1000);
-        if(suffix.find("130")!=string::npos) *LumiXSWeight = 34340/(0.2778*0.00195*0.10098*1000);
-        if(suffix.find("135")!=string::npos) *LumiXSWeight = 34538/(0.2453*0.00227*0.10098*1000);
-        if(suffix.find("140")!=string::npos) *LumiXSWeight = 34049/(0.2172*0.00246*0.10098*1000);
-        if(suffix.find("145")!=string::npos) *LumiXSWeight = 34653/(0.1930*0.00248*0.10098*1000);
-        if(suffix.find("150")!=string::npos) *LumiXSWeight = 34794/(0.1713*0.00231*0.10098*1000);
+        if(suffix.find("120")!=string::npos) *_LumiXSWeight = 34294/(0.3598*0.00111*0.10098*1000);
+        if(suffix.find("125")!=string::npos) *_LumiXSWeight = 34492/(0.3158*0.00154*0.10098*1000);
+        if(suffix.find("130")!=string::npos) *_LumiXSWeight = 34340/(0.2778*0.00195*0.10098*1000);
+        if(suffix.find("135")!=string::npos) *_LumiXSWeight = 34538/(0.2453*0.00227*0.10098*1000);
+        if(suffix.find("140")!=string::npos) *_LumiXSWeight = 34049/(0.2172*0.00246*0.10098*1000);
+        if(suffix.find("145")!=string::npos) *_LumiXSWeight = 34653/(0.1930*0.00248*0.10098*1000);
+        if(suffix.find("150")!=string::npos) *_LumiXSWeight = 34794/(0.1713*0.00231*0.10098*1000);
       }
-      if (selection=="mumuGamma") *LumiXSWeight = 5.05/(*LumiXSWeight);
-      if (selection=="eeGamma") *LumiXSWeight = 4.98/(*LumiXSWeight);
+      if (selection=="mumuGamma") *_LumiXSWeight = 5.05/(*_LumiXSWeight);
+      if (selection=="eeGamma") *_LumiXSWeight = 4.98/(*_LumiXSWeight);
 
     }else if(period.find("2012") != string::npos){
 
       if(suffix.find("gg") != string::npos){
-        if(suffix.find("120")!=string::npos) *LumiXSWeight = 99992/(21.13*0.00111*0.10098*1000);
-        //if(suffix.find("125")!=string::npos) *LumiXSWeight = 99991/(19.52*0.00154*0.100974*1000);
-        if(suffix.find("125")!=string::npos) *LumiXSWeight = 100000/(19.52*0.00154*0.100974*1000);
-        if(suffix.find("130")!=string::npos) *LumiXSWeight = 99991/(18.07*0.00195*0.10098*1000);
-        if(suffix.find("135")!=string::npos) *LumiXSWeight = 99996/(16.79*0.00227*0.10098*1000);
-        if(suffix.find("140")!=string::npos) *LumiXSWeight = 96994/(15.63*0.00246*0.10098*1000);
-        if(suffix.find("145")!=string::npos) *LumiXSWeight = 99990/(14.59*0.00248*0.10098*1000);
-        if(suffix.find("150")!=string::npos) *LumiXSWeight = 99991/(13.65*0.00231*0.10098*1000);
+        if(suffix.find("120")!=string::npos) *_LumiXSWeight = 99992/(21.13*0.00111*0.10098*1000);
+        //if(suffix.find("125")!=string::npos) *_LumiXSWeight = 99991/(19.52*0.00154*0.100974*1000);
+        if(suffix.find("125")!=string::npos) *_LumiXSWeight = 100000/(19.52*0.00154*0.100974*1000);
+        if(suffix.find("130")!=string::npos) *_LumiXSWeight = 99991/(18.07*0.00195*0.10098*1000);
+        if(suffix.find("135")!=string::npos) *_LumiXSWeight = 99996/(16.79*0.00227*0.10098*1000);
+        if(suffix.find("140")!=string::npos) *_LumiXSWeight = 96994/(15.63*0.00246*0.10098*1000);
+        if(suffix.find("145")!=string::npos) *_LumiXSWeight = 99990/(14.59*0.00248*0.10098*1000);
+        if(suffix.find("150")!=string::npos) *_LumiXSWeight = 99991/(13.65*0.00231*0.10098*1000);
 
       }else if(suffix.find("vbf") != string::npos){
-        if(suffix.find("120")!=string::npos) *LumiXSWeight = 99886/(1.649*0.00111*0.10098*1000);
-        if(suffix.find("125")!=string::npos) *LumiXSWeight = 99885/(1.578*0.00154*0.10098*1000);
-        if(suffix.find("130")!=string::npos) *LumiXSWeight = 99899/(1.511*0.00195*0.10098*1000);
-        if(suffix.find("135")!=string::npos) *LumiXSWeight = 99004/(1.448*0.00227*0.10098*1000);
-        if(suffix.find("140")!=string::npos) *LumiXSWeight = 99890/(1.389*0.00246*0.10098*1000);
-        if(suffix.find("145")!=string::npos) *LumiXSWeight = 99888/(1.333*0.00248*0.10098*1000);
-        if(suffix.find("150")!=string::npos) *LumiXSWeight = 99893/(1.280*0.00231*0.10098*1000);
+        if(suffix.find("120")!=string::npos) *_LumiXSWeight = 99886/(1.649*0.00111*0.10098*1000);
+        if(suffix.find("125")!=string::npos) *_LumiXSWeight = 99885/(1.578*0.00154*0.10098*1000);
+        if(suffix.find("130")!=string::npos) *_LumiXSWeight = 99899/(1.511*0.00195*0.10098*1000);
+        if(suffix.find("135")!=string::npos) *_LumiXSWeight = 99004/(1.448*0.00227*0.10098*1000);
+        if(suffix.find("140")!=string::npos) *_LumiXSWeight = 99890/(1.389*0.00246*0.10098*1000);
+        if(suffix.find("145")!=string::npos) *_LumiXSWeight = 99888/(1.333*0.00248*0.10098*1000);
+        if(suffix.find("150")!=string::npos) *_LumiXSWeight = 99893/(1.280*0.00231*0.10098*1000);
 
       }else if(suffix.find("tth") != string::npos){
-        if(suffix.find("120")!=string::npos) *LumiXSWeight = 100080/(0.1470*0.00111*0.10098*1000);
-        if(suffix.find("125")!=string::npos) *LumiXSWeight = 100048/(0.1302*0.00154*0.10098*1000);
-        if(suffix.find("130")!=string::npos) *LumiXSWeight = 100368/(0.1157*0.00195*0.10098*1000);
-        if(suffix.find("135")!=string::npos) *LumiXSWeight = 100130/(0.1031*0.00227*0.10098*1000);
-        if(suffix.find("140")!=string::npos) *LumiXSWeight = 100340/(0.09207*0.00246*0.10098*1000);
-        if(suffix.find("145")!=string::npos) *LumiXSWeight = 97869/(0.08246*0.00248*0.10098*1000);
-        if(suffix.find("150")!=string::npos) *LumiXSWeight = 100048/(0.07403*0.00231*0.10098*1000);
+        if(suffix.find("120")!=string::npos) *_LumiXSWeight = 100080/(0.1470*0.00111*0.10098*1000);
+        if(suffix.find("125")!=string::npos) *_LumiXSWeight = 100048/(0.1302*0.00154*0.10098*1000);
+        if(suffix.find("130")!=string::npos) *_LumiXSWeight = 100368/(0.1157*0.00195*0.10098*1000);
+        if(suffix.find("135")!=string::npos) *_LumiXSWeight = 100130/(0.1031*0.00227*0.10098*1000);
+        if(suffix.find("140")!=string::npos) *_LumiXSWeight = 100340/(0.09207*0.00246*0.10098*1000);
+        if(suffix.find("145")!=string::npos) *_LumiXSWeight = 97869/(0.08246*0.00248*0.10098*1000);
+        if(suffix.find("150")!=string::npos) *_LumiXSWeight = 100048/(0.07403*0.00231*0.10098*1000);
 
       }else if(suffix.find("wh") != string::npos){
-        if(suffix.find("120")!=string::npos) *LumiXSWeight = 656153/(0.7966*0.00111*0.10098*1000);
-        if(suffix.find("125")!=string::npos) *LumiXSWeight = 656101/(0.6966*0.00154*0.10098*1000);
-        if(suffix.find("130")!=string::npos) *LumiXSWeight = 614920/(0.6095*0.00195*0.10098*1000);
-        if(suffix.find("135")!=string::npos) *LumiXSWeight = 328690/(0.5351*0.00227*0.10098*1000);
-        if(suffix.find("140")!=string::npos) *LumiXSWeight = 653556/(0.4713*0.00246*0.10098*1000);
-        if(suffix.find("145")!=string::npos) *LumiXSWeight = 652944/(0.4164*0.00248*0.10098*1000);
-        if(suffix.find("150")!=string::npos) *LumiXSWeight = 652973/(0.3681*0.00231*0.10098*1000);
+        if(suffix.find("120")!=string::npos) *_LumiXSWeight = 656153/(0.7966*0.00111*0.10098*1000);
+        if(suffix.find("125")!=string::npos) *_LumiXSWeight = 656101/(0.6966*0.00154*0.10098*1000);
+        if(suffix.find("130")!=string::npos) *_LumiXSWeight = 614920/(0.6095*0.00195*0.10098*1000);
+        if(suffix.find("135")!=string::npos) *_LumiXSWeight = 328690/(0.5351*0.00227*0.10098*1000);
+        if(suffix.find("140")!=string::npos) *_LumiXSWeight = 653556/(0.4713*0.00246*0.10098*1000);
+        if(suffix.find("145")!=string::npos) *_LumiXSWeight = 652944/(0.4164*0.00248*0.10098*1000);
+        if(suffix.find("150")!=string::npos) *_LumiXSWeight = 652973/(0.3681*0.00231*0.10098*1000);
 
       }else if(suffix.find("zh") != string::npos){
-        if(suffix.find("120")!=string::npos) *LumiXSWeight = 344220/(0.4483*0.00111*0.10098*1000);
-        if(suffix.find("125")!=string::npos) *LumiXSWeight = 344143/(0.3943*0.00154*0.10098*1000);
-        if(suffix.find("130")!=string::npos) *LumiXSWeight = 323352/(0.3473*0.00195*0.10098*1000);
-        if(suffix.find("135")!=string::npos) *LumiXSWeight = 173822/(0.3074*0.00227*0.10098*1000);
-        if(suffix.find("140")!=string::npos) *LumiXSWeight = 346650/(0.2728*0.00246*0.10098*1000);
-        if(suffix.find("145")!=string::npos) *LumiXSWeight = 347056/(0.2424*0.00248*0.10098*1000);
-        if(suffix.find("150")!=string::npos) *LumiXSWeight = 347459/(0.2159*0.00231*0.10098*1000);
+        if(suffix.find("120")!=string::npos) *_LumiXSWeight = 344220/(0.4483*0.00111*0.10098*1000);
+        if(suffix.find("125")!=string::npos) *_LumiXSWeight = 344143/(0.3943*0.00154*0.10098*1000);
+        if(suffix.find("130")!=string::npos) *_LumiXSWeight = 323352/(0.3473*0.00195*0.10098*1000);
+        if(suffix.find("135")!=string::npos) *_LumiXSWeight = 173822/(0.3074*0.00227*0.10098*1000);
+        if(suffix.find("140")!=string::npos) *_LumiXSWeight = 346650/(0.2728*0.00246*0.10098*1000);
+        if(suffix.find("145")!=string::npos) *_LumiXSWeight = 347056/(0.2424*0.00248*0.10098*1000);
+        if(suffix.find("150")!=string::npos) *_LumiXSWeight = 347459/(0.2159*0.00231*0.10098*1000);
       }
       if (selection=="mumuGamma"){
-        if (abcd == "AB") *LumiXSWeight = 5.3185/(*LumiXSWeight);
-        else if (abcd == "CD") *LumiXSWeight = 14.299/(*LumiXSWeight);
-        else if (abcd == "ABCD") *LumiXSWeight = 19.6175/(*LumiXSWeight);
+        if (abcd == "AB") *_LumiXSWeight = 5.3185/(*_LumiXSWeight);
+        else if (abcd == "CD") *_LumiXSWeight = 14.299/(*_LumiXSWeight);
+        else if (abcd == "ABCD") *_LumiXSWeight = 19.6175/(*_LumiXSWeight);
         else cout<<"abcd not specified"<<endl;
       }else if (selection=="eeGamma"){
-        if (abcd == "AB") *LumiXSWeight = 5.3185/(*LumiXSWeight);
-        else if (abcd == "CD") *LumiXSWeight = 14.301/(*LumiXSWeight);
-        else if (abcd == "ABCD") *LumiXSWeight = 19.6195/(*LumiXSWeight);
+        if (abcd == "AB") *_LumiXSWeight = 5.3185/(*_LumiXSWeight);
+        else if (abcd == "CD") *_LumiXSWeight = 14.301/(*_LumiXSWeight);
+        else if (abcd == "ABCD") *_LumiXSWeight = 19.6195/(*_LumiXSWeight);
         else cout<<"abcd not specified"<<endl;
       }
     }
@@ -2214,7 +2219,7 @@ TMVA::Reader* higgsAnalyzer::MVAInitializer(mvaVarStruct vars, mvaInitStruct ini
   // ------------------ End of MVA stuff --------------------------------------------------------------------------
 }
 
-void higgsAnalyzer::MVACalulator (mvaVarStruct vars, mvaInitStruct inits, TMVA::Reader* tmvaReader){
+void higgsAnalyzer::MVACalulator (mvaVarStruct vars, mvaInitStruct inits, TMVA::Reader* _tmvaReader){
 
   // -------------------------- MVA stuff -------------------------------------------
   // the sequence of cuts is a bit different for the pre-selection
@@ -2274,7 +2279,7 @@ void higgsAnalyzer::MVACalulator (mvaVarStruct vars, mvaInitStruct inits, TMVA::
 
     TString label = TString::Format("%s_%s_MVA_HZG%i", inits.discrMethodName[discr].Data(), inits.discrSampleName.Data(),
         inits.mvaHiggsMassPoint[mh]);
-    tmvaValue[discr][mh] = tmvaReader->EvaluateMVA(label.Data());
+    tmvaValue[discr][mh] = _tmvaReader->EvaluateMVA(label.Data());
 
     if (tmvaValue[discr][mh] > inits.bdtCut[mh]) passBdtCut[mh] = kTRUE;
     passAllBdtCuts[mh] = (passAllBdtCuts[mh] && passBdtCut[mh]);
@@ -2307,8 +2312,7 @@ float higgsAnalyzer::MEDiscriminator(TCPhysObject lepton1, TCPhysObject lepton2,
   float dXsec_ZGam_MCFM = 0.;
   float dXsec_HZGam_MCFM = 0.;
   float Discriminant = 0.;
-  float PreBoostMass = 0.;
-  float logBkg(0.), logSig(0.);
+  //float logBkg(0.), logSig(0.);
   
   auto_ptr<TLorentzVector> pl1(new TLorentzVector(lepton1));
   auto_ptr<TLorentzVector> pl2(new TLorentzVector(lepton2));
@@ -2338,8 +2342,8 @@ float higgsAnalyzer::MEDiscriminator(TCPhysObject lepton1, TCPhysObject lepton2,
     hzgamma_event.PdgCode[2] = 22;
   }
 
-  float zmass = (hzgamma_event.p[0]+hzgamma_event.p[1]).M();
-  float gammass = (hzgamma_event.p[2]).M();
+  //float zmass = (hzgamma_event.p[0]+hzgamma_event.p[1]).M();
+  //float gammass = (hzgamma_event.p[2]).M();
   float zgammass = (hzgamma_event.p[0]+hzgamma_event.p[1]+hzgamma_event.p[2]).M();
 
   Xcal2->SetHiggsMass(zgammass);
@@ -2364,8 +2368,8 @@ float higgsAnalyzer::MEDiscriminator(TCPhysObject lepton1, TCPhysObject lepton2,
   fsetpos(stdout, &pos);
   // hacky bullshit end 
 
-  logBkg = -log10(dXsec_ZGam_MCFM);
-  logSig = -log10(dXsec_HZGam_MCFM);
+  //logBkg = -log10(dXsec_ZGam_MCFM);
+  //logSig = -log10(dXsec_HZGam_MCFM);
   Discriminant = -log(dXsec_ZGam_MCFM/(dXsec_ZGam_MCFM+dXsec_HZGam_MCFM));
 
   return Discriminant;

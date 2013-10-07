@@ -81,7 +81,7 @@ cat > run.C << +EOF
     TStopwatch timer;
     timer.Start();
 
-    fChain->Process("higgsAnalyzer.C+");
+    fChain->Process("higgsAnalyzer.C+g");
 
     cout << "\n\nDone!" << endl;
     cout << "CPU Time : " << timer.CpuTime() << endl;
@@ -93,5 +93,5 @@ cat > run.C << +EOF
 
 root -l -b -q run.C
 
-rm run.C
+#rm run.C
 mv *local.root localHistos/.

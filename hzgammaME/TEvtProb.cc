@@ -22,7 +22,7 @@ ClassImp(TEvtProb)
   // Constructors and Destructor
   //-----------------------------------------------------------------------------
   TEvtProb::TEvtProb() {
-    mcfm_init_("../hzgammaME/input.DAT","./");
+    mcfm_init_((char*)"../hzgammaME/input.DAT",(char*)"./");
     SetEwkCoupligParameters();
     coupling_();
     myCSW_ = new HiggsCSandWidth("../txtFiles");

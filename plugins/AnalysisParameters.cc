@@ -25,7 +25,21 @@ Cuts::Cuts():
   dEtaJet(3.5),
   zepp(2.5),
   mjj(500),
-  dPhiJet(2.4)
+  dPhiJet(2.4),
+  EAMu(),
+  EAEle(),
+  EAPho(),
+  tightMuID(),
+  tightMuIso(),
+  looseMuIso(),
+  vetoElID(),
+  looseElID(),
+  looseElIso(),
+  loosePhID(),
+  mediumPhID(),
+  loosePhIso(),
+  mediumPhIso(),
+  vbfJetID()
 {
   vetoElID.cutName =                     "vetoElID";
   vetoElID.dEtaIn[0] =                   0.007;

@@ -92,12 +92,11 @@ class BatchMaster():
             sourceFiles = self.SplitJobs(cfg._inDir, cfg._nJobs)
 
             # copy files to staging so they cant be modified during submission
-            if j ==0:
-              if not os.path.exists(self._outDir+'/'+cfg._selection+'/'+cfg._dataName+'/stageball.tar.gz'):
-                os.system('cp stageball.tar.gz '+self._outDir+'/'+cfg._selection+'/'+cfg._dataName+'/.' )
-              if not os.path.exists(self._outDir+'/'+cfg._selection+'/'+cfg._dataName+'/execBatch.csh'):
-                os.system('cp execBatch.csh '+self._outDir+'/'+cfg._selection+'/'+cfg._dataName+'/.' )
-              os.chdir(self._outDir+'/'+cfg._selection+'/'+cfg._dataName)
+            if not os.path.exists(self._outDir+'/'+cfg._selection+'/'+cfg._dataName+'/stageball.tar.gz'):
+              os.system('cp stageball.tar.gz '+self._outDir+'/'+cfg._selection+'/'+cfg._dataName+'/.' )
+            if not os.path.exists(self._outDir+'/'+cfg._selection+'/'+cfg._dataName+'/execBatch.csh'):
+              os.system('cp execBatch.csh '+self._outDir+'/'+cfg._selection+'/'+cfg._dataName+'/.' )
+            os.chdir(self._outDir+'/'+cfg._selection+'/'+cfg._dataName)
 
             for i, source in enumerate(sourceFiles):
                 exec_tmp  = self.MakeExecutable(cfg, source)

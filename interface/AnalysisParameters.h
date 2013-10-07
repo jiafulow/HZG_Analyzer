@@ -9,39 +9,39 @@
 
 namespace parameters
 {
-  string  selection;
-  string  period;
-  int     JC_LVL;
-  string  abcd;
-  string  suffix;
-  string  dataname;
-  string  jobCount;
+  string  selection("lol");
+  string  period("lol");
+  int     JC_LVL(0);
+  string  abcd("lol");
+  string  suffix("lol");
+  string  dataname("lol");
+  string  jobCount("lol");
 
-  bool VBFcuts                 = false;
-  bool DYGammaVeto             = true;
-  bool customPhotoID           = false;
-  bool spikeVeto               = true;
+  const bool VBFcuts                 = false;
+  const bool DYGammaVeto             = true;
+  const bool customPhotoID           = false;
+  const bool spikeVeto               = true;
 
-  bool R9switch                = false;
+  const bool R9switch                = false;
 
-  bool doEleMVA                = true;
+  const bool doEleMVA                = true;
 
-  bool doLooseMuIso            = true;
-  bool doAnglesMVA             = false;
+  const bool doLooseMuIso            = true;
+  const bool doAnglesMVA             = false;
 
   ///// debugging dumps /////
-  bool dumps                   = true;
-  bool dataDumps               = false;
-  int EVENTNUMBER              = -999;
+  const bool dumps                   = true;
+  const bool dataDumps               = false;
+  const int EVENTNUMBER              = -999;
 
   //// energy corrections ////
-  bool engCor                  = true;
-  bool doR9Cor                 = true;
-  bool doEleReg                = true;
+  const bool engCor                  = true;
+  const bool doR9Cor                 = true;
+  const bool doEleReg                = true;
 
   //// Scale Factors ////
-  bool doScaleFactors          = true;
-  bool doLumiXS                = false;
+  const bool doScaleFactors          = true;
+  const bool doLumiXS                = false;
 }
 
 class Cuts{
