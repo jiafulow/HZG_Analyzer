@@ -673,7 +673,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   vector<TCPhoton> photonsLIDMIso; 
   vector<TCPhoton> photonsMIDLIso; 
   vector<TCPhoton> photonsLIDLIso; 
-  vector<TCPhoton> photonsNOIDIso; 
+  vector<TCPhoton> photonsNoIDIso; 
   vector<TCPhoton> photonsIDIsoUnCor; 
   TCPhoton* clonePhoton;
 
@@ -767,7 +767,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       else if (particleSelector->PassPhotonID(*thisPhoton, cuts->loosePhID) && particleSelector->PassPhotonIso(*thisPhoton, cuts->loosePhIso, cuts->EAPho)){
         photonsLIDLIso.push_back(*thisPhoton);
       }
-      else photonsNOIDIso.push_back(*thisPhoton);
+      else photonsNoIDIso.push_back(*thisPhoton);
 
 
 
@@ -781,7 +781,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     sort(photonsLIDMIso.begin(), photonsLIDMIso.end(), P4SortCondition);
     sort(photonsMIDLIso.begin(), photonsMIDLIso.end(), P4SortCondition);
     sort(photonsLIDLIso.begin(), photonsLIDLIso.end(), P4SortCondition);
-    sort(photonsNOIDIso.begin(), photonsNOIDIso.end(), P4SortCondition);
+    sort(photonsNoIDIso.begin(), photonsNoIDIso.end(), P4SortCondition);
   }
 
   //////////
@@ -1021,20 +1021,71 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   //**ZGamma** Gamma Energy //
   ////////////////////////////
 
+
   TLorentzVector GP4_LIDMIso;
   TLorentzVector GP4_MIDLIso;
   TLorentzVector GP4_LIDLIso;
   TLorentzVector GP4_NoIDIso;
-  vector<TCPhoton> photonVector = photonsIDIso;
 
-  if (photonVector.size() < 1) return kTRUE;
-  bool goodPhoton = particleSelector->FindGoodPhoton(photonVector, GP4, lepton1, lepton2, R9Cor, GP4scEta);
+  float R9Cor_LIDMIso, R9Cor_MIDLIso, R9Cor_LIDLIso, R9Cor_NoIDIso;
+  R9Cor_LIDMIso = R9Cor_MIDLIso = R9Cor_LIDLIso = R9Cor_NoIDIso = -999;
+  float GP4scEta_LIDMIso, GP4scEta_MIDLIso, GP4scEta_LIDLIso, GP4scEta_NoIDIso;
+  GP4scEta_LIDMIso = GP4scEta_MIDLIso = GP4scEta_LIDLIso = GP4scEta_NoIDIso = -999;
+  bool goodPhoton, goodPhoton_LIDMIso, goodPhoton_MIDLIso, goodPhoton_LIDLIso, goodPhoton_NoIDIso;
+  goodPhoton = goodPhoton_LIDMIso = goodPhoton_MIDLIso = goodPhoton_LIDLIso = goodPhoton_NoIDIso = false;
 
-  if(!goodPhoton) return kTRUE;
-  //cout<<GP4.Pt()<<endl;
+  if (!doPhotonPurityStudy){
+    if (photonsIDIso.size() < 1) return kTRUE;
+    goodPhoton = particleSelector->FindGoodPhoton(photonsIDIso, GP4, lepton1, lepton2, R9Cor, GP4scEta);
+    if(!goodPhoton) return kTRUE;
 
-  if (doScaleFactors) eventWeight   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
-  eventWeightPho   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
+    if (doScaleFactors) eventWeight   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
+    eventWeightPho   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
+  }else{
+
+    /////////////////////////
+    // photon purity study //
+    /////////////////////////
+
+
+    if (photonsIDIso.size() > 0){
+      goodPhoton = particleSelector->FindGoodPhoton(photonsIDIso, GP4, lepton1, lepton2, R9Cor, GP4scEta);
+    }
+    if (photonsLIDMIso.size() > 0){
+      goodPhoton_LIDMIso = particleSelector->FindGoodPhoton(photonsLIDMIso, GP4_LIDMIso, lepton1, lepton2, R9Cor_LIDMIso, GP4scEta_LIDMIso);
+    }
+    if (photonsMIDLIso.size() > 0){
+      goodPhoton_MIDLIso = particleSelector->FindGoodPhoton(photonsMIDLIso, GP4_MIDLIso, lepton1, lepton2, R9Cor_MIDLIso, GP4scEta_MIDLIso);
+    }
+    if (photonsLIDLIso.size() > 0){
+      goodPhoton_LIDLIso = particleSelector->FindGoodPhoton(photonsLIDLIso, GP4_LIDLIso, lepton1, lepton2, R9Cor_LIDLIso, GP4scEta_LIDLIso);
+    }
+    if (photonsNoIDIso.size() > 0){
+      goodPhoton_NoIDIso = particleSelector->FindGoodPhoton(photonsNoIDIso, GP4_NoIDIso, lepton1, lepton2, R9Cor_NoIDIso, GP4scEta_NoIDIso);
+    }
+
+    if (!goodPhoton && !goodPhoton_LIDMIso && !goodPhoton_MIDLIso && !goodPhoton_LIDLIso && !goodPhoton_NoIDIso) return kTRUE;
+    if (!goodPhoton){
+      if (goodPhoton_LIDMIso){
+        GP4 = GP4_LIDMIso;
+        R9Cor = R9Cor_LIDMIso;
+        GP4scEta = GP4scEta_LIDMIso;
+      }else if (goodPhoton_MIDLIso){
+        GP4 = GP4_MIDLIso;
+        R9Cor = R9Cor_MIDLIso;
+        GP4scEta = GP4scEta_MIDLIso;
+      }else if (goodPhoton_LIDLIso){
+        GP4 = GP4_LIDLIso;
+        R9Cor = R9Cor_LIDLIso;
+        GP4scEta = GP4scEta_LIDLIso;
+      }else{
+        GP4 = GP4_NoIDIso;
+        R9Cor = R9Cor_NoIDIso;
+        GP4scEta = GP4scEta_NoIDIso;
+      }
+    }
+  }
+
 
   hm->fill1DHist(10,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");
   hm->fill1DHist(10,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
@@ -1556,7 +1607,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     hm->fill2DHist((ZP4+GP4).M(),ZP4.Pt(),"h2_3BodyVsZPt_SUFFIX","3-Body Mass vs #Z p_{T};Z#gamma;Z p_{T}",20,100,190,20,0,60,eventWeight,"ZGamma");
     hm->fillProfile(CalculateX1(ZP4,GP4),CalculateX2(ZP4,GP4),"profile_X1X2Pro_SUFFIX","x1 vs x2;x1;x2",50,0,0.4,0,0.4,eventWeight,"ZGamma");
     hm->fill1DHist(lepton1.Pt()/lepton2.Pt(),"h1_MuonRatPt_SUFFIX","leading/trailing p_{T};p_{T} Ratio;Entries",15,0,5,eventWeight,"ZGamma");
-    hm->fill1DHist(photonVector.size(),"h1_photonMult_SUFFIX","Photon Multiplicity;nPhoton;Entries",10,0.5,10.5,eventWeight,"ZGamma");
+    hm->fill1DHist(photonsIDIso.size(),"h1_photonMult_SUFFIX","Photon Multiplicity;nPhoton;Entries",10,0.5,10.5,eventWeight,"ZGamma");
     hm->fill1DHist(fabs(ZP4.DeltaPhi(GP4)),"h1_DeltaPhiZG_SUFFIX","#Delta#phi (Z,#gamma);#Delta#phi (rad);Entries",20,0,TMath::Pi()+0.5,eventWeight,"ZGamma");
     if (suffix.find("GammaStar") !=string::npos){
       hm->fill1DHist(ZP4.M(),"h1_gammaStarMll1_SUFFIX","gammaStar M_ll full range; M_ll (GeV);Entries",120,-5,115,eventWeight,"ZGamma");
@@ -1605,6 +1656,13 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   /////////////////////////
 
   StandardPlots(lepton1,lepton2,GP4,eventWeight,"", "pT-Eta-Phi");
+  if (doPhotonPurityStudy){
+    if(goodPhoton) StandardPlots(lepton1,lepton2,GP4,eventWeight,"MIDMIso", "PhotonPurity");
+    if(goodPhoton_LIDMIso) StandardPlots(lepton1,lepton2,GP4_LIDMIso,eventWeight,"LIDMIso", "PhotonPurity");
+    if(goodPhoton_MIDLIso) StandardPlots(lepton1,lepton2,GP4_MIDLIso,eventWeight,"MIDLIso", "PhotonPurity");
+    if(goodPhoton_LIDLIso) StandardPlots(lepton1,lepton2,GP4_LIDLIso,eventWeight,"LIDLIso", "PhotonPurity");
+    if(goodPhoton_NoIDIso) StandardPlots(lepton1,lepton2,GP4_NoIDIso,eventWeight,"NoIDIso", "PhotonPurity");
+  }
 
   //////////////////////////////
   // Fill Vtx variable histos //
