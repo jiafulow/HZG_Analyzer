@@ -14,8 +14,8 @@ mcFile    = r.TFile(sys.argv[2], 'OPEN')
 canvas    = r.TCanvas()
 
 histData  = dataFile.Get('pileup')
-#histMC    = mcFile.Get('pileup')
-histMC    = mcFile.Get('mcPU')
+histMC    = mcFile.Get('pileup')
+#histMC    = mcFile.Get('mcPU')
 
 histData.Sumw2()
 

@@ -23,6 +23,7 @@ WeightUtils::WeightUtils(string sampleName, string dataPeriod, string abcd, stri
   _inFileS10to2012ABCDTrue = new TFile("otherHistos/S10to2012ABCDTrue.root", "OPEN");
   _inFileS10to2012ABCDTrue_73500 = new TFile("otherHistos/S10to2012ABCDTrue_73500.root", "OPEN");
   _inFileSomeTuneto2012ABCDTrue = new TFile("otherHistos/SomeTuneTo2012ABCD.root", "OPEN");
+  _inFileRD1to2012ABCDTrue = new TFile("otherHistos/RD1to2012ABCDTrue.root", "OPEN");
 
   _MuTrig2011          = new TFile("otherHistos/Eff_HLT_Mu17_Mu8_2011_TPfit_v2.root", "OPEN");
   _kFactors            = new TFile("otherHistos/KFactors_AllScales.root", "OPEN");
@@ -44,6 +45,7 @@ WeightUtils::WeightUtils(string sampleName, string dataPeriod, string abcd, stri
   h1_S10to2012ABCDTrue     = (TH1F*)_inFileS10to2012ABCDTrue->Get("pileupWeights");
   h1_S10to2012ABCDTrue_73500     = (TH1F*)_inFileS10to2012ABCDTrue_73500->Get("pileupWeights");
   h1_SomeTuneto2012ABCDTrue     = (TH1F*)_inFileSomeTuneto2012ABCDTrue->Get("pileupWeights");
+  h1_RD1to2012ABCDTrue     = (TH1F*)_inFileRD1to2012ABCDTrue->Get("pileupWeights");
 
   // higgs pt weights
   kfact120_0           = (TH1D*)_kFactors->Get("kfact120_0");
@@ -109,9 +111,9 @@ float WeightUtils::PUWeight(float nPU)
   if (!_isRealData){
     if (nPU < 100 && _dataPeriod == "2011" ){
       _puWeight = h1_S6to2011obs->GetBinContent(h1_S6to2011obs->FindBin(nPU)); 
-    } else if (nPU < 100 && nPU > 27 && _dataPeriod == "2012" && _sampleName.find("pythia8")!= string::npos){
-      _puWeight = h1_SomeTuneto2012ABCDTrue->GetBinContent(h1_SomeTuneto2012ABCDTrue->FindBin(nPU)); 
-    } else if (nPU < 100 && _dataPeriod == "2012" && _sampleName.find("pythia8") == string::npos){
+    } else if (nPU < 100 && _dataPeriod == "2012" && (_sampleName.find("DYJets")!= string::npos || _sampleName.find("ZGToLLG")!= string::npos)){
+      _puWeight = h1_RD1to2012ABCDTrue->GetBinContent(h1_RD1to2012ABCDTrue->FindBin(nPU)); 
+    } else if (nPU < 100 && _dataPeriod == "2012" ){
       if (_abcd == "AB") _puWeight = h1_S10to2012ABTrue->GetBinContent(h1_S10to2012ABTrue->FindBin(nPU)); 
       else if (_abcd == "CD") _puWeight = h1_S10to2012CDTrue->GetBinContent(h1_S10to2012CDTrue->FindBin(nPU)); 
       else if (_abcd == "ABCD") _puWeight = h1_S10to2012ABCDTrue->GetBinContent(h1_S10to2012ABCDTrue->FindBin(nPU)); 
@@ -132,7 +134,7 @@ float WeightUtils::HqtWeight(TLorentzVector l1)
 
   float hqtWeight = 1.0;
   if (_isRealData) return hqtWeight;
-  if (_sampleName.find("vbf") != string::npos) return hqtWeight;
+  if (_sampleName.find("gg") == string::npos) return hqtWeight;
   if (_dataPeriod.find("2012") != string::npos){
     return hqtWeight;
   }else{

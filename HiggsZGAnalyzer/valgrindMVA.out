@@ -1,0 +1,775 @@
+==9642== Memcheck, a memory error detector
+==9642== Copyright (C) 2002-2010, and GNU GPL'd, by Julian Seward et al.
+==9642== Using Valgrind-3.6.1 and LibVEX; rerun with -h for copyright info
+==9642== Command: /uscmst1/prod/sw/cms/slc5_amd64_gcc462/cms/cmssw-patch/CMSSW_5_3_8_patch1/external/slc5_amd64_gcc462/bin/../../../../../../lcg/root/5.32.00-cms21/bin/root.exe -l -b -q runMvaTester.C
+==9642== 
+
+Processing runMvaTester.C...
+Info in <TUnixSystem::ACLiC>: creating shared library /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/../plugins/EGammaMvaEleEstimator_cc.so
+Info in <TUnixSystem::ACLiC>: creating shared library /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/./mvaTester_C.so
+--- Reader                   : Booking "BDT" of type "BDT" from ../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat1.weights.xml.
+--- MethodBase               : Reading weight file: ../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat1.weights.xml
+--- BDT                      : Read method "BDT" of type "BDT"
+--- BDT                      : MVA method was trained with TMVA Version: 4.0.7
+--- BDT                      : MVA method was trained with ROOT Version: 5.27/06
+--- Reader                   : Booked classifier "BDT" of type: "BDT"
+MVABin 0 : MethodName = BDT , type == 0 , Load weights file : ../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat1.weights.xml
+--- Reader                   : Booking "BDT" of type "BDT" from ../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat2.weights.xml.
+--- MethodBase               : Reading weight file: ../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat2.weights.xml
+--- BDT                      : Read method "BDT" of type "BDT"
+--- BDT                      : MVA method was trained with TMVA Version: 4.0.7
+--- BDT                      : MVA method was trained with ROOT Version: 5.27/06
+--- Reader                   : Booked classifier "BDT" of type: "BDT"
+MVABin 1 : MethodName = BDT , type == 0 , Load weights file : ../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat2.weights.xml
+--- Reader                   : Booking "BDT" of type "BDT" from ../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat3.weights.xml.
+--- MethodBase               : Reading weight file: ../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat3.weights.xml
+--- BDT                      : Read method "BDT" of type "BDT"
+--- BDT                      : MVA method was trained with TMVA Version: 4.0.7
+--- BDT                      : MVA method was trained with ROOT Version: 5.27/06
+--- Reader                   : Booked classifier "BDT" of type: "BDT"
+MVABin 2 : MethodName = BDT , type == 0 , Load weights file : ../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat3.weights.xml
+--- Reader                   : Booking "BDT" of type "BDT" from ../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat4.weights.xml.
+--- MethodBase               : Reading weight file: ../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat4.weights.xml
+--- BDT                      : Read method "BDT" of type "BDT"
+--- BDT                      : MVA method was trained with TMVA Version: 4.0.7
+--- BDT                      : MVA method was trained with ROOT Version: 5.27/06
+--- Reader                   : Booked classifier "BDT" of type: "BDT"
+MVABin 3 : MethodName = BDT , type == 0 , Load weights file : ../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat4.weights.xml
+--- Reader                   : Booking "BDT" of type "BDT" from ../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat5.weights.xml.
+--- MethodBase               : Reading weight file: ../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat5.weights.xml
+--- BDT                      : Read method "BDT" of type "BDT"
+--- BDT                      : MVA method was trained with TMVA Version: 4.0.7
+--- BDT                      : MVA method was trained with ROOT Version: 5.27/06
+--- Reader                   : Booked classifier "BDT" of type: "BDT"
+MVABin 4 : MethodName = BDT , type == 0 , Load weights file : ../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat5.weights.xml
+--- Reader                   : Booking "BDT" of type "BDT" from ../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat6.weights.xml.
+--- MethodBase               : Reading weight file: ../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat6.weights.xml
+--- BDT                      : Read method "BDT" of type "BDT"
+--- BDT                      : MVA method was trained with TMVA Version: 4.0.7
+--- BDT                      : MVA method was trained with ROOT Version: 5.27/06
+--- Reader                   : Booked classifier "BDT" of type: "BDT"
+MVABin 5 : MethodName = BDT , type == 0 , Load weights file : ../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat6.weights.xml
+Electron ID MVA Completed
+that's it
+
+
+Done!
+CPU Time : 1.07
+RealTime : 1.06933
+
+==9642== 
+==9642== HEAP SUMMARY:
+==9642==     in use at exit: 17,646,628 bytes in 170,467 blocks
+==9642==   total heap usage: 4,961,190 allocs, 4,790,723 frees, 193,311,791 bytes allocated
+==9642== 
+==9642== 27 bytes in 1 blocks are possibly lost in loss record 18,013 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB1CEA80: _GLOBAL__sub_I_MethodLD.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0x343A40D45A: call_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D564: _dl_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A411003: dl_open_worker (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D0E5: _dl_catch_error (in /lib64/ld-2.5.so)
+==9642== 
+==9642== 27 bytes in 1 blocks are possibly lost in loss record 18,014 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB1B2460: _GLOBAL__sub_I_MethodDT.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0x343A40D45A: call_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D564: _dl_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A411003: dl_open_worker (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D0E5: _dl_catch_error (in /lib64/ld-2.5.so)
+==9642== 
+==9642== 28 bytes in 1 blocks are possibly lost in loss record 18,046 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB200310: _GLOBAL__sub_I_MethodSVM.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0x343A40D45A: call_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D564: _dl_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A411003: dl_open_worker (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D0E5: _dl_catch_error (in /lib64/ld-2.5.so)
+==9642== 
+==9642== 28 bytes in 1 blocks are possibly lost in loss record 18,047 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB1E13C0: _GLOBAL__sub_I_MethodMLP.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0x343A40D45A: call_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D564: _dl_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A411003: dl_open_worker (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D0E5: _dl_catch_error (in /lib64/ld-2.5.so)
+==9642== 
+==9642== 28 bytes in 1 blocks are possibly lost in loss record 18,048 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB1CA4C0: _GLOBAL__sub_I_MethodKNN.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0x343A40D45A: call_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D564: _dl_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A411003: dl_open_worker (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D0E5: _dl_catch_error (in /lib64/ld-2.5.so)
+==9642== 
+==9642== 28 bytes in 1 blocks are possibly lost in loss record 18,049 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB1B8140: _GLOBAL__sub_I_MethodFDA.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0x343A40D45A: call_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D564: _dl_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A411003: dl_open_worker (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D0E5: _dl_catch_error (in /lib64/ld-2.5.so)
+==9642== 
+==9642== 28 bytes in 1 blocks are possibly lost in loss record 18,050 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB16A4A0: _GLOBAL__sub_I_MethodBDT.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0x343A40D45A: call_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D564: _dl_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A411003: dl_open_worker (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D0E5: _dl_catch_error (in /lib64/ld-2.5.so)
+==9642== 
+==9642== 28 bytes in 1 blocks are possibly lost in loss record 18,051 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB17916D: TMVA::MethodBase::ReadStateFromXML(void*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB17C776: TMVA::MethodBase::ReadStateFromFile() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB230350: TMVA::Reader::BookMVA(TMVA::Types::EMVA, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB232F4E: TMVA::Reader::BookMVA(TString const&, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB97DB4D: EGammaMvaEleEstimator::initialize(std::string, EGammaMvaEleEstimator::MVAType, bool, std::vector<std::string, std::allocator<std::string> >) (EGammaMvaEleEstimator.cc:328)
+==9642==    by 0xC961767: mvaTester() (mvaTester.C:28)
+==9642==    by 0xC96195E: G__mvaTester_C_ACLiC_dict__0_4834(G__value*, char const*, G__param*, int) (mvaTester_C_ACLiC_dict.cxx:71)
+==9642==    by 0x5008785: Cint::G__ExceptionWrapper(int (*)(G__value*, char const*, G__param*, int), G__value*, char*, G__param*, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCint.so)
+==9642== 
+==9642== 29 bytes in 1 blocks are possibly lost in loss record 18,069 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB20D551: TMVA::MsgLogger::InitMaps() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB20F5F3: TMVA::MsgLogger::MsgLogger(std::string const&, TMVA::EMsgType) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB27DB90: TMVA::Types::Types() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB27DC64: TMVA::Types::Instance() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB20444F: _GLOBAL__sub_I_MethodTMlpANN.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642== 
+==9642== 29 bytes in 1 blocks are possibly lost in loss record 18,070 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB1AFC00: _GLOBAL__sub_I_MethodCuts.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0x343A40D45A: call_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D564: _dl_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A411003: dl_open_worker (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D0E5: _dl_catch_error (in /lib64/ld-2.5.so)
+==9642== 
+==9642== 30 bytes in 1 blocks are possibly lost in loss record 18,091 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB27DB71: TMVA::Types::Types() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB27DC64: TMVA::Types::Instance() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB20444F: _GLOBAL__sub_I_MethodTMlpANN.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0x343A40D45A: call_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D564: _dl_init (in /lib64/ld-2.5.so)
+==9642== 
+==9642== 30 bytes in 1 blocks are possibly lost in loss record 18,092 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB20D448: TMVA::MsgLogger::InitMaps() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB20F5F3: TMVA::MsgLogger::MsgLogger(std::string const&, TMVA::EMsgType) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB27DB90: TMVA::Types::Types() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB27DC64: TMVA::Types::Instance() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB20444F: _GLOBAL__sub_I_MethodTMlpANN.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642== 
+==9642== 30 bytes in 1 blocks are possibly lost in loss record 18,093 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB20D771: TMVA::MsgLogger::InitMaps() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB20F5F3: TMVA::MsgLogger::MsgLogger(std::string const&, TMVA::EMsgType) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB27DB90: TMVA::Types::Types() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB27DC64: TMVA::Types::Instance() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB20444F: _GLOBAL__sub_I_MethodTMlpANN.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642== 
+==9642== 30 bytes in 1 blocks are possibly lost in loss record 18,094 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB20D881: TMVA::MsgLogger::InitMaps() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB20F5F3: TMVA::MsgLogger::MsgLogger(std::string const&, TMVA::EMsgType) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB27DB90: TMVA::Types::Types() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB27DC64: TMVA::Types::Instance() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB20444F: _GLOBAL__sub_I_MethodTMlpANN.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642== 
+==9642== 30 bytes in 1 blocks are possibly lost in loss record 18,095 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB20DBB1: TMVA::MsgLogger::InitMaps() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB20F5F3: TMVA::MsgLogger::MsgLogger(std::string const&, TMVA::EMsgType) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB27DB90: TMVA::Types::Types() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB27DC64: TMVA::Types::Instance() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB20444F: _GLOBAL__sub_I_MethodTMlpANN.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642== 
+==9642== 30 bytes in 1 blocks are possibly lost in loss record 18,096 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB20DF11: TMVA::MsgLogger::InitMaps() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB20F5F3: TMVA::MsgLogger::MsgLogger(std::string const&, TMVA::EMsgType) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB27DB90: TMVA::Types::Types() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB27DC64: TMVA::Types::Instance() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB20444F: _GLOBAL__sub_I_MethodTMlpANN.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642== 
+==9642== 30 bytes in 1 blocks are possibly lost in loss record 18,097 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB20E151: TMVA::MsgLogger::InitMaps() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB20F5F3: TMVA::MsgLogger::MsgLogger(std::string const&, TMVA::EMsgType) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB27DB90: TMVA::Types::Types() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB27DC64: TMVA::Types::Instance() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB20444F: _GLOBAL__sub_I_MethodTMlpANN.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642== 
+==9642== 30 bytes in 1 blocks are possibly lost in loss record 18,098 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB1F1200: _GLOBAL__sub_I_MethodPDERS.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0x343A40D45A: call_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D564: _dl_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A411003: dl_open_worker (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D0E5: _dl_catch_error (in /lib64/ld-2.5.so)
+==9642== 
+==9642== 30 bytes in 1 blocks are possibly lost in loss record 18,099 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB18C910: _GLOBAL__sub_I_MethodBoost.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0x343A40D45A: call_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D564: _dl_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A411003: dl_open_worker (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D0E5: _dl_catch_error (in /lib64/ld-2.5.so)
+==9642== 
+==9642== 30 bytes in 1 blocks are possibly lost in loss record 18,100 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB26803A: TMVA::Tools::Tools() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB268154: TMVA::Tools::Instance() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0FE113: TMVA::Configurable::Configurable(TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB2329A3: TMVA::Reader::Reader(TString const&, bool) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB97B05D: EGammaMvaEleEstimator::initialize(std::string, EGammaMvaEleEstimator::MVAType, bool, std::vector<std::string, std::allocator<std::string> >) (EGammaMvaEleEstimator.cc:107)
+==9642==    by 0xC961767: mvaTester() (mvaTester.C:28)
+==9642==    by 0xC96195E: G__mvaTester_C_ACLiC_dict__0_4834(G__value*, char const*, G__param*, int) (mvaTester_C_ACLiC_dict.cxx:71)
+==9642==    by 0x5008785: Cint::G__ExceptionWrapper(int (*)(G__value*, char const*, G__param*, int), G__value*, char*, G__param*, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCint.so)
+==9642== 
+==9642== 31 bytes in 1 blocks are possibly lost in loss record 18,130 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB20D991: TMVA::MsgLogger::InitMaps() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB20F5F3: TMVA::MsgLogger::MsgLogger(std::string const&, TMVA::EMsgType) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB27DB90: TMVA::Types::Types() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB27DC64: TMVA::Types::Instance() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB20444F: _GLOBAL__sub_I_MethodTMlpANN.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642== 
+==9642== 31 bytes in 1 blocks are possibly lost in loss record 18,131 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB1BCD10: _GLOBAL__sub_I_MethodFisher.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0x343A40D45A: call_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D564: _dl_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A411003: dl_open_worker (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D0E5: _dl_catch_error (in /lib64/ld-2.5.so)
+==9642== 
+==9642== 31 bytes in 1 blocks are possibly lost in loss record 18,132 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB215E33: TMVA::OptionBase::OptionBase(TString const&, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB13E113: TMVA::OptionBase* TMVA::Configurable::DeclareOptionRef<bool>(bool&, TString const&, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB231D1A: TMVA::Reader::DeclareOptions() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB232B0F: TMVA::Reader::Reader(TString const&, bool) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB97B05D: EGammaMvaEleEstimator::initialize(std::string, EGammaMvaEleEstimator::MVAType, bool, std::vector<std::string, std::allocator<std::string> >) (EGammaMvaEleEstimator.cc:107)
+==9642==    by 0xC961767: mvaTester() (mvaTester.C:28)
+==9642==    by 0xC96195E: G__mvaTester_C_ACLiC_dict__0_4834(G__value*, char const*, G__param*, int) (mvaTester_C_ACLiC_dict.cxx:71)
+==9642==    by 0x5008785: Cint::G__ExceptionWrapper(int (*)(G__value*, char const*, G__param*, int), G__value*, char*, G__param*, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCint.so)
+==9642== 
+==9642== 31 bytes in 1 blocks are possibly lost in loss record 18,133 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB0FDC05: TMVA::Config::Config() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0FDDA4: TMVA::Config::Instance() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB100A57: TMVA::Configurable::ParseOptions() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB232B17: TMVA::Reader::Reader(TString const&, bool) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB97B05D: EGammaMvaEleEstimator::initialize(std::string, EGammaMvaEleEstimator::MVAType, bool, std::vector<std::string, std::allocator<std::string> >) (EGammaMvaEleEstimator.cc:107)
+==9642==    by 0xC961767: mvaTester() (mvaTester.C:28)
+==9642==    by 0xC96195E: G__mvaTester_C_ACLiC_dict__0_4834(G__value*, char const*, G__param*, int) (mvaTester_C_ACLiC_dict.cxx:71)
+==9642==    by 0x5008785: Cint::G__ExceptionWrapper(int (*)(G__value*, char const*, G__param*, int), G__value*, char*, G__param*, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCint.so)
+==9642== 
+==9642== 32 bytes in 1 blocks are possibly lost in loss record 21,816 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB204410: _GLOBAL__sub_I_MethodTMlpANN.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0x343A40D45A: call_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D564: _dl_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A411003: dl_open_worker (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D0E5: _dl_catch_error (in /lib64/ld-2.5.so)
+==9642== 
+==9642== 32 bytes in 1 blocks are possibly lost in loss record 21,817 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB20D32D: TMVA::MsgLogger::InitMaps() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB20F5F3: TMVA::MsgLogger::MsgLogger(std::string const&, TMVA::EMsgType) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB27DB90: TMVA::Types::Types() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB27DC64: TMVA::Types::Instance() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB20444F: _GLOBAL__sub_I_MethodTMlpANN.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642== 
+==9642== 32 bytes in 1 blocks are possibly lost in loss record 21,818 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB20D661: TMVA::MsgLogger::InitMaps() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB20F5F3: TMVA::MsgLogger::MsgLogger(std::string const&, TMVA::EMsgType) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB27DB90: TMVA::Types::Types() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB27DC64: TMVA::Types::Instance() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB20444F: _GLOBAL__sub_I_MethodTMlpANN.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642== 
+==9642== 32 bytes in 1 blocks are possibly lost in loss record 21,819 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB20DDF1: TMVA::MsgLogger::InitMaps() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB20F5F3: TMVA::MsgLogger::MsgLogger(std::string const&, TMVA::EMsgType) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB27DB90: TMVA::Types::Types() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB27DC64: TMVA::Types::Instance() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB20444F: _GLOBAL__sub_I_MethodTMlpANN.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642== 
+==9642== 32 bytes in 1 blocks are possibly lost in loss record 21,820 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB1F8F30: _GLOBAL__sub_I_MethodRuleFit.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0x343A40D45A: call_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D564: _dl_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A411003: dl_open_worker (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D0E5: _dl_catch_error (in /lib64/ld-2.5.so)
+==9642== 
+==9642== 32 bytes in 1 blocks are possibly lost in loss record 21,821 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB1EAF10: _GLOBAL__sub_I_MethodPDEFoam.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0x343A40D45A: call_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D564: _dl_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A411003: dl_open_worker (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D0E5: _dl_catch_error (in /lib64/ld-2.5.so)
+==9642== 
+==9642== 32 bytes in 1 blocks are possibly lost in loss record 21,822 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB1C14D0: _GLOBAL__sub_I_MethodHMatrix.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0x343A40D45A: call_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D564: _dl_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A411003: dl_open_worker (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D0E5: _dl_catch_error (in /lib64/ld-2.5.so)
+==9642== 
+==9642== 33 bytes in 1 blocks are possibly lost in loss record 22,003 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB19B880: _GLOBAL__sub_I_MethodCategory.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0x343A40D45A: call_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D564: _dl_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A411003: dl_open_worker (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D0E5: _dl_catch_error (in /lib64/ld-2.5.so)
+==9642== 
+==9642== 33 bytes in 1 blocks are possibly lost in loss record 22,004 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB193960: _GLOBAL__sub_I_MethodCFMlpANN.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0x343A40D45A: call_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D564: _dl_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A411003: dl_open_worker (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D0E5: _dl_catch_error (in /lib64/ld-2.5.so)
+==9642== 
+==9642== 34 bytes in 1 blocks are possibly lost in loss record 22,023 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB19EC80: _GLOBAL__sub_I_MethodCommittee.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0x343A40D45A: call_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D564: _dl_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A411003: dl_open_worker (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D0E5: _dl_catch_error (in /lib64/ld-2.5.so)
+==9642== 
+==9642== 35 bytes in 1 blocks are possibly lost in loss record 22,040 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB20E031: TMVA::MsgLogger::InitMaps() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB20F5F3: TMVA::MsgLogger::MsgLogger(std::string const&, TMVA::EMsgType) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB27DB90: TMVA::Types::Types() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB27DC64: TMVA::Types::Instance() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB20444F: _GLOBAL__sub_I_MethodTMlpANN.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642== 
+==9642== 35 bytes in 1 blocks are possibly lost in loss record 22,041 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB1D6AC0: _GLOBAL__sub_I_MethodLikelihood.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0x343A40D45A: call_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D564: _dl_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A411003: dl_open_worker (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D0E5: _dl_catch_error (in /lib64/ld-2.5.so)
+==9642== 
+==9642== 35 bytes in 1 blocks are possibly lost in loss record 22,042 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB0F95A3: TMVA::BinaryTree::BinaryTree() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB125018: TMVA::DecisionTree::DecisionTree() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB1278FB: TMVA::DecisionTree::CreateFromXML(void*, unsigned int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB15FE8D: TMVA::MethodBDT::ReadWeightsFromXML(void*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB17A1BF: TMVA::MethodBase::ReadStateFromXML(void*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB17C776: TMVA::MethodBase::ReadStateFromFile() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB230350: TMVA::Reader::BookMVA(TMVA::Types::EMVA, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB232F4E: TMVA::Reader::BookMVA(TString const&, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642== 
+==9642== 38 bytes in 1 blocks are possibly lost in loss record 22,121 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB272BA8: TMVA::TransformationHandler::SetCallerName(TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB179BF9: TMVA::MethodBase::ReadStateFromXML(void*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB17C776: TMVA::MethodBase::ReadStateFromFile() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB230350: TMVA::Reader::BookMVA(TMVA::Types::EMVA, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB232F4E: TMVA::Reader::BookMVA(TString const&, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB97DB4D: EGammaMvaEleEstimator::initialize(std::string, EGammaMvaEleEstimator::MVAType, bool, std::vector<std::string, std::allocator<std::string> >) (EGammaMvaEleEstimator.cc:328)
+==9642==    by 0xC961767: mvaTester() (mvaTester.C:28)
+==9642==    by 0xC96195E: G__mvaTester_C_ACLiC_dict__0_4834(G__value*, char const*, G__param*, int) (mvaTester_C_ACLiC_dict.cxx:71)
+==9642== 
+==9642== 40 bytes in 1 blocks are possibly lost in loss record 25,604 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB1842A0: _GLOBAL__sub_I_MethodBayesClassifier.cxx (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB426D25: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0D3952: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB044E9B: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0x343A40D45A: call_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D564: _dl_init (in /lib64/ld-2.5.so)
+==9642==    by 0x343A411003: dl_open_worker (in /lib64/ld-2.5.so)
+==9642==    by 0x343A40D0E5: _dl_catch_error (in /lib64/ld-2.5.so)
+==9642== 
+==9642== 41 bytes in 1 blocks are possibly lost in loss record 25,627 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==9642==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==9642==    by 0xB12D053: TMVA::DecisionTreeNode::DecisionTreeNode() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB12B019: TMVA::DecisionTree::CreateNode(unsigned int) const (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0F99DE: TMVA::BinaryTree::ReadXML(void*, unsigned int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB12790A: TMVA::DecisionTree::CreateFromXML(void*, unsigned int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB15FE8D: TMVA::MethodBDT::ReadWeightsFromXML(void*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB17A1BF: TMVA::MethodBase::ReadStateFromXML(void*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB17C776: TMVA::MethodBase::ReadStateFromFile() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB230350: TMVA::Reader::BookMVA(TMVA::Types::EMVA, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642== 
+==9642== 1,049 bytes in 1 blocks are possibly lost in loss record 42,323 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==9642==    by 0x5AB44AA: std::string::_Rep::_M_clone(std::allocator<char> const&, unsigned long) (basic_string.tcc:631)
+==9642==    by 0x5AB458F: std::string::reserve(unsigned long) (basic_string.tcc:512)
+==9642==    by 0x5AAD8CB: std::basic_stringbuf<char, std::char_traits<char>, std::allocator<char> >::overflow(int) (sstream.tcc:116)
+==9642==    by 0x5AB1EC4: std::basic_streambuf<char, std::char_traits<char> >::xsputn(char const*, long) (streambuf.tcc:99)
+==9642==    by 0x5AA8847: std::ostream::write(char const*, long) (streambuf:431)
+==9642==    by 0x49A52B3: operator<<(std::ostream&, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCore.so)
+==9642==    by 0xB0FFE69: TMVA::Configurable::ParseOptions() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB179C69: TMVA::MethodBase::ReadStateFromXML(void*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB17C776: TMVA::MethodBase::ReadStateFromFile() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB230350: TMVA::Reader::BookMVA(TMVA::Types::EMVA, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642== 
+==9642== 2,464 bytes in 22 blocks are possibly lost in loss record 42,370 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0xB12B00E: TMVA::DecisionTree::CreateNode(unsigned int) const (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0F99DE: TMVA::BinaryTree::ReadXML(void*, unsigned int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB12790A: TMVA::DecisionTree::CreateFromXML(void*, unsigned int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB15FE8D: TMVA::MethodBDT::ReadWeightsFromXML(void*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB17A1BF: TMVA::MethodBase::ReadStateFromXML(void*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB17C776: TMVA::MethodBase::ReadStateFromFile() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB230350: TMVA::Reader::BookMVA(TMVA::Types::EMVA, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB232F4E: TMVA::Reader::BookMVA(TString const&, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB97DB4D: EGammaMvaEleEstimator::initialize(std::string, EGammaMvaEleEstimator::MVAType, bool, std::vector<std::string, std::allocator<std::string> >) (EGammaMvaEleEstimator.cc:328)
+==9642==    by 0xC961767: mvaTester() (mvaTester.C:28)
+==9642==    by 0xC96195E: G__mvaTester_C_ACLiC_dict__0_4834(G__value*, char const*, G__param*, int) (mvaTester_C_ACLiC_dict.cxx:71)
+==9642== 
+==9642== 3,264 bytes in 17 blocks are possibly lost in loss record 42,385 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0xB1278F0: TMVA::DecisionTree::CreateFromXML(void*, unsigned int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB15FE8D: TMVA::MethodBDT::ReadWeightsFromXML(void*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB17A1BF: TMVA::MethodBase::ReadStateFromXML(void*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB17C776: TMVA::MethodBase::ReadStateFromFile() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB230350: TMVA::Reader::BookMVA(TMVA::Types::EMVA, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB232F4E: TMVA::Reader::BookMVA(TString const&, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB97DB4D: EGammaMvaEleEstimator::initialize(std::string, EGammaMvaEleEstimator::MVAType, bool, std::vector<std::string, std::allocator<std::string> >) (EGammaMvaEleEstimator.cc:328)
+==9642==    by 0xC961767: mvaTester() (mvaTester.C:28)
+==9642==    by 0xC96195E: G__mvaTester_C_ACLiC_dict__0_4834(G__value*, char const*, G__param*, int) (mvaTester_C_ACLiC_dict.cxx:71)
+==9642==    by 0x5008785: Cint::G__ExceptionWrapper(int (*)(G__value*, char const*, G__param*, int), G__value*, char*, G__param*, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCint.so)
+==9642==    by 0x50B2540: G__execute_call (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCint.so)
+==9642== 
+==9642== 6,272 bytes in 56 blocks are possibly lost in loss record 42,411 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0xB12EA0E: TMVA::DecisionTreeNode::CreateNode() const (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB210CDF: TMVA::Node::ReadXML(void*, unsigned int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0F9A02: TMVA::BinaryTree::ReadXML(void*, unsigned int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB12790A: TMVA::DecisionTree::CreateFromXML(void*, unsigned int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB15FE8D: TMVA::MethodBDT::ReadWeightsFromXML(void*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB17A1BF: TMVA::MethodBase::ReadStateFromXML(void*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB17C776: TMVA::MethodBase::ReadStateFromFile() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB230350: TMVA::Reader::BookMVA(TMVA::Types::EMVA, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB232F4E: TMVA::Reader::BookMVA(TString const&, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB97DB4D: EGammaMvaEleEstimator::initialize(std::string, EGammaMvaEleEstimator::MVAType, bool, std::vector<std::string, std::allocator<std::string> >) (EGammaMvaEleEstimator.cc:328)
+==9642==    by 0xC961767: mvaTester() (mvaTester.C:28)
+==9642== 
+==9642== 7,392 bytes in 66 blocks are possibly lost in loss record 42,419 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0xB12EA0E: TMVA::DecisionTreeNode::CreateNode() const (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB210CDF: TMVA::Node::ReadXML(void*, unsigned int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB210CF0: TMVA::Node::ReadXML(void*, unsigned int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0F9A02: TMVA::BinaryTree::ReadXML(void*, unsigned int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB12790A: TMVA::DecisionTree::CreateFromXML(void*, unsigned int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB15FE8D: TMVA::MethodBDT::ReadWeightsFromXML(void*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB17A1BF: TMVA::MethodBase::ReadStateFromXML(void*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB17C776: TMVA::MethodBase::ReadStateFromFile() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB230350: TMVA::Reader::BookMVA(TMVA::Types::EMVA, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB232F4E: TMVA::Reader::BookMVA(TString const&, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB97DB4D: EGammaMvaEleEstimator::initialize(std::string, EGammaMvaEleEstimator::MVAType, bool, std::vector<std::string, std::allocator<std::string> >) (EGammaMvaEleEstimator.cc:328)
+==9642== 
+==9642== 1,550,451 (32 direct, 1,550,419 indirect) bytes in 1 blocks are definitely lost in loss record 42,489 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x4A2C5F7: TList::NewLink(TObject*, TObjLink*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCore.so)
+==9642==    by 0x4A2B2A0: TList::AddLast(TObject*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCore.so)
+==9642==    by 0xB13E162: TMVA::OptionBase* TMVA::Configurable::DeclareOptionRef<bool>(bool&, TString const&, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB15BCF1: TMVA::MethodBDT::DeclareOptions() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB180386: TMVA::MethodBase::SetupMethod() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB23033B: TMVA::Reader::BookMVA(TMVA::Types::EMVA, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB232F4E: TMVA::Reader::BookMVA(TString const&, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB97DB4D: EGammaMvaEleEstimator::initialize(std::string, EGammaMvaEleEstimator::MVAType, bool, std::vector<std::string, std::allocator<std::string> >) (EGammaMvaEleEstimator.cc:328)
+==9642==    by 0xC961767: mvaTester() (mvaTester.C:28)
+==9642==    by 0xC96195E: G__mvaTester_C_ACLiC_dict__0_4834(G__value*, char const*, G__param*, int) (mvaTester_C_ACLiC_dict.cxx:71)
+==9642==    by 0x5008785: Cint::G__ExceptionWrapper(int (*)(G__value*, char const*, G__param*, int), G__value*, char*, G__param*, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCint.so)
+==9642== 
+==9642== 1,551,107 (32 direct, 1,551,075 indirect) bytes in 1 blocks are definitely lost in loss record 42,490 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x4A2C5F7: TList::NewLink(TObject*, TObjLink*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCore.so)
+==9642==    by 0x4A2B2A0: TList::AddLast(TObject*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCore.so)
+==9642==    by 0xB13E162: TMVA::OptionBase* TMVA::Configurable::DeclareOptionRef<bool>(bool&, TString const&, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB15C177: TMVA::MethodBDT::DeclareOptions() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB180386: TMVA::MethodBase::SetupMethod() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB23033B: TMVA::Reader::BookMVA(TMVA::Types::EMVA, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB232F4E: TMVA::Reader::BookMVA(TString const&, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB97DB4D: EGammaMvaEleEstimator::initialize(std::string, EGammaMvaEleEstimator::MVAType, bool, std::vector<std::string, std::allocator<std::string> >) (EGammaMvaEleEstimator.cc:328)
+==9642==    by 0xC961767: mvaTester() (mvaTester.C:28)
+==9642==    by 0xC96195E: G__mvaTester_C_ACLiC_dict__0_4834(G__value*, char const*, G__param*, int) (mvaTester_C_ACLiC_dict.cxx:71)
+==9642==    by 0x5008785: Cint::G__ExceptionWrapper(int (*)(G__value*, char const*, G__param*, int), G__value*, char*, G__param*, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCint.so)
+==9642== 
+==9642== 1,551,123 (32 direct, 1,551,091 indirect) bytes in 1 blocks are definitely lost in loss record 42,491 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x4A2C5F7: TList::NewLink(TObject*, TObjLink*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCore.so)
+==9642==    by 0x4A2B2A0: TList::AddLast(TObject*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCore.so)
+==9642==    by 0xB142A2E: TMVA::OptionBase* TMVA::Configurable::DeclareOptionRef<double>(double&, TString const&, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB15BAEA: TMVA::MethodBDT::DeclareOptions() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB180386: TMVA::MethodBase::SetupMethod() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB23033B: TMVA::Reader::BookMVA(TMVA::Types::EMVA, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB232F4E: TMVA::Reader::BookMVA(TString const&, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB97DB4D: EGammaMvaEleEstimator::initialize(std::string, EGammaMvaEleEstimator::MVAType, bool, std::vector<std::string, std::allocator<std::string> >) (EGammaMvaEleEstimator.cc:328)
+==9642==    by 0xC961767: mvaTester() (mvaTester.C:28)
+==9642==    by 0xC96195E: G__mvaTester_C_ACLiC_dict__0_4834(G__value*, char const*, G__param*, int) (mvaTester_C_ACLiC_dict.cxx:71)
+==9642==    by 0x5008785: Cint::G__ExceptionWrapper(int (*)(G__value*, char const*, G__param*, int), G__value*, char*, G__param*, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCint.so)
+==9642== 
+==9642== 1,551,683 (1,640 direct, 1,550,043 indirect) bytes in 1 blocks are definitely lost in loss record 42,492 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x49EAD68: TStorage::ObjectAlloc(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCore.so)
+==9642==    by 0xB15DBEC: (anonymous namespace)::CreateMethodBDT(TString const&, TString const&, TMVA::DataSetInfo&, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB0FCB53: TMVA::ClassifierFactory::Create(std::string const&, TMVA::DataSetInfo&, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB2302D0: TMVA::Reader::BookMVA(TMVA::Types::EMVA, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB232F4E: TMVA::Reader::BookMVA(TString const&, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB97DB4D: EGammaMvaEleEstimator::initialize(std::string, EGammaMvaEleEstimator::MVAType, bool, std::vector<std::string, std::allocator<std::string> >) (EGammaMvaEleEstimator.cc:328)
+==9642==    by 0xC961767: mvaTester() (mvaTester.C:28)
+==9642==    by 0xC96195E: G__mvaTester_C_ACLiC_dict__0_4834(G__value*, char const*, G__param*, int) (mvaTester_C_ACLiC_dict.cxx:71)
+==9642==    by 0x5008785: Cint::G__ExceptionWrapper(int (*)(G__value*, char const*, G__param*, int), G__value*, char*, G__param*, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCint.so)
+==9642==    by 0x50B2540: G__execute_call (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCint.so)
+==9642==    by 0x50B28FD: G__call_cppfunc (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCint.so)
+==9642== 
+==9642== 1,555,811 (144 direct, 1,555,667 indirect) bytes in 1 blocks are definitely lost in loss record 42,493 of 42,496
+==9642==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==9642==    by 0x49EAD68: TStorage::ObjectAlloc(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCore.so)
+==9642==    by 0xB13E102: TMVA::OptionBase* TMVA::Configurable::DeclareOptionRef<bool>(bool&, TString const&, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB17E8C1: TMVA::MethodBase::DeclareBaseOptions() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB18036E: TMVA::MethodBase::SetupMethod() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB23033B: TMVA::Reader::BookMVA(TMVA::Types::EMVA, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB232F4E: TMVA::Reader::BookMVA(TString const&, TString const&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTMVA.so)
+==9642==    by 0xB97DB4D: EGammaMvaEleEstimator::initialize(std::string, EGammaMvaEleEstimator::MVAType, bool, std::vector<std::string, std::allocator<std::string> >) (EGammaMvaEleEstimator.cc:328)
+==9642==    by 0xC961767: mvaTester() (mvaTester.C:28)
+==9642==    by 0xC96195E: G__mvaTester_C_ACLiC_dict__0_4834(G__value*, char const*, G__param*, int) (mvaTester_C_ACLiC_dict.cxx:71)
+==9642==    by 0x5008785: Cint::G__ExceptionWrapper(int (*)(G__value*, char const*, G__param*, int), G__value*, char*, G__param*, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCint.so)
+==9642==    by 0x50B2540: G__execute_call (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCint.so)
+==9642== 
+==9642== LEAK SUMMARY:
+==9642==    definitely lost: 1,880 bytes in 5 blocks
+==9642==    indirectly lost: 7,758,295 bytes in 60,824 blocks
+==9642==      possibly lost: 21,693 bytes in 202 blocks
+==9642==    still reachable: 7,744,066 bytes in 86,837 blocks
+==9642==         suppressed: 2,120,694 bytes in 22,599 blocks
+==9642== Reachable blocks (those to which a pointer was found) are not shown.
+==9642== To see them, rerun with: --leak-check=full --show-reachable=yes
+==9642== 
+==9642== For counts of detected and suppressed errors, rerun with: -v
+==9642== ERROR SUMMARY: 50 errors from 50 contexts (suppressed: 90 from 87)

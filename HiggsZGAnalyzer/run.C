@@ -40,10 +40,10 @@
 
     TChain* fChain = new TChain("ntupleProducer/eventTree");
 
-    ifstream sourceFiles("sourceFiles/ggM125_8TeV_pythia8_LO.txt");
+    ifstream sourceFiles("sourceFiles/DYJets.txt");
     string line;
     int  count = 0;
-    cout<<"Adding files from ggM125_8TeV_pythia8_LO to chain..."<<endl;
+    cout<<"Adding files from DYJets to chain..."<<endl;
 
     while (sourceFiles >> line) {
       if (count == 0 && line.find("dcache")==string::npos){
