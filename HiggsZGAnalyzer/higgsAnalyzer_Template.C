@@ -758,16 +758,16 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         photonsIDIso.push_back(*thisPhoton);
         if (engCor) photonsIDIsoUnCor.push_back(*clonePhoton);
       }
-      if (particleSelector->PassPhotonID(*thisPhoton, cuts->loosePhID) && particleSelector->PassPhotonIso(*thisPhoton, cuts->mediumPhIso, cuts->EAPho)){
+      else if (particleSelector->PassPhotonID(*thisPhoton, cuts->loosePhID) && particleSelector->PassPhotonIso(*thisPhoton, cuts->mediumPhIso, cuts->EAPho)){
         photonsLIDMIso.push_back(*thisPhoton);
       }
-      if (particleSelector->PassPhotonID(*thisPhoton, cuts->mediumPhID) && particleSelector->PassPhotonIso(*thisPhoton, cuts->loosePhIso, cuts->EAPho)){
+      else if (particleSelector->PassPhotonID(*thisPhoton, cuts->mediumPhID) && particleSelector->PassPhotonIso(*thisPhoton, cuts->loosePhIso, cuts->EAPho)){
         photonsMIDLIso.push_back(*thisPhoton);
       }
-      if (particleSelector->PassPhotonID(*thisPhoton, cuts->loosePhID) && particleSelector->PassPhotonIso(*thisPhoton, cuts->loosePhIso, cuts->EAPho)){
+      else if (particleSelector->PassPhotonID(*thisPhoton, cuts->loosePhID) && particleSelector->PassPhotonIso(*thisPhoton, cuts->loosePhIso, cuts->EAPho)){
         photonsLIDLIso.push_back(*thisPhoton);
       }
-      photonsNOIDIso.push_back(*thisPhoton);
+      else photonsNOIDIso.push_back(*thisPhoton);
 
 
 
@@ -1017,58 +1017,24 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   }
 
 
-
-
-
   ////////////////////////////
   //**ZGamma** Gamma Energy //
   ////////////////////////////
 
+  TLorentzVector GP4_LIDMIso;
+  TLorentzVector GP4_MIDLIso;
+  TLorentzVector GP4_LIDLIso;
+  TLorentzVector GP4_NoIDIso;
   vector<TCPhoton> photonVector = photonsIDIso;
-  if(selection == "mumuGamma" || selection == "eeGamma")
-  {
 
-    if (photonVector.size() < 1) return kTRUE;
-    //if (photonVector.size() > 1) cout<<"more than one good photon?! no fuckin way man"<<endl;
-    //if (R9switch && (R9Cor < R9Cut)) return kTRUE;
+  if (photonVector.size() < 1) return kTRUE;
+  bool goodPhoton = particleSelector->FindGoodPhoton(photonVector, GP4, lepton1, lepton2, R9Cor, GP4scEta);
 
-    bool goodPhoton = false;
-    for (UInt_t i = 0; i<photonVector.size(); i++){
+  if(!goodPhoton) return kTRUE;
+  //cout<<GP4.Pt()<<endl;
 
-      GP4 = photonVector[i];    // define GP4
-      GP4scEta = photonVector[i].SCEta();
-      if (eventNumber == EVENTNUMBER) cout<<"dr1: "<<GP4.DeltaR(lepton1)<<" dr2: "<<GP4.DeltaR(lepton2)<<endl<<" pt/M: "<<GP4.Pt()/(GP4+ZP4).M()<<endl;
-      if ((GP4.DeltaR(lepton1)<cuts->dR || GP4.DeltaR(lepton2)<cuts->dR)) continue;
-      if (GP4.Pt()/(GP4+ZP4).M() > cuts->gPtOverMass && GP4.Pt() > cuts->gPt) goodPhoton = true;
-      if(goodPhoton){
-        R9 = photonVector[i].R9();
-        R9Cor = R9;
-        if (doR9Cor){
-          if (suffix != "DATA"){
-            if (period == "2011"){
-              if (fabs(photonVector[i].SCEta()) < 1.479){
-                R9Cor = R9*1.0048;
-              }else{
-                R9Cor = R9*1.00492;
-              }
-            } else if (period == "2012"){
-              if (fabs(photonVector[i].SCEta()) < 1.479){
-                R9Cor = R9*1.0045 + 0.0010;
-              }else{
-                R9Cor = R9*1.0086 - 0.0007;
-              }
-            }
-          }
-          break;
-        }
-      }
-    }
-    if(!goodPhoton) return kTRUE;
-    //cout<<GP4.Pt()<<endl;
-
-    if (doScaleFactors) eventWeight   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
-    eventWeightPho   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
-  }
+  if (doScaleFactors) eventWeight   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
+  eventWeightPho   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
 
   hm->fill1DHist(10,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");
   hm->fill1DHist(10,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
