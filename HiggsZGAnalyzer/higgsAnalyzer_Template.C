@@ -66,8 +66,6 @@ void higgsAnalyzer::Begin(TTree * tree)
   trainingFile.reset(new TFile("higgsTraining_DATANAME_SELECTION_COUNT.root", "RECREATE"));
   sampleFile.reset(new TFile("higgsSample_DATANAME_SELECTION_COUNT.root", "RECREATE"));
   higgsFile.reset(new TFile("higgsFile_DATANAME_SELECTION_COUNT.root", "RECREATE"));
-  eleSmearFile.reset(new TFile("eleSmearFile_DATANAME_SELECTION_COUNT.root", "RECREATE"));
-  eleIDISOFile.reset(new TFile("eleIDISOFile_DATANAME_SELECTION_COUNT.root", "RECREATE"));
   m_llgFile.reset(new TFile("m_llgFile_DATANAME_SELECTION_COUNT.root","RECREATE"));
 
   trainingFile->cd();
@@ -79,10 +77,6 @@ void higgsAnalyzer::Begin(TTree * tree)
   m_llgChain.reset(new TTree("m_llg_SUFFIX","three body mass values"));
 
   initializeEfficiencyWeights( "otherHistos/elsf2011.root", "otherHistos/elsf2012.root");
-  eleSmearFile->cd();
-  hmEleSmear.reset(new HistManager(eleSmearFile.get()));
-  eleIDISOFile->cd();
-  hmEleIDISO.reset(new HistManager(eleIDISOFile.get()));
 
   higgsFile->cd();
   hmHiggs.reset(new HistManager(higgsFile.get()));
@@ -1388,91 +1382,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   DileptonBasicPlots(ZP4, eventWeight);
 
-  //////////////////////////////
-  // Scale Factor Corrections //
-  //////////////////////////////
-
-  // Up to this point, eventWeight should only include pileup reweighting.  Now we will add
-  // scalefactors on every selection, while still saving the uncorrected versions.  We will
-  // also save the total up and down errors on the scalefactors to be used for systematic
-  // shape analysis.
-
-  //float phoEffWeight; 
-  //float phoEffWeightUp; 
-  //float phoEffWeightDown; 
-
-  if (selection == "eeGamma"){
-    //cout<<"ele thing firing off"<<endl;
-    auto_ptr<TRandom3> rl1(new TRandom3(0));
-    auto_ptr<TRandom3> rl2(new TRandom3(0));
-
-    float wgt1        = getEfficiencyWeight( &lepton1, CorrectionType::CENTRAL, atoi(period.c_str()));
-    float wgt_hi1     = getEfficiencyWeight( &lepton1, CorrectionType::UPPER, atoi(period.c_str()));
-    float wgt_lo1     = getEfficiencyWeight( &lepton1, CorrectionType::LOWER, atoi(period.c_str()));
-    float ptcorr1     = getCorrectedPt( &lepton1, CorrectionType::CENTRAL, atoi(period.c_str()),rl1.get());
-    float ptcorr_hi1  = getCorrectedPt( &lepton1, CorrectionType::UPPER, atoi(period.c_str()),rl1.get());
-    float ptcorr_lo1  = getCorrectedPt( &lepton1, CorrectionType::LOWER, atoi(period.c_str()),rl1.get());
-    float wgt2        = getEfficiencyWeight( &lepton2, CorrectionType::CENTRAL, atoi(period.c_str()));
-    float wgt_hi2     = getEfficiencyWeight( &lepton2, CorrectionType::UPPER, atoi(period.c_str()));
-    float wgt_lo2     = getEfficiencyWeight( &lepton2, CorrectionType::LOWER, atoi(period.c_str()));
-    float ptcorr2     = getCorrectedPt( &lepton2, CorrectionType::CENTRAL, atoi(period.c_str()),rl2.get());
-    float ptcorr_hi2  = getCorrectedPt( &lepton2, CorrectionType::UPPER, atoi(period.c_str()),rl2.get());
-    float ptcorr_lo2  = getCorrectedPt( &lepton2, CorrectionType::LOWER, atoi(period.c_str()),rl2.get());
-
-    //cout<<"mid: "<<ptcorr1<<" plus: "<<ptcorr_hi1-ptcorr1<<" minus: "<<ptcorr1-ptcorr_lo1<<endl;
-
-    TLorentzVector el1High(lepton1);
-    TLorentzVector el1Mid(lepton1);
-    TLorentzVector el1Low(lepton1);
-    TLorentzVector el2High(lepton2);
-    TLorentzVector el2Mid(lepton2);
-    TLorentzVector el2Low(lepton2);
-
-    el1High.SetPtEtaPhiM(ptcorr_hi1,lepton1.Eta(),lepton1.Phi(),0.000511);
-    el1Mid.SetPtEtaPhiM(ptcorr1,lepton1.Eta(),lepton1.Phi(),0.000511);
-    el1Low.SetPtEtaPhiM(ptcorr_lo1,lepton1.Eta(),lepton1.Phi(),0.000511);
-    el2High.SetPtEtaPhiM(ptcorr_hi2,lepton2.Eta(),lepton2.Phi(),0.000511);
-    el2Mid.SetPtEtaPhiM(ptcorr2,lepton2.Eta(),lepton2.Phi(),0.000511);
-    el2Low.SetPtEtaPhiM(ptcorr_lo2,lepton2.Eta(),lepton2.Phi(),0.000511);
-
-    bool goodEle = false;
-    goodEle = (fabs(lepton1.Eta()) < 1.4442 && fabs(lepton2.Eta()) < 1.4442);
-    string catName = "";
-    if (goodEle && (fabs(GP4.Eta()) < 1.4442) && R9Cor >= 0.94 ){       catName = "CAT1";
-    } else if (goodEle && (fabs(GP4.Eta()) < 1.4442) && R9Cor < 0.94 ){ catName = "CAT4";
-    } else if ( fabs(GP4.Eta()) < 1.4442){                               catName = "CAT2";
-    } else {                                                             catName = "CAT3";
-    }
-    
-
-    hmEleSmear->fill1DHist((el1Mid+el2Mid+GP4).M(),"h1_middleElSmear_"+catName+"_SUFFIX","middle Smear;M (GeV);Entries",65,115,190,eventWeight);
-    hmEleSmear->fill1DHist((el1High+el2High+GP4).M(),"h1_highElSmear_"+catName+"_SUFFIX","high Smear;M (GeV);Entries",65,115,190,eventWeight);
-    hmEleSmear->fill1DHist((el1Low+el2Low+GP4).M(),"h1_lowElSmear_"+catName+"_SUFFIX","low Smear;M (GeV);Entries",65,115,190,eventWeight);
-    hmEleSmear->fill1DHist((ZP4+GP4).M(),"h1_noCorSmear_"+catName+"_SUFFIX","no cor;M (GeV);Entries",65,115,190,eventWeight);
-    hmEleIDISO->fill1DHist((lepton1+lepton2+GP4).M(),"h1_noCorIDISO_"+catName+"_SUFFIX","no weight cor;M (GeV);Entries",65,115,190,eventWeight);
-
-    // make a bunch of toy histos 
-    
-    float elEffMean1 = wgt1;
-    float elEffSig1  = max(fabs(wgt1-wgt_hi1),fabs(wgt1-wgt_lo1));
-    float elEffMean2 = wgt2;
-    float elEffSig2  = max(fabs(wgt2-wgt_hi2),fabs(wgt2-wgt_lo2));
-    auto_ptr<TRandom3> g1(new TRandom3(0));
-    auto_ptr<TRandom3> g2(new TRandom3(0));
-    float tw1,tw2 = 0;
-    stringstream itoa;
-    for (int i =0; i<100; i++){
-      tw1 = g1->Gaus(elEffMean1,elEffSig1);
-      tw2 = g2->Gaus(elEffMean2,elEffSig2);
-
-      itoa << i;
-
-      hmEleIDISO->fill1DHist((lepton1+lepton2+GP4).M(),"h1_toy"+itoa.str()+"_ElIDISO_"+catName+"_SUFFIX","low IDISO;M (GeV);Entries",65,115,190,eventWeight*tw2*tw1);
-      itoa.str("");
-    }
-
-
-  }
 
   ////////////////////////////
   // Fill ZGamma histograms //
@@ -1758,15 +1667,11 @@ void higgsAnalyzer::Terminate()
   sampleFile->Write();
   histoFile->Write();
   higgsFile->Write();
-  eleSmearFile->Write();
-  eleIDISOFile->Write();
   m_llgFile->Write();
   trainingFile->Close();
   sampleFile->Close();
   histoFile->Close();  
   higgsFile->Close();
-  eleSmearFile->Close();
-  eleIDISOFile->Close();
   m_llgFile->Close();
 
   dumper->CloseDumps();

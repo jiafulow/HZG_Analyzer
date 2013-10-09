@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 import sys, os, subprocess, fileinput, math, tempfile, shutil, glob
+from collections import defaultdict
 
 #Small modifications on original BatchMaster by Nate Odell
 
@@ -83,9 +84,26 @@ class BatchMaster():
         batch_submit_file.seek(0)
         return batch_submit_file
 
+    def RecordSelection(self):
+      '''Output a small txt file so CheckFiles script knows who is running, who is finished, all that shit'''
+      checkDict = defaultdict(list)
+      for cfg in self._configList:
+        checkDict[cfg._selection].append(cfg._dataName)
+
+      check_txt = open('.checkfile.txt','w')
+      for sel in checkDict.keys():
+        check_txt.write('{0}'.format(sel))
+        for data in checkDict[sel]:
+          check_txt.write(' {0}'.format(data))
+        check_txt.write('\n')
+
+      check_txt.close()
+
+
 
     def SubmitToLPC(self):
         '''Submits batch jobs to lpc batch'''
+        self.RecordSelection()
         for j,cfg in enumerate(self._configList):
             self.MakeDirectory(self._outDir+'/'+cfg._selection+'/'+cfg._dataName, clear = True)
 
