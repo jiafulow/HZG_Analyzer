@@ -29,7 +29,7 @@ namespace parameters
   const bool doLooseMuIso            = true;
   const bool doAnglesMVA             = false;
 
-  const bool doPhotonPurityStudy     = false;
+  const bool doPhotonPurityStudy     = true;
 
   ///// debugging dumps /////
   const bool dumps                   = true;

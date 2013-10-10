@@ -112,7 +112,7 @@ def ComparisonSuiteSignal():
   del can
 
 def ComparisonSuiteBG():
-  FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-9-13.root")
+  FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-10-13_fixPU.root")
   selection = ['mu']
   plotList = []
   labelList = ['DATA','DYJets','ZGToLLG']
@@ -174,9 +174,7 @@ def ComparisonSuiteBG():
               thisPlot.SetFillStyle(1001)
               thisPlot.SetFillColor(colorList[i])
               initEvents = thisFile.GetDirectory('Misc').Get('h1_acceptanceByCut_'+label).Integral(1,1)
-              print initEvents
               scale = LumiXSScale('2012',sel,label,initEvents)
-              print scale
               thisPlot.Scale(scale)
               leg.AddEntry(thisPlot,labelList[i],'f')
             plotList.append(thisPlot)
@@ -222,7 +220,27 @@ def ComparisonSuiteBG():
 
           plotList = []
 
+def PhotonPurity():
+  FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-9-13.root")
+  selection = ['mu']
+  plotList = []
+  labelList = ['DATA','DYJets','ZGToLLG']
+  colorList = [kBlack,kGreen+1,kBlue]
+  folder = 'PhotonPurity'
+  distList = ['Pt','Eta','Phi','Mass']
+  physList1 = ['Photon','LeadingLepton','TrailingLepton','DiLep','ThreeBody']
+  physList2 = ['costhetaLM','phi','costhetaZG']
+  physList3 = ['pvMult','nTracks','pvPosZ']
+
+  can= TCanvas('can','canvas',800,600)
+  can.cd()
+  gStyle.SetOptStat(0)
 
 
 if __name__=="__main__":
-  ComparisonSuiteBG()
+  print 'executing', sys.argv[1]
+  if 'bg' == sys.argv[1]:
+    ComparisonSuiteBG()
+  elif 'sig' == sys.argv[1]:
+    ComparisonSuiteSignal()
+

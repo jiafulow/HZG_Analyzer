@@ -365,6 +365,10 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   hm->fill1DHist(2,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
   hm->fill1DHist(2,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
   if (!isRealData) hm->fill1DHist(nPUVerticesTrue,"h1_simVertexMultTrueUltraFine_SUFFIX", "Multiplicity of simulated vertices true", 500, 0, 100,1,"Misc");
+  if (!isRealData && period.find("2012") != string::npos ){
+    if(runNumber > 190456 && runNumber < 196531) hm->fill1DHist(nPUVerticesTrue,"h1_simVertexMultTrueRunAB_SUFFIX", "Multiplicity of simulated vertices true", 500, 0, 100,1,"Misc");
+    if(runNumber > 198022 && runNumber < 203742) hm->fill1DHist(nPUVerticesTrue,"h1_simVertexMultTrueRunC_SUFFIX", "Multiplicity of simulated vertices true", 500, 0, 100,1,"Misc");
+    if(runNumber > 203777 && runNumber < 208686) hm->fill1DHist(nPUVerticesTrue,"h1_simVertexMultTrueRunD_SUFFIX", "Multiplicity of simulated vertices true", 500, 0, 100,1,"Misc");
   ++nEvents[1];
 
 
