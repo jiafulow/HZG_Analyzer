@@ -369,6 +369,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     if(runNumber > 190456 && runNumber < 196531) hm->fill1DHist(nPUVerticesTrue,"h1_simVertexMultTrueRunAB_SUFFIX", "Multiplicity of simulated vertices true", 500, 0, 100,1,"Misc");
     if(runNumber > 198022 && runNumber < 203742) hm->fill1DHist(nPUVerticesTrue,"h1_simVertexMultTrueRunC_SUFFIX", "Multiplicity of simulated vertices true", 500, 0, 100,1,"Misc");
     if(runNumber > 203777 && runNumber < 208686) hm->fill1DHist(nPUVerticesTrue,"h1_simVertexMultTrueRunD_SUFFIX", "Multiplicity of simulated vertices true", 500, 0, 100,1,"Misc");
+  }
   ++nEvents[1];
 
 
