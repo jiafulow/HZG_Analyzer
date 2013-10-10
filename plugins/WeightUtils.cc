@@ -111,8 +111,8 @@ float WeightUtils::PUWeight(float nPU)
   if (!_isRealData){
     if (nPU < 100 && _dataPeriod == "2011" ){
       _puWeight = h1_S6to2011obs->GetBinContent(h1_S6to2011obs->FindBin(nPU)); 
-    } else if (nPU < 100 && _dataPeriod == "2012" && (_sampleName.find("DYJets")!= string::npos || _sampleName.find("ZGToLLG")!= string::npos)){
-      _puWeight = h1_RD1to2012ABCDTrue->GetBinContent(h1_RD1to2012ABCDTrue->FindBin(nPU)); 
+    //} else if (nPU < 100 && _dataPeriod == "2012" && (_sampleName.find("DYJets")!= string::npos || _sampleName.find("ZGToLLG")!= string::npos)){
+    //  _puWeight = h1_RD1to2012ABCDTrue->GetBinContent(h1_RD1to2012ABCDTrue->FindBin(nPU)); 
     } else if (nPU < 100 && _dataPeriod == "2012" ){
       if (_abcd == "AB") _puWeight = h1_S10to2012ABTrue->GetBinContent(h1_S10to2012ABTrue->FindBin(nPU)); 
       else if (_abcd == "CD") _puWeight = h1_S10to2012CDTrue->GetBinContent(h1_S10to2012CDTrue->FindBin(nPU)); 

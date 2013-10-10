@@ -1,13 +1,23 @@
 #!/usr/bin/env python
 import sys
-sys.argv.append('-b')
+#sys.argv.append('-b')
 from ROOT import *
 
-TH1.SetDefaultSumw2(kTRUE)
-TProfile.SetDefaultSumw2(kTRUE)
+
+# class for multi-layered nested dictionaries, pretty cool
+class AutoVivification(dict):
+    """Implementation of perl's autovivification feature."""
+    def __getitem__(self, item):
+        try:
+            return dict.__getitem__(self, item)
+        except KeyError:
+            value = self[item] = type(self)()
+            return value
 
 def RatioPlot(plotList = [], titleList = [], saveName = 'lol'):
   '''Input list of two plots, two plot names, and a name to save the canvas'''
+  TH1.SetDefaultSumw2(kTRUE)
+  TProfile.SetDefaultSumw2(kTRUE)
 
   can= TCanvas('ratioCan','canvas',800,600)
   leg = TLegend(0.85,0.83,1.00,1.00,'',"brNDC")
@@ -87,3 +97,31 @@ def RatioPlot(plotList = [], titleList = [], saveName = 'lol'):
   zero.Draw()
   can.SaveAs(saveName)
   can.IsA().Destructor(can)
+
+def LumiXSScale(year,lepton,name,initialNevt):
+  '''Outputs scale for MC with respect to lumi and XS'''
+
+  if name is 'DATA': return 1
+
+  lumi = 0
+  if lepton is 'mu': lumi = 19.672
+  elif lepton is 'el': lumi = 19.711
+  else: raise NameError('LumiXSScale lepton incorrect')
+
+  scaleDict = AutoVivification()
+
+  scaleDict['2012']['DYJets'] = 3503.71*1000
+  scaleDict['2012']['ZGToLLG'] = 156.2*1000
+
+  scale = initialNevt/scaleDict[year][name]
+  scale = lumi/scale
+  return scale
+
+
+
+
+
+
+
+
+
