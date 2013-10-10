@@ -221,20 +221,112 @@ def ComparisonSuiteBG():
           plotList = []
 
 def PhotonPurity():
-  FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-9-13.root")
+  FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_PhotonPurity.root")
   selection = ['mu']
   plotList = []
   labelList = ['DATA','DYJets','ZGToLLG']
   colorList = [kBlack,kGreen+1,kBlue]
   folder = 'PhotonPurity'
+  purityList = ['']
   distList = ['Pt','Eta','Phi','Mass']
   physList1 = ['Photon','LeadingLepton','TrailingLepton','DiLep','ThreeBody']
-  physList2 = ['costhetaLM','phi','costhetaZG']
-  physList3 = ['pvMult','nTracks','pvPosZ']
 
   can= TCanvas('can','canvas',800,600)
   can.cd()
   gStyle.SetOptStat(0)
+  for sel in selection:
+    if sel is 'mu': thisFile=FileMu
+    for cat in catList:
+      folder = cat
+      if cat == '': folder = 'pT-Eta-Phi'
+      elif cat == 'ZGAngles': physListTmp = physList2
+      elif cat == 'Vtx': physListTmp = physList3
+      else: physListTmp = physList1
+      for phys in physListTmp:
+        if phys not in physList1: distListTmp = ['']
+        elif phys is 'DiLep' or phys is 'ThreeBody': distListTmp = distList
+        else: distListTmp = distList[0:3]
+
+        for dist in distListTmp:
+          for i,label in enumerate(labelList):
+
+            if phys == 'Photon':
+              thisPlot = thisFile.GetDirectory(folder).Get('h1_photon'+dist+cat+'_'+label)
+            if phys == 'LeadingLepton':
+              thisPlot = thisFile.GetDirectory(folder).Get('h1_leadLeptonStd'+dist+cat+'_'+label)
+            if phys == 'TrailingLepton':
+              thisPlot = thisFile.GetDirectory(folder).Get('h1_trailingLeptonStd'+dist+cat+'_'+label)
+            if phys == 'DiLep':
+              thisPlot = thisFile.GetDirectory(folder).Get('h1_diLep'+dist+cat+'_'+label)
+            if phys == 'ThreeBody':
+              thisPlot = thisFile.GetDirectory(folder).Get('h1_threeBody'+dist+cat+'_'+label)
+            elif phys not in physList1:
+              thisPlot = thisFile.GetDirectory(folder).Get('h1_'+phys+'_'+label)
+
+
+
+            print sel, cat, phys, dist, thisFile
+            #if phys is not 'nTracks': thisPlot.Scale(1/thisPlot.Integral())
+            thisPlot.SetLineColor(colorList[i])
+            thisPlot.SetLineWidth(2)
+            thisPlot.SetMarkerColor(colorList[i])
+            thisPlot.SetMarkerStyle(20+i)
+            if i == 0:
+              leg = TLegend(0.80,0.80,1.00,0.95,'',"brNDC")
+              leg.SetBorderSize(1)
+              leg.SetTextSize(0.03)
+              leg.SetFillColor(0)
+              leg.SetFillStyle(1001)
+              leg.AddEntry(thisPlot,labelList[i],'lep')
+            else:
+              thisPlot.SetFillStyle(1001)
+              thisPlot.SetFillColor(colorList[i])
+              initEvents = thisFile.GetDirectory('Misc').Get('h1_acceptanceByCut_'+label).Integral(1,1)
+              scale = LumiXSScale('2012',sel,label,initEvents)
+              thisPlot.Scale(scale)
+              leg.AddEntry(thisPlot,labelList[i],'f')
+            plotList.append(thisPlot)
+
+          bgStack = THStack('bgs','bgs')
+          bgStack.Add(plotList[1])
+          bgStack.Add(plotList[2])
+          if phys is 'pvMult':
+            newPlotList = [plotList[2], plotList[0]]
+          else:
+            newPlotList = [bgStack, plotList[0]]
+          ymax = max(map(lambda x:x.GetMaximum(),newPlotList))*1.2
+          ymin = 0
+
+          for i,plot in enumerate(newPlotList):
+            if i == 0:
+              plot.SetMaximum(ymax)
+              plot.SetMinimum(ymin)
+              if phys is 'pvMult': plot.Scale(1/plot.Integral())
+              plot.Draw('hist')
+              plot.GetYaxis().SetTitle(plotList[0].GetYaxis().GetTitle())
+              plot.GetYaxis().SetTitleSize(0.06)
+              plot.GetYaxis().CenterTitle()
+              plot.GetXaxis().SetTitle(plotList[0].GetXaxis().GetTitle())
+              plot.GetXaxis().SetTitleSize(0.05)
+              #plot.GetYaxis().SetLabelSize(0.05)
+              #plot.GetXaxis().SetLabelSize(0.05)
+              if phys is 'nTracks':
+                plot.GetYaxis().SetTitle("nTracks")
+              else:
+                plot.GetYaxis().SetTitle("Events")
+              #plot.GetXaxis().SetTitle(dist)
+              plot.SetTitle(sel+sel+' '+phys+' '+cat+' '+dist)
+              plot.GetYaxis().SetTitleOffset(0.8)
+            else:
+              if phys is 'pvMult': plot.Scale(1/plot.Integral())
+              plot.Draw('psame')
+          leg.Draw()
+          can.SaveAs('BGComparisons/'+sel+'_'+dist+'_'+cat+'_'+phys+'.pdf')
+          can.Clear()
+
+
+
+          plotList = []
 
 
 if __name__=="__main__":
