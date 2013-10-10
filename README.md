@@ -16,18 +16,18 @@ Instruction on compiling the MCFM library for MCFM 6.6
 
 1. Download MCFM and prepare the install makefile
 
-    wget http://mcfm.fnal.gov/mcfm-6.6.tar.gz
-    tar -xf MCFM-6.6.tar.gz
-    cd MCFM-6.6/
-    ./Install
+        wget http://mcfm.fnal.gov/mcfm-6.6.tar.gz
+        tar -xf MCFM-6.6.tar.gz
+        cd MCFM-6.6/
+        ./Install
 
 2. Modify the following two lines in makefile to allow shared library to be read out
 
-    FFLAGS  = -fno-automatic -fno-f2c -O0 -fPIC -g -I$(INCPATH) -I$(TENSORREDDIR)/Include -Iobj
-    F90FLAGS = -fno-automatic -fno-f2c -O2 -fPIC -g -I$(INCPATH) -Iobj -Jobj
+        FFLAGS  = -fno-automatic -fno-f2c -O0 -fPIC -g -I$(INCPATH) -I$(TENSORREDDIR)/Include -Iobj
+        F90FLAGS = -fno-automatic -fno-f2c -O2 -fPIC -g -I$(INCPATH) -Iobj -Jobj
 
-3. compile the package and export the libarry
+3. Compile the package and export the libarry
 
-    make
-    cd obj
-    g++ -Wl,-soname,libmcfm_6p6.so -shared -o libmcfm_6p6.so *.o  
+        make
+        cd obj
+        g++ -Wl,-soname,libmcfm_6p6.so -shared -o libmcfm_6p6.so *.o  
