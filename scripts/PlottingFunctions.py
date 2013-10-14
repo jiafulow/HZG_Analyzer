@@ -113,8 +113,14 @@ def LumiXSScale(year,lepton,name,initialNevt):
 
   scaleDict['2012']['DYJets'] = 3503.71*1000
   scaleDict['2012']['ZGToLLG'] = 156.2*1000
+  scaleDict['2012']['gg']['125'] = 19.52*0.00154*0.10098*1000
 
-  scale = initialNevt/scaleDict[year][name]
+  if 'Signal' in name:
+    sig = name[10:].partition('M')[0]
+    mass = name[10:].partition('M')[-1][0:3]
+    scale = initialNevt/scaleDict[year][sig][mass]
+  else:
+    scale = initialNevt/scaleDict[year][name]
   scale = lumi/scale
   return scale
 
@@ -131,28 +137,32 @@ def FolderDump(tfile, folder):
 
 def DataBGComp(histList,directory,thisFile,year,lepton):
   '''Give a list of histograms that contain the data and backgrounds, plot them and save them'''
-  do2D = False
+  if len(histList) == 0: raise NameError('histList is empty')
   gStyle.SetOptStat(0)
+  do2D = False
+  if histList[0].GetName().split('_')[0] in ['h2','p']: do2D = True
 
   dataHist = None
   for hist in histList:
     if 'DATA' in hist.GetName(): dataHist = hist
   if not dataHist: raise NameError('No dataHist found in this list')
-  print dataHist
-  if hist.GetName().split('_')[0] in ['h2','p']: do2D = True
-  dataHist.SetLineColor(kBlack)
-  dataHist.SetMarkerColor(kBlack)
-  dataHist.SetMarkerStyle(20)
-  dataHist.SetFillStyle(0)
 
   bgList = [hist for hist in histList if (hist.GetName().find('DATA') == -1 and hist.GetName().find('Signal') == -1)]
   if len(bgList) == 0: raise NameError('No BG hists found in this list')
   bgList = sorted(bgList, key=lambda hist:hist.GetName()[-1], reverse=True)
-  print bgList
+
+  signalHist = None
+  for hist in histList:
+    if 'Signal' in hist.GetName(): signalHist= hist
+  if not signalHist: raise NameError('No signalHist found in this list')
+  signalHist.SetLineColor(kRed)
+  signalHist.SetFillStyle(1001)
+
 
   TH1.SetDefaultSumw2(kTRUE)
   TProfile.SetDefaultSumw2(kTRUE)
 
+  # Make canvas and legend
   can= TCanvas('ratioCan','canvas',800,600)
   if do2D:
     can.SetRightMargin(0.1)
@@ -164,11 +174,17 @@ def DataBGComp(histList,directory,thisFile,year,lepton):
   leg.SetFillColor(0)
   leg.SetFillStyle(0)
 
+  # Set the data histogram
+  dataHist.SetLineColor(kBlack)
+  dataHist.SetMarkerColor(kBlack)
+  dataHist.SetMarkerStyle(20)
+  dataHist.SetFillStyle(0)
   if do2D:
     leg.AddEntry(dataHist,'DATA','f')
   else:
     leg.AddEntry(dataHist,'DATA','lep')
 
+  # Set the bg histograms
   if do2D:
     bgStack = bgList[0].Clone()
     for hist in bgList[1:]:
@@ -189,7 +205,20 @@ def DataBGComp(histList,directory,thisFile,year,lepton):
       bgStack.Add(hist)
 
 
-  ymax = max(map(lambda x:x.GetMaximum(),[dataHist,bgStack]))*1.2
+  # Set the signal histograms
+  signalHist.SetLineColor(kRed)
+  signalHist.SetFillStyle(0)
+  label = 'Signal2012ggM125_p8'
+  initEvents = thisFile.GetDirectory('Misc').Get('h1_acceptanceByCut_'+label).Integral(1,1)
+  scale = LumiXSScale(year,lepton,label,initEvents)
+  signalHist.Scale(scale*100)
+  if do2D:
+    leg.AddEntry(signalHist,'Signalx100','f')
+  else:
+    leg.AddEntry(signalHist,'Signalx100','l')
+
+
+  ymax = max(map(lambda x:x.GetMaximum(),[dataHist,bgStack,signalHist]))*1.2
   ymin = 0
 
   bgStack.SetMaximum(ymax)
@@ -209,6 +238,10 @@ def DataBGComp(histList,directory,thisFile,year,lepton):
 
   if not do2D: dataHist.Draw('pesame')
   else: dataHist.Draw('boxsame')
+
+  if not do2D: signalHist.Draw('histsame')
+  else: signalHist.Draw('boxsame')
+
   leg.Draw()
   can.SaveAs(directory+'/'+lepton+lepton+'_'+dataHist.GetName().split('_')[1]+'.pdf')
   can.Clear()
