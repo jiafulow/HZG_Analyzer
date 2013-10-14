@@ -103,6 +103,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   histoFile->mkdir("PreGen", "PreGen");
   histoFile->mkdir("PostGen", "PostGen");
   histoFile->mkdir("ZGAngles", "ZGAngles");
+  histoFile->mkdir("ZGAngles_RECO", "ZGAngles_RECO");
   histoFile->mkdir("PhotonPurity", "PhotonPurity");
 
   diffZGscalar = diffZGvector = threeBodyMass = threeBodyPt = divPt = cosZ = cosG = METdivQt = GPt = ZPt = DPhi = diffPlaneMVA = vtxVariable = dr1 = dr2 = M12 = scaleFactor = -99999;
@@ -262,7 +263,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         genLevelInputs.veclm = *genHZG.lm;
 
         getZGAngles(genLevelInputs,genLevelOutputs, false);
-        AnglePlots(genLevelOutputs,1);
+        AnglePlots(genLevelOutputs,1,"ZGAngles");
         //cout<<"costheta_lm: "<<genLevelOutputs.costheta_lm<<"\tcostheta_lp: "<<genLevelOutputs.costheta_lp<<"\tphi: "<<genLevelOutputs.phi<<"\tcosTheta: "<<genLevelOutputs.cosTheta<<"\tcosThetaG: "<<genLevelOutputs.cosThetaG<<endl;
       }
     }
@@ -1176,110 +1177,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   ++nEvents[18];
 
 
-
-  ////////////////////////
-  //Angular Correlations//
-  ////////////////////////
-
-  //Define required angles
-  double polarZBoost= -999.;
-  double polarGBoost= -999.;
-  double cospolarZBoost= -999.;
-  double cospolarGBoost= -999.;
-  double angleGLepNeg = -999;
-  double angleGLepPos = -999;
-  double azimuthLepPlane = -999;
-  double diffPlane = -999;
-
-  if(selection == "mumuGamma" || selection == "eeGamma")
-  {
-
-    TLorentzVector HP4 = GP4 + ZP4; //Define 4-vector for the Higgs
-    TLorentzVector ZBoost(ZP4);
-    TLorentzVector GBoost(GP4);
-    TLorentzVector Lep1Boost;
-    TLorentzVector Lep2Boost;
-    if (selection == "mumuGamma"){
-      Lep1Boost = muonsIDIso[0];
-      Lep2Boost = muonsIDIso[1];
-    }else{
-      Lep1Boost = electronsIDIso[0];
-      Lep2Boost = electronsIDIso[1];
-    }
-
-    TVector3 v_z(0.,0.,1.);
-    TVector3 v_y(0.,1.,0.);
-    TVector3 v_x(1.,0.,0.);
-    TVector3 v_1;
-    TVector3 v_2;
-
-    //// Boost everything that's important into the Higgs CoM
-    ZBoost.Boost(-HP4.BoostVector());
-    GBoost.Boost(-HP4.BoostVector());
-    Lep1Boost.Boost(-HP4.BoostVector());
-    Lep2Boost.Boost(-HP4.BoostVector());
-
-    //Rotate gamma and Z into the Z-X plane
-    Lep1Boost.RotateZ(-ZBoost.Phi());
-    Lep2Boost.RotateZ(-ZBoost.Phi());
-    GBoost.RotateZ(-ZBoost.Phi());
-    ZBoost.RotateZ(-ZBoost.Phi());
-
-
-    //Sanity Checks
-    hm->fill1DHist(ZBoost.P()-GBoost.P(),"h1_HiggsCoMPSanity_SUFFIX","Higgs mom in CoM (sanity)",100,-50,50,eventWeight,"ZGamma");
-    hm->fill1DHist(ZBoost.Phi(),"h1_PhiOfZSanity_SUFFIX","Z Phi in CoM (sanity)",100,-2*TMath::Pi(),2*TMath::Pi(),eventWeight,"ZGamma");
-    hm->fill1DHist(GBoost.Phi(),"h1_PhiOfGSanity_SUFFIX","gamma Phi in CoM (sanity)",100,-2*TMath::Pi(),2*TMath::Pi(),eventWeight,"ZGamma");
-
-    //Define angles using above boosted vectors
-    polarZBoost= ZBoost.Theta();
-    polarGBoost= GBoost.Theta();
-    cospolarZBoost = ZBoost.CosTheta();
-    cospolarGBoost = GBoost.CosTheta();
-
-
-    //Define angles between gamma and leptons
-    if ((selection == "mumuGamma" && muonsIDIso[0].Charge() < 0) || (selection == "eeGamma" && electronsIDIso[0].Charge() <0 )){
-      angleGLepNeg = GBoost.Angle(Lep1Boost.Vect());
-      angleGLepPos = GBoost.Angle(Lep2Boost.Vect());
-    } else {
-      angleGLepNeg = GBoost.Angle(Lep2Boost.Vect());
-      angleGLepPos = GBoost.Angle(Lep1Boost.Vect());
-    }
-
-    //Correct for negative or >Pi angles
-    if (fabs(angleGLepNeg)>TMath::Pi()) {
-      angleGLepNeg =2*TMath::Pi()-fabs(angleGLepNeg);
-    } else {
-      angleGLepNeg = fabs(angleGLepNeg);
-    }
-    if (fabs(angleGLepPos)>TMath::Pi()) {
-      angleGLepPos =2*TMath::Pi()-fabs(angleGLepPos);
-    } else {
-      angleGLepPos = fabs(angleGLepPos);
-    }
-
-    //Define ZGamma to be in x-z plane
-    if (fabs(ZBoost.Angle(v_z)) > 0 && fabs(ZBoost.Angle(v_z)) < TMath::Pi()) {
-      v_1 = ZBoost.Vect().Cross(v_z);
-    } else {
-      v_1 = ZBoost.Vect().Cross(v_x);
-    }
-
-    //Define diLepton plane
-    v_2 = Lep1Boost.Vect().Cross(Lep2Boost.Vect());
-    azimuthLepPlane = v_2.Phi();
-
-    //Define angle between diLepton and ZGamma planes
-    diffPlane = v_1.Angle(v_2);
-    if (fabs(diffPlane)>TMath::Pi()) {
-      diffPlane =2*TMath::Pi()-fabs(diffPlane);
-    } else {
-      diffPlane = fabs(diffPlane);
-    }
-
-  }
-
   //////////////////
   // Angular Cuts //
   //////////////////
@@ -1503,22 +1400,23 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     hm->fill1DHist(R9Cor, "h1_R9CorFull_SUFFIX","R9Cor;R9Cor;Entries",100,0,1,eventWeight);
     hm->fill1DHist(lepton1.DeltaR(GP4),"h1_DeltaRLeading_SUFFIX","DeltaR leading lepton vs photon;#Delta R;Entries",16,0,4,eventWeight,"ZGamma");
     hm->fill1DHist(lepton2.DeltaR(GP4),"h1_DeltaRTrailing_SUFFIX","DeltaR trailing lepton vs photon;#Delta R;Entries",16,0,4,eventWeight,"ZGamma");
+    hm->fill1DHist(ZP4.DeltaR(GP4),"h1_DeltaRZG_SUFFIX","DeltaR diLepton vs photon;#Delta R;Entries",16,0,4,eventWeight,"ZGamma");
     hm->fill1DHist(CalculateM12sqrd(ZP4,GP4),"h1_M12sqrd_SUFFIX","M12^{2} CORRECTED (H->Z#gamma);Mass^{2} (GeV^{2});Entries",25,3600,34400,eventWeight,"ZGamma");
     hm->fill1DHist(CalculateX1(ZP4,GP4),"h1_X1_SUFFIX","x1;x1;Entries",50,0,0.4,eventWeight,"ZGamma");
     hm->fill1DHist(CalculateX2(ZP4,GP4),"h1_X2_SUFFIX","x2;x2;Entries",50,0,0.4,eventWeight,"ZGamma");
     hm->fill1DHist(ZP4.Pt()-GP4.Pt(),"h1_PtDiffZG_SUFFIX","Zp_{T}-Gp_{T} (scalar);#Delta p_{T} (GeV);Entries",50,-100,100,eventWeight,"ZGamma");
     hm->fill1DHist((ZP4-GP4).Pt(),"h1_PtVecDiffZG_SUFFIX","Zp_{T}-Gp_{T} (vector);#Delta p_{T} (GeV);Entries",50,0,200,eventWeight,"ZGamma");
-    hm->fill1DHist(ZP4.Pt()/GP4.Pt(),"h1_PtRatZG_SUFFIX","Zp_{T}/Gp_{T};#Ratio p_{T} (GeV);Entries",20,0,10,eventWeight,"ZGamma");
+    hm->fill1DHist(ZP4.Pt()/GP4.Pt(),"h1_PtRatZG_SUFFIX","Zp_{T}/Gp_{T};#frac{Zp_{T}/Gp_{T}};Entries",40,0,10,eventWeight,"ZGamma");
     hm->fill1DHist((ZP4+GP4).Pt(),"h1_PtSumZG_SUFFIX","3-Body p_{T};p_{T};Entries",25,0,70,eventWeight,"ZGamma");
     hm->fill1DHist(GP4.E(),"h1_GammaEnergy_SUFFIX","Gamma Energy;E (GeV);Entries",30,0,150,eventWeight,"ZGamma");
-    hm->fill1DHist(GP4.Pt(),"h1_GammaPt_SUFFIX","Gamma p_{T};p_{T} (GeV);Entries",12,0,60,eventWeight,"ZGamma");
+    hm->fill1DHist(GP4.Pt(),"h1_GammaPt_SUFFIX","Gamma p_{T};p_{T} (GeV);Entries",45,10,100,eventWeight,"ZGamma");
     hm->fill2DHist(CalculateX1(ZP4,GP4),CalculateX2(ZP4,GP4),"h2_X1X2_SUFFIX","x1 vs x2;x1;x2",50,0,0.4,50,0,0.4,eventWeight,"ZGamma");
-    hm->fill2DHist(ZP4.M(),(ZP4+GP4).M(),"h2_InvariantMasses_SUFFIX","2 Body vs 3 Body Invariant Mass; Z (GeV); Z#gamma (GeV)",60,60,120,100,60,190,eventWeight,"ZGamma");
-    hm->fill2DHist((ZP4+GP4).M(),GP4.Pt(),"h2_3BodyVsGPt_SUFFIX","3-Body Mass vs #gamma p_{T};Z#gamma;#gamma p_{T}",20,100,190,20,0,60,eventWeight,"ZGamma");
-    hm->fill2DHist((ZP4+GP4).M(),(ZP4.Pt()-GP4.Pt()),"h2_3BodyVsDiffPt_SUFFIX","3-Body Mass vs diff p_{T};Z#gamma M;Z p_{T} - #gamma p_{T}",50,100,190,50,-100,100,eventWeight,"ZGamma");
-    hm->fill2DHist((ZP4+GP4).M(),(ZP4.Pt()/GP4.Pt()),"h2_3BodyVsRatPt_SUFFIX","3-Body Mass vs ratio p_{T};Z#gamma M;Ratio p_{T}",20,100,190,20,0,10,eventWeight,"ZGamma");
-    hm->fill2DHist(ZP4.M(),GP4.Pt(),"h2_2BodyVsGPt_SUFFIX","Dilepton Mass vs #gamma p_{T};Z#gamma;#gamma p_{T}",20,80,105,20,0,60,eventWeight,"ZGamma");
-    hm->fill2DHist((ZP4+GP4).M(),ZP4.Pt(),"h2_3BodyVsZPt_SUFFIX","3-Body Mass vs #Z p_{T};Z#gamma;Z p_{T}",20,100,190,20,0,60,eventWeight,"ZGamma");
+    hm->fill2DHist(ZP4.M(),(ZP4+GP4).M(),"h2_InvariantMasses_SUFFIX","2 Body vs 3 Body Invariant Mass; Z (GeV); Z#gamma (GeV)",80,50,130,110,90,200,eventWeight,"ZGamma");
+    hm->fill2DHist((ZP4+GP4).M(),GP4.Pt(),"h2_3BodyVsGPt_SUFFIX","3-Body Mass vs #gamma p_{T};Z#gamma;#gamma p_{T}",20,100,190,45,10,100,eventWeight,"ZGamma");
+    hm->fill2DHist((ZP4+GP4).M(),(ZP4.Pt()-GP4.Pt()),"h2_3BodyVsDiffPt_SUFFIX","3-Body Mass vs diff p_{T};Z#gamma_{m};Z p_{T} - #gamma p_{T}",45,100,190,80,-120,120,eventWeight,"ZGamma");
+    hm->fill2DHist((ZP4+GP4).M(),(ZP4.Pt()/GP4.Pt()),"h2_3BodyVsRatPt_SUFFIX","3-Body Mass vs ratio p_{T};Z#gamma_{m};Ratio p_{T}",20,100,190,50,0,10,eventWeight,"ZGamma");
+    hm->fill2DHist(ZP4.M(),GP4.Pt(),"h2_2BodyVsGPt_SUFFIX","Dilepton Mass vs #gamma p_{T};Z#gamma_{m} (GeV);#gamma p_{T}",100,50,150,45,10,100,eventWeight,"ZGamma");
+    hm->fill2DHist((ZP4+GP4).M(),ZP4.Pt(),"h2_3BodyVsZPt_SUFFIX","3-Body Mass vs #Z p_{T};Z#gamma;Z p_{T}",20,100,190,50,0,150,eventWeight,"ZGamma");
     hm->fillProfile(CalculateX1(ZP4,GP4),CalculateX2(ZP4,GP4),"profile_X1X2Pro_SUFFIX","x1 vs x2;x1;x2",50,0,0.4,0,0.4,eventWeight,"ZGamma");
     hm->fill1DHist(lepton1.Pt()/lepton2.Pt(),"h1_MuonRatPt_SUFFIX","leading/trailing p_{T};p_{T} Ratio;Entries",15,0,5,eventWeight,"ZGamma");
     hm->fill1DHist(photonsIDIso.size(),"h1_photonMult_SUFFIX","Photon Multiplicity;nPhoton;Entries",10,0.5,10.5,eventWeight,"ZGamma");
@@ -1533,12 +1431,9 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     threeBodyMass   = (ZP4+GP4).M();
     threeBodyPt     = (ZP4+GP4).Pt();
     divPt           = ZP4.Pt()/GP4.Pt();
-    cosZ            = cospolarZBoost;
-    cosG            = cospolarGBoost;
     GPt             = GP4.Pt();
     ZPt             = ZP4.Pt();
     DPhi            = fabs(ZP4.DeltaPhi(GP4));
-    diffPlaneMVA    = diffPlane;
     dr1             = lepton1.DeltaR(GP4);
     dr2             = lepton2.DeltaR(GP4);
     M12             = CalculateM12sqrd(ZP4,GP4);
@@ -1550,17 +1445,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     if (suffix == "ZZJets") scaleFactor *= 4.98/6175;
     if (suffix == "WZJets") scaleFactor *= 4.98/1426.5;
     if (suffix == "WWJets") scaleFactor *= 4.98/250.4;
-
-    //// angular correlation parts /////
-    hm->fill1DHist(polarZBoost,"h1_polarZBoost_SUFFIX","#theta of Z in Higgs CoM;#theta (rad);Entries",15,0,TMath::Pi(),eventWeight,"ZGamma");
-    hm->fill1DHist(polarGBoost,"h1_polarGBoost_SUFFIX","#theta of #gamma in Higgs CoM;#theta (rad);Entries",15,0,TMath::Pi(),eventWeight,"ZGamma");
-    hm->fill1DHist(cospolarZBoost,"h1_cospolarZBoost_SUFFIX","cos(#theta) of Z in Higgs CoM;cos(#theta);Entries",10,-1,1,eventWeight,"ZGamma");
-    hm->fill1DHist(cospolarGBoost,"h1_cospolarGBoost_SUFFIX","cos(#theta) of #gamma in Higgs CoM;cos(#theta);Entries",10,-1,1,eventWeight,"ZGamma");
-    hm->fill1DHist(angleGLepNeg,"h1_angleGLepNeg_SUFFIX","angle between #gamma and neg lepton, Higgs CoM;#Delta angle (rad);Entries",15,0,TMath::Pi(),eventWeight,"ZGamma");
-    hm->fill1DHist(angleGLepPos,"h1_angleGLepPos_SUFFIX","angle between #gamma and pos lepton, Higgs CoM;#Delta angle (rad);Entries",15,0,TMath::Pi(),eventWeight,"ZGamma");
-    hm->fill1DHist(azimuthLepPlane,"h1_azimuthLepPlane_SUFFIX","#phi of diLepton plane in Higgs CoM;#phi (rad);Entries",20,-TMath::Pi(),TMath::Pi(),eventWeight,"ZGamma");
-    hm->fill1DHist(diffPlane,"h1_diffPlane_SUFFIX","angle between Z#gamma plane and diLepton plane, Higgs CoM;#Delta angle (rad);Entries",15,0,TMath::Pi(),eventWeight,"ZGamma");
-
 
   }
 
@@ -1600,6 +1484,25 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   //////////
   // misc //
   //////////
+
+  ZGLabVectors recoLevelInputs;
+  ZGAngles     recoLevelOutputs;
+
+
+  recoLevelInputs.veczg = lepton1+lepton2+GP4;
+  recoLevelInputs.vecz = lepton1+lepton2;
+  recoLevelInputs.vecg = GP4;
+
+  if (lepton1.Charge() == 1){
+    recoLevelInputs.veclp = lepton1;
+    recoLevelInputs.veclm = lepton2;
+  }else{
+    recoLevelInputs.veclp = lepton2;
+    recoLevelInputs.veclm = lepton1;
+  }
+
+  getZGAngles(recoLevelInputs,recoLevelOutputs, false);
+  AnglePlots(recoLevelOutputs,1,"ZGAngles_RECO");
 
   hm->fill1DHist(eventWeight,"h1_eventWeight_SUFFIX", "event weight", 100, 0., 2.,1,"Misc");
   if (!isRealData) hm->fill1DHist(ptHat,"h1_ptHat_SUFFIX","ptHat",37, 15.0, 200.0, eventWeight,"Misc");
@@ -1771,13 +1674,13 @@ void higgsAnalyzer::StandardPlots(TLorentzVector p1, TLorentzVector p2, TLorentz
   } 
 }
 
-void higgsAnalyzer::AnglePlots(ZGAngles &zga,float eventWeight)
+void higgsAnalyzer::AnglePlots(ZGAngles &zga,float eventWeight, string folder)
 {
-  hm->fill1DHist(zga.costheta_lp,"h1_costhetaLP_SUFFIX", "Cos(#theta) positive lepton;cos(#theta);N_{evts}", 50, -1., 1., eventWeight,"ZGAngles");     
-  hm->fill1DHist(zga.costheta_lm,"h1_costhetaLM_SUFFIX", "Cos(#theta) negative lepton;cos(#theta);N_{evts}", 50, -1., 1., eventWeight,"ZGAngles");     
-  hm->fill1DHist(zga.phi,"h1_phi_SUFFIX", "#phi positive lepton;#phi;N_{evts}", 50, -TMath::Pi(), TMath::Pi(), eventWeight,"ZGAngles");     
-  hm->fill1DHist(zga.cosTheta,"h1_costhetaZG_SUFFIX", "Cos(#Theta) ZG system;cos(#Theta);N_{evts}", 50, -1., 1., eventWeight,"ZGAngles");     
-  hm->fill1DHist(zga.costheta_lm+zga.costheta_lp,"h1_costhetaBoth_SUFFIX", "Cos(#theta) of both lepton;cos(#theta);N_{evts}", 50, -1.1, 1.1, eventWeight,"ZGAngles");     
+  hm->fill1DHist(zga.costheta_lp,"h1_costhetaLP_SUFFIX", "Cos(#theta) positive lepton;cos(#theta);N_{evts}", 50, -1., 1., eventWeight,folder);     
+  hm->fill1DHist(zga.costheta_lm,"h1_costhetaLM_SUFFIX", "Cos(#theta) negative lepton;cos(#theta);N_{evts}", 50, -1., 1., eventWeight,folder);     
+  hm->fill1DHist(zga.phi,"h1_phi_SUFFIX", "#phi positive lepton;#phi;N_{evts}", 50, -TMath::Pi(), TMath::Pi(), eventWeight,folder);     
+  hm->fill1DHist(zga.cosTheta,"h1_costhetaZG_SUFFIX", "Cos(#Theta) ZG system;cos(#Theta);N_{evts}", 50, -1., 1., eventWeight,folder);     
+  hm->fill1DHist(zga.costheta_lm+zga.costheta_lp,"h1_costhetaBoth_SUFFIX", "Cos(#theta) of both lepton;cos(#theta);N_{evts}", 50, -1.1, 1.1, eventWeight,folder);     
 }
 
 void higgsAnalyzer::DileptonBasicPlots(TLorentzVector ZP4, float eventWeight)

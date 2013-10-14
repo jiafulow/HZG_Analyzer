@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-import sys
+import sys,os
 #sys.argv.append('-b')
 from ROOT import *
+from collections import defaultdict
 
 
 # class for multi-layered nested dictionaries, pretty cool
@@ -117,8 +118,109 @@ def LumiXSScale(year,lepton,name,initialNevt):
   scale = lumi/scale
   return scale
 
+def FolderDump(tfile, folder):
+  '''Input file and folder name, output default dictionary of histogram lists. the key name is the distribution, the lists are all the samples for the given distribution'''
+  folderDict = defaultdict(list)
+  lok = tfile.GetDirectory(folder).GetListOfKeys()
+  for i in range(0, lok.GetEntries()):
+    name = lok.At(i).GetName()
+    key = name.split('_')[1]
+    folderDict[key].append(tfile.GetDirectory(folder).Get(name))
+
+  return folderDict
+
+def DataBGComp(histList,directory,thisFile,year,lepton):
+  '''Give a list of histograms that contain the data and backgrounds, plot them and save them'''
+  do2D = False
+  gStyle.SetOptStat(0)
+
+  dataHist = None
+  for hist in histList:
+    if 'DATA' in hist.GetName(): dataHist = hist
+  if not dataHist: raise NameError('No dataHist found in this list')
+  print dataHist
+  if hist.GetName().split('_')[0] in ['h2','p']: do2D = True
+  dataHist.SetLineColor(kBlack)
+  dataHist.SetMarkerColor(kBlack)
+  dataHist.SetMarkerStyle(20)
+  dataHist.SetFillStyle(0)
+
+  bgList = [hist for hist in histList if (hist.GetName().find('DATA') == -1 and hist.GetName().find('Signal') == -1)]
+  if len(bgList) == 0: raise NameError('No BG hists found in this list')
+  bgList = sorted(bgList, key=lambda hist:hist.GetName()[-1], reverse=True)
+  print bgList
+
+  TH1.SetDefaultSumw2(kTRUE)
+  TProfile.SetDefaultSumw2(kTRUE)
+
+  can= TCanvas('ratioCan','canvas',800,600)
+  if do2D:
+    can.SetRightMargin(0.1)
+    leg = TLegend(0.78,0.78,0.90,0.92,'',"brNDC")
+  else:
+    leg = TLegend(0.82,0.78,0.97,0.92,'',"brNDC")
+  leg.SetBorderSize(1)
+  leg.SetTextSize(0.03)
+  leg.SetFillColor(0)
+  leg.SetFillStyle(0)
+
+  if do2D:
+    leg.AddEntry(dataHist,'DATA','f')
+  else:
+    leg.AddEntry(dataHist,'DATA','lep')
+
+  if do2D:
+    bgStack = bgList[0].Clone()
+    for hist in bgList[1:]:
+      bgStack.Add(hist)
+    bgStack.SetFillColor(kBlue)
+    leg.AddEntry(bgStack,'BG','f')
+  else:
+    bgStack = THStack('bgs','bgs')
+    for hist in bgList:
+      label = hist.GetName().split('_')[-1]
+      hist.SetFillStyle(1001)
+      hist.SetFillColor(colorDict[label])
+      hist.SetLineColor(colorDict[label])
+      initEvents = thisFile.GetDirectory('Misc').Get('h1_acceptanceByCut_'+label).Integral(1,1)
+      scale = LumiXSScale(year,lepton,label,initEvents)
+      hist.Scale(scale)
+      leg.AddEntry(hist,label,'f')
+      bgStack.Add(hist)
 
 
+  ymax = max(map(lambda x:x.GetMaximum(),[dataHist,bgStack]))*1.2
+  ymin = 0
+
+  bgStack.SetMaximum(ymax)
+  bgStack.SetMinimum(ymin)
+  if not do2D: bgStack.Draw('hist')
+  else: bgStack.Draw('colz')
+  bgStack.GetYaxis().SetTitle(bgList[0].GetYaxis().GetTitle())
+  bgStack.GetYaxis().SetTitleSize(0.06)
+  bgStack.GetYaxis().CenterTitle()
+  bgStack.GetXaxis().SetTitle(bgList[0].GetXaxis().GetTitle())
+  bgStack.GetXaxis().SetTitleSize(0.05)
+  #bgStack.GetYaxis().SetLabelSize(0.05)
+  #bgStack.GetXaxis().SetLabelSize(0.05)
+  #bgStack.GetXaxis().SetTitle(dist)
+  bgStack.SetTitle(lepton+lepton+' '+dataHist.GetTitle())
+  bgStack.GetYaxis().SetTitleOffset(0.82)
+
+  if not do2D: dataHist.Draw('pesame')
+  else: dataHist.Draw('boxsame')
+  leg.Draw()
+  can.SaveAs(directory+'/'+lepton+lepton+'_'+dataHist.GetName().split('_')[1]+'.pdf')
+  can.Clear()
+
+
+
+
+
+  if not os.path.isdir(directory):
+    os.mkdir(directory)
+
+colorDict = {'DYJets':kGreen+1,'ZGToLLG':kBlue}
 
 
 

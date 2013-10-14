@@ -227,7 +227,7 @@ def PhotonPurity():
   labelList = ['DATA','DYJets','ZGToLLG']
   colorList = [kBlack,kGreen+1,kBlue]
   folder = 'PhotonPurity'
-  purityList = ['']
+  purityList = ['MIDMIso','LIDMIso','MIDLIso','LIDLIso','NoIDIso']
   distList = ['Pt','Eta','Phi','Mass']
   physList1 = ['Photon','LeadingLepton','TrailingLepton','DiLep','ThreeBody']
 
@@ -236,36 +236,26 @@ def PhotonPurity():
   gStyle.SetOptStat(0)
   for sel in selection:
     if sel is 'mu': thisFile=FileMu
-    for cat in catList:
-      folder = cat
-      if cat == '': folder = 'pT-Eta-Phi'
-      elif cat == 'ZGAngles': physListTmp = physList2
-      elif cat == 'Vtx': physListTmp = physList3
-      else: physListTmp = physList1
-      for phys in physListTmp:
-        if phys not in physList1: distListTmp = ['']
-        elif phys is 'DiLep' or phys is 'ThreeBody': distListTmp = distList
+    for purity in purityList:
+      for phys in physList1:
+        if phys is 'DiLep' or phys is 'ThreeBody': distListTmp = distList
         else: distListTmp = distList[0:3]
 
         for dist in distListTmp:
           for i,label in enumerate(labelList):
 
             if phys == 'Photon':
-              thisPlot = thisFile.GetDirectory(folder).Get('h1_photon'+dist+cat+'_'+label)
+              thisPlot = thisFile.GetDirectory(folder).Get('h1_photon'+dist+purity+'_'+label)
             if phys == 'LeadingLepton':
-              thisPlot = thisFile.GetDirectory(folder).Get('h1_leadLeptonStd'+dist+cat+'_'+label)
+              thisPlot = thisFile.GetDirectory(folder).Get('h1_leadLeptonStd'+dist+purity+'_'+label)
             if phys == 'TrailingLepton':
-              thisPlot = thisFile.GetDirectory(folder).Get('h1_trailingLeptonStd'+dist+cat+'_'+label)
+              thisPlot = thisFile.GetDirectory(folder).Get('h1_trailingLeptonStd'+dist+purity+'_'+label)
             if phys == 'DiLep':
-              thisPlot = thisFile.GetDirectory(folder).Get('h1_diLep'+dist+cat+'_'+label)
+              thisPlot = thisFile.GetDirectory(folder).Get('h1_diLep'+dist+purity+'_'+label)
             if phys == 'ThreeBody':
-              thisPlot = thisFile.GetDirectory(folder).Get('h1_threeBody'+dist+cat+'_'+label)
-            elif phys not in physList1:
-              thisPlot = thisFile.GetDirectory(folder).Get('h1_'+phys+'_'+label)
+              thisPlot = thisFile.GetDirectory(folder).Get('h1_threeBody'+dist+purity+'_'+label)
 
-
-
-            print sel, cat, phys, dist, thisFile
+            print sel, purity, phys, dist, thisFile
             #if phys is not 'nTracks': thisPlot.Scale(1/thisPlot.Integral())
             thisPlot.SetLineColor(colorList[i])
             thisPlot.SetLineWidth(2)
@@ -301,7 +291,6 @@ def PhotonPurity():
             if i == 0:
               plot.SetMaximum(ymax)
               plot.SetMinimum(ymin)
-              if phys is 'pvMult': plot.Scale(1/plot.Integral())
               plot.Draw('hist')
               plot.GetYaxis().SetTitle(plotList[0].GetYaxis().GetTitle())
               plot.GetYaxis().SetTitleSize(0.06)
@@ -310,23 +299,23 @@ def PhotonPurity():
               plot.GetXaxis().SetTitleSize(0.05)
               #plot.GetYaxis().SetLabelSize(0.05)
               #plot.GetXaxis().SetLabelSize(0.05)
-              if phys is 'nTracks':
-                plot.GetYaxis().SetTitle("nTracks")
-              else:
-                plot.GetYaxis().SetTitle("Events")
               #plot.GetXaxis().SetTitle(dist)
-              plot.SetTitle(sel+sel+' '+phys+' '+cat+' '+dist)
+              plot.SetTitle(sel+sel+' '+phys+' '+purity+' '+dist)
               plot.GetYaxis().SetTitleOffset(0.8)
             else:
-              if phys is 'pvMult': plot.Scale(1/plot.Integral())
               plot.Draw('psame')
           leg.Draw()
-          can.SaveAs('BGComparisons/'+sel+'_'+dist+'_'+cat+'_'+phys+'.pdf')
+          can.SaveAs('PhotonPurity/'+sel+'_'+dist+'_'+purity+'_'+phys+'.pdf')
           can.Clear()
 
-
-
           plotList = []
+
+def GenericPlotter():
+  FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-10-13_fixPU.root")
+  folderDict = FolderDump(FileMu,'ZGamma')
+  for key in folderDict.keys():
+    DataBGComp(folderDict[key],'test',FileMu,'2012','mu')
+
 
 
 if __name__=="__main__":
@@ -335,4 +324,8 @@ if __name__=="__main__":
     ComparisonSuiteBG()
   elif 'sig' == sys.argv[1]:
     ComparisonSuiteSignal()
+  elif 'purity' == sys.argv[1]:
+    PhotonPurity()
+  elif 'plot' == sys.argv[1]:
+    GenericPlotter()
 
