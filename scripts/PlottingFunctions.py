@@ -208,7 +208,7 @@ def DataBGComp(histList,directory,thisFile,year,lepton):
   # Set the signal histograms
   signalHist.SetLineColor(kRed)
   signalHist.SetFillStyle(0)
-  label = 'Signal2012ggM125_p8'
+  label = 'Signal2012ggM125p8'
   initEvents = thisFile.GetDirectory('Misc').Get('h1_acceptanceByCut_'+label).Integral(1,1)
   scale = LumiXSScale(year,lepton,label,initEvents)
   signalHist.Scale(scale*100)

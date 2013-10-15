@@ -1406,7 +1406,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     hm->fill1DHist(CalculateX2(ZP4,GP4),"h1_X2_SUFFIX","x2;x2;Entries",50,0,0.4,eventWeight,"ZGamma");
     hm->fill1DHist(ZP4.Pt()-GP4.Pt(),"h1_PtDiffZG_SUFFIX","Zp_{T}-Gp_{T} (scalar);#Delta p_{T} (GeV);Entries",50,-100,100,eventWeight,"ZGamma");
     hm->fill1DHist((ZP4-GP4).Pt(),"h1_PtVecDiffZG_SUFFIX","Zp_{T}-Gp_{T} (vector);#Delta p_{T} (GeV);Entries",50,0,200,eventWeight,"ZGamma");
-    hm->fill1DHist(ZP4.Pt()/GP4.Pt(),"h1_PtRatZG_SUFFIX","Zp_{T}/Gp_{T};#frac{Zp_{T}/Gp_{T}};Entries",40,0,10,eventWeight,"ZGamma");
+    hm->fill1DHist(ZP4.Pt()/GP4.Pt(),"h1_PtRatZG_SUFFIX","Zp_{T}/Gp_{T};#frac{Zp_{T}}{Gp_{T}};Entries",40,0,10,eventWeight,"ZGamma");
     hm->fill1DHist((ZP4+GP4).Pt(),"h1_PtSumZG_SUFFIX","3-Body p_{T};p_{T};Entries",25,0,70,eventWeight,"ZGamma");
     hm->fill1DHist(GP4.E(),"h1_GammaEnergy_SUFFIX","Gamma Energy;E (GeV);Entries",30,0,150,eventWeight,"ZGamma");
     hm->fill1DHist(GP4.Pt(),"h1_GammaPt_SUFFIX","Gamma p_{T};p_{T} (GeV);Entries",45,10,100,eventWeight,"ZGamma");
