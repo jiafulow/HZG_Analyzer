@@ -20,7 +20,7 @@ FORTRAN = gfortran
 FFLAGS = -O3 -ffree-line-length-none -Dcompiler=2 -fPIC
 
 CC = g++
-CFLAGS = -Wall -Wno-unused-function -g -O2 -fPIC -lm -lgfortran $(shell root-config --cflags) $(INCLUDE) $(EXTRACFLAGS)
+CFLAGS = -Wall -Wno-unused-function -g -O2 -fPIC -lm -lgfortran -D__USE_XOPEN2K8 $(shell root-config --cflags) $(INCLUDE) $(EXTRACFLAGS)
 
 LINKER = g++
 LINKERFLAGS = $(shell root-config --ldflags)
