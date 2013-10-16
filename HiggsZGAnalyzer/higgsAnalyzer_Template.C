@@ -3,7 +3,6 @@
 #include "higgsAnalyzer.h"
 
 using namespace std;
-using namespace parameters;
 string  str(int i) {return static_cast<ostringstream*>( &(ostringstream() << i) )->str();}
 
 void higgsAnalyzer::Begin(TTree * tree)
@@ -40,9 +39,9 @@ void higgsAnalyzer::Begin(TTree * tree)
 
   // Initialize utilities and selectors here //
   cuts.reset(new Cuts());
-  cuts->InitEA(period);
-  weighter.reset(new WeightUtils(suffix, period, abcd, selection, isRealData));
-  triggerSelector.reset(new TriggerSelector(selection, period, *triggerNames));
+  cuts->InitEA(params->period);
+  weighter.reset(new WeightUtils(params->suffix, params->period, params->abcd, params->selection, isRealData));
+  triggerSelector.reset(new TriggerSelector(params->selection, params->period, *triggerNames));
   rmcor2011.reset(new rochcor_2011(229));
   rmcor2012.reset(new rochcor2012(229));
   rEl.reset(new TRandom3(1234));
@@ -51,8 +50,9 @@ void higgsAnalyzer::Begin(TTree * tree)
   Xcal2.reset(new TEvtProb);
   particleSelector.reset(new ParticleSelector(*params, *cuts, isRealData, runNumber, *rEl));
   dumper.reset(new Dumper());
-  dumper->SetCuts(cuts.get());
-  dumper->SetPSelect(particleSelector.get());
+  dumper->SetParams(*params);
+  dumper->SetCuts(*cuts);
+  dumper->SetPSelect(*particleSelector);
 
 
   //genHZG = {0,0,0,0,0,0};
@@ -192,7 +192,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   if(eventNumber == EVENTNUMBER) cout<<EVENTNUMBER<<endl;
 
   // 2011 bad electron run veto
-  if(selection == "eeGamma" && isRealData && period.find("2011") != string::npos){
+  if(params->selection == "eeGamma" && isRealData && params->period.find("2011") != string::npos){
     if( (runNumber == 171050 && (lumiSection >= 47 && lumiSection <= 92 )) ||
         (runNumber == 171156 && (lumiSection >= 42 && lumiSection <= 211)) ||
         (runNumber == 171219 && (lumiSection >= 48 && lumiSection <= 163)) ||
@@ -235,12 +235,12 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   //genHZG = {0,0,0,0,0,0};
   if(!isRealData){
     ///////// load all the relevent particles into a struct /////////
-    particleSelector->FindGenParticles(*genParticles, selection, vetoPhotons, genHZG);
+    particleSelector->FindGenParticles(*genParticles, params->selection, vetoPhotons, genHZG);
 
     ///////// whzh decomposition /////////////////
 
-    if (suffix.find("zh") != string::npos && genHZG.w) return kTRUE;
-    if (suffix.find("wh") != string::npos && !genHZG.w) return kTRUE;
+    if (params->suffix.find("zh") != string::npos && genHZG.w) return kTRUE;
+    if (params->suffix.find("wh") != string::npos && !genHZG.w) return kTRUE;
 
     ///////// gen angles, plots before any kinematic/fiducial cleaning //////////////
 
@@ -275,7 +275,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     //////////// DYJets Gamma Veto ////////////
     vector<TCGenParticle>::iterator testIt;
 
-    if (DYGammaVeto && (suffix.find("DYJets") != string::npos)){
+    if (DYGammaVeto && (params->suffix.find("DYJets") != string::npos)){
       if (vetoPhotons.size() > 0){
         //cout<<"photon mother ID:"<<endl;
         for (testIt=vetoPhotons.begin(); testIt<vetoPhotons.end(); testIt++){
@@ -298,7 +298,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     //////////// gen yields with basic kinematic cuts ////////////
 
     if(
-        (selection == "mumuGamma" && genHZG.lm && genHZG.lp)
+        (params->selection == "mumuGamma" && genHZG.lm && genHZG.lp)
         && ((genHZG.lp->Pt() > cuts->leadMuPt && genHZG.lm->Pt() > cuts->trailMuPt) || (genHZG.lp->Pt() > cuts->trailMuPt && genHZG.lm->Pt() > cuts->leadMuPt))
         && fabs(genHZG.lp->Eta())   < 2.4
         && fabs(genHZG.lm->Eta())   < 2.4
@@ -307,7 +307,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       ++genAccept[0]; //cout<<"event passes fuck yeah!"<<endl;
     }
     if(
-        (selection == "eeGamma" && genHZG.lm && genHZG.lp)
+        (params->selection == "eeGamma" && genHZG.lm && genHZG.lp)
         && ((genHZG.lp->Pt() > cuts->leadElePt && genHZG.lm->Pt() > cuts->trailElePt) || (genHZG.lp->Pt() > cuts->trailElePt && genHZG.lm->Pt() > cuts->leadElePt))
         && fabs(genHZG.lp->Eta())   < 2.4
         && fabs(genHZG.lm->Eta())   < 2.4
@@ -315,7 +315,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       ++genAccept[0]; //cout<<"event passes fuck yeah!"<<endl;
     }
     if(
-        (selection == "mumuGamma" && genHZG.lm && genHZG.lp && genHZG.g)
+        (params->selection == "mumuGamma" && genHZG.lm && genHZG.lp && genHZG.g)
         && ((genHZG.lp->Pt() > cuts->leadMuPt && genHZG.lm->Pt() > cuts->trailMuPt) || (genHZG.lp->Pt() > cuts->trailMuPt && genHZG.lm->Pt() > cuts->leadMuPt))
 
         && fabs(genHZG.lp->Eta())   < 2.4
@@ -341,7 +341,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
     }
     if(
-        (selection == "eeGamma" && genHZG.lm && genHZG.lp && genHZG.g)
+        (params->selection == "eeGamma" && genHZG.lm && genHZG.lp && genHZG.g)
         && ((genHZG.lp->Pt() > cuts->leadElePt && genHZG.lm->Pt() > cuts->trailElePt) || (genHZG.lp->Pt() > cuts->trailElePt && genHZG.lm->Pt() > cuts->leadElePt))
 
         && fabs(genHZG.lp->Eta())   < 2.4
@@ -370,7 +370,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   hm->fill1DHist(2,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
   hm->fill1DHist(2,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
   if (!isRealData) hm->fill1DHist(nPUVerticesTrue,"h1_simVertexMultTrueUltraFine_SUFFIX", "Multiplicity of simulated vertices true", 500, 0, 100,1,"Misc");
-  if (!isRealData && period.find("2012") != string::npos ){
+  if (!isRealData && params->period.find("2012") != string::npos ){
     if(runNumber > 190456 && runNumber < 196531) hm->fill1DHist(nPUVerticesTrue,"h1_simVertexMultTrueRunAB_SUFFIX", "Multiplicity of simulated vertices true", 500, 0, 100,1,"Misc");
     if(runNumber > 198022 && runNumber < 203742) hm->fill1DHist(nPUVerticesTrue,"h1_simVertexMultTrueRunC_SUFFIX", "Multiplicity of simulated vertices true", 500, 0, 100,1,"Misc");
     if(runNumber > 203777 && runNumber < 208686) hm->fill1DHist(nPUVerticesTrue,"h1_simVertexMultTrueRunD_SUFFIX", "Multiplicity of simulated vertices true", 500, 0, 100,1,"Misc");
@@ -548,7 +548,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     }else{
       if(engCor){
         float energyElCor;
-        if ( period.find("2011") != string::npos ){
+        if ( params->period.find("2011") != string::npos ){
           energyElCor = correctedElectronEnergy( thisElec->E(), thisElec->SCEta(), thisElec->R9(), runNumber, 0, "2011", !isRealData, rEl.get() );
         }else{
           energyElCor = correctedElectronEnergy( thisElec->E(), thisElec->SCEta(), thisElec->R9(), runNumber, 0, "HCP2012", !isRealData, rEl.get() );
@@ -607,9 +607,9 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
     if(engCor){
       tmpMuCor = *thisMuon;
-      if ( period.find("2011") != string::npos ){
+      if ( params->period.find("2011") != string::npos ){
         if (isRealData){
-          if ( period.find("A") != string::npos ){
+          if ( params->period.find("A") != string::npos ){
             rmcor2011->momcor_data(tmpMuCor,thisMuon->Charge(),0,0);
           }else{
             rmcor2011->momcor_data(tmpMuCor,thisMuon->Charge(),0,1);
@@ -625,7 +625,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       }else{
         float ptErrMu = 1.0;
         if (isRealData){
-          if (abcd.find("D") != string::npos ){
+          if (params->abcd.find("D") != string::npos ){
             rmcor2012->momcor_data(tmpMuCor,thisMuon->Charge(),1,ptErrMu);
           }else{
             rmcor2012->momcor_data(tmpMuCor,thisMuon->Charge(),0,ptErrMu);
@@ -682,14 +682,14 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   TCPhoton* clonePhoton;
 
 
-  if (selection == "mumuGamma" || selection == "eeGamma") {
+  if (params->selection == "mumuGamma" || params->selection == "eeGamma") {
     for (Int_t i = 0; i < recoPhotons->GetSize(); ++i) {
       //cout<<endl;
       //cout<<"new photon!!!!!!!"<<endl;
       vector<float> TrkIsoVec;
       TCPhoton* thisPhoton = (TCPhoton*) recoPhotons->At(i);
 
-      if (spikeVeto && (period == "2012A_Jul13" || period == "2012A_Aug06rec" || period == "2012B_Jul13")){
+      if (spikeVeto && (params->period == "2012A_Jul13" || params->period == "2012A_Aug06rec" || params->period == "2012B_Jul13")){
       //  cout<<"SCeta: "<<thisPhoton->SCEta()<<" SCphi: "<<thisPhoton->SCPhi()<<endl;
         float dEta = thisPhoton->SCEta()-(-1.76);
         float dPhi = TVector2::Phi_mpi_pi(thisPhoton->SCPhi()-1.37);
@@ -708,13 +708,13 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         R9Cor = thisPhoton->R9();
         if (doR9Cor){
           if (suffix != "DATA"){
-            if (period == "2011"){
+            if (params->period == "2011"){
               if (fabs(thisPhoton->SCEta()) < 1.479){
                 R9Cor = thisPhoton->R9()*1.0048;
               }else{
                 R9Cor = thisPhoton->R9()*1.00492;
               }
-            } else if (period == "2012"){
+            } else if (params->period == "2012"){
               if (fabs(thisPhoton->SCEta()) < 1.479){
                 R9Cor = thisPhoton->R9()*1.0045 + 0.0010;
               }else{
@@ -726,8 +726,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         clonePhoton = thisPhoton;
         float corrPhoPt = -1;
         int periodNum   = -1;
-        if (period.find("2011") != string::npos) periodNum = 2011;
-        if (period.find("2012") != string::npos) periodNum = 2012;
+        if (params->period.find("2011") != string::npos) periodNum = 2011;
+        if (params->period.find("2012") != string::npos) periodNum = 2012;
         if(!isRealData && thisPhoton->Pt()>10.){
           TCGenParticle goodGenPhoton;
           float testDr = 9999;
@@ -825,7 +825,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   TLorentzVector uncorLepton1;
   TLorentzVector uncorLepton2;
 
-  if (selection == "electron" || selection == "eeGamma") {
+  if (params->selection == "electron" || params->selection == "eeGamma") {
 
     //////////////////////
     // 2 good electrons //
@@ -870,7 +870,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     // 2 good muons //
     //////////////////
 
-  } else if (selection == "muon" || selection =="mumuGamma") {
+  } else if (params->selection == "muon" || params->selection =="mumuGamma") {
     if (eventNumber == EVENTNUMBER) cout<<"two ID muons?: "<<muonsID.size()<<endl;
     if (muonsID.size() < 2) return kTRUE;
 
@@ -906,10 +906,10 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   }
 
-  if (period.find("2011") != string::npos){
+  if (params->period.find("2011") != string::npos){
     if (doScaleFactors) eventWeight   *= weighter->PUWeight(nPUVertices);
     eventWeightPU   *= weighter->PUWeight(nPUVertices);
-  }else if (period.find("2012") != string::npos){
+  }else if (params->period.find("2012") != string::npos){
     if (doScaleFactors) eventWeight   *= weighter->PUWeight(nPUVerticesTrue);
     eventWeightPU   *= weighter->PUWeight(nPUVerticesTrue);
   }
@@ -934,7 +934,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   bool goodZ = false;
   float SCetaEl1 = -99999;
   float SCetaEl2 = -99999;
-  if(selection == "eeGamma"){
+  if(params->selection == "eeGamma"){
     if (eventNumber == EVENTNUMBER) cout<<goodZ<<endl;
     if (engCor || doEleReg) goodZ = particleSelector->FindGoodZElectron(electronsIDIso,electronsIDIsoUnCor,lepton1,lepton2,uncorLepton1,uncorLepton2,ZP4,SCetaEl1,SCetaEl2,lepton1int,lepton2int);
     else goodZ = particleSelector->FindGoodZElectron(electronsIDIso,lepton1,lepton2,ZP4,SCetaEl1,SCetaEl2,lepton1int,lepton2int);
@@ -943,19 +943,19 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     if (!isRealData){ 
       if (doScaleFactors){
         eventWeight   *= weighter->ElectronTriggerWeight(lepton1, lepton2);
-        if (period.find("2011") != string::npos){
-          eventWeight   *= getEfficiencyWeight( &lepton1, CorrectionType::CENTRAL, atoi(period.c_str()));
-          eventWeight   *= getEfficiencyWeight( &lepton2, CorrectionType::CENTRAL, atoi(period.c_str()));
-        }else if (period.find("2012") != string::npos){
+        if (params->period.find("2011") != string::npos){
+          eventWeight   *= getEfficiencyWeight( &lepton1, CorrectionType::CENTRAL, atoi(params->period.c_str()));
+          eventWeight   *= getEfficiencyWeight( &lepton2, CorrectionType::CENTRAL, atoi(params->period.c_str()));
+        }else if (params->period.find("2012") != string::npos){
           eventWeight   *= weighter->ElectronSelectionWeight(lepton1);
           eventWeight   *= weighter->ElectronSelectionWeight(lepton2);
         }
       }
       eventWeightTrig   *= weighter->ElectronTriggerWeight(lepton1, lepton2);
-      if (period.find("2011") != string::npos){
-        eventWeightLep   *= getEfficiencyWeight( &lepton1, CorrectionType::CENTRAL, atoi(period.c_str()));
-        eventWeightLep   *= getEfficiencyWeight( &lepton2, CorrectionType::CENTRAL, atoi(period.c_str()));
-      }else if (period.find("2012") != string::npos){
+      if (params->period.find("2011") != string::npos){
+        eventWeightLep   *= getEfficiencyWeight( &lepton1, CorrectionType::CENTRAL, atoi(params->period.c_str()));
+        eventWeightLep   *= getEfficiencyWeight( &lepton2, CorrectionType::CENTRAL, atoi(params->period.c_str()));
+      }else if (params->period.find("2012") != string::npos){
         eventWeightLep   *= weighter->ElectronSelectionWeight(lepton1);
         eventWeightLep   *= weighter->ElectronSelectionWeight(lepton2);
       }
@@ -1099,7 +1099,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   //**ZGamma** Photon DR Stuff //
   ///////////////////////////////
 
-  if(selection == "mumuGamma" || selection == "eeGamma")
+  if(params->selection == "mumuGamma" || params->selection == "eeGamma")
   {
     // Make an FSR plot for 1337 normalization of the ZGToMuMuG set
 
@@ -1156,7 +1156,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   //**ZGamma**    MZG Low //
   //////////////////////////
 
-  if (selection == "mumuGamma"|| selection == "eeGamma" || selection == "gammaJets")  if ((ZP4+GP4).M() < cuts->zgMassLow) return kTRUE;
+  if (params->selection == "mumuGamma"|| params->selection == "eeGamma" || params->selection == "gammaJets")  if ((ZP4+GP4).M() < cuts->zgMassLow) return kTRUE;
   if (doScaleFactors) eventWeight *= weighter->HqtWeight((ZP4+GP4));
   hm->fill1DHist(17,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");
   hm->fill1DHist(17,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
@@ -1166,7 +1166,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   //**ZGamma**    MZG High //
   ///////////////////////////
 
-  if (selection == "mumuGamma"|| selection == "eeGamma" || selection == "gammaJets")  if ((ZP4+GP4).M() > cuts->zgMassHigh  ) return kTRUE;
+  if (params->selection == "mumuGamma"|| params->selection == "eeGamma" || params->selection == "gammaJets")  if ((ZP4+GP4).M() > cuts->zgMassHigh  ) return kTRUE;
   hm->fill1DHist(18,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");
   hm->fill1DHist(18,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
   ++nEvents[17];
@@ -1175,7 +1175,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   //**ZGamma** MZ+MZG Cut //
   //////////////////////////
 
-  if(selection == "mumuGamma" || selection == "eeGamma") if(ZP4.M()+(ZP4+GP4).M() < cuts->mzPmzg) return kTRUE;
+  if(params->selection == "mumuGamma" || params->selection == "eeGamma") if(ZP4.M()+(ZP4+GP4).M() < cuts->mzPmzg) return kTRUE;
   hm->fill1DHist(19,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");
   hm->fill1DHist(19,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
   ++nEvents[18];
@@ -1273,13 +1273,13 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   // Fill lepton histograms //
   ////////////////////////////
 
-  if (selection == "muon" || selection == "mumuGamma") {
+  if (params->selection == "muon" || params->selection == "mumuGamma") {
 
     LeptonBasicPlots(muonsIDIso[0], muonsIDIso[1], eventWeight);
     hm->fill1DHist(muonsIDIso[0].Charge(),"h1_leadLeptonCharge_SUFFIX", "Charge leading lepton;Charge;N_{evts}", 5, -2.5, 2.5, eventWeight,"Lepton");     
     hm->fill1DHist(muonsIDIso[1].Charge(),"h1_trailingLeptonCharge_SUFFIX", "Charge trailing lepton;Charge;N_{evts}", 5, -2.5, 2.5, eventWeight,"Lepton");     
 
-  } else if (selection == "electron" || selection == "eeGamma") {
+  } else if (params->selection == "electron" || params->selection == "eeGamma") {
 
     LeptonBasicPlots(electronsIDIso[0], electronsIDIso[1], eventWeight);
     hm->fill1DHist(electronsIDIso[0].Charge(),"h1_leadLeptonCharge_SUFFIX", "Charge leading lepton;Charge;N_{evts}", 5, -2.5, 2.5, eventWeight,"Lepton");     
@@ -1295,7 +1295,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
 
 
-  if(selection == "mumuGamma" || selection == "eeGamma")
+  if(params->selection == "mumuGamma" || params->selection == "eeGamma")
   {
 
     if (cuts->zgMassLow < 90){
@@ -1318,20 +1318,20 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
 
     bool goodLep = false;
-    if (selection == "mumuGamma"){
+    if (params->selection == "mumuGamma"){
       goodLep = (fabs(lepton1.Eta()) < 0.9 || fabs(lepton2.Eta()) < 0.9) && (fabs(lepton1.Eta()) < 2.1 && fabs(lepton2.Eta()) < 2.1);
-    }else if (selection == "eeGamma"){
+    }else if (params->selection == "eeGamma"){
       goodLep = (fabs(SCetaEl1) < 1.4442 && fabs(SCetaEl2) < 1.4442);
     }
 
     m_llg = (GP4+ZP4).M();
 
     if (dumps){
-      if (selection == "mumuGamma"){
+      if (params->selection == "mumuGamma"){
         dumper->MuonDump(muonsIDIso[lepton1int],true);
         dumper->MuonDump(muonsIDIso[lepton2int],true);
 
-      } else if (selection == "eeGamma"){
+      } else if (params->selection == "eeGamma"){
         dumper->ElectronDump(electronsIDIso[lepton1int],*recoMuons,true);
         dumper->ElectronDump(electronsIDIso[lepton2int],*recoMuons,true);
       }
@@ -1425,7 +1425,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     hm->fill1DHist(lepton1.Pt()/lepton2.Pt(),"h1_MuonRatPt_SUFFIX","leading/trailing p_{T};p_{T} Ratio;Entries",15,0,5,eventWeight,"ZGamma");
     hm->fill1DHist(photonsIDIso.size(),"h1_photonMult_SUFFIX","Photon Multiplicity;nPhoton;Entries",10,0.5,10.5,eventWeight,"ZGamma");
     hm->fill1DHist(fabs(ZP4.DeltaPhi(GP4)),"h1_DeltaPhiZG_SUFFIX","#Delta#phi (Z,#gamma);#Delta#phi (rad);Entries",20,0,TMath::Pi()+0.5,eventWeight,"ZGamma");
-    if (suffix.find("GammaStar") !=string::npos){
+    if (params->suffix.find("GammaStar") !=string::npos){
       hm->fill1DHist(ZP4.M(),"h1_gammaStarMll1_SUFFIX","gammaStar M_ll full range; M_ll (GeV);Entries",120,-5,115,eventWeight,"ZGamma");
       hm->fill1DHist(ZP4.M(),"h1_gammaStarMll2_SUFFIX","gammaStar M_ll low range; M_ll (GeV);Entries",50,-5,45,eventWeight,"ZGamma");
     }
@@ -1442,13 +1442,13 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     dr2             = lepton2.DeltaR(GP4);
     M12             = CalculateM12sqrd(ZP4,GP4);
     scaleFactor     = eventWeight;
-    if (suffix == "HZG125Signal") scaleFactor *= 4.98/124532.73;
-    if (suffix == "ZJets") scaleFactor *= (4.98*2.5)/11.900;
-    if (suffix == "ZGMuMu") scaleFactor *= 4.98/7.11;
-    if (suffix == "ZGEE") scaleFactor *= 4.98/7.11;
-    if (suffix == "ZZJets") scaleFactor *= 4.98/6175;
-    if (suffix == "WZJets") scaleFactor *= 4.98/1426.5;
-    if (suffix == "WWJets") scaleFactor *= 4.98/250.4;
+    if (params->suffix == "HZG125Signal") scaleFactor *= 4.98/124532.73;
+    if (params->suffix == "ZJets") scaleFactor *= (4.98*2.5)/11.900;
+    if (params->suffix == "ZGMuMu") scaleFactor *= 4.98/7.11;
+    if (params->suffix == "ZGEE") scaleFactor *= 4.98/7.11;
+    if (params->suffix == "ZZJets") scaleFactor *= 4.98/6175;
+    if (params->suffix == "WZJets") scaleFactor *= 4.98/1426.5;
+    if (params->suffix == "WWJets") scaleFactor *= 4.98/250.4;
 
   }
 
@@ -1534,7 +1534,7 @@ void higgsAnalyzer::Terminate()
   TH1F* eventHisto = (TH1F*)histoFile->GetDirectory("Misc")->Get("h1_acceptanceByCut_SUFFIX");
   
 
-  cout<<"\nRunning over "<<suffix<<" dataset with "<<selection<<" selection."<<"\n"<<endl;
+  cout<<"\nRunning over "<<suffix<<" dataset with "<<params->selection<<" selection."<<"\n"<<endl;
   cout << "| CUT DESCRIPTION                    |\t" << "\t|"                         << endl;
   cout << "| Unskimmed events:                  |\t" << unskimmedEventsTotal          << "\t|" << endl;
   cout << "| Initial number of events:          |\t" << nEvents[0]                    << "\t|" << endl;
@@ -1733,7 +1733,7 @@ void higgsAnalyzer::GenPlots(vector<TCGenParticle> Zs, vector<TCGenParticle> lep
 
     /// combinatorix time
 
-    if(suffix == "HZG125Signal"){
+    if(params->suffix == "HZG125Signal"){
       //cout<<"SIGNAL GEN SHIT"<<endl;
       TCGenParticle hPhot;
       vector<TCGenParticle>::iterator photIt;
@@ -1863,11 +1863,11 @@ float higgsAnalyzer::Dxy(TVector3 objVtx, TLorentzVector objP4, TVector3 vtx)
 float higgsAnalyzer::GetPhotonMass()
 {
   float photonMass = 91.2;
-  if (selection == "eGamma") {
+  if (params->selection == "eGamma") {
     //        TH1D  *h_mass = (TH1D*)reweightFile.Get("h1_diElectronMass");
     //        photonMass = h_mass->GetRandom();
   }
-  if (selection == "muGamma") {
+  if (params->selection == "muGamma") {
     //        TH1D  *h_mass = (TH1D*)reweightFile.Get("h1_diMuonMass");
     //        photonMass = h_mass->GetRandom();
   }
@@ -1909,113 +1909,113 @@ float higgsAnalyzer::CalculateM12sqrd(TLorentzVector p1, TLorentzVector p2)
 
 void higgsAnalyzer::LumiXSWeight(double * _LumiXSWeight){
   if (!isRealData){
-    if(period.find("2011") != string::npos){
+    if(params->period.find("2011") != string::npos){
 
-      if(suffix.find("gg") != string::npos){
-        if(suffix.find("120")!=string::npos) *_LumiXSWeight = 99990/(16.65*0.00111*0.10098*1000);
-        if(suffix.find("125")!=string::npos) *_LumiXSWeight = 95193/(15.32*0.00154*0.10098*1000);
-        if(suffix.find("130")!=string::npos) *_LumiXSWeight = 99992/(14.16*0.00195*0.10098*1000);
-        if(suffix.find("135")!=string::npos) *_LumiXSWeight = 99995/(13.11*0.00227*0.10098*1000);
-        if(suffix.find("140")!=string::npos) *_LumiXSWeight = 99988/(12.18*0.00246*0.10098*1000);
-        if(suffix.find("145")!=string::npos) *_LumiXSWeight = 99997/(11.33*0.00248*0.10098*1000);
-        if(suffix.find("150")!=string::npos) *_LumiXSWeight = 99998/(10.58*0.00231*0.10098*1000);
+      if(params->suffix.find("gg") != string::npos){
+        if(params->suffix.find("120")!=string::npos) *_LumiXSWeight = 99990/(16.65*0.00111*0.10098*1000);
+        if(params->suffix.find("125")!=string::npos) *_LumiXSWeight = 95193/(15.32*0.00154*0.10098*1000);
+        if(params->suffix.find("130")!=string::npos) *_LumiXSWeight = 99992/(14.16*0.00195*0.10098*1000);
+        if(params->suffix.find("135")!=string::npos) *_LumiXSWeight = 99995/(13.11*0.00227*0.10098*1000);
+        if(params->suffix.find("140")!=string::npos) *_LumiXSWeight = 99988/(12.18*0.00246*0.10098*1000);
+        if(params->suffix.find("145")!=string::npos) *_LumiXSWeight = 99997/(11.33*0.00248*0.10098*1000);
+        if(params->suffix.find("150")!=string::npos) *_LumiXSWeight = 99998/(10.58*0.00231*0.10098*1000);
 
-      }else if(suffix.find("vbf") != string::npos){
-        if(suffix.find("120")!=string::npos) *_LumiXSWeight = 99885/(1.269*0.00111*0.10098*1000);
-        if(suffix.find("125")!=string::npos) *_LumiXSWeight = 99890/(1.211*0.00154*0.10098*1000);
-        if(suffix.find("130")!=string::npos) *_LumiXSWeight = 99899/(1.154*0.00195*0.10098*1000);
-        if(suffix.find("135")!=string::npos) *_LumiXSWeight = 99913/(1.100*0.00227*0.10098*1000);
-        if(suffix.find("140")!=string::npos) *_LumiXSWeight = 99882/(1.052*0.00246*0.10098*1000);
-        if(suffix.find("145")!=string::npos) *_LumiXSWeight = 99893/(1.023*0.00248*0.10098*1000);
-        if(suffix.find("150")!=string::npos) *_LumiXSWeight = 99892/(0.9800*0.00231*0.10098*1000);
+      }else if(params->suffix.find("vbf") != string::npos){
+        if(params->suffix.find("120")!=string::npos) *_LumiXSWeight = 99885/(1.269*0.00111*0.10098*1000);
+        if(params->suffix.find("125")!=string::npos) *_LumiXSWeight = 99890/(1.211*0.00154*0.10098*1000);
+        if(params->suffix.find("130")!=string::npos) *_LumiXSWeight = 99899/(1.154*0.00195*0.10098*1000);
+        if(params->suffix.find("135")!=string::npos) *_LumiXSWeight = 99913/(1.100*0.00227*0.10098*1000);
+        if(params->suffix.find("140")!=string::npos) *_LumiXSWeight = 99882/(1.052*0.00246*0.10098*1000);
+        if(params->suffix.find("145")!=string::npos) *_LumiXSWeight = 99893/(1.023*0.00248*0.10098*1000);
+        if(params->suffix.find("150")!=string::npos) *_LumiXSWeight = 99892/(0.9800*0.00231*0.10098*1000);
 
-      }else if(suffix.find("tth") != string::npos){
-        if(suffix.find("120")!=string::npos) *_LumiXSWeight = 99999/(0.0976*0.00111*0.10098*1000);
-        if(suffix.find("125")!=string::npos) *_LumiXSWeight = 99999/(0.0863*0.00154*0.10098*1000);
-        if(suffix.find("130")!=string::npos) *_LumiXSWeight = 100076/(0.0766*0.00195*0.10098*1000);
-        if(suffix.find("135")!=string::npos) *_LumiXSWeight = 99999/(0.0681*0.00227*0.10098*1000);
-        if(suffix.find("140")!=string::npos) *_LumiXSWeight = 99999/(0.0607*0.00246*0.10098*1000);
-        if(suffix.find("145")!=string::npos) *_LumiXSWeight = 100284/(0.0544*0.00248*0.10098*1000);
-        if(suffix.find("150")!=string::npos) *_LumiXSWeight = 100000/(0.0487*0.00231*0.10098*1000);
+      }else if(params->suffix.find("tth") != string::npos){
+        if(params->suffix.find("120")!=string::npos) *_LumiXSWeight = 99999/(0.0976*0.00111*0.10098*1000);
+        if(params->suffix.find("125")!=string::npos) *_LumiXSWeight = 99999/(0.0863*0.00154*0.10098*1000);
+        if(params->suffix.find("130")!=string::npos) *_LumiXSWeight = 100076/(0.0766*0.00195*0.10098*1000);
+        if(params->suffix.find("135")!=string::npos) *_LumiXSWeight = 99999/(0.0681*0.00227*0.10098*1000);
+        if(params->suffix.find("140")!=string::npos) *_LumiXSWeight = 99999/(0.0607*0.00246*0.10098*1000);
+        if(params->suffix.find("145")!=string::npos) *_LumiXSWeight = 100284/(0.0544*0.00248*0.10098*1000);
+        if(params->suffix.find("150")!=string::npos) *_LumiXSWeight = 100000/(0.0487*0.00231*0.10098*1000);
 
-      }else if(suffix.find("wh") != string::npos){
-        if(suffix.find("120")!=string::npos) *_LumiXSWeight = 65152/(0.6561*0.00111*0.10098*1000);
-        if(suffix.find("125")!=string::npos) *_LumiXSWeight = 65507/(0.5729*0.00154*0.10098*1000);
-        if(suffix.find("130")!=string::npos) *_LumiXSWeight = 65659/(0.5008*0.00195*0.10098*1000);
-        if(suffix.find("135")!=string::npos) *_LumiXSWeight = 65461/(0.4390*0.00227*0.10098*1000);
-        if(suffix.find("140")!=string::npos) *_LumiXSWeight = 65491/(0.3857*0.00246*0.10098*1000);
-        if(suffix.find("145")!=string::npos) *_LumiXSWeight = 65491/(0.3406*0.00248*0.10098*1000);
-        if(suffix.find("150")!=string::npos) *_LumiXSWeight = 65205/(0.3001*0.00231*0.10098*1000);
+      }else if(params->suffix.find("wh") != string::npos){
+        if(params->suffix.find("120")!=string::npos) *_LumiXSWeight = 65152/(0.6561*0.00111*0.10098*1000);
+        if(params->suffix.find("125")!=string::npos) *_LumiXSWeight = 65507/(0.5729*0.00154*0.10098*1000);
+        if(params->suffix.find("130")!=string::npos) *_LumiXSWeight = 65659/(0.5008*0.00195*0.10098*1000);
+        if(params->suffix.find("135")!=string::npos) *_LumiXSWeight = 65461/(0.4390*0.00227*0.10098*1000);
+        if(params->suffix.find("140")!=string::npos) *_LumiXSWeight = 65491/(0.3857*0.00246*0.10098*1000);
+        if(params->suffix.find("145")!=string::npos) *_LumiXSWeight = 65491/(0.3406*0.00248*0.10098*1000);
+        if(params->suffix.find("150")!=string::npos) *_LumiXSWeight = 65205/(0.3001*0.00231*0.10098*1000);
 
-      }else if(suffix.find("zh") != string::npos){
-        if(suffix.find("120")!=string::npos) *_LumiXSWeight = 34294/(0.3598*0.00111*0.10098*1000);
-        if(suffix.find("125")!=string::npos) *_LumiXSWeight = 34492/(0.3158*0.00154*0.10098*1000);
-        if(suffix.find("130")!=string::npos) *_LumiXSWeight = 34340/(0.2778*0.00195*0.10098*1000);
-        if(suffix.find("135")!=string::npos) *_LumiXSWeight = 34538/(0.2453*0.00227*0.10098*1000);
-        if(suffix.find("140")!=string::npos) *_LumiXSWeight = 34049/(0.2172*0.00246*0.10098*1000);
-        if(suffix.find("145")!=string::npos) *_LumiXSWeight = 34653/(0.1930*0.00248*0.10098*1000);
-        if(suffix.find("150")!=string::npos) *_LumiXSWeight = 34794/(0.1713*0.00231*0.10098*1000);
+      }else if(params->suffix.find("zh") != string::npos){
+        if(params->suffix.find("120")!=string::npos) *_LumiXSWeight = 34294/(0.3598*0.00111*0.10098*1000);
+        if(params->suffix.find("125")!=string::npos) *_LumiXSWeight = 34492/(0.3158*0.00154*0.10098*1000);
+        if(params->suffix.find("130")!=string::npos) *_LumiXSWeight = 34340/(0.2778*0.00195*0.10098*1000);
+        if(params->suffix.find("135")!=string::npos) *_LumiXSWeight = 34538/(0.2453*0.00227*0.10098*1000);
+        if(params->suffix.find("140")!=string::npos) *_LumiXSWeight = 34049/(0.2172*0.00246*0.10098*1000);
+        if(params->suffix.find("145")!=string::npos) *_LumiXSWeight = 34653/(0.1930*0.00248*0.10098*1000);
+        if(params->suffix.find("150")!=string::npos) *_LumiXSWeight = 34794/(0.1713*0.00231*0.10098*1000);
       }
-      if (selection=="mumuGamma") *_LumiXSWeight = 5.05/(*_LumiXSWeight);
-      if (selection=="eeGamma") *_LumiXSWeight = 4.98/(*_LumiXSWeight);
+      if (params->selection=="mumuGamma") *_LumiXSWeight = 5.05/(*_LumiXSWeight);
+      if (params->selection=="eeGamma") *_LumiXSWeight = 4.98/(*_LumiXSWeight);
 
-    }else if(period.find("2012") != string::npos){
+    }else if(params->period.find("2012") != string::npos){
 
-      if(suffix.find("gg") != string::npos){
-        if(suffix.find("120")!=string::npos) *_LumiXSWeight = 99992/(21.13*0.00111*0.10098*1000);
-        //if(suffix.find("125")!=string::npos) *_LumiXSWeight = 99991/(19.52*0.00154*0.100974*1000);
-        if(suffix.find("125")!=string::npos) *_LumiXSWeight = 100000/(19.52*0.00154*0.100974*1000);
-        if(suffix.find("130")!=string::npos) *_LumiXSWeight = 99991/(18.07*0.00195*0.10098*1000);
-        if(suffix.find("135")!=string::npos) *_LumiXSWeight = 99996/(16.79*0.00227*0.10098*1000);
-        if(suffix.find("140")!=string::npos) *_LumiXSWeight = 96994/(15.63*0.00246*0.10098*1000);
-        if(suffix.find("145")!=string::npos) *_LumiXSWeight = 99990/(14.59*0.00248*0.10098*1000);
-        if(suffix.find("150")!=string::npos) *_LumiXSWeight = 99991/(13.65*0.00231*0.10098*1000);
+      if(params->suffix.find("gg") != string::npos){
+        if(params->suffix.find("120")!=string::npos) *_LumiXSWeight = 99992/(21.13*0.00111*0.10098*1000);
+        //if(params->suffix.find("125")!=string::npos) *_LumiXSWeight = 99991/(19.52*0.00154*0.100974*1000);
+        if(params->suffix.find("125")!=string::npos) *_LumiXSWeight = 100000/(19.52*0.00154*0.100974*1000);
+        if(params->suffix.find("130")!=string::npos) *_LumiXSWeight = 99991/(18.07*0.00195*0.10098*1000);
+        if(params->suffix.find("135")!=string::npos) *_LumiXSWeight = 99996/(16.79*0.00227*0.10098*1000);
+        if(params->suffix.find("140")!=string::npos) *_LumiXSWeight = 96994/(15.63*0.00246*0.10098*1000);
+        if(params->suffix.find("145")!=string::npos) *_LumiXSWeight = 99990/(14.59*0.00248*0.10098*1000);
+        if(params->suffix.find("150")!=string::npos) *_LumiXSWeight = 99991/(13.65*0.00231*0.10098*1000);
 
-      }else if(suffix.find("vbf") != string::npos){
-        if(suffix.find("120")!=string::npos) *_LumiXSWeight = 99886/(1.649*0.00111*0.10098*1000);
-        if(suffix.find("125")!=string::npos) *_LumiXSWeight = 99885/(1.578*0.00154*0.10098*1000);
-        if(suffix.find("130")!=string::npos) *_LumiXSWeight = 99899/(1.511*0.00195*0.10098*1000);
-        if(suffix.find("135")!=string::npos) *_LumiXSWeight = 99004/(1.448*0.00227*0.10098*1000);
-        if(suffix.find("140")!=string::npos) *_LumiXSWeight = 99890/(1.389*0.00246*0.10098*1000);
-        if(suffix.find("145")!=string::npos) *_LumiXSWeight = 99888/(1.333*0.00248*0.10098*1000);
-        if(suffix.find("150")!=string::npos) *_LumiXSWeight = 99893/(1.280*0.00231*0.10098*1000);
+      }else if(params->suffix.find("vbf") != string::npos){
+        if(params->suffix.find("120")!=string::npos) *_LumiXSWeight = 99886/(1.649*0.00111*0.10098*1000);
+        if(params->suffix.find("125")!=string::npos) *_LumiXSWeight = 99885/(1.578*0.00154*0.10098*1000);
+        if(params->suffix.find("130")!=string::npos) *_LumiXSWeight = 99899/(1.511*0.00195*0.10098*1000);
+        if(params->suffix.find("135")!=string::npos) *_LumiXSWeight = 99004/(1.448*0.00227*0.10098*1000);
+        if(params->suffix.find("140")!=string::npos) *_LumiXSWeight = 99890/(1.389*0.00246*0.10098*1000);
+        if(params->suffix.find("145")!=string::npos) *_LumiXSWeight = 99888/(1.333*0.00248*0.10098*1000);
+        if(params->suffix.find("150")!=string::npos) *_LumiXSWeight = 99893/(1.280*0.00231*0.10098*1000);
 
-      }else if(suffix.find("tth") != string::npos){
-        if(suffix.find("120")!=string::npos) *_LumiXSWeight = 100080/(0.1470*0.00111*0.10098*1000);
-        if(suffix.find("125")!=string::npos) *_LumiXSWeight = 100048/(0.1302*0.00154*0.10098*1000);
-        if(suffix.find("130")!=string::npos) *_LumiXSWeight = 100368/(0.1157*0.00195*0.10098*1000);
-        if(suffix.find("135")!=string::npos) *_LumiXSWeight = 100130/(0.1031*0.00227*0.10098*1000);
-        if(suffix.find("140")!=string::npos) *_LumiXSWeight = 100340/(0.09207*0.00246*0.10098*1000);
-        if(suffix.find("145")!=string::npos) *_LumiXSWeight = 97869/(0.08246*0.00248*0.10098*1000);
-        if(suffix.find("150")!=string::npos) *_LumiXSWeight = 100048/(0.07403*0.00231*0.10098*1000);
+      }else if(params->suffix.find("tth") != string::npos){
+        if(params->suffix.find("120")!=string::npos) *_LumiXSWeight = 100080/(0.1470*0.00111*0.10098*1000);
+        if(params->suffix.find("125")!=string::npos) *_LumiXSWeight = 100048/(0.1302*0.00154*0.10098*1000);
+        if(params->suffix.find("130")!=string::npos) *_LumiXSWeight = 100368/(0.1157*0.00195*0.10098*1000);
+        if(params->suffix.find("135")!=string::npos) *_LumiXSWeight = 100130/(0.1031*0.00227*0.10098*1000);
+        if(params->suffix.find("140")!=string::npos) *_LumiXSWeight = 100340/(0.09207*0.00246*0.10098*1000);
+        if(params->suffix.find("145")!=string::npos) *_LumiXSWeight = 97869/(0.08246*0.00248*0.10098*1000);
+        if(params->suffix.find("150")!=string::npos) *_LumiXSWeight = 100048/(0.07403*0.00231*0.10098*1000);
 
-      }else if(suffix.find("wh") != string::npos){
-        if(suffix.find("120")!=string::npos) *_LumiXSWeight = 656153/(0.7966*0.00111*0.10098*1000);
-        if(suffix.find("125")!=string::npos) *_LumiXSWeight = 656101/(0.6966*0.00154*0.10098*1000);
-        if(suffix.find("130")!=string::npos) *_LumiXSWeight = 614920/(0.6095*0.00195*0.10098*1000);
-        if(suffix.find("135")!=string::npos) *_LumiXSWeight = 328690/(0.5351*0.00227*0.10098*1000);
-        if(suffix.find("140")!=string::npos) *_LumiXSWeight = 653556/(0.4713*0.00246*0.10098*1000);
-        if(suffix.find("145")!=string::npos) *_LumiXSWeight = 652944/(0.4164*0.00248*0.10098*1000);
-        if(suffix.find("150")!=string::npos) *_LumiXSWeight = 652973/(0.3681*0.00231*0.10098*1000);
+      }else if(params->suffix.find("wh") != string::npos){
+        if(params->suffix.find("120")!=string::npos) *_LumiXSWeight = 656153/(0.7966*0.00111*0.10098*1000);
+        if(params->suffix.find("125")!=string::npos) *_LumiXSWeight = 656101/(0.6966*0.00154*0.10098*1000);
+        if(params->suffix.find("130")!=string::npos) *_LumiXSWeight = 614920/(0.6095*0.00195*0.10098*1000);
+        if(params->suffix.find("135")!=string::npos) *_LumiXSWeight = 328690/(0.5351*0.00227*0.10098*1000);
+        if(params->suffix.find("140")!=string::npos) *_LumiXSWeight = 653556/(0.4713*0.00246*0.10098*1000);
+        if(params->suffix.find("145")!=string::npos) *_LumiXSWeight = 652944/(0.4164*0.00248*0.10098*1000);
+        if(params->suffix.find("150")!=string::npos) *_LumiXSWeight = 652973/(0.3681*0.00231*0.10098*1000);
 
-      }else if(suffix.find("zh") != string::npos){
-        if(suffix.find("120")!=string::npos) *_LumiXSWeight = 344220/(0.4483*0.00111*0.10098*1000);
-        if(suffix.find("125")!=string::npos) *_LumiXSWeight = 344143/(0.3943*0.00154*0.10098*1000);
-        if(suffix.find("130")!=string::npos) *_LumiXSWeight = 323352/(0.3473*0.00195*0.10098*1000);
-        if(suffix.find("135")!=string::npos) *_LumiXSWeight = 173822/(0.3074*0.00227*0.10098*1000);
-        if(suffix.find("140")!=string::npos) *_LumiXSWeight = 346650/(0.2728*0.00246*0.10098*1000);
-        if(suffix.find("145")!=string::npos) *_LumiXSWeight = 347056/(0.2424*0.00248*0.10098*1000);
-        if(suffix.find("150")!=string::npos) *_LumiXSWeight = 347459/(0.2159*0.00231*0.10098*1000);
+      }else if(params->suffix.find("zh") != string::npos){
+        if(params->suffix.find("120")!=string::npos) *_LumiXSWeight = 344220/(0.4483*0.00111*0.10098*1000);
+        if(params->suffix.find("125")!=string::npos) *_LumiXSWeight = 344143/(0.3943*0.00154*0.10098*1000);
+        if(params->suffix.find("130")!=string::npos) *_LumiXSWeight = 323352/(0.3473*0.00195*0.10098*1000);
+        if(params->suffix.find("135")!=string::npos) *_LumiXSWeight = 173822/(0.3074*0.00227*0.10098*1000);
+        if(params->suffix.find("140")!=string::npos) *_LumiXSWeight = 346650/(0.2728*0.00246*0.10098*1000);
+        if(params->suffix.find("145")!=string::npos) *_LumiXSWeight = 347056/(0.2424*0.00248*0.10098*1000);
+        if(params->suffix.find("150")!=string::npos) *_LumiXSWeight = 347459/(0.2159*0.00231*0.10098*1000);
       }
-      if (selection=="mumuGamma"){
-        if (abcd == "AB") *_LumiXSWeight = 5.3185/(*_LumiXSWeight);
-        else if (abcd == "CD") *_LumiXSWeight = 14.299/(*_LumiXSWeight);
-        else if (abcd == "ABCD") *_LumiXSWeight = 19.6175/(*_LumiXSWeight);
+      if (params->selection=="mumuGamma"){
+        if (params->abcd == "AB") *_LumiXSWeight = 5.3185/(*_LumiXSWeight);
+        else if (params->abcd == "CD") *_LumiXSWeight = 14.299/(*_LumiXSWeight);
+        else if (params->abcd == "ABCD") *_LumiXSWeight = 19.6175/(*_LumiXSWeight);
         else cout<<"abcd not specified"<<endl;
-      }else if (selection=="eeGamma"){
-        if (abcd == "AB") *_LumiXSWeight = 5.3185/(*_LumiXSWeight);
-        else if (abcd == "CD") *_LumiXSWeight = 14.301/(*_LumiXSWeight);
-        else if (abcd == "ABCD") *_LumiXSWeight = 19.6195/(*_LumiXSWeight);
+      }else if (params->selection=="eeGamma"){
+        if (params->abcd == "AB") *_LumiXSWeight = 5.3185/(*_LumiXSWeight);
+        else if (params->abcd == "CD") *_LumiXSWeight = 14.301/(*_LumiXSWeight);
+        else if (params->abcd == "ABCD") *_LumiXSWeight = 19.6195/(*_LumiXSWeight);
         else cout<<"abcd not specified"<<endl;
       }
     }
@@ -2174,7 +2174,7 @@ float higgsAnalyzer::MEDiscriminator(TCPhysObject lepton1, TCPhysObject lepton2,
     hzgamma_event.p[2].SetPxPyPzE(pg->Px(), pg->Py(), pg->Pz(), pg->Energy());
   }
 
-  if (selection == "mumuGamma"){
+  if (params->selection == "mumuGamma"){
     hzgamma_event.PdgCode[0] = 13;
     hzgamma_event.PdgCode[1] = -13;
     hzgamma_event.PdgCode[2] = 22;

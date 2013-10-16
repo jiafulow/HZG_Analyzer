@@ -1,19 +1,11 @@
 #include "../interface/Dumper.h"
 
-Dumper::Dumper(){
+Dumper::Dumper(const Parameters& params, const Cuts& cuts, const ParticleSelector& psel):
+  _parameters(params),
+  _cuts(cuts),
+  _psel(psel)
+{
   InitDumps();
-}
-
-void Dumper::SetCuts(Cuts* cuts){
-  _cuts = cuts;
-}
-
-void Dumper::SetRho(float rhoFactor){
-  _rhoFactor = rhoFactor;
-}
-
-void Dumper::SetPSelect(ParticleSelector* psel){
-  _psel = psel;
 }
 
 void Dumper::SetRun(int runNumber){
@@ -24,7 +16,7 @@ void Dumper::SetEvent(int eventNumber){
   _eventNumber = eventNumber;
 }
 
-void Dumper::SetPv(TVector3* pv){
+void Dumper::SetPv(const TVector3& pv){
   _pv = pv;
 }
 
@@ -35,14 +27,14 @@ void Dumper::SetLumi(int lumiSection){
 void Dumper::InitDumps(){
   muonDump = false;
   electronDump = false;
-  if (parameters::dumps){
-    if (parameters::selection == "mumuGamma") muonDump = true;
-    if (parameters::selection == "eeGamma") electronDump= true;
+  if (_parameters.dumps){
+    if (_parameters.selection == "mumuGamma") muonDump = true;
+    if (_parameters.selection == "eeGamma") electronDump= true;
   }
 
   char buffer[512];
   if (electronDump){
-    sprintf(buffer, "dumps/electronDump2_%s.txt",parameters::suffix.c_str());
+    sprintf(buffer, "dumps/electronDump2_%s.txt",_parameters.suffix.c_str());
     elDump2.open(buffer);
     if (!elDump2.good()) cout << "ERROR: can't open file for writing." << endl;
     elDump2<<"run"             <<" "<<"event"       <<" "<<"pt"
@@ -53,14 +45,14 @@ void Dumper::InitDumps(){
       <<" "<<"phIso"           <<" "<<"combIso"     <<" "<<"rho"
       <<" "<<"EA"              <<" "<<"passID"      <<" "<<"passIso"
       <<endl<<endl;
-    sprintf(buffer, "dumps/photonDump1El_%s.txt",parameters::suffix.c_str());
+    sprintf(buffer, "dumps/photonDump1El_%s.txt",_parameters.suffix.c_str());
     phDump1.open(buffer);
     if (!phDump1.good()) cout << "ERROR: can't open file for writing." << endl;
-    sprintf(buffer, "dumps/photonDump2El_%s.txt",parameters::suffix.c_str());
+    sprintf(buffer, "dumps/photonDump2El_%s.txt",_parameters.suffix.c_str());
     phDump2.open(buffer);
     if (!phDump2.good()) cout << "ERROR: can't open file for writing." << endl;
 
-    sprintf(buffer, "dumps/electronDumpFinal_%s_NEW.txt",parameters::suffix.c_str());
+    sprintf(buffer, "dumps/electronDumpFinal_%s_NEW.txt",_parameters.suffix.c_str());
     elDumpFinal.open(buffer);
     if (!elDumpFinal.good()) cout << "ERROR: can't open file for writing." << endl;
     elDumpFinal<<"run"             <<" "<<"event"       <<" "<<"pt"
@@ -72,14 +64,14 @@ void Dumper::InitDumps(){
       <<" "<<"EA"              <<" "<<"passID"      <<" "<<"passIso"
       <<endl<<endl;
 
-    if(parameters::doEleMVA){
-      sprintf(buffer, "dumps/electronDumpMVA_%s.txt",parameters::suffix.c_str());
+    if(_parameters.doEleMVA){
+      sprintf(buffer, "dumps/electronDumpMVA_%s.txt",_parameters.suffix.c_str());
       elDumpMVA.open(buffer);
       if (!elDumpMVA.good()) cout << "ERROR: can't open file for writing." << endl;
     }
   }
   if (muonDump){
-    sprintf(buffer, "dumps/muonDump1_%s.txt",parameters::suffix.c_str());
+    sprintf(buffer, "dumps/muonDump1_%s.txt",_parameters.suffix.c_str());
     muDump1.open(buffer);
     if (!muDump1.good()) cout << "ERROR: can't open file for writing." << endl;
     muDump1<<"run"       <<" "<<"event"       <<" "<<"pt"
@@ -90,14 +82,14 @@ void Dumper::InitDumps(){
       <<" "<<"phIso"     <<" "<<"combIso"     <<" "<<"dB"
       <<" "<<"passID"    <<" "<<"passIso"
       <<endl<<endl;
-    sprintf(buffer, "dumps/photonDump1Mu_%s.txt",parameters::suffix.c_str());
+    sprintf(buffer, "dumps/photonDump1Mu_%s.txt",_parameters.suffix.c_str());
     phDump1.open(buffer);
     if (!phDump1.good()) cout << "ERROR: can't open file for writing." << endl;
-    sprintf(buffer, "dumps/photonDump2Mu_%s.txt",parameters::suffix.c_str());
+    sprintf(buffer, "dumps/photonDump2Mu_%s.txt",_parameters.suffix.c_str());
     phDump2.open(buffer);
     if (!phDump2.good()) cout << "ERROR: can't open file for writing." << endl;
 
-    sprintf(buffer, "dumps/muonDumpFinal_%s.txt",parameters::suffix.c_str());
+    sprintf(buffer, "dumps/muonDumpFinal_%s.txt",_parameters.suffix.c_str());
     muDumpFinal.open(buffer);
     if (!muDumpFinal.good()) cout << "ERROR: can't open file for writing." << endl;
     muDumpFinal<<"run"       <<" "<<"event"       <<" "<<"pt"
@@ -110,7 +102,7 @@ void Dumper::InitDumps(){
       <<endl<<endl;
   }
 
-  if (parameters::dumps){
+  if (_parameters.dumps){
     phDump1<<"run"             <<" "<<"event"       <<" "<<"pt"
       <<" "<<"eta"              <<" "<<"CSElVeto"    <<" "<<"HoE"
       <<" "<<"sigmaIetaIeta"    <<" "<<"chIso"       <<" "<<"nhIso"
@@ -128,12 +120,12 @@ void Dumper::InitDumps(){
       <<" "<<"pt/Mllg"
       <<endl<<endl;
 
-    sprintf(buffer, "dumps/finalDump_%s_%s_%s.txt",parameters::selection.c_str(),parameters::period.c_str(),parameters::suffix.c_str());
+    sprintf(buffer, "dumps/finalDump_%s_%s_%s.txt",_parameters.selection.c_str(),_parameters.period.c_str(),_parameters.suffix.c_str());
     finalDump.open(buffer);
   }
 
-  if (parameters::dataDumps && parameters::suffix == "DATA"){
-    sprintf(buffer, "dumps/dataDump_%s_%s.txt",parameters::dataname.c_str(),parameters::jobCount.c_str());
+  if (_parameters.dataDumps && _parameters.suffix == "DATA"){
+    sprintf(buffer, "dumps/dataDump_%s_%s.txt",_parameters.dataname.c_str(),_parameters.jobCount.c_str());
     dataDump.open(buffer);
     if (!dataDump.good()) cout << "ERROR: can't open file for writing." << endl;
   }
@@ -143,16 +135,16 @@ void Dumper::ElectronDump(const TCElectron& el, const TClonesArray& recoMuons, b
 {
   if(!electronDump) return;
   float thisEA = 0;
-  if (fabs(el.Eta())     <  1.0) thisEA = _cuts->EAEle[0];
-  else if (fabs(el.Eta())     <  1.5) thisEA = _cuts->EAEle[1];
-  else if (fabs(el.Eta())     <  2.0) thisEA = _cuts->EAEle[2];
-  else if (fabs(el.Eta())     <  2.2) thisEA = _cuts->EAEle[3];
-  else if (fabs(el.Eta())     <  2.3) thisEA = _cuts->EAEle[4];
-  else if (fabs(el.Eta())     <  2.4) thisEA = _cuts->EAEle[5];
-  else if (fabs(el.Eta())     >  2.4) thisEA = _cuts->EAEle[6];
+  if (fabs(el.Eta())     <  1.0) thisEA = _cuts.EAEle[0];
+  else if (fabs(el.Eta())     <  1.5) thisEA = _cuts.EAEle[1];
+  else if (fabs(el.Eta())     <  2.0) thisEA = _cuts.EAEle[2];
+  else if (fabs(el.Eta())     <  2.2) thisEA = _cuts.EAEle[3];
+  else if (fabs(el.Eta())     <  2.3) thisEA = _cuts.EAEle[4];
+  else if (fabs(el.Eta())     <  2.4) thisEA = _cuts.EAEle[5];
+  else if (fabs(el.Eta())     >  2.4) thisEA = _cuts.EAEle[6];
 
-  bool idPass = _psel->PassElectronID(el, _cuts->looseElID, recoMuons);
-  bool isoPass = _psel->PassElectronIso(el, _cuts->looseElIso, _cuts->EAEle);
+  bool idPass = _psel.PassElectronID(el, _cuts.looseElID, recoMuons);
+  bool isoPass = _psel.PassElectronIso(el, _cuts.looseElIso, _cuts.EAEle);
 
   float combIso = (el.IsoMap("pfChIso_R04")
     + max(0.,(double)el.IsoMap("pfNeuIso_R04") + el.IsoMap("pfPhoIso_R04") - _rhoFactor*thisEA));
@@ -163,8 +155,8 @@ void Dumper::ElectronDump(const TCElectron& el, const TClonesArray& recoMuons, b
   *dump << _runNumber << " "                          << _eventNumber << " "                                 << el.Pt()
        << " "       << el.Eta()                    << " "         << el.DetaSuperCluster()              << " "      << el.DphiSuperCluster()
        << " "       << el.SigmaIEtaIEta()          << " "         << el.HadOverEm()                     << " "      << el.IdMap("fabsEPDiff")
-       << " "       << el.ConversionVeto()         << " "         << el.ConversionMissHits()            << " "      << el.Dxy(_pv)
-       << " "       << el.Dz(_pv)           << " "         << el.IsoMap("pfChIso_R04")           << " "      << el.IsoMap("pfNeuIso_R04")
+       << " "       << el.ConversionVeto()         << " "         << el.ConversionMissHits()            << " "      << el.Dxy(&_pv)
+       << " "       << el.Dz(&_pv)           << " "         << el.IsoMap("pfChIso_R04")           << " "      << el.IsoMap("pfNeuIso_R04")
        << " "       << el.IsoMap("pfPhoIso_R04")   << " "         << combIso                             << " "      << _rhoFactor
        << " "       << thisEA                       << " "         << idPass                              << " "      << isoPass
        << endl;
@@ -174,12 +166,12 @@ void Dumper::MuonDump(const TCMuon& mu, bool final)
 {
   if(!muonDump) return;
 
-  bool idPass = _psel->PassMuonID(mu, _cuts->tightMuID);
+  bool idPass = _psel.PassMuonID(mu, _cuts.tightMuID);
   bool isoPass;
-  if (parameters::doLooseMuIso){
-    isoPass = _psel->PassMuonIso(mu, _cuts->looseMuIso);
+  if (_parameters.doLooseMuIso){
+    isoPass = _psel.PassMuonIso(mu, _cuts.looseMuIso);
   }else{
-    isoPass = _psel->PassMuonIso(mu, _cuts->tightMuIso);
+    isoPass = _psel.PassMuonIso(mu, _cuts.tightMuIso);
   }
 
   float combIso; 
@@ -201,42 +193,42 @@ void Dumper::MuonDump(const TCMuon& mu, bool final)
 
 void Dumper::PhotonDump(const TCPhoton& ph) 
 {
-  if(!parameters::dumps) return;
+  if(!_parameters.dumps) return;
   float chEA,nhEA,phEA,tmpEta;
   tmpEta = ph.SCEta();
 
   if (fabs(tmpEta) < 1.0){
-    chEA = _cuts->EAPho[0][0];
-    nhEA = _cuts->EAPho[0][1];
-    phEA = _cuts->EAPho[0][2];
+    chEA = _cuts.EAPho[0][0];
+    nhEA = _cuts.EAPho[0][1];
+    phEA = _cuts.EAPho[0][2];
   }else if (fabs(tmpEta) < 1.479){
-    chEA = _cuts->EAPho[1][0];
-    nhEA = _cuts->EAPho[1][1];
-    phEA = _cuts->EAPho[1][2];
+    chEA = _cuts.EAPho[1][0];
+    nhEA = _cuts.EAPho[1][1];
+    phEA = _cuts.EAPho[1][2];
   }else if (fabs(tmpEta) < 2.0){
-    chEA = _cuts->EAPho[2][0];
-    nhEA = _cuts->EAPho[2][1];
-    phEA = _cuts->EAPho[2][2];
+    chEA = _cuts.EAPho[2][0];
+    nhEA = _cuts.EAPho[2][1];
+    phEA = _cuts.EAPho[2][2];
   }else if (fabs(tmpEta) < 2.2){
-    chEA = _cuts->EAPho[3][0];
-    nhEA = _cuts->EAPho[3][1];
-    phEA = _cuts->EAPho[3][2];
+    chEA = _cuts.EAPho[3][0];
+    nhEA = _cuts.EAPho[3][1];
+    phEA = _cuts.EAPho[3][2];
   }else if (fabs(tmpEta) < 2.3){ 
-    chEA = _cuts->EAPho[4][0];
-    nhEA = _cuts->EAPho[4][1];
-    phEA = _cuts->EAPho[4][2];
+    chEA = _cuts.EAPho[4][0];
+    nhEA = _cuts.EAPho[4][1];
+    phEA = _cuts.EAPho[4][2];
   }else if (fabs(tmpEta) < 2.4){
-    chEA = _cuts->EAPho[5][0];
-    nhEA = _cuts->EAPho[5][1];
-    phEA = _cuts->EAPho[5][2];
+    chEA = _cuts.EAPho[5][0];
+    nhEA = _cuts.EAPho[5][1];
+    phEA = _cuts.EAPho[5][2];
   }else{                                  
-    chEA = _cuts->EAPho[6][0];
-    nhEA = _cuts->EAPho[6][1];
-    phEA = _cuts->EAPho[6][2];
+    chEA = _cuts.EAPho[6][0];
+    nhEA = _cuts.EAPho[6][1];
+    phEA = _cuts.EAPho[6][2];
   }
 
-  bool idPass = _psel->PassPhotonID(ph, _cuts->mediumPhID);
-  bool isoPass = _psel->PassPhotonIso(ph, _cuts->mediumPhIso, _cuts->EAPho);
+  bool idPass = _psel.PassPhotonID(ph, _cuts.mediumPhID);
+  bool isoPass = _psel.PassPhotonIso(ph, _cuts.mediumPhIso, _cuts.EAPho);
 
   phDump1 << _runNumber << " "                   << _eventNumber << " "                   << ph.Pt()
        << " "       << tmpEta                << " "         << ph.ConversionVeto()  << " "      << ph.HadOverEm()
@@ -249,42 +241,42 @@ void Dumper::PhotonDump(const TCPhoton& ph)
 
 void Dumper::PhotonDump2(const TCPhoton& ph, const TLorentzVector& lepton1, const TLorentzVector& lepton2)
 {
-  if(!parameters::dumps) return;
+  if(!_parameters.dumps) return;
   float chEA,nhEA,phEA,tmpEta;
   tmpEta = ph.SCEta();
 
   if (fabs(tmpEta) < 1.0){
-    chEA = _cuts->EAPho[0][0];
-    nhEA = _cuts->EAPho[0][1];
-    phEA = _cuts->EAPho[0][2];
+    chEA = _cuts.EAPho[0][0];
+    nhEA = _cuts.EAPho[0][1];
+    phEA = _cuts.EAPho[0][2];
   }else if (fabs(tmpEta) < 1.479){
-    chEA = _cuts->EAPho[1][0];
-    nhEA = _cuts->EAPho[1][1];
-    phEA = _cuts->EAPho[1][2];
+    chEA = _cuts.EAPho[1][0];
+    nhEA = _cuts.EAPho[1][1];
+    phEA = _cuts.EAPho[1][2];
   }else if (fabs(tmpEta) < 2.0){
-    chEA = _cuts->EAPho[2][0];
-    nhEA = _cuts->EAPho[2][1];
-    phEA = _cuts->EAPho[2][2];
+    chEA = _cuts.EAPho[2][0];
+    nhEA = _cuts.EAPho[2][1];
+    phEA = _cuts.EAPho[2][2];
   }else if (fabs(tmpEta) < 2.2){
-    chEA = _cuts->EAPho[3][0];
-    nhEA = _cuts->EAPho[3][1];
-    phEA = _cuts->EAPho[3][2];
+    chEA = _cuts.EAPho[3][0];
+    nhEA = _cuts.EAPho[3][1];
+    phEA = _cuts.EAPho[3][2];
   }else if (fabs(tmpEta) < 2.3){ 
-    chEA = _cuts->EAPho[4][0];
-    nhEA = _cuts->EAPho[4][1];
-    phEA = _cuts->EAPho[4][2];
+    chEA = _cuts.EAPho[4][0];
+    nhEA = _cuts.EAPho[4][1];
+    phEA = _cuts.EAPho[4][2];
   }else if (fabs(tmpEta) < 2.4){
-    chEA = _cuts->EAPho[5][0];
-    nhEA = _cuts->EAPho[5][1];
-    phEA = _cuts->EAPho[5][2];
+    chEA = _cuts.EAPho[5][0];
+    nhEA = _cuts.EAPho[5][1];
+    phEA = _cuts.EAPho[5][2];
   }else{                                  
-    chEA = _cuts->EAPho[6][0];
-    nhEA = _cuts->EAPho[6][1];
-    phEA = _cuts->EAPho[6][2];
+    chEA = _cuts.EAPho[6][0];
+    nhEA = _cuts.EAPho[6][1];
+    phEA = _cuts.EAPho[6][2];
   }
 
-  bool idPass = _psel->PassPhotonID(ph, _cuts->mediumPhID);
-  bool isoPass = _psel->PassPhotonIso(ph, _cuts->mediumPhIso, _cuts->EAPho);
+  bool idPass = _psel.PassPhotonID(ph, _cuts.mediumPhID);
+  bool isoPass = _psel.PassPhotonIso(ph, _cuts.mediumPhIso, _cuts.EAPho);
 
   float dr1 = ph.DeltaR(lepton1);
   float dr2 = ph.DeltaR(lepton2);
@@ -301,12 +293,12 @@ void Dumper::PhotonDump2(const TCPhoton& ph, const TLorentzVector& lepton1, cons
 }
 
 void Dumper::DataDumper(const TLorentzVector& lepton1, const TLorentzVector& lepton2, const TLorentzVector& gamma, float R9input, float SCEta, float eta1, float eta2){
-  if(!parameters::dataDumps) return;
+  if(!_parameters.dataDumps) return;
   int cat = -1;
   bool goodLep = false;
-  if (parameters::selection == "mumuGamma"){
+  if (_parameters.selection == "mumuGamma"){
     goodLep = (fabs(lepton1.Eta()) < 0.9 || fabs(lepton2.Eta()) < 0.9) && (fabs(lepton1.Eta()) < 2.1 && fabs(lepton2.Eta()) < 2.1);
-  }else if (parameters::selection == "eeGamma"){
+  }else if (_parameters.selection == "eeGamma"){
     goodLep = (fabs(eta1) < 1.4442 && fabs(eta2) < 1.4442);
   }
 
@@ -329,12 +321,12 @@ void Dumper::DataDumper(const TLorentzVector& lepton1, const TLorentzVector& lep
 }
 
 void Dumper::DataDumper(const TLorentzVector& lepton1, const TLorentzVector& lepton2, const TLorentzVector& gamma, const TLorentzVector& uncorLepton1, const TLorentzVector& uncorLepton2, const TLorentzVector& uncorGamma, float R9input, float SCEta, float eta1, float eta2){
-  if(!parameters::dataDumps) return;
+  if(!_parameters.dataDumps) return;
   int cat = -1;
   bool goodLep = false;
-  if (parameters::selection == "mumuGamma"){
+  if (_parameters.selection == "mumuGamma"){
     goodLep = (fabs(lepton1.Eta()) < 0.9 || fabs(lepton2.Eta()) < 0.9) && (fabs(lepton1.Eta()) < 2.1 && fabs(lepton2.Eta()) < 2.1);
-  }else if (parameters::selection == "eeGamma"){
+  }else if (_parameters.selection == "eeGamma"){
     goodLep = (fabs(eta1) < 1.4442 && fabs(eta2) < 1.4442);
   }
 
@@ -362,11 +354,11 @@ void Dumper::DataDumper(const TLorentzVector& lepton1, const TLorentzVector& lep
 }
 
 void Dumper::FinalDumper(const TLorentzVector& lepton1, const TLorentzVector& lepton2, const TLorentzVector& gamma, int catNum){
-  if(!parameters::dumps) return;
+  if(!_parameters.dumps) return;
   float mll = (lepton1 + lepton2).M();
   float mllg = (lepton1 + lepton2 + gamma).M();
 
-  if (parameters::doEleReg){
+  if (_parameters.doEleReg){
      finalDump << "cat: "   << setw(2)  << catNum        << " evt: "   << setw(10) << _eventNumber << " l1RegE-P: " << setw(10) << lepton1.E() << " l1pt: " << setw(10) << lepton1.Pt()
          << " l2RegE-P: " << setw(10) << lepton2.E() << " l2pt: " << setw(10) << lepton2.Pt() << " l1eta: " << setw(10) << lepton1.Eta() << " l2eta: " << setw(10) << lepton2.Eta() << " phopt: " << setw(10) << gamma.Pt() << " mll: "  << setw(10) << mll
          << " mllg: " << setw(10) << mllg          << endl;
@@ -379,7 +371,7 @@ void Dumper::FinalDumper(const TLorentzVector& lepton1, const TLorentzVector& le
 
 void Dumper::MVADumper(const TCElectron& ele, EGammaMvaEleEstimator* mvaMaker)
 {
-  if(!electronDump || !parameters::doEleMVA) return;
+  if(!electronDump || !_parameters.doEleMVA) return;
   bool passPreSel = false;
   bool passMVA = false;
   if (ele.IdMap("preSelPassV1")) passPreSel = true;			
@@ -417,7 +409,7 @@ void Dumper::MVADumper(const TCElectron& ele, EGammaMvaEleEstimator* mvaMaker)
   }
 
   bool passIso = false;
-  passIso = _psel->PassElectronIso(ele, _cuts->looseElIso, _cuts->EAEle);
+  passIso = _psel.PassElectronIso(ele, _cuts.looseElIso, _cuts.EAEle);
 
 elDumpMVA << " run: "                   << setw(7)  << _runNumber                            << " evt: "                   << setw(10) << _eventNumber                          << " lumi: "                  << setw(5)  << _lumiSection
      << " pt: "                    << setw(10) << ele.Pt()                            << " SCeta: "                 << setw(10) << ele.SCEta()                         << " fbrem: "                 << setw(10) << ele.IdMap("fbrem")
@@ -444,19 +436,19 @@ void Dumper::CloseDumps(){
     elDump2.close();
     elDumpFinal.close();
   }
-  if(electronDump && parameters::doEleMVA){
+  if(electronDump && _parameters.doEleMVA){
     elDumpMVA.close();
   }
   if(muonDump){
     muDump1.close();
     muDumpFinal.close();
   }
-  if(parameters::dumps){
+  if(_parameters.dumps){
     phDump1.close();
     phDump2.close();
     finalDump.close();
   }
-  if(parameters::dataDumps && parameters::suffix == "DATA"){
+  if(_parameters.dataDumps && _parameters.suffix == "DATA"){
     dataDump.close();
   }
 }

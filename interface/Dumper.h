@@ -14,15 +14,13 @@
 
 class Dumper{
   public:
-    Dumper();
+    Dumper(const Parameters& params, const Cuts& cuts, const ParticleSelector& psel);
     void  InitDumps();
-    void  SetCuts(Cuts* cuts);
-    void  SetPSelect(ParticleSelector*);
     void  SetRho(float);
     void  SetRun(int);
     void  SetEvent(int);
     void  SetLumi(int);
-    void  SetPv(TVector3*);
+    void  SetPv(const TVector3&);
     void  ElectronDump(const TCElectron& el, const TClonesArray& recoMuons, bool final);
     void  MVADumper(const TCElectron& ele, EGammaMvaEleEstimator* mvaMaker);
     void  MuonDump(const TCMuon& mu, bool final);
@@ -49,13 +47,14 @@ class Dumper{
 
     bool electronDump;
     bool muonDump;
-    Cuts* _cuts;
-    ParticleSelector* _psel;
+    Parameters _parameters;
+    Cuts _cuts;
+    ParticleSelector _psel;
     float _rhoFactor;
     int _runNumber;
     int _eventNumber;
     int _lumiSection;
-    TVector3* _pv;
+    TVector3 _pv;
 
 };
 
