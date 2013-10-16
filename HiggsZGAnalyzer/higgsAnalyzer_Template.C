@@ -106,6 +106,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   histoFile->mkdir("ZGAngles_RECO", "ZGAngles_RECO");
   histoFile->mkdir("PhotonPurity", "PhotonPurity");
   histoFile->mkdir("MEPlots", "MEPlots");
+  histoFile->mkdir("FakeRateWeight", "FakeRateWeight");
 
   diffZGscalar = diffZGvector = threeBodyMass = threeBodyPt = divPt = cosZ = cosG = METdivQt = GPt = ZPt = DPhi = diffPlaneMVA = vtxVariable = dr1 = dr2 = M12 = scaleFactor = -99999;
 
@@ -1485,6 +1486,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   //////////
   // misc //
   //////////
+  
 
   ZGLabVectors recoLevelInputs;
   ZGAngles     recoLevelOutputs;
