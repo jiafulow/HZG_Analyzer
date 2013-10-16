@@ -49,10 +49,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   phoCorrector.reset(new zgamma::PhosphorCorrectionFunctor("../plugins/PHOSPHOR_NUMBERS_EXPFIT_ERRORS.txt", true));
   Xcal2.reset(new TEvtProb);
   particleSelector.reset(new ParticleSelector(*params, *cuts, isRealData, runNumber, *rEl));
-  dumper.reset(new Dumper());
-  dumper->SetParams(*params);
-  dumper->SetCuts(*cuts);
-  dumper->SetPSelect(*particleSelector);
+  dumper.reset(new Dumper(*params,*cuts,*particleSelector));
 
 
   //genHZG = {0,0,0,0,0,0};
@@ -160,7 +157,7 @@ void higgsAnalyzer::Begin(TTree * tree)
 
   //MVA Angles shit
 
-  if (doAnglesMVA) tmvaReader = MVAInitializer(mvaVars, mvaInits);
+  if (params->doAnglesMVA) tmvaReader = MVAInitializer(mvaVars, mvaInits);
 
   //ElectronMVA Selection
 
@@ -189,7 +186,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 {
 
   GetEntry(entry,1);
-  if(eventNumber == EVENTNUMBER) cout<<EVENTNUMBER<<endl;
+  if(eventNumber == params->EVENTNUMBER) cout<<params->EVENTNUMBER<<endl;
 
   // 2011 bad electron run veto
   if(params->selection == "eeGamma" && isRealData && params->period.find("2011") != string::npos){
@@ -275,7 +272,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     //////////// DYJets Gamma Veto ////////////
     vector<TCGenParticle>::iterator testIt;
 
-    if (DYGammaVeto && (params->suffix.find("DYJets") != string::npos)){
+    if (params->DYGammaVeto && (params->suffix.find("DYJets") != string::npos)){
       if (vetoPhotons.size() > 0){
         //cout<<"photon mother ID:"<<endl;
         for (testIt=vetoPhotons.begin(); testIt<vetoPhotons.end(); testIt++){
@@ -447,8 +444,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   pvPosition.reset(new TVector3());
   *pvPosition = goodVertices[0];
-  particleSelector->SetPv(pvPosition.get());
-  dumper->SetPv(pvPosition.get());
+  particleSelector->SetPv(*pvPosition);
+  dumper->SetPv(*pvPosition);
 
 
 
@@ -489,7 +486,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
     
 
-    if(doEleMVA){
+    if(params->doEleMVA){
       bool passAll = false;
 
       dumper->MVADumper(*thisElec, myMVATrig.get()); 
@@ -540,13 +537,13 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       if (passAll){
         cloneElectron = thisElec;
         electronsIDIso.push_back(*thisElec);			
-        if (EVENTNUMBER == eventNumber) cout<<"regE: "<<thisElec->IdMap("EnergyRegression")<<" regE-p: "<<thisElec->RegressionMomCombP4().E()<<endl;
-        if (engCor || doEleReg) electronsIDIsoUnCor.push_back(*cloneElectron);
+        if (params->EVENTNUMBER == eventNumber) cout<<"regE: "<<thisElec->IdMap("EnergyRegression")<<" regE-p: "<<thisElec->RegressionMomCombP4().E()<<endl;
+        if (params->engCor || params->doEleReg) electronsIDIsoUnCor.push_back(*cloneElectron);
       }
                                                                   
 
     }else{
-      if(engCor){
+      if(params->engCor){
         float energyElCor;
         if ( params->period.find("2011") != string::npos ){
           energyElCor = correctedElectronEnergy( thisElec->E(), thisElec->SCEta(), thisElec->R9(), runNumber, 0, "2011", !isRealData, rEl.get() );
@@ -561,7 +558,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       if (particleSelector->PassElectronID(*thisElec, cuts->looseElID, *recoMuons)) electronsID.push_back(*thisElec);			
       if (particleSelector->PassElectronID(*thisElec, cuts->looseElID, *recoMuons) && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
         electronsIDIso.push_back(*thisElec);			
-        if (engCor) electronsIDIsoUnCor.push_back(*cloneElectron);
+        if (params->engCor) electronsIDIsoUnCor.push_back(*cloneElectron);
       }
     } 
 
@@ -605,7 +602,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
     // Section for muon energy/momentum corrections.  NOTE: this will change the pt and thus ID/ISO of muon
 
-    if(engCor){
+    if(params->engCor){
       tmpMuCor = *thisMuon;
       if ( params->period.find("2011") != string::npos ){
         if (isRealData){
@@ -649,15 +646,15 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
     //tight ID and Iso
 
-    if (doLooseMuIso){
+    if (params->doLooseMuIso){
       if (particleSelector->PassMuonID(*thisMuon, cuts->tightMuID) && particleSelector->PassMuonIso(*thisMuon, cuts->looseMuIso)){
         muonsIDIso.push_back(*thisMuon);
-        if (engCor) muonsIDIsoUnCor.push_back(*cloneMuon);
+        if (params->engCor) muonsIDIsoUnCor.push_back(*cloneMuon);
       }
     }else{
       if (particleSelector->PassMuonID(*thisMuon, cuts->tightMuID) && particleSelector->PassMuonIso(*thisMuon, cuts->tightMuIso)){
         muonsIDIso.push_back(*thisMuon);
-        if (engCor) muonsIDIsoUnCor.push_back(*cloneMuon);
+        if (params->engCor) muonsIDIsoUnCor.push_back(*cloneMuon);
       }
     }
 
@@ -689,7 +686,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       vector<float> TrkIsoVec;
       TCPhoton* thisPhoton = (TCPhoton*) recoPhotons->At(i);
 
-      if (spikeVeto && (params->period == "2012A_Jul13" || params->period == "2012A_Aug06rec" || params->period == "2012B_Jul13")){
+      if (params->spikeVeto && (params->period == "2012A_Jul13" || params->period == "2012A_Aug06rec" || params->period == "2012B_Jul13")){
       //  cout<<"SCeta: "<<thisPhoton->SCEta()<<" SCphi: "<<thisPhoton->SCPhi()<<endl;
         float dEta = thisPhoton->SCEta()-(-1.76);
         float dPhi = TVector2::Phi_mpi_pi(thisPhoton->SCPhi()-1.37);
@@ -704,10 +701,10 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
       // Section for photon energy/momentum corrections.  NOTE: this will change the pt and thus ID/ISO of photon
       
-      if(engCor){
+      if(params->engCor){
         R9Cor = thisPhoton->R9();
-        if (doR9Cor){
-          if (suffix != "DATA"){
+        if (params->doR9Cor){
+          if (params->suffix != "DATA"){
             if (params->period == "2011"){
               if (fabs(thisPhoton->SCEta()) < 1.479){
                 R9Cor = thisPhoton->R9()*1.0048;
@@ -760,7 +757,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       if (particleSelector->PassPhotonID(*thisPhoton, cuts->mediumPhID) && particleSelector->PassPhotonIso(*thisPhoton, cuts->mediumPhIso, cuts->EAPho)){
         //standard selection photons
         photonsIDIso.push_back(*thisPhoton);
-        if (engCor) photonsIDIsoUnCor.push_back(*clonePhoton);
+        if (params->engCor) photonsIDIsoUnCor.push_back(*clonePhoton);
       }
       else if (particleSelector->PassPhotonID(*thisPhoton, cuts->loosePhID) && particleSelector->PassPhotonIso(*thisPhoton, cuts->mediumPhIso, cuts->EAPho)){
         photonsLIDMIso.push_back(*thisPhoton);
@@ -871,7 +868,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     //////////////////
 
   } else if (params->selection == "muon" || params->selection =="mumuGamma") {
-    if (eventNumber == EVENTNUMBER) cout<<"two ID muons?: "<<muonsID.size()<<endl;
+    if (eventNumber == params->EVENTNUMBER) cout<<"two ID muons?: "<<muonsID.size()<<endl;
     if (muonsID.size() < 2) return kTRUE;
 
     bool firstMu = false;
@@ -890,7 +887,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     hm->fill1DHist(6,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
     ++nEvents[5];
 
-    if (eventNumber == EVENTNUMBER) cout<<"two ISO muons?: "<<muonsIDIso.size()<<endl;
+    if (eventNumber == params->EVENTNUMBER) cout<<"two ISO muons?: "<<muonsIDIso.size()<<endl;
     if (muonsIDIso.size() < 2) return kTRUE;
     firstMu = false;
     bothMus = false;
@@ -907,10 +904,10 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   }
 
   if (params->period.find("2011") != string::npos){
-    if (doScaleFactors) eventWeight   *= weighter->PUWeight(nPUVertices);
+    if (params->doScaleFactors) eventWeight   *= weighter->PUWeight(nPUVertices);
     eventWeightPU   *= weighter->PUWeight(nPUVertices);
   }else if (params->period.find("2012") != string::npos){
-    if (doScaleFactors) eventWeight   *= weighter->PUWeight(nPUVerticesTrue);
+    if (params->doScaleFactors) eventWeight   *= weighter->PUWeight(nPUVerticesTrue);
     eventWeightPU   *= weighter->PUWeight(nPUVerticesTrue);
   }
 
@@ -935,13 +932,13 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   float SCetaEl1 = -99999;
   float SCetaEl2 = -99999;
   if(params->selection == "eeGamma"){
-    if (eventNumber == EVENTNUMBER) cout<<goodZ<<endl;
-    if (engCor || doEleReg) goodZ = particleSelector->FindGoodZElectron(electronsIDIso,electronsIDIsoUnCor,lepton1,lepton2,uncorLepton1,uncorLepton2,ZP4,SCetaEl1,SCetaEl2,lepton1int,lepton2int);
+    if (eventNumber == params->EVENTNUMBER) cout<<goodZ<<endl;
+    if (params->engCor || params->doEleReg) goodZ = particleSelector->FindGoodZElectron(electronsIDIso,electronsIDIsoUnCor,lepton1,lepton2,uncorLepton1,uncorLepton2,ZP4,SCetaEl1,SCetaEl2,lepton1int,lepton2int);
     else goodZ = particleSelector->FindGoodZElectron(electronsIDIso,lepton1,lepton2,ZP4,SCetaEl1,SCetaEl2,lepton1int,lepton2int);
-    if (eventNumber == EVENTNUMBER) cout<<"el num: "<<electronsIDIso.size()<<" goodZ: "<<goodZ<<endl;
+    if (eventNumber == params->EVENTNUMBER) cout<<"el num: "<<electronsIDIso.size()<<" goodZ: "<<goodZ<<endl;
     if (!goodZ) return kTRUE;
     if (!isRealData){ 
-      if (doScaleFactors){
+      if (params->doScaleFactors){
         eventWeight   *= weighter->ElectronTriggerWeight(lepton1, lepton2);
         if (params->period.find("2011") != string::npos){
           eventWeight   *= getEfficiencyWeight( &lepton1, CorrectionType::CENTRAL, atoi(params->period.c_str()));
@@ -963,13 +960,13 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     }
     //cout<<eventWeight<<endl;
   }else{
-    if (engCor) goodZ = particleSelector->FindGoodZMuon(muonsIDIso,muonsIDIsoUnCor,lepton1,lepton2,uncorLepton1,uncorLepton2,ZP4,lepton1int,lepton2int);
+    if (params->engCor) goodZ = particleSelector->FindGoodZMuon(muonsIDIso,muonsIDIsoUnCor,lepton1,lepton2,uncorLepton1,uncorLepton2,ZP4,lepton1int,lepton2int);
     else goodZ = particleSelector->FindGoodZMuon(muonsIDIso,lepton1,lepton2,ZP4,lepton1int,lepton2int);
-    if (eventNumber == EVENTNUMBER) cout<<"goodZ?: "<<goodZ<<endl;
+    if (eventNumber == params->EVENTNUMBER) cout<<"goodZ?: "<<goodZ<<endl;
     if (!goodZ) return kTRUE;
-    if (eventNumber == EVENTNUMBER) cout<<"goodZ?: "<<goodZ<<endl;
+    if (eventNumber == params->EVENTNUMBER) cout<<"goodZ?: "<<goodZ<<endl;
     if (!isRealData){ 
-      if (doScaleFactors){
+      if (params->doScaleFactors){
         eventWeight   *= weighter->MuonTriggerWeight(lepton1, lepton2);
         eventWeight   *= weighter->MuonSelectionWeight(lepton1);
         eventWeight   *= weighter->MuonSelectionWeight(lepton2);
@@ -1006,7 +1003,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   // Z mass //
   ////////////
 
-  if (eventNumber == EVENTNUMBER) cout<<ZP4.M()<<endl;
+  if (eventNumber == params->EVENTNUMBER) cout<<ZP4.M()<<endl;
   if ((ZP4.M() < cuts->zMassLow || ZP4.M() > cuts->zMassHigh)) return kTRUE;  
   hm->fill1DHist(9,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");
   hm->fill1DHist(9,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
@@ -1014,7 +1011,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   hm->fill1DHist(ZP4.M(),"h1_diLeptonMassPreSel_SUFFIX", "M_{ll}; M_{ll};N_{evts}", 40, 70., 110.,eventWeight,"PreSel");
 
 
-  if (dumps){
+  if (params->dumps){
     for (unsigned int i = 0; i < photonsIDIso.size(); ++i) {
       dumper->PhotonDump2(photonsIDIso[i], lepton1, lepton2);
     }
@@ -1038,12 +1035,12 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   bool goodPhoton, goodPhoton_LIDMIso, goodPhoton_MIDLIso, goodPhoton_LIDLIso, goodPhoton_NoIDIso;
   goodPhoton = goodPhoton_LIDMIso = goodPhoton_MIDLIso = goodPhoton_LIDLIso = goodPhoton_NoIDIso = false;
 
-  if (!doPhotonPurityStudy){
+  if (!params->doPhotonPurityStudy){
     if (photonsIDIso.size() < 1) return kTRUE;
     goodPhoton = particleSelector->FindGoodPhoton(photonsIDIso, GP4, lepton1, lepton2, R9Cor, GP4scEta);
     if(!goodPhoton) return kTRUE;
 
-    if (doScaleFactors) eventWeight   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
+    if (params->doScaleFactors) eventWeight   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
     eventWeightPho   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
   }else{
 
@@ -1157,7 +1154,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   //////////////////////////
 
   if (params->selection == "mumuGamma"|| params->selection == "eeGamma" || params->selection == "gammaJets")  if ((ZP4+GP4).M() < cuts->zgMassLow) return kTRUE;
-  if (doScaleFactors) eventWeight *= weighter->HqtWeight((ZP4+GP4));
+  if (params->doScaleFactors) eventWeight *= weighter->HqtWeight((ZP4+GP4));
   hm->fill1DHist(17,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");
   hm->fill1DHist(17,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
   ++nEvents[16];
@@ -1205,7 +1202,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   // MVA Angles //
   ////////////////
 
-  if (doAnglesMVA) MVACalulator(mvaVars, mvaInits, tmvaReader);
+  if (params->doAnglesMVA) MVACalulator(mvaVars, mvaInits, tmvaReader);
 
   hm->fill1DHist(22,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");
   hm->fill1DHist(22,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
@@ -1248,7 +1245,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   // Cross Section Weighting //
   LumiXSWeight(&unBinnedLumiXS);
-  if(doLumiXS) eventWeight *= unBinnedLumiXS;
+  if(params->doLumiXS) eventWeight *= unBinnedLumiXS;
 
   if ( (GP4+ZP4).M() > 100){
     hm->fill1DHist(50,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5,eventWeight,"Misc");
@@ -1326,7 +1323,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
     m_llg = (GP4+ZP4).M();
 
-    if (dumps){
+    if (params->dumps){
       if (params->selection == "mumuGamma"){
         dumper->MuonDump(muonsIDIso[lepton1int],true);
         dumper->MuonDump(muonsIDIso[lepton2int],true);
@@ -1388,11 +1385,11 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       hmHiggs->fill1DHist(R9Cor, "h1_R9CorLowR9Cor_SUFFIX","R9Cor;R9Cor;Entries",100,0,1,eventWeight);
     }
 
-    if (dataDumps && isRealData){
+    if (params->dataDumps && isRealData){
       dumper->DataDumper(lepton1, lepton2, GP4, R9Cor, GP4scEta, SCetaEl1,SCetaEl2);
     }
 
-    if (dumps){
+    if (params->dumps){
       dumper->FinalDumper(lepton1, lepton2, GP4, catNum);
     }
 
@@ -1458,7 +1455,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   /////////////////////////
 
   StandardPlots(lepton1,lepton2,GP4,eventWeight,"", "pT-Eta-Phi");
-  if (doPhotonPurityStudy){
+  if (params->doPhotonPurityStudy){
     if(goodPhoton) StandardPlots(lepton1,lepton2,GP4,eventWeight,"MIDMIso", "PhotonPurity");
     if(goodPhoton_LIDMIso) StandardPlots(lepton1,lepton2,GP4_LIDMIso,eventWeight,"LIDMIso", "PhotonPurity");
     if(goodPhoton_MIDLIso) StandardPlots(lepton1,lepton2,GP4_MIDLIso,eventWeight,"MIDLIso", "PhotonPurity");
@@ -1534,7 +1531,7 @@ void higgsAnalyzer::Terminate()
   TH1F* eventHisto = (TH1F*)histoFile->GetDirectory("Misc")->Get("h1_acceptanceByCut_SUFFIX");
   
 
-  cout<<"\nRunning over "<<suffix<<" dataset with "<<params->selection<<" selection."<<"\n"<<endl;
+  cout<<"\nRunning over "<<params->suffix<<" dataset with "<<params->selection<<" selection."<<"\n"<<endl;
   cout << "| CUT DESCRIPTION                    |\t" << "\t|"                         << endl;
   cout << "| Unskimmed events:                  |\t" << unskimmedEventsTotal          << "\t|" << endl;
   cout << "| Initial number of events:          |\t" << nEvents[0]                    << "\t|" << endl;

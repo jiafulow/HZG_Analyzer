@@ -8,6 +8,10 @@ Dumper::Dumper(const Parameters& params, const Cuts& cuts, const ParticleSelecto
   InitDumps();
 }
 
+void Dumper::SetRho(float rho){
+  _rhoFactor = rho;
+}
+
 void Dumper::SetRun(int runNumber){
   _runNumber = runNumber;
 }
@@ -184,7 +188,7 @@ void Dumper::MuonDump(const TCMuon& mu, bool final)
   *dump << _runNumber << " "                              << _eventNumber << " "                                 << mu.Pt()
        << " "       << mu.Eta()                        << " "         << mu.IsGLB()                         << " "      << mu.IsPF()
        << " "       << mu.NormalizedChi2()             << " "         << mu.NumberOfValidMuonHits()         << " "      << mu.NumberOfMatchedStations()
-       << " "       << mu.Dxy(_pv)              << " "         << mu.Dz(_pv)                  << " "      << mu.NumberOfValidPixelHits()
+       << " "       << mu.Dxy(&_pv)              << " "         << mu.Dz(&_pv)                  << " "      << mu.NumberOfValidPixelHits()
        << " "       << mu.TrackLayersWithMeasurement() << " "         << mu.IsoMap("pfChargedHadronPt_R04") << " "      << mu.IsoMap("pfNeutralHadronEt_R04")
        << " "       << mu.IsoMap("pfPhotonEt_R04")     << " "         << combIso                             << " "      << mu.IsoMap("pfPUPt_R04")
        << " "         << idPass                              << " "      << isoPass
