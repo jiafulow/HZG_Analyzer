@@ -199,7 +199,7 @@ void Cuts::InitEA(string year)
 
 
   }else{
-    cerr<<"period != 2011 OR 2012, figure your shit out"<<endl;
+    cerr<<year<<": period != 2011 OR 2012, figure your shit out"<<endl;
     abort();
   }
 

@@ -63,8 +63,6 @@ class BatchMaster():
 
         exec_tmp.seek(0)
         infile.close()
-        for line in exec_tmp:
-          print line
         return exec_tmp
 
     def MakeBatchConfig(self, config, nJob, exec_tmp):

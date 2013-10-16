@@ -5,8 +5,8 @@ CERNLIB     =
 # Replace this with the location of LHAPDF on your system (if desired)
 LHAPDFLIB   = 
 
-MCFMHOME        = /uscms/home/bpollack/nobackup/CMSSW_5_3_8_patch1/src/HZG_Analyzer/hzgammaME/MCFM-6.6
-SOURCEDIR       = /uscms/home/bpollack/nobackup/CMSSW_5_3_8_patch1/src/HZG_Analyzer/hzgammaME/MCFM-6.6/src
+MCFMHOME        = /tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/hzgammaME/MCFM-6.6
+SOURCEDIR       = /tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/hzgammaME/MCFM-6.6/src
 VPATH		= $(DIRS)
 BIN		= $(MCFMHOME)/Bin
 INCPATH  	= $(SOURCEDIR)/Inc

@@ -10,13 +10,13 @@ cd ${_CONDOR_SCRATCH_DIR}
 #### Leave this blank #######
 
 #############################
-set count     = $1
-set dataName  = $2
+count=$1
+dataName=$2
 
-set suffix    = $3
-set abcd      = $4
-set selection = $5
-set period    = $6
+suffix=$3
+abcd=$4
+selection=$5
+period=$6
 
 #mkdir otherHistos
 #mkdir plugins

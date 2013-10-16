@@ -25,7 +25,10 @@ def fastHadd():
     tag = sys.argv[1]
 
     os.system('./hadd.py ForStoyan/higgsHistograms_'+leptonA+year+'_Limits_'+tag+'.root '+leptonB+' File {0}'.format(' '.join(selectionList[1:])))
-    os.system('./hadd.py ~/afsHome/public/m_llgFile_'+leptonA+year+'_'+tag+'.root '+leptonB+' m_llgFile {0}'.format(' '.join(selectionList[1:])))
+    if os.environ.get('AT_NWU') == None:
+      os.system('./hadd.py ~/afsHome/public/m_llgFile_'+leptonA+year+'_'+tag+'.root '+leptonB+' m_llgFile {0}'.format(' '.join(selectionList[1:])))
+    else:
+      os.system('./hadd.py massTrees/m_llgFile_'+leptonA+year+'_'+tag+'.root '+leptonB+' m_llgFile {0}'.format(' '.join(selectionList[1:])))
     os.system('./hadd.py batchHistos/higgsHistograms_'+leptonA+year+'_'+tag+'.root '+leptonB+' Histograms {0}'.format(' '.join(selectionList[1:])))
 
   dataDumpList = glob.glob('dumps/dataDump*.txt')

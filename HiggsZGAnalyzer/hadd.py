@@ -5,7 +5,10 @@ import sys, os
 
 
 def hadd(output = 'data/temp.root', inSelection = 'mumuGamma', inFileType = 'Histogram', *inputs):
-  batchPath = '~/nobackup/BatchOutput/'
+  if os.environ.get('AT_NWU') == None:
+    batchPath = '~/nobackup/BatchOutput/'
+  else:
+    batchPath = '~/BatchOutput/'
   inpaths = ''
   for i in inputs:
     if inFileType == 'm_llgFile':

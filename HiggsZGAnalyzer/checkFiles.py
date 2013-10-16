@@ -10,9 +10,13 @@ def checkFiles():
   for line in infile:
     selectionList = line.split()
     for dataType in selectionList[1:]:
-      rootProc = subprocess.Popen(["bash -c 'wc -l <(ls -1 ~/nobackup/BatchOutput/{0}/{1})'".format(selectionList[0],dataType)],stdout=subprocess.PIPE, shell=True)
+      if os.environ.get('AT_NWU') == None:
+        rootProc = subprocess.Popen(["bash -c 'wc -l <(ls -1 ~/nobackup/BatchOutput/{0}/{1})'".format(selectionList[0],dataType)],stdout=subprocess.PIPE, shell=True)
+        resProc  = subprocess.Popen(["bash -c 'wc -l <(ls -1 ~/nobackup/BatchOutput/{0}/{1}/res)'".format(selectionList[0],dataType)],stdout=subprocess.PIPE, shell=True)
+      else:
+        rootProc = subprocess.Popen(["bash -c 'wc -l <(ls -1 ~/BatchOutput/{0}/{1})'".format(selectionList[0],dataType)],stdout=subprocess.PIPE, shell=True)
+        resProc  = subprocess.Popen(["bash -c 'wc -l <(ls -1 ~/BatchOutput/{0}/{1}/res)'".format(selectionList[0],dataType)],stdout=subprocess.PIPE, shell=True)
       rootOut  = rootProc.communicate()[0]
-      resProc  = subprocess.Popen(["bash -c 'wc -l <(ls -1 ~/nobackup/BatchOutput/{0}/{1}/res)'".format(selectionList[0],dataType)],stdout=subprocess.PIPE, shell=True)
       resOut   = resProc.communicate()[0]
 
       num1 = int(rootOut.rsplit(" ")[0])-3

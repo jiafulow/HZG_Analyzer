@@ -22,7 +22,10 @@ configs.append(b.JobConfig('ggHZG_M125_pythia8_LO', t3storage+'/V08_01_8TeV/ggHZ
 #configs.append(b.JobConfig('DYJets', t3storage+'/V08_01_8TeV/DYJetsToLL_M-50', 150, 'DYJets ABCD mumuGamma 2012','mumuGamma'))
 
 
-#os.system('tar -zcvf stageball.tar.gz higgsAnalyzer_Template.C higgsAnalyzer.h ../src  otherHistos ../plugins ../interface ../hzgammaME')
+os.system('tar -zcvf stageball.tar.gz higgsAnalyzer_Template.C higgsAnalyzer.h ../src  otherHistos ../plugins ../interface ../hzgammaME')
 
-batcher = b.BatchMaster(configs, outputPath,'execBatch.sh')
+if os.environ.get('AT_NWU') == None:
+  batcher = b.BatchMaster(configs, outputPath,'execBatch.csh')
+else:
+  batcher = b.BatchMaster(configs, outputPath,'execBatch.sh')
 batcher.SubmitToLPC()

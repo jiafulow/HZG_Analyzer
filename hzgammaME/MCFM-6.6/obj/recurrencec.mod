@@ -1,5 +1,5 @@
-GFORTRAN module version '6' created from /uscms/home/bpollack/nobackup/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/hzgammaME/MCFM-6.6/src/F90/recurrenceC.f90 on Wed Sep 11 06:40:09 2013
-MD5:97c4821ddcfaa10212cb848a99798923 -- If you edit this, you'll get what you deserve.
+GFORTRAN module version '6' created from /tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/hzgammaME/MCFM-6.6/src/F90/recurrenceC.f90 on Thu Oct 10 08:07:44 2013
+MD5:d04496a5a28b366129430e6420a8a554 -- If you edit this, you'll get what you deserve.
 
 (() () () () () () () () () () () () () () () () () () () () () () ()
 () () () ())
@@ -50,11 +50,11 @@ INTEGER ()) 0 '1') (FUNCTION (INTEGER 4 0 0 INTEGER ()) 0 94 (('' (
 VARIABLE (COMPLEX 8 0 0 COMPLEX ()) 2 78 ((ARRAY (FULL 0))))) ('dim' (
 CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '1')) ('' ())) '' 0 'size')) 95 ()
 () () 0 0)
-21 'e' '' 'e' 20 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
+22 'k' '' 'k' 20 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
 DIMENSION DUMMY) (COMPLEX 8 0 0 COMPLEX ()) 0 0 () (2 0 ASSUMED_SHAPE (
 CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '1') () (CONSTANT (INTEGER 4 0 0
 INTEGER ()) 0 '1') ()) 0 () () () 0 0)
-22 'k' '' 'k' 20 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
+21 'e' '' 'e' 20 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
 DIMENSION DUMMY) (COMPLEX 8 0 0 COMPLEX ()) 0 0 () (2 0 ASSUMED_SHAPE (
 CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '1') () (CONSTANT (INTEGER 4 0 0
 INTEGER ()) 0 '1') ()) 0 () () () 0 0)
