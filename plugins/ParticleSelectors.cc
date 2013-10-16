@@ -1,6 +1,7 @@
 #include "../interface/ParticleSelectors.h"
 
-ParticleSelector::ParticleSelector(Cuts* cuts, bool isRealData, int runNumber, TRandom3* rEl):
+ParticleSelector::ParticleSelector(const Parameters& parameters, const Cuts& cuts, bool isRealData, int runNumber, const TRandom3& rEl):
+  _parameters(parameters),
   _cuts(cuts),
   _isRealData(isRealData),
   _runNumber(runNumber),
@@ -11,8 +12,8 @@ ParticleSelector::ParticleSelector(Cuts* cuts, bool isRealData, int runNumber, T
 {
 }
 
-void ParticleSelector::SetPv(TVector3* pv){
-  _pv = *pv;
+void ParticleSelector::SetPv(const TVector3& pv){
+  _pv = pv;
 }
 
 void ParticleSelector::SetRho(float rhoFactor){
@@ -28,9 +29,9 @@ bool ParticleSelector::FindGoodZElectron(const vector<TCElectron>& electronList,
   bool goodZ = false;
   float ZmassDiff=99999;
   for(unsigned int i =0; i<electronList.size(); i++){
-    if (electronList[i].Pt() > _cuts->leadElePt){
+    if (electronList[i].Pt() > _cuts.leadElePt){
       for(unsigned int j =1; j<electronList.size(); j++){
-        if (electronList[j].Pt() > _cuts->trailElePt && electronList[j].Charge() != electronList[i].Charge()){
+        if (electronList[j].Pt() > _cuts.trailElePt && electronList[j].Charge() != electronList[i].Charge()){
           goodZ = true;
           tmpZ = (electronList[i]+electronList[j]);
           if(fabs(91.1876-tmpZ.M()) < ZmassDiff){
@@ -55,12 +56,12 @@ bool ParticleSelector::FindGoodZElectron(vector<TCElectron>& electronList, const
   bool goodZ = false;
   float ZmassDiff=99999;
   for(unsigned int i =0; i<electronList.size(); i++){
-    if (electronList[i].Pt() > _cuts->leadElePt){
+    if (electronList[i].Pt() > _cuts.leadElePt){
       for(unsigned int j =1; j<electronList.size(); j++){
-        if (electronList[j].Pt() > _cuts->trailElePt && electronList[j].Charge() != electronList[i].Charge()){
+        if (electronList[j].Pt() > _cuts.trailElePt && electronList[j].Charge() != electronList[i].Charge()){
           goodZ = true;
           /// do regression
-          if (parameters::doEleReg && parameters::period.find("2012") != string::npos){
+          if (_parameters.doEleReg && _parameters.period.find("2012") != string::npos){
             if (electronList[i].RegressionMomCombP4().E() != 0){
               electronList[i].SetPtEtaPhiE(electronList[i].RegressionMomCombP4().E()/cosh(electronList[i].RegressionMomCombP4().Eta()),electronList[i].RegressionMomCombP4().Eta(),electronList[i].RegressionMomCombP4().Phi(),electronList[i].RegressionMomCombP4().E());
               //electronList[i].SetPtEtaPhiE(electronList[i].RegressionMomCombP4().Pt(),electronList[i].RegressionMomCombP4().Eta(),electronList[i].RegressionMomCombP4().Phi(),electronList[i].RegressionMomCombP4().E());
@@ -71,22 +72,22 @@ bool ParticleSelector::FindGoodZElectron(vector<TCElectron>& electronList, const
             }
           }
           /// do eng cor
-          if(parameters::engCor){
+          if(_parameters.engCor){
             float energyElCorI;
             float energyElCorJ;
-            if ( parameters::period.find("2011") != string::npos ){
-              energyElCorI = correctedElectronEnergy( electronList[i].E(), electronList[i].SCEta(), electronList[i].R9(), _runNumber, 0, "2011", !_isRealData, _rEl );
-              energyElCorJ = correctedElectronEnergy( electronList[j].E(), electronList[j].SCEta(), electronList[j].R9(), _runNumber, 0, "2011", !_isRealData, _rEl );
+            if ( _parameters.period.find("2011") != string::npos ){
+              energyElCorI = correctedElectronEnergy( electronList[i].E(), electronList[i].SCEta(), electronList[i].R9(), _runNumber, 0, "2011", !_isRealData, &_rEl );
+              energyElCorJ = correctedElectronEnergy( electronList[j].E(), electronList[j].SCEta(), electronList[j].R9(), _runNumber, 0, "2011", !_isRealData, &_rEl );
             }else{
-              if(parameters::doEleReg && electronList[i].RegressionMomCombP4().E() != 0){
-                energyElCorI = correctedElectronEnergy( electronList[i].E(), electronList[i].SCEta(), electronList[i].R9(), _runNumber, 1, "Moriond2013", !_isRealData, _rEl );
+              if(_parameters.doEleReg && electronList[i].RegressionMomCombP4().E() != 0){
+                energyElCorI = correctedElectronEnergy( electronList[i].E(), electronList[i].SCEta(), electronList[i].R9(), _runNumber, 1, "Moriond2013", !_isRealData, &_rEl );
               }else{
-                energyElCorI = correctedElectronEnergy( electronList[i].E(), electronList[i].SCEta(), electronList[i].R9(), _runNumber, 0, "HCP2012", !_isRealData, _rEl );
+                energyElCorI = correctedElectronEnergy( electronList[i].E(), electronList[i].SCEta(), electronList[i].R9(), _runNumber, 0, "HCP2012", !_isRealData, &_rEl );
               }
-              if(parameters::doEleReg && electronList[j].RegressionMomCombP4().E() != 0){
-                energyElCorJ = correctedElectronEnergy( electronList[j].E(), electronList[j].SCEta(), electronList[j].R9(), _runNumber, 1, "Moriond2013", !_isRealData, _rEl );
+              if(_parameters.doEleReg && electronList[j].RegressionMomCombP4().E() != 0){
+                energyElCorJ = correctedElectronEnergy( electronList[j].E(), electronList[j].SCEta(), electronList[j].R9(), _runNumber, 1, "Moriond2013", !_isRealData, &_rEl );
               }else{
-                energyElCorJ = correctedElectronEnergy( electronList[j].E(), electronList[j].SCEta(), electronList[j].R9(), _runNumber, 0, "HCP2012", !_isRealData, _rEl );
+                energyElCorJ = correctedElectronEnergy( electronList[j].E(), electronList[j].SCEta(), electronList[j].R9(), _runNumber, 0, "HCP2012", !_isRealData, &_rEl );
               }
             }
             //float newPtI = sqrt((pow(energyElCorI,2)-pow(0.000511,2))/pow(cosh(electronList[i].Eta()),2));
@@ -121,9 +122,9 @@ bool ParticleSelector::FindGoodZMuon(const vector<TCMuon>& muonList, TCPhysObjec
   bool goodZ = false;
   float ZmassDiff=99999;
   for(unsigned int i =0; i<muonList.size(); i++){
-    if (muonList[i].Pt() > _cuts->leadMuPt){
+    if (muonList[i].Pt() > _cuts.leadMuPt){
       for(unsigned int j =1; j<muonList.size(); j++){
-        if (muonList[j].Pt() > _cuts->trailMuPt && muonList[j].Charge() != muonList[i].Charge()){
+        if (muonList[j].Pt() > _cuts.trailMuPt && muonList[j].Charge() != muonList[i].Charge()){
           goodZ = true;
           tmpZ = (muonList[i]+muonList[j]);
           if(fabs(91.1876-tmpZ.M()) < ZmassDiff){
@@ -146,19 +147,19 @@ bool ParticleSelector::FindGoodPhoton(const vector<TCPhoton>& photonList, TLoren
 
     gamma = photonList[i];    // define GP4
     scEta = photonList[i].SCEta();
-    if ((gamma.DeltaR(lepton1)<_cuts->dR || gamma.DeltaR(lepton2)<_cuts->dR)) continue;
-    if (gamma.Pt()/(gamma+lepton1+lepton2).M() > _cuts->gPtOverMass && gamma.Pt() > _cuts->gPt) goodPhoton = true;
+    if ((gamma.DeltaR(lepton1)<_cuts.dR || gamma.DeltaR(lepton2)<_cuts.dR)) continue;
+    if (gamma.Pt()/(gamma+lepton1+lepton2).M() > _cuts.gPtOverMass && gamma.Pt() > _cuts.gPt) goodPhoton = true;
     if(goodPhoton){
       R9 = photonList[i].R9();
-      if (parameters::doR9Cor){
-        if (parameters::suffix != "DATA"){
-          if (parameters::period == "2011"){
+      if (_parameters.doR9Cor){
+        if (_parameters.suffix != "DATA"){
+          if (_parameters.period == "2011"){
             if (fabs(photonList[i].SCEta()) < 1.479){
               R9 = R9*1.0048;
             }else{
               R9 = R9*1.00492;
             }
-          } else if (parameters::period == "2012"){
+          } else if (_parameters.period == "2012"){
             if (fabs(photonList[i].SCEta()) < 1.479){
               R9 = R9*1.0045 + 0.0010;
             }else{
@@ -178,9 +179,9 @@ bool ParticleSelector::FindGoodZMuon(const vector<TCMuon>& muonList, const vecto
   bool goodZ = false;
   float ZmassDiff=99999;
   for(unsigned int i =0; i<muonList.size(); i++){
-    if (muonList[i].Pt() > _cuts->leadMuPt){
+    if (muonList[i].Pt() > _cuts.leadMuPt){
       for(unsigned int j =1; j<muonList.size(); j++){
-        if (muonList[j].Pt() > _cuts->trailMuPt && muonList[j].Charge() != muonList[i].Charge()){
+        if (muonList[j].Pt() > _cuts.trailMuPt && muonList[j].Charge() != muonList[i].Charge()){
           goodZ = true;
           tmpZ = (muonList[i]+muonList[j]);
           if(fabs(91.1876-tmpZ.M()) < ZmassDiff){
@@ -202,19 +203,19 @@ bool ParticleSelector::FindGoodZMuon(const vector<TCMuon>& muonList, const vecto
 
 bool ParticleSelector::FindGoodDiJets(const vector<TCJet>& jetList, const TCPhysObject& lepton1, const TCPhysObject& lepton2, const TLorentzVector& gamma, TCJet& jet1, TCJet& jet2){
   bool goodDiJets = false;
-  if (jetList[0].Pt() < _cuts->leadJetPt) return goodDiJets;
+  if (jetList[0].Pt() < _cuts.leadJetPt) return goodDiJets;
   for (unsigned int i = 0; i < jetList.size(); i++){
-    if (jetList[i].Pt() < _cuts->leadJetPt) return goodDiJets;
+    if (jetList[i].Pt() < _cuts.leadJetPt) return goodDiJets;
     if (fabs(jetList[i].Eta()) > 4.7) continue;
     jet1 = jetList[i];
     for (unsigned int j = i; j < jetList.size(); j++){
-      if (jetList[j].Pt() < _cuts->leadJetPt) break; 
+      if (jetList[j].Pt() < _cuts.leadJetPt) break; 
       if (fabs(jetList[j].Eta()) > 4.7) continue;
       jet2 = jetList[j];
-      if (fabs(jet1.Eta() - jet2.Eta()) < _cuts->dEtaJet) continue;
-      if (Zeppenfeld((lepton1+lepton2+gamma),jet1,jet2) > _cuts->zepp) continue;
-      if ((jet1+jet2).M() < _cuts->mjj) continue;
-      if ((jet1+jet2).DeltaPhi(lepton1+lepton2+gamma) < _cuts->dPhiJet) continue;
+      if (fabs(jet1.Eta() - jet2.Eta()) < _cuts.dEtaJet) continue;
+      if (Zeppenfeld((lepton1+lepton2+gamma),jet1,jet2) > _cuts.zepp) continue;
+      if ((jet1+jet2).M() < _cuts.mjj) continue;
+      if ((jet1+jet2).DeltaPhi(lepton1+lepton2+gamma) < _cuts.dPhiJet) continue;
       goodDiJets = true;
       return goodDiJets;
     }
@@ -317,7 +318,7 @@ bool ParticleSelector::PassMuonID(const TCMuon& mu, const Cuts::muIDCuts& cutLev
 
   bool muPass = false;
 
-  if (parameters::suffix.find("2011") != string::npos){
+  if (_parameters.suffix.find("2011") != string::npos){
     if (
         fabs(mu.Eta()) < 2.4
         && mu.IsGLB()                         == cutLevel.IsGLB

@@ -7,44 +7,46 @@
 #include <stdlib.h>
 #include <string>
 
-namespace parameters
-{
-  string  selection("lol");
-  string  period("lol");
-  int     JC_LVL(0);
-  string  abcd("lol");
-  string  suffix("lol");
-  string  dataname("lol");
-  string  jobCount("lol");
+class Parameters{
+  public:
+    string  selection;
+    string  period;
+    int     JC_LVL;
+    string  abcd;
+    string  suffix;
+    string  dataname;
+    string  jobCount;
 
-  const bool VBFcuts                 = false;
-  const bool DYGammaVeto             = true;
-  const bool customPhotoID           = false;
-  const bool spikeVeto               = true;
+    const bool VBFcuts;                 
+    const bool DYGammaVeto;            
+    const bool customPhotoID;         
+    const bool spikeVeto;            
 
-  const bool R9switch                = false;
+    const bool R9switch;            
 
-  const bool doEleMVA                = true;
+    const bool doEleMVA;           
 
-  const bool doLooseMuIso            = true;
-  const bool doAnglesMVA             = false;
+    const bool doLooseMuIso;      
+    const bool doAnglesMVA;      
 
-  const bool doPhotonPurityStudy     = false;
+    const bool doPhotonPurityStudy;     
 
-  ///// debugging dumps /////
-  const bool dumps                   = true;
-  const bool dataDumps               = false;
-  const int EVENTNUMBER              = -999;
+    ///// debugging dumps /////
+    const bool dumps;                  
+    const bool dataDumps;             
+    const int EVENTNUMBER;           
 
-  //// energy corrections ////
-  const bool engCor                  = true;
-  const bool doR9Cor                 = true;
-  const bool doEleReg                = true;
+    //// energy corrections ////
+    const bool engCor;              
+    const bool doR9Cor;            
+    const bool doEleReg;          
 
-  //// Scale Factors ////
-  const bool doScaleFactors          = true;
-  const bool doLumiXS                = false;
-}
+    //// Scale Factors ////
+    const bool doScaleFactors;          
+    const bool doLumiXS;
+
+    Parameters();
+};
 
 class Cuts{
   public:

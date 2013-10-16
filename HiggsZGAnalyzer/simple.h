@@ -48,6 +48,7 @@ class simple : public TSelector {
     TVector3 *pvPosition;
     float weight;
 
+    auto_ptr<Parameters> params;
     auto_ptr<Cuts> cuts;
     auto_ptr<TRandom3> rEl;
     auto_ptr<ParticleSelector> particleSelector;

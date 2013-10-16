@@ -15,8 +15,8 @@
 
 class ParticleSelector {
   public:
-    ParticleSelector(Cuts* cuts, bool isRealData, int runNumber, TRandom3* rEl);
-    void SetPv(TVector3*);
+    ParticleSelector(const Parameters& parameters, const Cuts& cuts, bool isRealData, int runNumber, const TRandom3& rEl);
+    void SetPv(const TVector3&);
     void SetRho(float);
     void SetEventNumber(int);
     bool FindGoodZElectron(const vector<TCElectron>& electronList, TCPhysObject& lepton1, TCPhysObject& lepton2, TLorentzVector& ZP4, float& eta1, float& eta2, int& int1, int& int2); 
@@ -50,10 +50,11 @@ class ParticleSelector {
     float   Zeppenfeld(const TLorentzVector& p, const TLorentzVector& pj1, const TLorentzVector& pj2);
 
   private:
-    Cuts* _cuts;
+    Parameters _parameters;
+    Cuts _cuts;
     bool _isRealData;
     int _runNumber;
-    TRandom3* _rEl;
+    TRandom3 _rEl;
     TVector3 _pv;
     float _rhoFactor;
     int _evtnum;

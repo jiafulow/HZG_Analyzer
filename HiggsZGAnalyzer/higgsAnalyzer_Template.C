@@ -12,13 +12,15 @@ void higgsAnalyzer::Begin(TTree * tree)
   //Specify parameters here. //
   /////////////////////////////
 
-  selection      = "SELECTION";
-  period         = "PERIOD";
-  JC_LVL         = 0;
-  abcd           = "ABCD";
-  suffix         = "SUFFIX";
-  dataname       = "DATANAME";
-  jobCount       = "COUNT";
+  params.reset(new Parameters());
+
+  params->selection      = "SELECTION";
+  params->period         = "PERIOD";
+  params->JC_LVL         = 0;
+  params->abcd           = "ABCD";
+  params->suffix         = "SUFFIX";
+  params->dataname       = "DATANAME";
+  params->jobCount       = "COUNT";
 
 
   for (int i =0; i<100; i++){
@@ -37,7 +39,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   jobTree->GetEntry();
 
   // Initialize utilities and selectors here //
-  cuts.reset(new Cuts);
+  cuts.reset(new Cuts());
   cuts->InitEA(period);
   weighter.reset(new WeightUtils(suffix, period, abcd, selection, isRealData));
   triggerSelector.reset(new TriggerSelector(selection, period, *triggerNames));
@@ -47,7 +49,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   rMuRun.reset(new TRandom3(187));
   phoCorrector.reset(new zgamma::PhosphorCorrectionFunctor("../plugins/PHOSPHOR_NUMBERS_EXPFIT_ERRORS.txt", true));
   Xcal2.reset(new TEvtProb);
-  particleSelector.reset(new ParticleSelector(cuts.get(), isRealData, runNumber, rEl.get()));
+  particleSelector.reset(new ParticleSelector(*params, *cuts, isRealData, runNumber, *rEl));
   dumper.reset(new Dumper());
   dumper->SetCuts(cuts.get());
   dumper->SetPSelect(particleSelector.get());

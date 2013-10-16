@@ -2,6 +2,37 @@
 
 using namespace std;
 
+Parameters::Parameters():
+  selection("lol"),
+  period("lol"),
+  JC_LVL(0),
+  abcd("lol"),
+  suffix("lol"),
+  dataname("lol"),
+  jobCount("lol"),
+
+  VBFcuts(false),
+  DYGammaVeto(true),
+  customPhotoID(false),
+  spikeVeto(true),
+  R9switch(false),
+  doEleMVA(true),
+  doLooseMuIso(true),
+  doAnglesMVA(false),
+  doPhotonPurityStudy(false),
+
+  dumps(false),
+  dataDumps(false),
+  EVENTNUMBER(-999),
+
+  engCor(true),
+  doR9Cor(true),
+  doEleReg(true),
+  doScaleFactors(true),
+  doLumiXS(false)
+{}
+
+
 Cuts::~Cuts(){}
 Cuts::Cuts():
   leadJetPt(30),

@@ -71,6 +71,7 @@ class higgsAnalyzer : public TSelector {
 	private:
 
     //Params and Cuts:
+    auto_ptr<Parameters> params;
     auto_ptr<Cuts> cuts;
     auto_ptr<Dumper> dumper;
 
