@@ -50,8 +50,8 @@ class BatchMaster():
         infile   = open(self._executable, 'r')
         exec_tmp = tempfile.NamedTemporaryFile(prefix = config._dataName+'_'+config._selection+'_', delete=False)
 
-        for i, line in enumerate(infile.readlines()):
-            if i != 6:
+        for line in infile.readlines():
+            if 'Leave this blank' not in line:
                 exec_tmp.write(line)
             else:
                 path = config._inDir
@@ -63,6 +63,8 @@ class BatchMaster():
 
         exec_tmp.seek(0)
         infile.close()
+        for line in exec_tmp:
+          print line
         return exec_tmp
 
     def MakeBatchConfig(self, config, nJob, exec_tmp):
@@ -112,8 +114,8 @@ class BatchMaster():
             # copy files to staging so they cant be modified during submission
             if not os.path.exists(self._outDir+'/'+cfg._selection+'/'+cfg._dataName+'/stageball.tar.gz'):
               os.system('cp stageball.tar.gz '+self._outDir+'/'+cfg._selection+'/'+cfg._dataName+'/.' )
-            if not os.path.exists(self._outDir+'/'+cfg._selection+'/'+cfg._dataName+'/execBatch.csh'):
-              os.system('cp execBatch.csh '+self._outDir+'/'+cfg._selection+'/'+cfg._dataName+'/.' )
+            if not os.path.exists(self._outDir+'/'+cfg._selection+'/'+cfg._dataName+'/execBatch.sh'):
+              os.system('cp execBatch.sh '+self._outDir+'/'+cfg._selection+'/'+cfg._dataName+'/.' )
             os.chdir(self._outDir+'/'+cfg._selection+'/'+cfg._dataName)
 
             for i, source in enumerate(sourceFiles):
