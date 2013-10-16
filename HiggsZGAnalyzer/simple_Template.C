@@ -46,8 +46,10 @@ void simple::Begin(TTree * /*tree*/)
   histoFile->cd();
   hm        = new HistManager(histoFile);
   TString option = GetOption();
-
-  genHZG = {};
+  cuts.reset(new Cuts());
+  cuts->InitEA(period);
+  rEl.reset(new TRandom3(1234));
+  particleSelector.reset(new ParticleSelector(cuts.get(), isRealData, runNumber, rEl.get()));
 
 }
 
@@ -82,14 +84,14 @@ Bool_t simple::Process(Long64_t entry)
   // The return value is currently not used.
 
   GetEntry(entry);
+  if (entry > 10) Abort("quick terminate");
 
   ////////////////////
   // Find Gen Stuff //
   ////////////////////
 
   vector<TCGenParticle> vetoPhotons;
-  CleanUpGen(genHZG);
-  genHZG = {};
+  particleSelector->CleanUpGen(genHZG);
   if(!isRealData){
     ///////// load all the relevent particles into a struct /////////
     for (int i = 0; i < genParticles->GetSize(); ++i) {
@@ -310,11 +312,3 @@ void  simple::FindGenParticles(TClonesArray *genParticles, string selection, vec
   return;
 }
 */
-void simple::CleanUpGen(genHZGParticles& _genHZG){
-  if (_genHZG.lp) delete _genHZG.lp;
-  if (_genHZG.lm) delete _genHZG.lm;
-  if (_genHZG.g) delete _genHZG.g;
-  if (_genHZG.w) delete _genHZG.w;
-  if (_genHZG.z) delete _genHZG.z;
-  if (_genHZG.h) delete _genHZG.h;
-}

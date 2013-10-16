@@ -8,6 +8,7 @@
 #ifndef simple_h
 #define simple_h
 
+#include <memory.h>
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
@@ -46,6 +47,11 @@ class simple : public TSelector {
     TH1F * h1_numOfEvents;
     TVector3 *pvPosition;
     float weight;
+
+    auto_ptr<Cuts> cuts;
+    auto_ptr<TRandom3> rEl;
+    auto_ptr<ParticleSelector> particleSelector;
+    ParticleSelector::genHZGParticles genHZG;
 
 
     TTree          *fChain;   //!pointer to the analyzed TTree or TChain
@@ -116,7 +122,7 @@ class simple : public TSelector {
     TBranch        *b_hltPrescale;   //!
     TBranch        *b_NoiseFilters;   //!
 
-    simple(TTree * /*tree*/ =0) : fChain(0) { }
+    simple(TTree * /*tree*/ =0) : unskimmedEvents(0),unskimmedEventsTotal(0),fileCount(0),fChain(0) { }
     virtual ~simple() { }
     virtual Int_t   Version() const { return 2; }
     virtual void    Begin(TTree *tree);
@@ -162,17 +168,7 @@ class simple : public TSelector {
     virtual bool      PassMuonID(TCMuon *mu, muIDCuts cutLevel);
     virtual bool      PassMuonIso(TCMuon *mu, muIsoCuts cutLevel);
 
-    struct genHZGParticles{
-      TCGenParticle* h;
-      TCGenParticle* z;
-      TCGenParticle* w;
-      TCGenParticle* g;
-      TCGenParticle* lp;
-      TCGenParticle* lm;
-    }genHZG;
 
-   // void FindGenParticles(TClonesArray* genParticles, string selection, vector<TCGenParticle>& vetoPhotons, genHZGParticles& _genHZG);
-    void CleanUpGen(genHZGParticles& _genHZG);
     virtual void    AnglePlots(ZGAngles &zga, float eventWeight);
 
     ClassDef(simple,0);

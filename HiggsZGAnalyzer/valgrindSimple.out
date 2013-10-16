@@ -1,0 +1,385 @@
+==26573== Memcheck, a memory error detector
+==26573== Copyright (C) 2002-2010, and GNU GPL'd, by Julian Seward et al.
+==26573== Using Valgrind-3.6.1 and LibVEX; rerun with -h for copyright info
+==26573== Command: /uscmst1/prod/sw/cms/slc5_amd64_gcc462/cms/cmssw-patch/CMSSW_5_3_8_patch1/external/slc5_amd64_gcc462/bin/../../../../../../lcg/root/5.32.00-cms21/bin/root.exe -l -b -q run.C
+==26573== 
+
+Processing run.C...
+Info in <TUnixSystem::ACLiC>: creating shared library /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/../src/TCPhysObject_cc.so
+Note: Link requested for already precompiled class map<string,float,less<string>,allocator<pair<const string,float> > > (ignore this message) :0:
+Info in <TUnixSystem::ACLiC>: creating shared library /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/../src/TCJet_cc.so
+Info in <TUnixSystem::ACLiC>: creating shared library /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/../src/TCMET_cc.so
+Info in <TUnixSystem::ACLiC>: creating shared library /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/../src/TCElectron_cc.so
+Info in <TUnixSystem::ACLiC>: creating shared library /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/../src/TCMuon_cc.so
+Info in <TUnixSystem::ACLiC>: creating shared library /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/../src/TCTau_cc.so
+Info in <TUnixSystem::ACLiC>: creating shared library /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/../src/TCPhoton_cc.so
+Info in <TUnixSystem::ACLiC>: creating shared library /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/../src/TCGenJet_cc.so
+Info in <TUnixSystem::ACLiC>: creating shared library /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/../src/TCGenParticle_cc.so
+Info in <TUnixSystem::ACLiC>: creating shared library /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/../src/TCPrimaryVtx_cc.so
+Info in <TUnixSystem::ACLiC>: creating shared library /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/../src/TCTriggerObject_cc.so
+Info in <TUnixSystem::ACLiC>: creating shared library /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/../plugins/AnalysisParameters_cc.so
+Info in <TUnixSystem::ACLiC>: creating shared library /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/../plugins/ParticleSelectors_cc.so
+Info in <TUnixSystem::ACLiC>: creating shared library /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/../plugins/HistManager_cc.so
+Info in <TUnixSystem::ACLiC>: creating shared library /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/../plugins/ZGAngles_cc.so
+Adding files from DYJets to chain...
+1 files added!
+==26573== Invalid read of size 4
+==26573==    at 0xCF6468A: dc_open (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/dcap/2.47.5.0-cms/lib/libdcap.so.1.1.47)
+==26573==    by 0xCF49499: TDCacheFile::SysOpen(char const*, int, unsigned int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libDCache.so)
+==26573==    by 0xCF4A13C: TDCacheFile::TDCacheFile(char const*, char const*, char const*, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libDCache.so)
+==26573==    by 0xCF4B63C: G__G__DCache_203_0_9(G__value*, char const*, G__param*, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libDCache.so)
+==26573==    by 0x500B79E: Cint::G__CallFunc::Execute(void*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCint.so)
+==26573==    by 0x4A36CA0: TCint::CallFunc_ExecInt(void*, void*) const (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCore.so)
+==26573==    by 0x4A5F776: TMethodCall::Execute(void*, long&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCore.so)
+==26573==    by 0x49D5302: TPluginHandler::ExecPlugin(int, ...) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCore.so)
+==26573==    by 0x7FC32D1: TFile::Open(char const*, char const*, char const*, int, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libRIO.so)
+==26573==    by 0xBBB778E: TChain::LoadTree(long long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTree.so)
+==26573==    by 0xBBB473E: TChain::Process(char const*, char const*, long long, long long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTree.so)
+==26573==    by 0xBC12C29: G__G__Tree_119_0_156(G__value*, char const*, G__param*, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTree.so)
+==26573==  Address 0xcf808e8 is 24 bytes inside a block of size 27 alloc'd
+==26573==    at 0x4808F2F: malloc (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==26573==    by 0xCF6465E: dc_open (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/dcap/2.47.5.0-cms/lib/libdcap.so.1.1.47)
+==26573==    by 0xCF49499: TDCacheFile::SysOpen(char const*, int, unsigned int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libDCache.so)
+==26573==    by 0xCF4A13C: TDCacheFile::TDCacheFile(char const*, char const*, char const*, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libDCache.so)
+==26573==    by 0xCF4B63C: G__G__DCache_203_0_9(G__value*, char const*, G__param*, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libDCache.so)
+==26573==    by 0x500B79E: Cint::G__CallFunc::Execute(void*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCint.so)
+==26573==    by 0x4A36CA0: TCint::CallFunc_ExecInt(void*, void*) const (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCore.so)
+==26573==    by 0x4A5F776: TMethodCall::Execute(void*, long&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCore.so)
+==26573==    by 0x49D5302: TPluginHandler::ExecPlugin(int, ...) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCore.so)
+==26573==    by 0x7FC32D1: TFile::Open(char const*, char const*, char const*, int, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libRIO.so)
+==26573==    by 0xBBB778E: TChain::LoadTree(long long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTree.so)
+==26573==    by 0xBBB473E: TChain::Process(char const*, char const*, long long, long long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTree.so)
+==26573== 
+Info in <TUnixSystem::ACLiC>: creating shared library /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/./simple_C.so
+THIS IS FILE NUMBER: 1 and it has this many events: 63455
+pdgId:	13	status:	3	pt:	21.5791
+	MOM	pdgId:	23	status:	3	pt:	43.2922
+pdgId:	13	status:	2	pt:	21.5791
+	MOM	pdgId:	13	status:	3	pt:	21.5791
+	MOM	pdgId:	23	status:	3	pt:	43.2922
+pdgId:	13	status:	2	pt:	20.2856
+	MOM	pdgId:	13	status:	2	pt:	21.5791
+	MOM	pdgId:	13	status:	3	pt:	21.5791
+	MOM	pdgId:	23	status:	3	pt:	43.2922
+pdgId:	13	status:	1	pt:	16.3543
+	MOM	pdgId:	13	status:	2	pt:	20.2856
+	MOM	pdgId:	13	status:	2	pt:	21.5791
+	MOM	pdgId:	13	status:	3	pt:	21.5791
+	MOM	pdgId:	23	status:	3	pt:	43.2922
+pdgId:	13	status:	3	pt:	43.2078
+	MOM	pdgId:	23	status:	3	pt:	2.81951
+pdgId:	13	status:	1	pt:	43.2078
+	MOM	pdgId:	13	status:	3	pt:	43.2078
+	MOM	pdgId:	23	status:	3	pt:	2.81951
+pdgId:	13	status:	3	pt:	78.22
+	MOM	pdgId:	23	status:	3	pt:	309.313
+pdgId:	13	status:	1	pt:	78.22
+	MOM	pdgId:	13	status:	3	pt:	78.22
+	MOM	pdgId:	23	status:	3	pt:	309.313
+Info in <simple::AbortProcess>: quick terminate
+unskimmed total: 63455
+quickCount: 0
+
+
+Done!
+CPU Time : 15.55
+RealTime : 18.7884
+==26573== Invalid read of size 4
+==26573==    at 0x5AB3873: _ZNSs4_Rep10_M_disposeERKSaIcE.part.23 (atomicity.h:48)
+==26573==    by 0x5AB38C2: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::~basic_string() (basic_string.h:235)
+==26573==    by 0x359BA334F4: exit (in /lib64/libc-2.5.so)
+==26573==    by 0x4A70FA5: TUnixSystem::Exit(int, bool) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCore.so)
+==26573==    by 0x59D0ECC: TRint::Run(bool) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libRint.so)
+==26573==    by 0x40116B: main (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/bin/root.exe)
+==26573==  Address 0x6c14e30 is 16 bytes inside a block of size 28 free'd
+==26573==    at 0x4807F82: operator delete(void*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==26573==    by 0x5AB38C2: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::~basic_string() (basic_string.h:235)
+==26573==    by 0x359BA334F4: exit (in /lib64/libc-2.5.so)
+==26573==    by 0x4A70FA5: TUnixSystem::Exit(int, bool) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCore.so)
+==26573==    by 0x59D0ECC: TRint::Run(bool) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libRint.so)
+==26573==    by 0x40116B: main (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/bin/root.exe)
+==26573== 
+==26573== Invalid free() / delete / delete[]
+==26573==    at 0x4807F82: operator delete(void*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==26573==    by 0x5AB38C2: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::~basic_string() (basic_string.h:235)
+==26573==    by 0x359BA334F4: exit (in /lib64/libc-2.5.so)
+==26573==    by 0x4A70FA5: TUnixSystem::Exit(int, bool) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCore.so)
+==26573==    by 0x59D0ECC: TRint::Run(bool) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libRint.so)
+==26573==    by 0x40116B: main (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/bin/root.exe)
+==26573==  Address 0x6c14e20 is 0 bytes inside a block of size 28 free'd
+==26573==    at 0x4807F82: operator delete(void*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==26573==    by 0x5AB38C2: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::~basic_string() (basic_string.h:235)
+==26573==    by 0x359BA334F4: exit (in /lib64/libc-2.5.so)
+==26573==    by 0x4A70FA5: TUnixSystem::Exit(int, bool) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCore.so)
+==26573==    by 0x59D0ECC: TRint::Run(bool) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libRint.so)
+==26573==    by 0x40116B: main (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/bin/root.exe)
+==26573== 
+
+==26573== 
+==26573== HEAP SUMMARY:
+==26573==     in use at exit: 11,459,427 bytes in 135,281 blocks
+==26573==   total heap usage: 519,936 allocs, 384,667 frees, 133,410,855 bytes allocated
+==26573== 
+==26573== 24 bytes in 1 blocks are definitely lost in loss record 24,755 of 63,116
+==26573==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==26573==    by 0x4A36A2E: TCint::ClassInfo_Factory() const (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCore.so)
+==26573==    by 0xBBCDACF: TSelector::GetSelector(char const*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTree.so)
+==26573==    by 0xE3538CD: TTreePlayer::Process(char const*, char const*, long long, long long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTreePlayer.so)
+==26573==    by 0xBC12C29: G__G__Tree_119_0_156(G__value*, char const*, G__param*, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTree.so)
+==26573==    by 0x5008785: Cint::G__ExceptionWrapper(int (*)(G__value*, char const*, G__param*, int), G__value*, char*, G__param*, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCint.so)
+==26573==    by 0x50B2540: G__execute_call (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCint.so)
+==26573==    by 0x50B28FD: G__call_cppfunc (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCint.so)
+==26573==    by 0x5092D91: G__interpret_func (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCint.so)
+==26573==    by 0x50820EB: G__getfunction (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCint.so)
+==26573==    by 0x51618F0: G__getstructmem(int, G__FastAllocString&, char*, int, char*, int*, G__var_array*, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCint.so)
+==26573==    by 0x5159431: G__getvariable (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCint.so)
+==26573== 
+==26573== 28 bytes in 1 blocks are definitely lost in loss record 25,194 of 63,116
+==26573==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==26573==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==26573==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==26573==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==26573==    by 0xB342F0A: __static_initialization_and_destruction_0(int, int) (AnalysisParameters.h:12)
+==26573==    by 0xB3431C9: _GLOBAL__sub_I_AnalysisParameters_cc_ACLiC_dict.cxx (AnalysisParameters_cc_ACLiC_dict.cxx:287)
+==26573==    by 0xB343425: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/AnalysisParameters_cc.so)
+==26573==    by 0xB3415AA: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/AnalysisParameters_cc.so)
+==26573==    by 0xB340C0F: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/AnalysisParameters_cc.so)
+==26573==    by 0x359B60D45A: call_init (in /lib64/ld-2.5.so)
+==26573==    by 0x359B60D564: _dl_init (in /lib64/ld-2.5.so)
+==26573==    by 0x359B611003: dl_open_worker (in /lib64/ld-2.5.so)
+==26573== 
+==26573== 28 bytes in 1 blocks are definitely lost in loss record 25,195 of 63,116
+==26573==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==26573==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==26573==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==26573==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==26573==    by 0xB342F5F: __static_initialization_and_destruction_0(int, int) (AnalysisParameters.h:13)
+==26573==    by 0xB3431C9: _GLOBAL__sub_I_AnalysisParameters_cc_ACLiC_dict.cxx (AnalysisParameters_cc_ACLiC_dict.cxx:287)
+==26573==    by 0xB343425: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/AnalysisParameters_cc.so)
+==26573==    by 0xB3415AA: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/AnalysisParameters_cc.so)
+==26573==    by 0xB340C0F: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/AnalysisParameters_cc.so)
+==26573==    by 0x359B60D45A: call_init (in /lib64/ld-2.5.so)
+==26573==    by 0x359B60D564: _dl_init (in /lib64/ld-2.5.so)
+==26573==    by 0x359B611003: dl_open_worker (in /lib64/ld-2.5.so)
+==26573== 
+==26573== 28 bytes in 1 blocks are definitely lost in loss record 25,196 of 63,116
+==26573==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==26573==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==26573==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==26573==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==26573==    by 0xB342FB4: __static_initialization_and_destruction_0(int, int) (AnalysisParameters.h:15)
+==26573==    by 0xB3431C9: _GLOBAL__sub_I_AnalysisParameters_cc_ACLiC_dict.cxx (AnalysisParameters_cc_ACLiC_dict.cxx:287)
+==26573==    by 0xB343425: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/AnalysisParameters_cc.so)
+==26573==    by 0xB3415AA: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/AnalysisParameters_cc.so)
+==26573==    by 0xB340C0F: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/AnalysisParameters_cc.so)
+==26573==    by 0x359B60D45A: call_init (in /lib64/ld-2.5.so)
+==26573==    by 0x359B60D564: _dl_init (in /lib64/ld-2.5.so)
+==26573==    by 0x359B611003: dl_open_worker (in /lib64/ld-2.5.so)
+==26573== 
+==26573== 28 bytes in 1 blocks are definitely lost in loss record 25,197 of 63,116
+==26573==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==26573==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==26573==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==26573==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==26573==    by 0xB343009: __static_initialization_and_destruction_0(int, int) (AnalysisParameters.h:16)
+==26573==    by 0xB3431C9: _GLOBAL__sub_I_AnalysisParameters_cc_ACLiC_dict.cxx (AnalysisParameters_cc_ACLiC_dict.cxx:287)
+==26573==    by 0xB343425: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/AnalysisParameters_cc.so)
+==26573==    by 0xB3415AA: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/AnalysisParameters_cc.so)
+==26573==    by 0xB340C0F: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/AnalysisParameters_cc.so)
+==26573==    by 0x359B60D45A: call_init (in /lib64/ld-2.5.so)
+==26573==    by 0x359B60D564: _dl_init (in /lib64/ld-2.5.so)
+==26573==    by 0x359B611003: dl_open_worker (in /lib64/ld-2.5.so)
+==26573== 
+==26573== 28 bytes in 1 blocks are definitely lost in loss record 25,198 of 63,116
+==26573==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==26573==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==26573==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==26573==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==26573==    by 0xB34305E: __static_initialization_and_destruction_0(int, int) (AnalysisParameters.h:17)
+==26573==    by 0xB3431C9: _GLOBAL__sub_I_AnalysisParameters_cc_ACLiC_dict.cxx (AnalysisParameters_cc_ACLiC_dict.cxx:287)
+==26573==    by 0xB343425: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/AnalysisParameters_cc.so)
+==26573==    by 0xB3415AA: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/AnalysisParameters_cc.so)
+==26573==    by 0xB340C0F: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/AnalysisParameters_cc.so)
+==26573==    by 0x359B60D45A: call_init (in /lib64/ld-2.5.so)
+==26573==    by 0x359B60D564: _dl_init (in /lib64/ld-2.5.so)
+==26573==    by 0x359B611003: dl_open_worker (in /lib64/ld-2.5.so)
+==26573== 
+==26573== 28 bytes in 1 blocks are definitely lost in loss record 25,199 of 63,116
+==26573==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==26573==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==26573==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==26573==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==26573==    by 0xB3430B3: __static_initialization_and_destruction_0(int, int) (AnalysisParameters.h:18)
+==26573==    by 0xB3431C9: _GLOBAL__sub_I_AnalysisParameters_cc_ACLiC_dict.cxx (AnalysisParameters_cc_ACLiC_dict.cxx:287)
+==26573==    by 0xB343425: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/AnalysisParameters_cc.so)
+==26573==    by 0xB3415AA: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/AnalysisParameters_cc.so)
+==26573==    by 0xB340C0F: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/AnalysisParameters_cc.so)
+==26573==    by 0x359B60D45A: call_init (in /lib64/ld-2.5.so)
+==26573==    by 0x359B60D564: _dl_init (in /lib64/ld-2.5.so)
+==26573==    by 0x359B611003: dl_open_worker (in /lib64/ld-2.5.so)
+==26573== 
+==26573== 28 bytes in 1 blocks are definitely lost in loss record 25,200 of 63,116
+==26573==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==26573==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==26573==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==26573==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==26573==    by 0xB7603B0: __static_initialization_and_destruction_0(int, int) (AnalysisParameters.h:12)
+==26573==    by 0xB76066F: _GLOBAL__sub_I_ParticleSelectors_cc_ACLiC_dict.cxx (ParticleSelectors_cc_ACLiC_dict.cxx:511)
+==26573==    by 0xB764ED5: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/ParticleSelectors_cc.so)
+==26573==    by 0xB7521DA: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/ParticleSelectors_cc.so)
+==26573==    by 0xB74F67F: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/ParticleSelectors_cc.so)
+==26573==    by 0x359B60D45A: call_init (in /lib64/ld-2.5.so)
+==26573==    by 0x359B60D564: _dl_init (in /lib64/ld-2.5.so)
+==26573==    by 0x359B611003: dl_open_worker (in /lib64/ld-2.5.so)
+==26573== 
+==26573== 28 bytes in 1 blocks are definitely lost in loss record 25,201 of 63,116
+==26573==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==26573==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==26573==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==26573==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==26573==    by 0xB760405: __static_initialization_and_destruction_0(int, int) (AnalysisParameters.h:13)
+==26573==    by 0xB76066F: _GLOBAL__sub_I_ParticleSelectors_cc_ACLiC_dict.cxx (ParticleSelectors_cc_ACLiC_dict.cxx:511)
+==26573==    by 0xB764ED5: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/ParticleSelectors_cc.so)
+==26573==    by 0xB7521DA: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/ParticleSelectors_cc.so)
+==26573==    by 0xB74F67F: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/ParticleSelectors_cc.so)
+==26573==    by 0x359B60D45A: call_init (in /lib64/ld-2.5.so)
+==26573==    by 0x359B60D564: _dl_init (in /lib64/ld-2.5.so)
+==26573==    by 0x359B611003: dl_open_worker (in /lib64/ld-2.5.so)
+==26573== 
+==26573== 28 bytes in 1 blocks are definitely lost in loss record 25,202 of 63,116
+==26573==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==26573==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==26573==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==26573==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==26573==    by 0xB76045A: __static_initialization_and_destruction_0(int, int) (AnalysisParameters.h:15)
+==26573==    by 0xB76066F: _GLOBAL__sub_I_ParticleSelectors_cc_ACLiC_dict.cxx (ParticleSelectors_cc_ACLiC_dict.cxx:511)
+==26573==    by 0xB764ED5: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/ParticleSelectors_cc.so)
+==26573==    by 0xB7521DA: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/ParticleSelectors_cc.so)
+==26573==    by 0xB74F67F: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/ParticleSelectors_cc.so)
+==26573==    by 0x359B60D45A: call_init (in /lib64/ld-2.5.so)
+==26573==    by 0x359B60D564: _dl_init (in /lib64/ld-2.5.so)
+==26573==    by 0x359B611003: dl_open_worker (in /lib64/ld-2.5.so)
+==26573== 
+==26573== 28 bytes in 1 blocks are definitely lost in loss record 25,203 of 63,116
+==26573==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==26573==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==26573==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==26573==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==26573==    by 0xB7604AF: __static_initialization_and_destruction_0(int, int) (AnalysisParameters.h:16)
+==26573==    by 0xB76066F: _GLOBAL__sub_I_ParticleSelectors_cc_ACLiC_dict.cxx (ParticleSelectors_cc_ACLiC_dict.cxx:511)
+==26573==    by 0xB764ED5: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/ParticleSelectors_cc.so)
+==26573==    by 0xB7521DA: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/ParticleSelectors_cc.so)
+==26573==    by 0xB74F67F: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/ParticleSelectors_cc.so)
+==26573==    by 0x359B60D45A: call_init (in /lib64/ld-2.5.so)
+==26573==    by 0x359B60D564: _dl_init (in /lib64/ld-2.5.so)
+==26573==    by 0x359B611003: dl_open_worker (in /lib64/ld-2.5.so)
+==26573== 
+==26573== 28 bytes in 1 blocks are definitely lost in loss record 25,204 of 63,116
+==26573==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==26573==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==26573==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==26573==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==26573==    by 0xB760504: __static_initialization_and_destruction_0(int, int) (AnalysisParameters.h:17)
+==26573==    by 0xB76066F: _GLOBAL__sub_I_ParticleSelectors_cc_ACLiC_dict.cxx (ParticleSelectors_cc_ACLiC_dict.cxx:511)
+==26573==    by 0xB764ED5: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/ParticleSelectors_cc.so)
+==26573==    by 0xB7521DA: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/ParticleSelectors_cc.so)
+==26573==    by 0xB74F67F: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/ParticleSelectors_cc.so)
+==26573==    by 0x359B60D45A: call_init (in /lib64/ld-2.5.so)
+==26573==    by 0x359B60D564: _dl_init (in /lib64/ld-2.5.so)
+==26573==    by 0x359B611003: dl_open_worker (in /lib64/ld-2.5.so)
+==26573== 
+==26573== 28 bytes in 1 blocks are definitely lost in loss record 25,205 of 63,116
+==26573==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==26573==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==26573==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==26573==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==26573==    by 0xB760559: __static_initialization_and_destruction_0(int, int) (AnalysisParameters.h:18)
+==26573==    by 0xB76066F: _GLOBAL__sub_I_ParticleSelectors_cc_ACLiC_dict.cxx (ParticleSelectors_cc_ACLiC_dict.cxx:511)
+==26573==    by 0xB764ED5: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/ParticleSelectors_cc.so)
+==26573==    by 0xB7521DA: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/ParticleSelectors_cc.so)
+==26573==    by 0xB74F67F: ??? (in /uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/plugins/ParticleSelectors_cc.so)
+==26573==    by 0x359B60D45A: call_init (in /lib64/ld-2.5.so)
+==26573==    by 0x359B60D564: _dl_init (in /lib64/ld-2.5.so)
+==26573==    by 0x359B611003: dl_open_worker (in /lib64/ld-2.5.so)
+==26573== 
+==26573== 29 bytes in 1 blocks are possibly lost in loss record 25,229 of 63,116
+==26573==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==26573==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==26573==    by 0x5AB5144: char* std::string::_S_construct<char const*>(char const*, char const*, std::allocator<char> const&, std::forward_iterator_tag) (basic_string.tcc:140)
+==26573==    by 0x5AB5292: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) (basic_string.h:1692)
+==26573==    by 0x4A53CA1: TClassRef::TClassRef(char const*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCore.so)
+==26573==    by 0xE3536DD: TTreePlayer::TTreePlayer() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTreePlayer.so)
+==26573==    by 0xE3694C4: ROOT::new_TTreePlayer(void*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTreePlayer.so)
+==26573==    by 0x4A4989C: TClass::New(TClass::ENewType) const (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCore.so)
+==26573==    by 0xBBECC83: TVirtualTreePlayer::TreePlayer(TTree*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTree.so)
+==26573==    by 0xBBDDF1C: TTree::GetPlayer() (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTree.so)
+==26573==    by 0xBBDE2F0: TTree::Process(char const*, char const*, long long, long long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTree.so)
+==26573==    by 0xBC12C29: G__G__Tree_119_0_156(G__value*, char const*, G__param*, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTree.so)
+==26573== 
+==26573== 112 bytes in 7 blocks are definitely lost in loss record 48,781 of 63,116
+==26573==    at 0x4808F2F: malloc (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==26573==    by 0x4808FA9: realloc (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==26573==    by 0xCF69A0A: lineParser (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/dcap/2.47.5.0-cms/lib/libdcap.so.1.1.47)
+==26573==    by 0xCF5E339: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/dcap/2.47.5.0-cms/lib/libdcap.so.1.1.47)
+==26573==    by 0xCF5EC39: ??? (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/dcap/2.47.5.0-cms/lib/libdcap.so.1.1.47)
+==26573==    by 0xCF5FCC1: cache_open (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/dcap/2.47.5.0-cms/lib/libdcap.so.1.1.47)
+==26573==    by 0xCF646D3: dc_open (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/dcap/2.47.5.0-cms/lib/libdcap.so.1.1.47)
+==26573==    by 0xCF49499: TDCacheFile::SysOpen(char const*, int, unsigned int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libDCache.so)
+==26573==    by 0xCF4A13C: TDCacheFile::TDCacheFile(char const*, char const*, char const*, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libDCache.so)
+==26573==    by 0xCF4B63C: G__G__DCache_203_0_9(G__value*, char const*, G__param*, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libDCache.so)
+==26573==    by 0x500B79E: Cint::G__CallFunc::Execute(void*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCint.so)
+==26573==    by 0x4A36CA0: TCint::CallFunc_ExecInt(void*, void*) const (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCore.so)
+==26573== 
+==26573== 700 bytes in 24 blocks are possibly lost in loss record 62,778 of 63,116
+==26573==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==26573==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==26573==    by 0x5AB44AA: std::string::_Rep::_M_clone(std::allocator<char> const&, unsigned long) (basic_string.tcc:631)
+==26573==    by 0x5AB458F: std::string::reserve(unsigned long) (basic_string.tcc:512)
+==26573==    by 0x5AB46EE: std::string::append(unsigned long, char) (basic_string.tcc:290)
+==26573==    by 0x49A4CC9: std_string_streamer(TBuffer&, void*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCore.so)
+==26573==    by 0x7FA52A5: TBufferFile::ReadFastArray(void*, TClass const*, int, TMemberStreamer*, TClass const*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libRIO.so)
+==26573==    by 0x80606B3: int TStreamerInfo::ReadBuffer<TVirtualCollectionProxy>(TBuffer&, TVirtualCollectionProxy const&, int, int, int, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libRIO.so)
+==26573==    by 0x80004EF: TStreamerInfo::ReadBufferSTL(TBuffer&, TVirtualCollectionProxy*, int, int, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libRIO.so)
+==26573==    by 0x8066465: int TStreamerInfo::ReadBuffer<char**>(TBuffer&, char** const&, int, int, int, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libRIO.so)
+==26573==    by 0x7FF1FD6: TStreamerInfoActions::GenericVectorPtrReadAction(TBuffer&, void*, void const*, TStreamerInfoActions::TConfiguration const*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libRIO.so)
+==26573==    by 0x7FA4387: TBufferFile::ApplySequenceVecPtr(TStreamerInfoActions::TActionSequence const&, void*, void*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libRIO.so)
+==26573== 
+==26573== 2,052 bytes in 54 blocks are possibly lost in loss record 62,930 of 63,116
+==26573==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==26573==    by 0x5AB3738: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (new_allocator.h:92)
+==26573==    by 0x5AB44AA: std::string::_Rep::_M_clone(std::allocator<char> const&, unsigned long) (basic_string.tcc:631)
+==26573==    by 0x5AB458F: std::string::reserve(unsigned long) (basic_string.tcc:512)
+==26573==    by 0x5AB46EE: std::string::append(unsigned long, char) (basic_string.tcc:290)
+==26573==    by 0x49A4CC9: std_string_streamer(TBuffer&, void*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCore.so)
+==26573==    by 0x7FA52A5: TBufferFile::ReadFastArray(void*, TClass const*, int, TMemberStreamer*, TClass const*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libRIO.so)
+==26573==    by 0x80606B3: int TStreamerInfo::ReadBuffer<TVirtualCollectionProxy>(TBuffer&, TVirtualCollectionProxy const&, int, int, int, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libRIO.so)
+==26573==    by 0x80004EF: TStreamerInfo::ReadBufferSTL(TBuffer&, TVirtualCollectionProxy*, int, int, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libRIO.so)
+==26573==    by 0x8066465: int TStreamerInfo::ReadBuffer<char**>(TBuffer&, char** const&, int, int, int, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libRIO.so)
+==26573==    by 0x8066613: int TStreamerInfo::ReadBuffer<char**>(TBuffer&, char** const&, int, int, int, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libRIO.so)
+==26573==    by 0x7FF1FD6: TStreamerInfoActions::GenericVectorPtrReadAction(TBuffer&, void*, void const*, TStreamerInfoActions::TConfiguration const*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libRIO.so)
+==26573== 
+==26573== 13,392 (5,704 direct, 7,688 indirect) bytes in 23 blocks are definitely lost in loss record 63,054 of 63,116
+==26573==    at 0x4808AC5: operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/external/valgrind/3.6.1/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==26573==    by 0x49EAD68: TStorage::ObjectAlloc(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCore.so)
+==26573==    by 0x4B86FD4: TObject::operator new(unsigned long) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCore.so)
+==26573==    by 0xB317FA6: ROOT::new_TCGenParticle(void*) (TCGenParticle_cc_ACLiC_dict.cxx:135)
+==26573==    by 0x4A4989C: TClass::New(TClass::ENewType) const (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCore.so)
+==26573==    by 0x7FA7A9F: TBufferFile::ReadObjectAny(TClass const*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libRIO.so)
+==26573==    by 0x7FA5542: TBufferFile::ReadFastArray(void**, TClass const*, int, bool, TMemberStreamer*, TClass const*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libRIO.so)
+==26573==    by 0x8064DD7: int TStreamerInfo::ReadBuffer<char**>(TBuffer&, char** const&, int, int, int, int) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libRIO.so)
+==26573==    by 0x7FF1FD6: TStreamerInfoActions::GenericVectorPtrReadAction(TBuffer&, void*, void const*, TStreamerInfoActions::TConfiguration const*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libRIO.so)
+==26573==    by 0x7FA4387: TBufferFile::ApplySequenceVecPtr(TStreamerInfoActions::TActionSequence const&, void*, void*) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libRIO.so)
+==26573==    by 0x4A25864: TClonesArray::Streamer(TBuffer&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libCore.so)
+==26573==    by 0xBBC94F7: TLeafObject::ReadBasket(TBuffer&) (in /uscmst1/prod/sw/cms/slc5_amd64_gcc462/lcg/root/5.32.00-cms21/lib/libTree.so)
+==26573== 
+==26573== LEAK SUMMARY:
+==26573==    definitely lost: 6,176 bytes in 43 blocks
+==26573==    indirectly lost: 7,688 bytes in 31 blocks
+==26573==      possibly lost: 2,781 bytes in 79 blocks
+==26573==    still reachable: 7,991,985 bytes in 93,093 blocks
+==26573==         suppressed: 3,450,797 bytes in 42,035 blocks
+==26573== Reachable blocks (those to which a pointer was found) are not shown.
+==26573== To see them, rerun with: --leak-check=full --show-reachable=yes
+==26573== 
+==26573== For counts of detected and suppressed errors, rerun with: -v
+==26573== ERROR SUMMARY: 67 errors from 21 contexts (suppressed: 279 from 234)

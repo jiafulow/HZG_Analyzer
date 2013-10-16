@@ -105,6 +105,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   histoFile->mkdir("ZGAngles", "ZGAngles");
   histoFile->mkdir("ZGAngles_RECO", "ZGAngles_RECO");
   histoFile->mkdir("PhotonPurity", "PhotonPurity");
+  histoFile->mkdir("MEPlots", "MEPlots");
 
   diffZGscalar = diffZGvector = threeBodyMass = threeBodyPt = divPt = cosZ = cosG = METdivQt = GPt = ZPt = DPhi = diffPlaneMVA = vtxVariable = dr1 = dr2 = M12 = scaleFactor = -99999;
 
@@ -263,7 +264,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         genLevelInputs.veclm = *genHZG.lm;
 
         getZGAngles(genLevelInputs,genLevelOutputs, false);
-        AnglePlots(genLevelOutputs,1,"ZGAngles");
+        AnglePlots(genLevelOutputs,1,"ZGAngles","GEN");
         //cout<<"costheta_lm: "<<genLevelOutputs.costheta_lm<<"\tcostheta_lp: "<<genLevelOutputs.costheta_lp<<"\tphi: "<<genLevelOutputs.phi<<"\tcosTheta: "<<genLevelOutputs.cosTheta<<"\tcosThetaG: "<<genLevelOutputs.cosThetaG<<endl;
       }
     }
@@ -1222,7 +1223,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   
   float MEdisc = MEDiscriminator(lepton1,lepton2,GP4);
   //if (MEdisc < cuts->ME) return kTRUE;
-  hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsME_SUFFIX","Mass vs ME; m_{ll#gamma}; ME Disc", 45,100,190,45,0,0.2,eventWeight);
+  hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsME_SUFFIX","Mass vs ME; m_{ll#gamma}; ME Disc", 45,100,190,45,0,0.2,eventWeight,"MEPlots");
   hm->fill1DHist(24,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");
   hm->fill1DHist(24,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
   ++nEvents[23];
@@ -1502,7 +1503,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   }
 
   getZGAngles(recoLevelInputs,recoLevelOutputs, false);
-  AnglePlots(recoLevelOutputs,1,"ZGAngles_RECO");
+  AnglePlots(recoLevelOutputs,1,"ZGAngles_RECO","RECO");
 
   hm->fill1DHist(eventWeight,"h1_eventWeight_SUFFIX", "event weight", 100, 0., 2.,1,"Misc");
   if (!isRealData) hm->fill1DHist(ptHat,"h1_ptHat_SUFFIX","ptHat",37, 15.0, 200.0, eventWeight,"Misc");
@@ -1674,13 +1675,13 @@ void higgsAnalyzer::StandardPlots(TLorentzVector p1, TLorentzVector p2, TLorentz
   } 
 }
 
-void higgsAnalyzer::AnglePlots(ZGAngles &zga,float eventWeight, string folder)
+void higgsAnalyzer::AnglePlots(ZGAngles &zga,float eventWeight, string folder, string tag)
 {
-  hm->fill1DHist(zga.costheta_lp,"h1_costhetaLP_SUFFIX", "Cos(#theta) positive lepton;cos(#theta);N_{evts}", 50, -1., 1., eventWeight,folder);     
-  hm->fill1DHist(zga.costheta_lm,"h1_costhetaLM_SUFFIX", "Cos(#theta) negative lepton;cos(#theta);N_{evts}", 50, -1., 1., eventWeight,folder);     
-  hm->fill1DHist(zga.phi,"h1_phi_SUFFIX", "#phi positive lepton;#phi;N_{evts}", 50, -TMath::Pi(), TMath::Pi(), eventWeight,folder);     
-  hm->fill1DHist(zga.cosTheta,"h1_costhetaZG_SUFFIX", "Cos(#Theta) ZG system;cos(#Theta);N_{evts}", 50, -1., 1., eventWeight,folder);     
-  hm->fill1DHist(zga.costheta_lm+zga.costheta_lp,"h1_costhetaBoth_SUFFIX", "Cos(#theta) of both lepton;cos(#theta);N_{evts}", 50, -1.1, 1.1, eventWeight,folder);     
+  hm->fill1DHist(zga.costheta_lp,"h1_costhetaLP"+tag+"_SUFFIX", "Cos(#theta) positive lepton;cos(#theta);N_{evts}", 50, -1., 1., eventWeight,folder);     
+  hm->fill1DHist(zga.costheta_lm,"h1_costhetaLM"+tag+"_SUFFIX", "Cos(#theta) negative lepton;cos(#theta);N_{evts}", 50, -1., 1., eventWeight,folder);     
+  hm->fill1DHist(zga.phi,"h1_phi"+tag+"_SUFFIX", "#phi positive lepton;#phi;N_{evts}", 50, -TMath::Pi(), TMath::Pi(), eventWeight,folder);     
+  hm->fill1DHist(zga.cosTheta,"h1_costhetaZG"+tag+"_SUFFIX", "Cos(#Theta) ZG system;cos(#Theta);N_{evts}", 50, -1., 1., eventWeight,folder);     
+  hm->fill1DHist(zga.costheta_lm+zga.costheta_lp,"h1_costhetaBoth"+tag+"_SUFFIX", "Cos(#theta) of both lepton;cos(#theta);N_{evts}", 50, -1.1, 1.1, eventWeight,folder);     
 }
 
 void higgsAnalyzer::DileptonBasicPlots(TLorentzVector ZP4, float eventWeight)
@@ -2039,7 +2040,7 @@ TMVA::Reader* higgsAnalyzer::MVAInitializer(mvaVarStruct vars, mvaInitStruct ini
   int discr = BDTG;
   //int discr = MLPBNN;
 
-  for (int mh = 0; mh < N_HIGGS_MASSES; ++mh) {
+  for (int mh = 0; mh < 1; ++mh) {
 
     TString label = TString::Format("%s_%s_MVA_HZG%i", inits.discrMethodName[discr].Data(), inits.discrSampleName.Data(),
         inits.mvaHiggsMassPoint[mh]);
@@ -2102,17 +2103,17 @@ void higgsAnalyzer::MVACalulator (mvaVarStruct vars, mvaInitStruct inits, TMVA::
   // get the MVA discriminators for the considered methods
 
   //             [higgs mass points]
-  Bool_t passBdtCut[N_HIGGS_MASSES] = {kFALSE};
-  Bool_t passAllBdtCuts[N_HIGGS_MASSES] = {kTRUE};
+  Bool_t passBdtCut[1] = {kFALSE};
+  Bool_t passAllBdtCuts[1] = {kTRUE};
 
 
   //                    [mva method][higgs mass point]
-  Float_t tmvaValue[N_DISCR_METHODS][N_HIGGS_MASSES] = {{0.0}};
+  Float_t tmvaValue[3][1] = {{0.0}};
 
   int discr = BDTG; // use only this one for now
   //int discr = MLPBNN; // use only this one for now
 
-  for (int mh = 0; mh<N_HIGGS_MASSES; ++mh) {
+  for (int mh = 0; mh<1; ++mh) {
 
     TString label = TString::Format("%s_%s_MVA_HZG%i", inits.discrMethodName[discr].Data(), inits.discrSampleName.Data(),
         inits.mvaHiggsMassPoint[mh]);
@@ -2128,7 +2129,7 @@ void higgsAnalyzer::MVACalulator (mvaVarStruct vars, mvaInitStruct inits, TMVA::
   // here we can count events, fill histograms etc
 
   /*
-  for (int mh = 0; mh<N_HIGGS_MASSES; ++mh) { // loop over mass points -> at the moment I put only one!
+  for (int mh = 0; mh<1; ++mh) { // loop over mass points -> at the moment I put only one!
 
     if (!passAllBdtCuts[mh]) return kTRUE;
     if (nEvents[0]%2 == 0 && suffix != "DATA") return kTRUE;

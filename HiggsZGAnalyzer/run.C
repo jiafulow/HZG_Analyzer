@@ -1,10 +1,3 @@
-#!/bin/csh
-
-cp simple_Template.C simple.C
-
-sed -i "s/SUFFIX/$1/g" simple.C
-
-cat > run.C << +EOF
 
   #include <iostream>
   #include <fstream>
@@ -36,10 +29,10 @@ cat > run.C << +EOF
 
     TChain* fChain = new TChain("ntupleProducer/eventTree");
 
-    ifstream sourceFiles("sourceFiles/$1.txt");
+    ifstream sourceFiles("sourceFiles/DYJets.txt");
     char line[128];
     int  count = 0;
-    cout<<"Adding files from $1 to chain..."<<endl;
+    cout<<"Adding files from DYJets to chain..."<<endl;
 
     while (sourceFiles >> line) {
       fChain->Add(line);      
@@ -59,9 +52,3 @@ cat > run.C << +EOF
     cout << "\n";
   }
 
-+EOF
-
-root -l -b -q run.C
-
-#rm run.C
-#rm simple.C

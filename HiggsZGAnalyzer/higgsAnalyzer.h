@@ -232,7 +232,7 @@ class higgsAnalyzer : public TSelector {
 		virtual void    LeptonBasicPlots(TLorentzVector p1, TLorentzVector p2, float evtWeight);
 		virtual void    GenPlots(vector<TCGenParticle> Zs, vector<TCGenParticle> leps, vector<TCGenParticle> phots, vector<TCGenParticle> Hs, TLorentzVector ZP4,TLorentzVector GP4, float evtWeight); 
     virtual void    StandardPlots(TLorentzVector p1, TLorentzVector p2, TLorentzVector gamma, float evtWeight,string tag, string folder);
-    virtual void    AnglePlots(ZGAngles &zga, float eventWeight, string folder);
+    virtual void    AnglePlots(ZGAngles &zga, float eventWeight, string folder, string tag);
 		virtual void    DileptonBasicPlots(TLorentzVector ZP4, float evtWeight);
 		virtual bool    CosmicMuonFilter(TCMuon muon1, TCMuon muon2);
 		virtual float   CalculateTransMass(TLorentzVector p1, TLorentzVector p2);
@@ -251,8 +251,6 @@ class higgsAnalyzer : public TSelector {
 
     // TMVA weights directory
 
-#define N_DISCR_METHODS 3
-#define N_HIGGS_MASSES 1
 
     // here we will use only BDTG... but will keep the structure 
     enum DISCR_METHOD {
@@ -270,8 +268,8 @@ class higgsAnalyzer : public TSelector {
       TString weightsDir; 
       TString discrMethodName[3];
       TString discrSampleName; 
-      Int_t mvaHiggsMassPoint[N_HIGGS_MASSES];
-      Float_t bdtCut[N_HIGGS_MASSES];
+      Int_t mvaHiggsMassPoint[1];
+      Float_t bdtCut[1];
     } mvaInits;
 
     struct mvaVarStruct{
