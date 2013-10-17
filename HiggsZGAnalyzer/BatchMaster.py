@@ -112,8 +112,8 @@ class BatchMaster():
             # copy files to staging so they cant be modified during submission
             if not os.path.exists(self._outDir+'/'+cfg._selection+'/'+cfg._dataName+'/stageball.tar.gz'):
               os.system('cp stageball.tar.gz '+self._outDir+'/'+cfg._selection+'/'+cfg._dataName+'/.' )
-            if not os.path.exists(self._outDir+'/'+cfg._selection+'/'+cfg._dataName+'/execBatch.sh'):
-              os.system('cp execBatch.sh '+self._outDir+'/'+cfg._selection+'/'+cfg._dataName+'/.' )
+            if not os.path.exists(self._outDir+'/'+cfg._selection+'/'+cfg._dataName+'/'+self._executable):
+              os.system('cp '+self._executable+' '+self._outDir+'/'+cfg._selection+'/'+cfg._dataName+'/.' )
             os.chdir(self._outDir+'/'+cfg._selection+'/'+cfg._dataName)
 
             for i, source in enumerate(sourceFiles):

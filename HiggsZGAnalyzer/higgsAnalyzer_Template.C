@@ -105,7 +105,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   histoFile->mkdir("ZGAngles_RECO", "ZGAngles_RECO");
   histoFile->mkdir("PhotonPurity", "PhotonPurity");
   histoFile->mkdir("MEPlots", "MEPlots");
-  histoFile->mkdir("FakeRateWeight", "FakeRateWeight");
+  //histoFile->mkdir("FakeRateWeight", "FakeRateWeight");
 
   diffZGscalar = diffZGvector = threeBodyMass = threeBodyPt = divPt = cosZ = cosG = METdivQt = GPt = ZPt = DPhi = diffPlaneMVA = vtxVariable = dr1 = dr2 = M12 = scaleFactor = -99999;
 
@@ -1365,7 +1365,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     hmHiggs->fill1DHist(R9Cor, "h1_R9CorCAT"+str(catNum)+"_SUFFIX","R9Cor;R9Cor;Entries",100,0,1,eventWeight);
     hm->fill1DHist(R9Cor, "h1_R9CorCAT"+str(catNum)+"_SUFFIX","R9Cor;R9Cor;Entries",100,0,1,eventWeight);
     hm->fill2DHist(lepton1.Eta(),lepton2.Eta(),"h2_dilepEtaCAT"+str(catNum)+"_SUFFIX","Dilepton Eta CAT"+str(catNum)+"; Eta (leading); Eta (trailing)", 50,-2.5,2.5,50,-2.5,2.5,eventWeight,"CAT"+str(catNum)+"");
-    hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsMECAT"+str(catNum)+"_SUFFIX","Mass vs ME; m_{ll#gamma}; ME Disc", 45,100,190,45,0,0.2,eventWeight);
+    hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsMECAT"+str(catNum)+"_SUFFIX","Mass vs ME; m_{ll#gamma}; ME Disc", 45,100,190,45,0,0.2,eventWeight,"MEPlots");
     hm->fill1DHist(59+catNum,"h1_acceptanceByCut_SUFFIX", "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5,eventWeight,"Misc");
     hm->fill1DHist(59+catNum,"h1_acceptanceByCutRaw_SUFFIX", "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
     ++nEvents[60+catNum];
@@ -1413,11 +1413,15 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     hm->fill1DHist(GP4.Pt(),"h1_GammaPt_SUFFIX","Gamma p_{T};p_{T} (GeV);Entries",45,10,100,eventWeight,"ZGamma");
     hm->fill2DHist(CalculateX1(ZP4,GP4),CalculateX2(ZP4,GP4),"h2_X1X2_SUFFIX","x1 vs x2;x1;x2",50,0,0.4,50,0,0.4,eventWeight,"ZGamma");
     hm->fill2DHist(ZP4.M(),(ZP4+GP4).M(),"h2_InvariantMasses_SUFFIX","2 Body vs 3 Body Invariant Mass; Z (GeV); Z#gamma (GeV)",80,50,130,110,90,200,eventWeight,"ZGamma");
-    hm->fill2DHist((ZP4+GP4).M(),GP4.Pt(),"h2_3BodyVsGPt_SUFFIX","3-Body Mass vs #gamma p_{T};Z#gamma;#gamma p_{T}",20,100,190,45,10,100,eventWeight,"ZGamma");
-    hm->fill2DHist((ZP4+GP4).M(),(ZP4.Pt()-GP4.Pt()),"h2_3BodyVsDiffPt_SUFFIX","3-Body Mass vs diff p_{T};Z#gamma_{m};Z p_{T} - #gamma p_{T}",45,100,190,80,-120,120,eventWeight,"ZGamma");
+    hm->fill2DHist(ZP4.M(),GP4.Pt(),"h2_2BodyVsGPt_SUFFIX","Dilepton Mass vs #gamma p_{T};Z_{m} (GeV);#gamma p_{T}",100,50,150,45,10,100,eventWeight,"ZGamma");
+    hm->fill2DHist((ZP4+GP4).M(),GP4.Pt(),"h2_3BodyVsGPt_SUFFIX","3-Body Mass vs #gamma p_{T};Z#gamma_{m};#gamma p_{T}",20,100,190,45,10,100,eventWeight,"ZGamma");
+    hm->fill2DHist((ZP4+GP4).M(),(ZP4.Pt()-GP4.Pt()),"h2_3BodyVsDiffPt_SUFFIX","3-Body Mass vs diff p_{T};Z#gamma_{m};Z p_{T} - #gamma p_{T}",20,100,190,100,-150,150,eventWeight,"ZGamma");
     hm->fill2DHist((ZP4+GP4).M(),(ZP4.Pt()/GP4.Pt()),"h2_3BodyVsRatPt_SUFFIX","3-Body Mass vs ratio p_{T};Z#gamma_{m};Ratio p_{T}",20,100,190,50,0,10,eventWeight,"ZGamma");
-    hm->fill2DHist(ZP4.M(),GP4.Pt(),"h2_2BodyVsGPt_SUFFIX","Dilepton Mass vs #gamma p_{T};Z#gamma_{m} (GeV);#gamma p_{T}",100,50,150,45,10,100,eventWeight,"ZGamma");
-    hm->fill2DHist((ZP4+GP4).M(),ZP4.Pt(),"h2_3BodyVsZPt_SUFFIX","3-Body Mass vs #Z p_{T};Z#gamma;Z p_{T}",20,100,190,50,0,150,eventWeight,"ZGamma");
+    hm->fill2DHist((ZP4+GP4).M(),ZP4.Pt(),"h2_3BodyVsZPt_SUFFIX","3-Body Mass vs #Z p_{T};Z#gamma_{m};Z p_{T}",20,100,190,50,0,150,eventWeight,"ZGamma");
+    hm->fill2DHist((ZP4+GP4).M()/(ZP4+GP4).Pt(),GP4.Pt(),"h2_3BodyOptVsGPt_SUFFIX","3-Body Mass/pt vs #gamma p_{T};Z#gamma_{m}/Z#gamma_{pT};#gamma p_{T}",20,0,20,45,10,100,eventWeight,"ZGamma");
+    hm->fill2DHist((ZP4+GP4).M()/(ZP4+GP4).Pt(),(ZP4.Pt()-GP4.Pt()),"h2_3BodyOptVsDiffPt_SUFFIX","3-Body Mass/pt vs diff p_{T};Z#gamma_{m}/Z#gamma_{pT};Z p_{T} - #gamma p_{T}",20,0,20,100,-150,150,eventWeight,"ZGamma");
+    hm->fill2DHist((ZP4+GP4).M()/(ZP4+GP4).Pt(),(ZP4.Pt()/GP4.Pt()),"h2_3BodyOptVsRatPt_SUFFIX","3-Body Mass/pt vs ratio p_{T};Z#gamma_{m}/Z#gamma_{pT};Ratio p_{T}",20,0,20,50,0,10,eventWeight,"ZGamma");
+    hm->fill2DHist((ZP4+GP4).M()/(ZP4+GP4).Pt(),ZP4.Pt(),"h2_3BodyOptVsZPt_SUFFIX","3-Body Mass/pt vs #Z p_{T};Z#gamma_{m}/Z#gamma_{pT};Z p_{T}",20,0,20,50,0,150,eventWeight,"ZGamma");
     hm->fillProfile(CalculateX1(ZP4,GP4),CalculateX2(ZP4,GP4),"profile_X1X2Pro_SUFFIX","x1 vs x2;x1;x2",50,0,0.4,0,0.4,eventWeight,"ZGamma");
     hm->fill1DHist(lepton1.Pt()/lepton2.Pt(),"h1_MuonRatPt_SUFFIX","leading/trailing p_{T};p_{T} Ratio;Entries",15,0,5,eventWeight,"ZGamma");
     hm->fill1DHist(photonsIDIso.size(),"h1_photonMult_SUFFIX","Photon Multiplicity;nPhoton;Entries",10,0.5,10.5,eventWeight,"ZGamma");

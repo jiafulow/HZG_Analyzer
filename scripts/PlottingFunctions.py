@@ -135,7 +135,7 @@ def FolderDump(tfile, folder):
 
   return folderDict
 
-def DataBGComp(histList,directory,thisFile,year,lepton):
+def DataBGComp(histList,directory,thisFile,year,lepton,sigName):
   '''Give a list of histograms that contain the data and backgrounds, plot them and save them'''
   if len(histList) == 0: raise NameError('histList is empty')
   gStyle.SetOptStat(0)
@@ -144,7 +144,9 @@ def DataBGComp(histList,directory,thisFile,year,lepton):
 
   dataHist = None
   for hist in histList:
-    if 'DATA' in hist.GetName(): dataHist = hist
+    if 'DATA' in hist.GetName():
+      dataHist = hist
+      break
   if not dataHist: raise NameError('No dataHist found in this list')
 
   bgList = [hist for hist in histList if (hist.GetName().find('DATA') == -1 and hist.GetName().find('Signal') == -1)]
@@ -153,7 +155,9 @@ def DataBGComp(histList,directory,thisFile,year,lepton):
 
   signalHist = None
   for hist in histList:
-    if 'Signal' in hist.GetName(): signalHist= hist
+    if sigName in hist.GetName():
+      signalHist= hist
+      break
   if not signalHist: raise NameError('No signalHist found in this list')
   signalHist.SetLineColor(kRed)
   signalHist.SetFillStyle(1001)
@@ -166,9 +170,9 @@ def DataBGComp(histList,directory,thisFile,year,lepton):
   can= TCanvas('ratioCan','canvas',800,600)
   if do2D:
     can.SetRightMargin(0.1)
-    leg = TLegend(0.78,0.78,0.90,0.92,'',"brNDC")
+    leg = TLegend(0.75,0.75,0.90,0.92,'',"brNDC")
   else:
-    leg = TLegend(0.82,0.78,0.97,0.92,'',"brNDC")
+    leg = TLegend(0.81,0.73,0.97,0.92,'',"brNDC")
   leg.SetBorderSize(1)
   leg.SetTextSize(0.03)
   leg.SetFillColor(0)
@@ -208,14 +212,14 @@ def DataBGComp(histList,directory,thisFile,year,lepton):
   # Set the signal histograms
   signalHist.SetLineColor(kRed)
   signalHist.SetFillStyle(0)
-  label = 'Signal2012ggM125p8'
+  label = sigName
   initEvents = thisFile.GetDirectory('Misc').Get('h1_acceptanceByCut_'+label).Integral(1,1)
   scale = LumiXSScale(year,lepton,label,initEvents)
-  signalHist.Scale(scale*100)
+  signalHist.Scale(scale*500)
   if do2D:
-    leg.AddEntry(signalHist,'Signalx100','f')
+    leg.AddEntry(signalHist,'Signalx500','f')
   else:
-    leg.AddEntry(signalHist,'Signalx100','l')
+    leg.AddEntry(signalHist,'Signalx500','l')
 
 
   ymax = max(map(lambda x:x.GetMaximum(),[dataHist,bgStack,signalHist]))*1.2

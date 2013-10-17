@@ -311,10 +311,10 @@ def PhotonPurity():
           plotList = []
 
 def GenericPlotter(folder):
-  FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-15-13.root")
+  FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-17-13.root")
   folderDict = FolderDump(FileMu,folder)
   for key in folderDict.keys():
-    DataBGComp(folderDict[key],folder,FileMu,'2012','mu')
+    DataBGComp(folderDict[key],folder,FileMu,'2012','mu','Signal2012ggM125p8')
 
 
 
