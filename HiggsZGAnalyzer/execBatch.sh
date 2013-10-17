@@ -23,9 +23,7 @@ period=$6
 #mkdir printouts
 
 
-ls
-export MALLOC_CHECK_=2
-tar -vzxf stageball.tar.gz
+tar -zxf stageball.tar.gz
 mkdir -v higgsDir
 mv -v higgsAnalyzer_Template.C higgsDir/.
 mv -v higgsAnalyzer.h higgsDir/.
@@ -43,7 +41,6 @@ sed -i "s/COUNT/$count/g" higgsAnalyzer.C
 sed -i "s/DATANAME/$dataName/g" higgsAnalyzer.C
 #sed -i "s/\.\.\/src/src/g" higgsAnalyzer.h
 
-ls
 cat > run.C << +EOF
     
   #include <iostream>
