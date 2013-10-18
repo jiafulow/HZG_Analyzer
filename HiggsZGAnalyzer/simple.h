@@ -13,6 +13,7 @@
 #include <TChain.h>
 #include <TFile.h>
 #include <TSelector.h>
+#include <sstream>
 
 // Header file for the classes stored in the TTree if any.
 #include <TClonesArray.h>
