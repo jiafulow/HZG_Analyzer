@@ -368,6 +368,86 @@ def DataBGComp2DProj(histList,directory,thisFile,year,lepton,sigName,title,sigWi
     can.SaveAs(directory+'/'+lepton+lepton+'_'+dataHist.GetName().split('_')[1]+'_proj.pdf')
   can.Clear()
 
+def ROCcurves(histList,directory,thisFile,year,lepton,sigName):
+  '''Give a list of histograms, calculate ROC curve for that distribution'''
+  if len(histList) == 0: raise NameError('histList is empty')
+  gStyle.SetOptStat(0)
+
+  bgList = [hist for hist in histList if (hist.GetName().find('DATA') == -1 and hist.GetName().find('Signal') == -1)]
+  if len(bgList) == 0: raise NameError('No BG hists found in this list')
+  bgList = sorted(bgList, key=lambda hist:hist.GetName()[-1], reverse=True)
+
+  signalHist = None
+  for hist in histList:
+    if sigName in hist.GetName():
+      signalHist= hist
+      break
+  if not signalHist: raise NameError('No signalHist found in this list')
+  signalHist.SetLineColor(kRed)
+  signalHist.SetLineWidth(2)
+  signalHist.SetFillStyle(1001)
+
+  if not os.path.isdir(directory):
+    os.mkdir(directory)
+
+  TH1.SetDefaultSumw2(kTRUE)
+  TProfile.SetDefaultSumw2(kTRUE)
+
+  # Make canvas and legend
+  can= TCanvas('ratioCan','canvas',800,600)
+  leg = TLegend(0.13,0.73,0.27,0.92,'',"brNDC")
+  leg.SetBorderSize(0)
+  leg.SetTextSize(0.03)
+  leg.SetFillColor(0)
+  leg.SetFillStyle(0)
+
+  # Set the bg histograms
+  bgStack = bgList[0]
+  bgStack.Reset()
+  for hist in bgList:
+    label = hist.GetName().split('_')[-1]
+    hist.SetFillStyle(1001)
+    hist.SetFillColor(colorDict[label])
+    hist.SetLineColor(colorDict[label])
+    initEvents = thisFile.GetDirectory('Misc').Get('h1_acceptanceByCut_'+label).Integral(1,1)
+    scale = LumiXSScale(year,lepton,label,initEvents)
+    hist.Scale(scale)
+    leg.AddEntry(hist,label,'f')
+    bgStack.Add(hist)
+
+
+  # Set the signal histograms
+  signalHist.SetLineColor(kRed)
+  signalHist.SetFillStyle(0)
+  label = sigName
+  initEvents = thisFile.GetDirectory('Misc').Get('h1_acceptanceByCut_'+label).Integral(1,1)
+  scale = LumiXSScale(year,lepton,label,initEvents)
+  signalHist.Scale(scale)
+  leg.AddEntry(signalHist,'Signal','l')
+
+  rocCurve = TProfile('rocCurve',signalHist.GetTitle()+' ROC;BG eff;Signal eff',signalHist.GetNbinsX(),0,1,0,1)
+  for bin in range(1,signalHist.GetNbinsX()+1):
+    print bin, signalHist.GetBinLowEdge(bin), signalHist.GetBinContent(bin), signalHist.Integral(bin,signalHist.GetNbinsX())
+    bgYield = bgStack.Integral(bin, bgStack.GetNbinsX())
+    sigYield = signalHist.Integral(bin, signalHist.GetNbinsX())
+    rocCurve.Fill(bgYield/bgStack.Integral(), sigYield/signalHist.Integral())
+
+  rocCurve.GetYaxis().SetTitleSize(0.06)
+  rocCurve.GetYaxis().CenterTitle()
+  rocCurve.GetXaxis().SetTitleSize(0.05)
+  #rocCurve.GetYaxis().SetLabelSize(0.05)
+  #rocCurve.GetXaxis().SetLabelSize(0.05)
+  #rocCurve.GetXaxis().SetTitle(dist)
+  rocCurve.GetYaxis().SetTitleOffset(0.82)
+
+  rocCurve.Draw('pe')
+
+  leg.Draw()
+  can.SaveAs(directory+'/'+lepton+lepton+'_'+signalHist.GetName().split('_')[1]+'_ROC.pdf')
+  can.Clear()
+
+
+
 colorDict = {'DYJets':kGreen+1,'ZGToLLG':kBlue}
 
 
