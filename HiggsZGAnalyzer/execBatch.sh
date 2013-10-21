@@ -18,29 +18,12 @@ abcd=$4
 selection=$5
 period=$6
 
-#mkdir otherHistos
-#mkdir plugins
-#mkdir printouts
-
-
 tar -zxf stageball.tar.gz
 mkdir -v higgsDir
 mv -v higgsAnalyzer* higgsDir/.
-#mv -v higgsAnalyzer_Template.C higgsDir/.
-#mv -v higgsAnalyzer.h higgsDir/.
 mv -v input.txt higgsDir/.
 mv -v otherHistos higgsDir/.
 cd higgsDir
-
-#cp higgsAnalyzer_Template.C higgsAnalyzer.C
-
-#sed -i "s/SUFFIX/$suffix/g" higgsAnalyzer.C
-#sed -i "s/ABCD/$abcd/g" higgsAnalyzer.C
-#sed -i "s/SELECTION/$selection/g" higgsAnalyzer.C
-#sed -i "s/PERIOD/$period/g" higgsAnalyzer.C
-#sed -i "s/COUNT/$count/g" higgsAnalyzer.C
-#sed -i "s/DATANAME/$dataName/g" higgsAnalyzer.C
-#sed -i "s/\.\.\/src/src/g" higgsAnalyzer.h
 
 cat > run.C << +EOF
     

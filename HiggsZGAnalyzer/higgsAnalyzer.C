@@ -475,7 +475,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   vector<TCElectron> electronsID;
   vector<TCElectron> electronsIDIso;
   vector<TCElectron> electronsIDIsoUnCor;
-  TCElectron * cloneElectron;
+  TCElectron * cloneElectron(0);
   //int eleCount = 0;
 
 
@@ -585,7 +585,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   vector<TCMuon> muonsIDIso;
   vector<TCMuon> muonsIDIsoUnCor;
   TLorentzVector tmpMuCor;
-  TCMuon* cloneMuon;
+  TCMuon* cloneMuon(0);
 
   /*
 
@@ -1229,7 +1229,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   /////////////
   
   float MEdisc = MEDiscriminator(lepton1,lepton2,GP4);
-  //if (MEdisc < cuts->ME) return kTRUE;
+  if (MEdisc < cuts->ME) return kTRUE;
   hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsME_"+params->suffix,"Mass vs ME; m_{ll#gamma}; ME Disc", 45,100,190,45,0,0.2,eventWeight,"MEPlots");
   hm->fill1DHist(24,"h1_acceptanceByCut_"+params->suffix, "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");
   hm->fill1DHist(24,"h1_acceptanceByCutRaw_"+params->suffix, "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
@@ -1420,6 +1420,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     hm->fill1DHist(GP4.Pt(),"h1_GammaPt_"+params->suffix,"Gamma p_{T};p_{T} (GeV);Entries",45,10,100,eventWeight,"ZGamma");
     hm->fill2DHist(CalculateX1(ZP4,GP4),CalculateX2(ZP4,GP4),"h2_X1X2_"+params->suffix,"x1 vs x2;x1;x2",50,0,0.4,50,0,0.4,eventWeight,"ZGamma");
     hm->fill2DHist(ZP4.M(),(ZP4+GP4).M(),"h2_InvariantMasses_"+params->suffix,"2 Body vs 3 Body Invariant Mass; Z (GeV); Z#gamma (GeV)",80,50,130,110,90,200,eventWeight,"ZGamma");
+    hm->fill1DHist((ZP4+GP4).M()-ZP4.M(),"h1_DeltaM_"+params->suffix,"Z#gamma_{m}-Z_{m};Entries;#Deltam (GeV)",70,0,140,eventWeight,"ZGamma");
     hm->fill2DHist(ZP4.M(),GP4.Pt(),"h2_2BodyVsGPt_"+params->suffix,"Dilepton Mass vs #gamma p_{T};Z_{m} (GeV);#gamma p_{T}",100,50,150,45,10,100,eventWeight,"ZGamma");
     hm->fill2DHist((ZP4+GP4).M(),GP4.Pt(),"h2_3BodyVsGPt_"+params->suffix,"3-Body Mass vs #gamma p_{T};Z#gamma_{m};#gamma p_{T}",20,100,190,45,10,100,eventWeight,"ZGamma");
     hm->fill2DHist((ZP4+GP4).M(),(ZP4.Pt()-GP4.Pt()),"h2_3BodyVsDiffPt_"+params->suffix,"3-Body Mass vs diff p_{T};Z#gamma_{m};Z p_{T} - #gamma p_{T}",20,100,190,100,-150,150,eventWeight,"ZGamma");

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import sys
+import sys,os
 sys.argv.append('-b')
 from PlottingFunctions import *
 from ROOT import *
@@ -311,13 +311,16 @@ def PhotonPurity():
           plotList = []
 
 def GenericPlotter(folder):
-  FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-17-13.root")
+  if os.environ.get('AT_NWU') == None:
+    FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-17-13.root")
+  else:
+    FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-21-13.root")
   folderDict = FolderDump(FileMu,folder)
   for key in folderDict.keys():
     DataBGComp(folderDict[key],folder,FileMu,'2012','mu','Signal2012ggM125p8')
 
 def MEPlotter():
-  FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-17-13.root")
+  FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-21-13.root")
   folderDict = FolderDump(FileMu,'MEPlots')
   for key in folderDict.keys():
     DataBGComp(folderDict[key],'MEPlots',FileMu,'2012','mu','Signal2012ggM125p8')
