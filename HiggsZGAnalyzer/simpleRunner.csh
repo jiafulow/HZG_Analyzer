@@ -1,8 +1,6 @@
 #!/bin/csh
 
-#cp simple_Template.C simple.C
-
-#sed -i "s/SUFFIX/$1/g" simple.C
+set suffix=$1
 
 cat > run.C << +EOF
 
@@ -61,7 +59,7 @@ cat > run.C << +EOF
 
 +EOF
 
-root -l -b -q 'run.C("'$1'")'
+root -l -b -q 'run.C("'$suffix'")'
 
 #rm run.C
 #rm simple.C

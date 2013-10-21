@@ -2,14 +2,21 @@
 
 set dir=`echo $1 | cut -d _ -f 1 `
 
-cp $6 higgsAnalyzer.C
+#cp $6 higgsAnalyzer.C
 
-sed -i "s/SUFFIX/$1/g" higgsAnalyzer.C
-sed -i "s/ABCD/$2/g" higgsAnalyzer.C
-sed -i "s/SELECTION/$4/g" higgsAnalyzer.C
-sed -i "s/PERIOD/$5/g" higgsAnalyzer.C
-sed -i "s/DATANAME/$3/g" higgsAnalyzer.C
-sed -i "s/COUNT/local/g" higgsAnalyzer.C
+#sed -i "s/SUFFIX/$1/g" higgsAnalyzer.C
+#sed -i "s/ABCD/$2/g" higgsAnalyzer.C
+#sed -i "s/DATANAME/$3/g" higgsAnalyzer.C
+#sed -i "s/SELECTION/$4/g" higgsAnalyzer.C
+#sed -i "s/PERIOD/$5/g" higgsAnalyzer.C
+#sed -i "s/COUNT/local/g" higgsAnalyzer.C
+
+set suffix=$1
+set abcd=$2
+set dataName=$3
+set selection=$4
+set period=$5
+set count='local'
 
 cat > run.C << +EOF
 
@@ -21,7 +28,7 @@ cat > run.C << +EOF
 
   using namespace std;
 
-  void run() {
+  void run(string args="") {
 
     gROOT->SetMacroPath(".:../src/:../interface/:../plugins/");
     gROOT->LoadMacro("TCPhysObject.cc+");
@@ -55,15 +62,15 @@ cat > run.C << +EOF
     TChain* fChain = new TChain("ntupleProducer/eventTree");
 
     ifstream sourceFiles("sourceFiles/$3.txt");
-    string line;
+    string myLine;
     int  count = 0;
     cout<<"Adding files from $3 to chain..."<<endl;
 
-    while (sourceFiles >> line) {
-      if (count == 0 && line.find("dcache")==string::npos){
+    while (sourceFiles >> myLine) {
+      if (count == 0 && myLine.find("dcache")==string::npos){
       float rhoFactor;
       TBranch        *b_rhoFactor;   //!
-      TFile fixFile(line.c_str(),"open");
+      TFile fixFile(myLine.c_str(),"open");
       TTree *fixTree = (TTree*)fixFile.Get("ntupleProducer/eventTree");
       fixTree->SetBranchAddress("rhoFactor",&rhoFactor,&b_rhoFactor);
       for(int i =0; i<fixTree->GetEntries();i++){
@@ -72,7 +79,7 @@ cat > run.C << +EOF
     delete fixTree;
 
     }
-    fChain->Add(line.c_str());      
+    fChain->Add(myLine.c_str());      
     ++count;
     }
     cout<<count<<" files added!"<<endl;
@@ -81,7 +88,7 @@ cat > run.C << +EOF
     TStopwatch timer;
     timer.Start();
 
-    fChain->Process("higgsAnalyzer.C+g");
+    fChain->Process("higgsAnalyzer.C+", args.c_str());
 
     cout << "\n\nDone!" << endl;
     cout << "CPU Time : " << timer.CpuTime() << endl;
@@ -91,7 +98,6 @@ cat > run.C << +EOF
 
 +EOF
 
-root -l -b -q run.C
-
+root -l -b -q 'run.C("'$suffix' '$abcd' '$selection' '$period' '$dataName' '$count'")'
 rm run.C
 mv *local.root localHistos/.
