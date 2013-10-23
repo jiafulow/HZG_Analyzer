@@ -277,6 +277,7 @@ def PhotonPurity():
               leg.AddEntry(thisPlot,labelList[i],'f')
             plotList.append(thisPlot)
 
+
           bgStack = THStack('bgs','bgs')
           bgStack.Add(plotList[1])
           bgStack.Add(plotList[2])
@@ -328,11 +329,12 @@ def MEPlotter():
     DataBGComp2DProj(folderDict[key],'MEPlots',FileMu,'2012','mu','Signal2012ggM125p8','MEdisc, 120<m<130',True)
 
 def ROC():
-  FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-21-13.root")
-  folderDict = FolderDump(FileMu,'ZGamma')
-  key = 'InvariantMass'
-  ROCcurves(folderDict[key],'ROC',FileMu,'2012','mu','Signal2012ggM125p8')
-  DataBGComp(folderDict[key],'ROC',FileMu,'2012','mu','Signal2012ggM125p8')
+  FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-23-13.root")
+  folderDict = FolderDump(FileMu,'MEPlots')
+  for key in folderDict.keys():
+    if 'MassVsME' in key:
+      ROCcurves(folderDict[key],'ROC',FileMu,'2012','mu','Signal2012ggM125p8')
+      #DataBGComp2DProj(folderDict[key],'ROC',FileMu,'2012','mu','Signal2012ggM125p8','MEdisc, 120<m<130',True)
 
 
 if __name__=="__main__":
