@@ -1229,8 +1229,9 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   /////////////
   
   float MEdisc = MEDiscriminator(lepton1,lepton2,GP4);
-  if (MEdisc < cuts->ME) return kTRUE;
+  //if (MEdisc < cuts->ME) return kTRUE;
   hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsME_"+params->suffix,"Mass vs ME; m_{ll#gamma}; ME Disc", 45,100,190,45,0,0.2,eventWeight,"MEPlots");
+  hm->fill1DHist(MEdisc,"h1_ME_"+params->suffix,"ME Disc;ME Disc;Entries", 45,0,0.2,eventWeight,"MEPlots");
   hm->fill1DHist(24,"h1_acceptanceByCut_"+params->suffix, "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");
   hm->fill1DHist(24,"h1_acceptanceByCutRaw_"+params->suffix, "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
   ++nEvents[23];
@@ -1373,6 +1374,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     hm->fill1DHist(R9Cor, "h1_R9CorCAT"+str(catNum)+"_"+params->suffix,"R9Cor;R9Cor;Entries",100,0,1,eventWeight);
     hm->fill2DHist(lepton1.Eta(),lepton2.Eta(),"h2_dilepEtaCAT"+str(catNum)+"_"+params->suffix,"Dilepton Eta CAT"+str(catNum)+"; Eta (leading); Eta (trailing)", 50,-2.5,2.5,50,-2.5,2.5,eventWeight,"CAT"+str(catNum)+"");
     hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsMECAT"+str(catNum)+"_"+params->suffix,"Mass vs ME; m_{ll#gamma}; ME Disc", 45,100,190,45,0,0.2,eventWeight,"MEPlots");
+    hm->fill1DHist(MEdisc,"h1_MECAT"+str(catNum)+"_"+params->suffix,"ME Disc CAT:"+str(catNum)+";ME Disc;Entries", 45,0,0.2,eventWeight,"MEPlots");
     hm->fill1DHist(59+catNum,"h1_acceptanceByCut_"+params->suffix, "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5,eventWeight,"Misc");
     hm->fill1DHist(59+catNum,"h1_acceptanceByCutRaw_"+params->suffix, "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
     ++nEvents[60+catNum];

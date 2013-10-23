@@ -392,6 +392,8 @@ def ROCcurves(histList,directory,thisFile,year,lepton,sigName):
 
   TH1.SetDefaultSumw2(kTRUE)
   TProfile.SetDefaultSumw2(kTRUE)
+  can= TCanvas('ratioCan','canvas',800,600)
+  can.cd()
 
   # Set the bg histograms
   bgStack = bgList[0]
@@ -415,14 +417,21 @@ def ROCcurves(histList,directory,thisFile,year,lepton,sigName):
   scale = LumiXSScale(year,lepton,label,initEvents)
   signalHist.Scale(scale)
 
+  bestCut = None
+  bestBGEff= None
+  bestSignif = 0
   rocCurve = TProfile('rocCurve',signalHist.GetTitle()+' ROC;BG eff;Signal eff',signalHist.GetNbinsX(),0,1,0,1)
   signifPlot = TProfile('signifPlot',signalHist.GetTitle()+' Signif;MEDisc;#frac{s}{#sqrt{s+b}}',signalHist.GetNbinsX(),signalHist.GetBinLowEdge(1),signalHist.GetBinLowEdge(1+signalHist.GetNbinsX()))
   for bin in range(1,signalHist.GetNbinsX()+1):
-    print bin, signalHist.GetBinLowEdge(bin), signalHist.GetBinContent(bin), signalHist.Integral(bin,signalHist.GetNbinsX())
+    #print bin, signalHist.GetBinLowEdge(bin), signalHist.GetBinContent(bin), signalHist.Integral(bin,signalHist.GetNbinsX())
     bgYield = bgStack.Integral(bin, bgStack.GetNbinsX())
     sigYield = signalHist.Integral(bin, signalHist.GetNbinsX())
     rocCurve.Fill(bgYield/bgStack.Integral(), sigYield/signalHist.Integral())
     if sigYield+bgYield > 0:
+      if sigYield/sqrt(sigYield+bgYield) > bestSignif:
+        bestSignif = sigYield/sqrt(sigYield+bgYield)
+        bestCut = signalHist.GetBinLowEdge(bin)
+        bestBGEff = bgYield/bgStack.Integral()
       signifPlot.Fill(signalHist.GetBinLowEdge(bin),sigYield/sqrt(sigYield+bgYield))
     else:
       signifPlot.Fill(signalHist.GetBinLowEdge(bin),0)
@@ -432,6 +441,10 @@ def ROCcurves(histList,directory,thisFile,year,lepton,sigName):
   rocCurve.GetXaxis().SetTitleSize(0.05)
   rocCurve.GetYaxis().SetTitleOffset(0.82)
   rocCurve.Draw('pe')
+  line = TLine(bestBGEff,rocCurve.GetMinimum(),bestBGEff,rocCurve.GetMaximum()*1.05)
+  line.SetLineColor(kRed)
+  line.SetLineWidth(2)
+  line.Draw()
 
   can.SaveAs(directory+'/'+lepton+lepton+'_'+signalHist.GetName().split('_')[1]+'_ROC.pdf')
 
@@ -441,6 +454,14 @@ def ROCcurves(histList,directory,thisFile,year,lepton,sigName):
   signifPlot.GetXaxis().SetTitleSize(0.05)
   signifPlot.GetYaxis().SetTitleOffset(0.82)
   signifPlot.Draw('pe')
+  print bestCut,signifPlot.GetMinimum(),bestCut,signifPlot.GetMaximum()
+  line = TLine(bestCut,signifPlot.GetMinimum(),bestCut,signifPlot.GetMaximum()*1.05)
+  line.SetLineColor(kRed)
+  line.SetLineWidth(2)
+  line.Draw()
+
+
+  print bestSignif, bestCut
 
   can.SaveAs(directory+'/'+lepton+lepton+'_'+signalHist.GetName().split('_')[1]+'_Signif.pdf')
   can.Clear()

@@ -72,10 +72,11 @@ class BatchMaster():
         batch_submit_file.write('Executable = {0}\n'.format(exec_tmp.name))
         batch_submit_file.write('Should_Transfer_Files = YES\n')
         batch_submit_file.write('WhenToTransferOutput = ON_EXIT\n')
+        #if os.environ.get('AT_NWU') == None:
         batch_submit_file.write('Transfer_Input_Files = stageball.tar.gz\n')
         batch_submit_file.write('universe              = vanilla\n')
-        #batch_submit_file.write('Requirements          = OpSys == "LINUX"&& (Arch != "DUMMY" )\n')
-        batch_submit_file.write('Requirements          = machine=="ttnode0008" && Disk>1\n')
+        batch_submit_file.write('Requirements          = OpSys == "LINUX"&& (Arch != "DUMMY" )\n')
+        #batch_submit_file.write('Requirements          = machine=="ttnode0008"\n')
         batch_submit_file.write('+LENGTH               = "LONG"\n')
         batch_submit_file.write('Output                = res/report_$(Cluster)_$(Process).stdout\n')
         batch_submit_file.write('Error                 = res/report_$(Cluster)_$(Process).stderr\n')

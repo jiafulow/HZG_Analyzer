@@ -7,6 +7,7 @@ scramv1 project CMSSW_5_3_11_patch6
 cd CMSSW_5_3_11_patch6/src
 cmsenv
 cd ${_CONDOR_SCRATCH_DIR}
+#cd /scratch/condor
 #### Leave this blank #######
 
 #############################
@@ -18,6 +19,7 @@ abcd=$4
 selection=$5
 period=$6
 
+#cp -v /tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/stageball.tar.gz .
 tar -zxf stageball.tar.gz
 mkdir -v higgsDir
 mv -v higgsAnalyzer* higgsDir/.
