@@ -315,13 +315,13 @@ def GenericPlotter(folder):
   if os.environ.get('AT_NWU') == None:
     FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-17-13.root")
   else:
-    FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-21-13_ME.root")
+    FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-23-13.root")
   folderDict = FolderDump(FileMu,folder)
   for key in folderDict.keys():
     DataBGComp(folderDict[key],folder,FileMu,'2012','mu','Signal2012ggM125p8')
 
 def MEPlotter():
-  FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-21-13.root")
+  FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-23-13.root")
   folderDict = FolderDump(FileMu,'MEPlots')
   for key in folderDict.keys():
     DataBGComp(folderDict[key],'MEPlots',FileMu,'2012','mu','Signal2012ggM125p8')
@@ -334,7 +334,7 @@ def ROC():
   for key in folderDict.keys():
     if 'MassVsME' in key:
       ROCcurves(folderDict[key],'ROC',FileMu,'2012','mu','Signal2012ggM125p8')
-      #DataBGComp2DProj(folderDict[key],'ROC',FileMu,'2012','mu','Signal2012ggM125p8','MEdisc, 120<m<130',True)
+      DataBGComp2DProj(folderDict[key],'ROC',FileMu,'2012','mu','Signal2012ggM125p8','MEdisc, 120<m<130',True)
 
 
 if __name__=="__main__":
