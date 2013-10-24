@@ -3,6 +3,7 @@ import sys,os
 #sys.argv.append('-b')
 from ROOT import *
 from collections import defaultdict
+import numpy as np
 
 
 # class for multi-layered nested dictionaries, pretty cool
@@ -225,6 +226,13 @@ def DataBGComp(histList,directory,thisFile,year,lepton,sigName):
   else:
     leg.AddEntry(signalHist,'Signalx500','l')
 
+  myCut = TCutG('myCut',5)
+  myCut.SetPoint(0,122,0)
+  myCut.SetPoint(1,122,0.2)
+  myCut.SetPoint(2,128,0.2)
+  myCut.SetPoint(3,128,0)
+  myCut.SetPoint(4,122,0)
+
 
   ymax = max(map(lambda x:x.GetMaximum(),[dataHist,bgStack,signalHist]))*1.2
   ymin = 0
@@ -232,7 +240,7 @@ def DataBGComp(histList,directory,thisFile,year,lepton,sigName):
   bgStack.SetMaximum(ymax)
   bgStack.SetMinimum(ymin)
   if not do2D: bgStack.Draw('hist')
-  else: bgStack.Draw('colz')
+  else: bgStack.Draw('colz[myCut]')
   bgStack.GetYaxis().SetTitle(bgList[0].GetYaxis().GetTitle())
   bgStack.GetYaxis().SetTitleSize(0.06)
   bgStack.GetYaxis().CenterTitle()
@@ -384,35 +392,50 @@ def ROCcurves(histList,directory,thisFile,year,lepton,sigName, sigWindow=True):
   for hist in histList:
     if 'DATA' in hist.GetName():
       if sigWindow:
-        hist.GetXaxis().SetRange(hist.GetXaxis().FindBin(119),hist.GetXaxis().FindBin(131))
-        dataHist = hist.Clone().ProjectionY('proj'+hist.GetName())
+        hist.GetXaxis().SetRange(hist.GetXaxis().FindBin(121),hist.GetXaxis().FindBin(129))
+        dataHist = hist.Clone().ProjectionY('projWin'+hist.GetName())
       else:
         dataHist = hist.Clone().ProjectionY('proj'+hist.GetName())
       break
   if not dataHist: raise NameError('No dataHist found in this list')
+
+  myCut = TCutG('myCut',5)
+  myCut.SetPoint(0,122,0)
+  myCut.SetPoint(1,122,0.2)
+  myCut.SetPoint(2,128,0.2)
+  myCut.SetPoint(3,128,0)
+  myCut.SetPoint(4,122,0)
 
   if sigWindow:
     bgList = []
     bgListM = []
     for hist in histList:
       if (hist.GetName().find('DATA') == -1 and hist.GetName().find('Signal') == -1):
-        hist.GetXaxis().SetRange(hist.GetXaxis().FindBin(119),hist.GetXaxis().FindBin(131))
-        bgList.append(hist.Clone().ProjectionY('proj'+hist.GetName()))
-        bgListM.append(hist.Clone().ProjectionX('projM'+hist.GetName()))
+        hist.GetXaxis().SetRange(hist.GetXaxis().FindBin(121),hist.GetXaxis().FindBin(129))
+        #bgList.append(hist.Clone().ProjectionY('proj'+hist.GetName(), 1, hist.GetXaxis().GetNbins(), '[myCut]'))
+        #bgListM.append(hist.Clone().ProjectionX('projM'+hist.GetName(), 1, hist.GetXaxis().GetNbins(), '[myCut]'))
+        bgList.append(hist.Clone().ProjectionY('projWin'+hist.GetName()))
+        bgListM.append(hist.Clone().ProjectionX('projWinM'+hist.GetName()))
   else:
     bgList = [hist.ProjectionY('proj'+hist.GetName()) for hist in histList if (hist.GetName().find('DATA') == -1 and hist.GetName().find('Signal') == -1)]
     bgListM = [hist.ProjectionX('projM'+hist.GetName()) for hist in histList if (hist.GetName().find('DATA') == -1 and hist.GetName().find('Signal') == -1)]
   if len(bgList) == 0: raise NameError('No BG hists found in this list')
   bgList = sorted(bgList, key=lambda hist:hist.GetName()[-1], reverse=True)
+  bgListM = sorted(bgListM, key=lambda hist:hist.GetName()[-1], reverse=True)
 
   signalHist = None
   signalHistM = None
   for hist in histList:
     if sigName in hist.GetName():
       if sigWindow:
-        hist.GetXaxis().SetRange(hist.GetXaxis().FindBin(119),hist.GetXaxis().FindBin(131))
-      signalHist = hist.Clone().ProjectionY('proj'+hist.GetName())
-      signalHistM = hist.Clone().ProjectionX('projM'+hist.GetName())
+        hist.GetXaxis().SetRange(hist.GetXaxis().FindBin(121),hist.GetXaxis().FindBin(129))
+        signalHist = hist.Clone().ProjectionY('projWin'+hist.GetName())
+        signalHistM = hist.Clone().ProjectionX('projWinM'+hist.GetName())
+        #signalHist = hist.Clone().ProjectionY('proj'+hist.GetName(),1, hist.GetXaxis().GetNbins(), '[myCut]')
+        #signalHistM = hist.Clone().ProjectionX('projM'+hist.GetName(),1, hist.GetXaxis().GetNbins(), '[myCut]')
+      else:
+        signalHist = hist.Clone().ProjectionY('proj'+hist.GetName())
+        signalHistM = hist.Clone().ProjectionX('projM'+hist.GetName())
     break
   if not signalHist: raise NameError('No signalHist found in this list')
   signalHist.SetLineColor(kRed)
@@ -437,7 +460,7 @@ def ROCcurves(histList,directory,thisFile,year,lepton,sigName, sigWindow=True):
   can.cd()
 
   # Set the bg histograms
-  bgStack = bgList[0]
+  bgStack = bgList[0].Clone()
   bgStack.Reset()
   for hist in bgList:
     label = hist.GetName().split('_')[-1]
@@ -446,11 +469,11 @@ def ROCcurves(histList,directory,thisFile,year,lepton,sigName, sigWindow=True):
     hist.SetLineColor(colorDict[label])
     initEvents = thisFile.GetDirectory('Misc').Get('h1_acceptanceByCut_'+label).Integral(1,1)
     scale = LumiXSScale(year,lepton,label,initEvents)
-    #hist.Scale(scale)
-    hist.Scale(scale*1.40)
+    hist.Scale(scale)
+    #hist.Scale(scale*1.40)
     bgStack.Add(hist)
 
-  bgStackM = THStack('bgs','bgs')
+  bgStackM = THStack('bgsM','bgs')
   for hist in bgListM:
     label = hist.GetName().split('_')[-1]
     hist.SetFillStyle(1001)
@@ -458,11 +481,10 @@ def ROCcurves(histList,directory,thisFile,year,lepton,sigName, sigWindow=True):
     hist.SetLineColor(colorDict[label])
     initEvents = thisFile.GetDirectory('Misc').Get('h1_acceptanceByCut_'+label).Integral(1,1)
     scale = LumiXSScale(year,lepton,label,initEvents)
-    #hist.Scale(scale)
-    hist.Scale(scale*1.40)
+    hist.Scale(scale)
+    #hist.Scale(scale*1.40)
     leg.AddEntry(hist,label,'f')
     bgStackM.Add(hist)
-
 
 
   # Set the signal histograms
@@ -479,7 +501,7 @@ def ROCcurves(histList,directory,thisFile,year,lepton,sigName, sigWindow=True):
 
 
   #temp switch, use data instead of MC:
-  bgStack = dataHist
+  #bgStack = dataHist
 
   bestCut = None
   bestBGEff= None
@@ -500,23 +522,21 @@ def ROCcurves(histList,directory,thisFile,year,lepton,sigName, sigWindow=True):
       signifPlot.Fill(signalHist.GetBinLowEdge(bin),sigYield/sqrt(sigYield+bgYield))
     else:
       signifPlot.Fill(signalHist.GetBinLowEdge(bin),0)
-  '''
 
   #reversed
-  for bin in range(0,signalHist.GetNbinsX()):
+  #for bin in range(0,signalHist.GetNbinsX()):
     #print bin, signalHist.GetBinLowEdge(bin), signalHist.GetBinContent(bin), signalHist.Integral(bin,signalHist.GetNbinsX())
-    bgYield = bgStack.Integral(1, bgStack.GetNbinsX()-bin)
-    sigYield = signalHist.Integral(1, signalHist.GetNbinsX()-bin)
-    rocCurve.Fill(bgYield/bgStack.Integral(), sigYield/signalHist.Integral())
-    if sigYield+bgYield > 0:
-      if sigYield/sqrt(sigYield+bgYield) > bestSignif:
-        bestSignif = sigYield/sqrt(sigYield+bgYield)
-        bestCut = signalHist.GetBinLowEdge(signalHist.GetNbinsX()-bin)
-        bestBGEff = bgYield/bgStack.Integral()
-      signifPlot.Fill(signalHist.GetBinLowEdge(signalHist.GetNbinsX()-bin),sigYield/sqrt(sigYield+bgYield))
-    else:
-      signifPlot.Fill(signalHist.GetBinLowEdge(signalHist.GetNbinsX()-bin),0)
-  '''
+    #bgYield = bgStack.Integral(1, bgStack.GetNbinsX()-bin)
+    #sigYield = signalHist.Integral(1, signalHist.GetNbinsX()-bin)
+    #rocCurve.Fill(bgYield/bgStack.Integral(), sigYield/signalHist.Integral())
+    #if sigYield+bgYield > 0:
+      #if sigYield/sqrt(sigYield+bgYield) > bestSignif:
+        #bestSignif = sigYield/sqrt(sigYield+bgYield)
+        #bestCut = signalHist.GetBinLowEdge(signalHist.GetNbinsX()-bin)
+        #bestBGEff = bgYield/bgStack.Integral()
+      #signifPlot.Fill(signalHist.GetBinLowEdge(signalHist.GetNbinsX()-bin),sigYield/sqrt(sigYield+bgYield))
+    #else:
+      #signifPlot.Fill(signalHist.GetBinLowEdge(signalHist.GetNbinsX()-bin),0)
 
 
   rocCurve.GetYaxis().SetTitleSize(0.06)
@@ -525,11 +545,13 @@ def ROCcurves(histList,directory,thisFile,year,lepton,sigName, sigWindow=True):
   rocCurve.GetYaxis().SetTitleOffset(0.82)
   rocCurve.Draw('pe')
   line = TLine(bestBGEff,rocCurve.GetMinimum(),bestBGEff,rocCurve.GetMaximum()*1.05)
-  line.SetLineColor(kRed)
+  line.SetLineColor(kRed+1)
+  line.SetLineStyle(2)
   line.SetLineWidth(2)
   line.Draw()
 
-  can.SaveAs(directory+'/'+lepton+lepton+'_'+signalHist.GetName().split('_')[1]+'_ROC.pdf')
+  if sigWindow: can.SaveAs(directory+'/'+lepton+lepton+'_'+signalHist.GetName().split('_')[1]+'_ROC_window.pdf')
+  else: can.SaveAs(directory+'/'+lepton+lepton+'_'+signalHist.GetName().split('_')[1]+'_ROC.pdf')
 
   signifPlot.SetMarkerColor(kRed)
   signifPlot.GetYaxis().SetTitleSize(0.06)
@@ -539,10 +561,13 @@ def ROCcurves(histList,directory,thisFile,year,lepton,sigName, sigWindow=True):
   signifPlot.Draw('pe')
   print bestCut,signifPlot.GetMinimum(),bestCut,signifPlot.GetMaximum()
   line = TLine(bestCut,signifPlot.GetMinimum(),bestCut,signifPlot.GetMaximum()*1.05)
-  line.SetLineColor(kRed)
+  line.SetLineColor(kRed+1)
   line.SetLineWidth(2)
+  line.SetLineStyle(2)
   line.Draw()
-  can.SaveAs(directory+'/'+lepton+lepton+'_'+signalHist.GetName().split('_')[1]+'_Signif.pdf')
+
+  if sigWindow: can.SaveAs(directory+'/'+lepton+lepton+'_'+signalHist.GetName().split('_')[1]+'_Signif_Window.pdf')
+  else: can.SaveAs(directory+'/'+lepton+lepton+'_'+signalHist.GetName().split('_')[1]+'_Signif.pdf')
 
   ymax = max(map(lambda x:x.GetMaximum(),[bgStackM,signalHistM]))*1.2
   ymin = 0
@@ -564,12 +589,62 @@ def ROCcurves(histList,directory,thisFile,year,lepton,sigName, sigWindow=True):
   signalHistM.Draw('histsame')
 
   leg.Draw()
-  can.SaveAs(directory+'/'+lepton+lepton+'_'+signalHistM.GetName().split('_')[1]+'_MassCheck.pdf')
+  if sigWindow: can.SaveAs(directory+'/'+lepton+lepton+'_'+signalHistM.GetName().split('_')[1]+'_MassCheck_Window.pdf')
+  else: can.SaveAs(directory+'/'+lepton+lepton+'_'+signalHistM.GetName().split('_')[1]+'_MassCheck.pdf')
   can.Clear()
+  leg.Clear()
 
   print bestSignif, bestCut
 
+  bgStackD = THStack('bgsD','bgs')
+  for hist in bgList:
+    label = hist.GetName().split('_')[-1]
+    hist.SetFillStyle(1001)
+    hist.SetFillColor(colorDict[label])
+    hist.SetLineColor(colorDict[label])
+    initEvents = thisFile.GetDirectory('Misc').Get('h1_acceptanceByCut_'+label).Integral(1,1)
+    scale = LumiXSScale(year,lepton,label,initEvents)
+    #hist.Scale(scale)
+    hist.Scale(scale)
+    leg.AddEntry(hist,label,'f')
+    bgStackD.Add(hist)
+
+  signalHist.Scale(100)
+  leg.AddEntry(signalHist,'Signalx100','l')
+
+  ymax = max(map(lambda x:x.GetMaximum(),[bgStackD,signalHist]))*1.2
+  ymin = 0
+
+  bgStackD.SetMaximum(ymax)
+  bgStackD.SetMinimum(ymin)
+  bgStackD.Draw('hist')
+  bgStackD.GetYaxis().SetTitle('N_{evts}')
+  bgStackD.GetYaxis().SetTitleSize(0.06)
+  bgStackD.GetYaxis().CenterTitle()
+  bgStackD.GetXaxis().SetTitle(bgListM[0].GetXaxis().GetTitle())
+  bgStackD.GetXaxis().SetTitleSize(0.05)
+  #bgStackD.GetYaxis().SetLabelSize(0.05)
+  #bgStackD.GetXaxis().SetLabelSize(0.05)
+  #bgStackD.GetXaxis().SetTitle(dist)
+  bgStackD.SetTitle(lepton+lepton+' '+bgList[0].GetTitle()+' '+'Mass Proj')
+  bgStackD.GetYaxis().SetTitleOffset(0.82)
+
+  signalHist.Draw('histsame')
+  line = TLine(bestCut,bgStackD.GetMinimum(),bestCut,ymax*1.05)
+  line.SetLineColor(kRed+1)
+  line.SetLineWidth(2)
+  line.SetLineStyle(2)
+  line.Draw()
+
+  leg.Draw()
+  if sigWindow: can.SaveAs(directory+'/'+lepton+lepton+'_'+signalHist.GetName().split('_')[1]+'_DiscCheck_Window.pdf')
+  else: can.SaveAs(directory+'/'+lepton+lepton+'_'+signalHist.GetName().split('_')[1]+'_DiscCheck.pdf')
+  can.Clear()
+  leg.Clear()
+
   can.IsA().Destructor(can)
+
+
 
 
 
