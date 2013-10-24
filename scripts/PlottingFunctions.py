@@ -507,7 +507,7 @@ def ROCcurves(histList,directory,thisFile,year,lepton,sigName, sigWindow=True):
   bestBGEff= None
   bestSignif = 0
   rocCurve = TProfile('rocCurve',signalHist.GetTitle()+' ROC;BG eff;Signal eff',signalHist.GetNbinsX(),0,1,0,1)
-  signifPlot = TProfile('signifPlot',signalHist.GetTitle()+' Signif;MEDisc;#frac{s}{#sqrt{s+b}}',signalHist.GetNbinsX(),signalHist.GetBinLowEdge(1),signalHist.GetBinLowEdge(1+signalHist.GetNbinsX()))
+  signifPlot = TProfile('signifPlot',signalHist.GetTitle()+' Signif;MEDisc;s/#sqrt{s+b}',signalHist.GetNbinsX(),signalHist.GetBinLowEdge(1),signalHist.GetBinLowEdge(1+signalHist.GetNbinsX()))
 
   for bin in range(1,signalHist.GetNbinsX()+1):
     #print bin, signalHist.GetBinLowEdge(bin), signalHist.GetBinContent(bin), signalHist.Integral(bin,signalHist.GetNbinsX())
@@ -572,9 +572,28 @@ def ROCcurves(histList,directory,thisFile,year,lepton,sigName, sigWindow=True):
   ymax = max(map(lambda x:x.GetMaximum(),[bgStackM,signalHistM]))*1.2
   ymin = 0
 
+  if sigWindow:
+    tempHist = TH1F('tmp',lepton+lepton+' '+bgList[0].GetTitle()+' '+'Mass Proj',90,100,190)
+    tempHist.SetMaximum(ymax)
+    tempHist.SetMinimum(ymin)
+    tempHist.GetYaxis().SetTitle('N_{evts}')
+    tempHist.GetYaxis().SetTitleSize(0.06)
+    tempHist.GetYaxis().CenterTitle()
+    tempHist.GetXaxis().SetTitle(bgListM[0].GetXaxis().GetTitle())
+    tempHist.GetXaxis().SetTitleSize(0.05)
+    #tempHist.GetYaxis().SetLabelSize(0.05)
+    #tempHist.GetXaxis().SetLabelSize(0.05)
+    #tempHist.GetXaxis().SetTitle(dist)
+    tempHist.SetTitle(lepton+lepton+' '+bgList[0].GetTitle()+' '+'Mass Proj')
+    tempHist.GetYaxis().SetTitleOffset(0.82)
+
+    tempHist.Draw()
   bgStackM.SetMaximum(ymax)
   bgStackM.SetMinimum(ymin)
-  bgStackM.Draw('hist')
+  if sigWindow:
+    bgStackM.Draw('histsame')
+  else:
+    bgStackM.Draw('hist')
   bgStackM.GetYaxis().SetTitle('N_{evts}')
   bgStackM.GetYaxis().SetTitleSize(0.06)
   bgStackM.GetYaxis().CenterTitle()
@@ -644,15 +663,6 @@ def ROCcurves(histList,directory,thisFile,year,lepton,sigName, sigWindow=True):
 
   can.IsA().Destructor(can)
 
-
-
-
-
-
 colorDict = {'DYJets':kGreen+1,'ZGToLLG':kBlue}
-
-
-
-
 
 
