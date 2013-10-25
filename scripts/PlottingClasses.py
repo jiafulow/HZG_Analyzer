@@ -86,6 +86,26 @@ class Plotter:
     dataHist.SetFillStyle(0)
     return dataHist
 
+  def GetDataHistsMD(self,histList,sigWindow = False):
+    dataHistM = None
+    dataHistD = None
+    for hist in histList:
+      if 'DATA' in hist.GetName():
+        if sigWindow: hist.GetXaxis().SetRange(hist.GetXaxis().FindBin(sigWindow-3),hist.GetXaxis().FindBin(sigWindow+3))
+        dataHistM = hist.Clone().ProjectionX('projM'+hist.GetName())
+        dataHistD = hist.Clone().ProjectionY('projD'+hist.GetName())
+        break
+    if not dataHistM: raise NameError('No dataHist found in this list')
+    dataHistM.SetLineColor(kBlack)
+    dataHistM.SetMarkerColor(kBlack)
+    dataHistM.SetMarkerStyle(20)
+    dataHistM.SetFillStyle(0)
+    dataHistD.SetLineColor(kBlack)
+    dataHistD.SetMarkerColor(kBlack)
+    dataHistD.SetMarkerStyle(20)
+    dataHistD.SetFillStyle(0)
+    return (dataHistM, dataHistD)
+
   def GetBGHists(self, histList,sigWindow = False):
     if self.doProj:
       if sigWindow:
@@ -101,6 +121,24 @@ class Plotter:
     if len(bgList) == 0: raise NameError('No BG hists found in this list')
     bgList = sorted(bgList, key=lambda hist:hist.GetName()[-1], reverse=True)
     return bgList
+
+  def GetBGHistsMD(self, histList,sigWindow = False):
+    if sigWindow:
+      bgListM = []
+      bgListD = []
+      for hist in histList:
+        if (hist.GetName().find('DATA') == -1 and hist.GetName().find('Signal') == -1):
+          hist.GetXaxis().SetRange(hist.GetXaxis().FindBin(sigWindow-3),hist.GetXaxis().FindBin(sigWindow+3))
+          bgListM.append(hist.Clone().ProjectionX('projM'+hist.GetName()))
+          bgListD.append(hist.Clone().ProjectionY('projD'+hist.GetName()))
+    else:
+      bgListM = [hist.ProjectionX('projM'+hist.GetName()) for hist in histList if (hist.GetName().find('DATA') == -1 and hist.GetName().find('Signal') == -1)]
+      bgListD = [hist.ProjectionY('projD'+hist.GetName()) for hist in histList if (hist.GetName().find('DATA') == -1 and hist.GetName().find('Signal') == -1)]
+
+    if len(bgListM) == 0: raise NameError('No BG hists found in this list')
+    bgListM = sorted(bgListM, key=lambda hist:hist.GetName()[-1], reverse=True)
+    bgListD = sorted(bgListD, key=lambda hist:hist.GetName()[-1], reverse=True)
+    return (bgListM, bgListD)
 
   def GetSignalHist(self, histList,sigWindow = False):
     signalHist = None
@@ -270,32 +308,16 @@ class Plotter:
     self.can.IsA().Destructor(self.can)
     self.doProj = False
 
-  def ROCcurves(self, histList,sigWindow=125):
+  def ROCcurves(self, histList,sigWindow=False):
     '''Give a list of histograms, calculate ROC curve for that distribution.  Need 2D hist, mass vs disc for proper significance calculation'''
     if len(histList) == 0: raise NameError('histList is empty')
     gStyle.SetOptStat(0)
-
     if histList[0].GetName().split('_')[0] != 'h2':
       print 'skipping ROC curve for', histList[0].GetName()
       return
 
-    dataHist = None
-    for hist in histList:
-      if 'DATA' in hist.GetName():
-        if sigWindow:
-          hist.GetXaxis().SetRange(hist.GetXaxis().FindBin(121),hist.GetXaxis().FindBin(129))
-          dataHist = hist.Clone().ProjectionY('projWin'+hist.GetName())
-        else:
-          dataHist = hist.Clone().ProjectionY('proj'+hist.GetName())
-        break
-    if not dataHist: raise NameError('No dataHist found in this list')
-
-    myCut = TCutG('myCut',5)
-    myCut.SetPoint(0,122,0)
-    myCut.SetPoint(1,122,0.2)
-    myCut.SetPoint(2,128,0.2)
-    myCut.SetPoint(3,128,0)
-    myCut.SetPoint(4,122,0)
+    dataHistM,dataHistD = self.GetDataHistsMD(histList,sigWindow)
+    bgListM,bgListD = self.GetBGHistsMD(histList,sigWindow)
 
     if sigWindow:
       bgList = []
