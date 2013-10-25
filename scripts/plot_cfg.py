@@ -17,5 +17,7 @@ def GenericPlotter(folder):
   plotter = Plotter(FileMu, folder, folder, '2012','mu','Signal2012ggM125p8')
   for key in plotter.folderDict.keys():
     plotter.DataBGComp(plotter.folderDict[key])
+    plotter.DataBGComp2DProj(plotter.folderDict[key])
+    #plotter.DataBGComp2DProj(plotter.folderDict[key],125)
 
 GenericPlotter('ZGamma')
