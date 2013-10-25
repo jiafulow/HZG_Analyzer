@@ -136,24 +136,26 @@ def FolderDump(tfile, folder):
 
   return folderDict
 
-def DataBGComp(histList,directory,thisFile,year,lepton,sigName):
-  '''Give a list of histograms that contain the data and backgrounds, plot them and save them'''
-  if len(histList) == 0: raise NameError('histList is empty')
-  gStyle.SetOptStat(0)
-  do2D = False
-  if histList[0].GetName().split('_')[0] in ['h2','p']: do2D = True
-
+def GetDataHist(histList):
   dataHist = None
   for hist in histList:
     if 'DATA' in hist.GetName():
       dataHist = hist.Clone()
       break
   if not dataHist: raise NameError('No dataHist found in this list')
+  dataHist.SetLineColor(kBlack)
+  dataHist.SetMarkerColor(kBlack)
+  dataHist.SetMarkerStyle(20)
+  dataHist.SetFillStyle(0)
+  return dataHist
 
+def GetBGHists(histList):
   bgList = [hist.Clone() for hist in histList if (hist.GetName().find('DATA') == -1 and hist.GetName().find('Signal') == -1)]
   if len(bgList) == 0: raise NameError('No BG hists found in this list')
   bgList = sorted(bgList, key=lambda hist:hist.GetName()[-1], reverse=True)
+  return bgList
 
+def GetSignalHist(histList, sigName):
   signalHist = None
   for hist in histList:
     if sigName in hist.GetName():
@@ -162,7 +164,44 @@ def DataBGComp(histList,directory,thisFile,year,lepton,sigName):
   if not signalHist: raise NameError('No signalHist found in this list')
   signalHist.SetLineColor(kRed)
   signalHist.SetLineWidth(2)
-  signalHist.SetFillStyle(1001)
+  signalHist.SetFillStyle(0)
+  return signalHist
+
+def MakeBGStack(bgList, leg, dontStack = False):
+  if dontStack:
+    bgStack = bgList[0].Clone()
+    for hist in bgList[1:]:
+      initEvents = thisFile.GetDirectory('Misc').Get('h1_acceptanceByCut_'+label).Integral(1,1)
+      scale = LumiXSScale(year,lepton,label,initEvents)
+      bgStack.Add(hist)
+    bgStack.SetFillColor(kBlue)
+    leg.AddEntry(bgStack,'BG','f')
+  else:
+    bgStack = THStack('bgs','bgs')
+    for hist in bgList:
+      label = hist.GetName().split('_')[-1]
+      hist.SetFillStyle(1001)
+      hist.SetFillColor(colorDict[label])
+      hist.SetLineColor(colorDict[label])
+      initEvents = thisFile.GetDirectory('Misc').Get('h1_acceptanceByCut_'+label).Integral(1,1)
+      scale = LumiXSScale(year,lepton,label,initEvents)
+      hist.Scale(scale)
+      leg.AddEntry(hist,label,'f')
+      bgStack.Add(hist)
+
+
+
+def DataBGComp(histList,directory,thisFile,year,lepton,sigName):
+  '''Give a list of histograms that contain the data and backgrounds, plot them and save them'''
+  if len(histList) == 0: raise NameError('histList is empty')
+
+  gStyle.SetOptStat(0)
+  do2D = False
+  if histList[0].GetName().split('_')[0] in ['h2','p']: do2D = True
+
+  dataHist = GetDataHist(histList)
+  bgList = GetBGHists(histList)
+  signalHist = GetSignalHist(histList,sigName)
 
   if not os.path.isdir(directory):
     os.mkdir(directory)
@@ -183,40 +222,14 @@ def DataBGComp(histList,directory,thisFile,year,lepton,sigName):
   leg.SetFillStyle(0)
 
   # Set the data histogram
-  dataHist.SetLineColor(kBlack)
-  dataHist.SetMarkerColor(kBlack)
-  dataHist.SetMarkerStyle(20)
-  dataHist.SetFillStyle(0)
   if do2D:
     leg.AddEntry(dataHist,'DATA','f')
   else:
     leg.AddEntry(dataHist,'DATA','lep')
 
   # Set the bg histograms
-  if do2D:
-    bgStack = bgList[0].Clone()
-    for hist in bgList[1:]:
-      bgStack.Add(hist)
-    bgStack.SetFillColor(kBlue)
-    leg.AddEntry(bgStack,'BG','f')
-  else:
-    bgStack = THStack('bgs','bgs')
-    for hist in bgList:
-      label = hist.GetName().split('_')[-1]
-      hist.SetFillStyle(1001)
-      hist.SetFillColor(colorDict[label])
-      hist.SetLineColor(colorDict[label])
-      initEvents = thisFile.GetDirectory('Misc').Get('h1_acceptanceByCut_'+label).Integral(1,1)
-      scale = LumiXSScale(year,lepton,label,initEvents)
-      #hist.Scale(scale)
-      hist.Scale(scale*1.40)
-      leg.AddEntry(hist,label,'f')
-      bgStack.Add(hist)
-
 
   # Set the signal histograms
-  signalHist.SetLineColor(kRed)
-  signalHist.SetFillStyle(0)
   label = sigName
   initEvents = thisFile.GetDirectory('Misc').Get('h1_acceptanceByCut_'+label).Integral(1,1)
   scale = LumiXSScale(year,lepton,label,initEvents)
