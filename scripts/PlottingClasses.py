@@ -159,6 +159,25 @@ class Plotter:
     signalHist.SetFillStyle(0)
     return signalHist
 
+  def GetSignalHistsMD(self,histList, sigWindow=False)
+    signalHistM = None
+    signalHistD = None
+    for hist in histList:
+      if sigName in hist.GetName():
+        if sigWindow: hist.GetXaxis().SetRange(hist.GetXaxis().FindBin(sigWindow-3),hist.GetXaxis().FindBin(sigWindow+3))
+        signalHistM = hist.Clone().ProjectionX('projM'+hist.GetName())
+        signalHistD = hist.Clone().ProjectionY('projD'+hist.GetName())
+      break
+    if not signalHist: raise NameError('No signalHist found in this list')
+    signalHistM.SetLineColor(kRed)
+    signalHistM.SetLineWidth(2)
+    signalHistM.SetFillStyle(1001)
+    signalHistD.SetLineColor(kRed)
+    signalHistD.SetLineWidth(2)
+    signalHistD.SetFillStyle(1001)
+    return (signalHistM, signalHistD)
+
+
   def MakeBGStack(self, bgList, dontStack = False):
     if dontStack:
       bgStack = bgList[0].Clone()
@@ -318,45 +337,7 @@ class Plotter:
 
     dataHistM,dataHistD = self.GetDataHistsMD(histList,sigWindow)
     bgListM,bgListD = self.GetBGHistsMD(histList,sigWindow)
-
-    if sigWindow:
-      bgList = []
-      bgListM = []
-      for hist in histList:
-        if (hist.GetName().find('DATA') == -1 and hist.GetName().find('Signal') == -1):
-          hist.GetXaxis().SetRange(hist.GetXaxis().FindBin(121),hist.GetXaxis().FindBin(129))
-          #bgList.append(hist.Clone().ProjectionY('proj'+hist.GetName(), 1, hist.GetXaxis().GetNbins(), '[myCut]'))
-          #bgListM.append(hist.Clone().ProjectionX('projM'+hist.GetName(), 1, hist.GetXaxis().GetNbins(), '[myCut]'))
-          bgList.append(hist.Clone().ProjectionY('projWin'+hist.GetName()))
-          bgListM.append(hist.Clone().ProjectionX('projWinM'+hist.GetName()))
-    else:
-      bgList = [hist.ProjectionY('proj'+hist.GetName()) for hist in histList if (hist.GetName().find('DATA') == -1 and hist.GetName().find('Signal') == -1)]
-      bgListM = [hist.ProjectionX('projM'+hist.GetName()) for hist in histList if (hist.GetName().find('DATA') == -1 and hist.GetName().find('Signal') == -1)]
-    if len(bgList) == 0: raise NameError('No BG hists found in this list')
-    bgList = sorted(bgList, key=lambda hist:hist.GetName()[-1], reverse=True)
-    bgListM = sorted(bgListM, key=lambda hist:hist.GetName()[-1], reverse=True)
-
-    signalHist = None
-    signalHistM = None
-    for hist in histList:
-      if sigName in hist.GetName():
-        if sigWindow:
-          hist.GetXaxis().SetRange(hist.GetXaxis().FindBin(121),hist.GetXaxis().FindBin(129))
-          signalHist = hist.Clone().ProjectionY('projWin'+hist.GetName())
-          signalHistM = hist.Clone().ProjectionX('projWinM'+hist.GetName())
-          #signalHist = hist.Clone().ProjectionY('proj'+hist.GetName(),1, hist.GetXaxis().GetNbins(), '[myCut]')
-          #signalHistM = hist.Clone().ProjectionX('projM'+hist.GetName(),1, hist.GetXaxis().GetNbins(), '[myCut]')
-        else:
-          signalHist = hist.Clone().ProjectionY('proj'+hist.GetName())
-          signalHistM = hist.Clone().ProjectionX('projM'+hist.GetName())
-      break
-    if not signalHist: raise NameError('No signalHist found in this list')
-    signalHist.SetLineColor(kRed)
-    signalHist.SetLineWidth(2)
-    signalHist.SetFillStyle(1001)
-    signalHistM.SetLineColor(kRed)
-    signalHistM.SetLineWidth(2)
-    signalHistM.SetFillStyle(1001)
+    signalHistM, signalHistD = self.GetSignalHistsMD(histList,sigWindow)
 
 
     if not os.path.isdir(directory):
@@ -364,13 +345,14 @@ class Plotter:
 
     TH1.SetDefaultSumw2(kTRUE)
     TProfile.SetDefaultSumw2(kTRUE)
-    can= TCanvas('ratioCan','canvas',800,600)
-    leg = TLegend(0.81,0.73,0.97,0.92,'',"brNDC")
-    leg.SetBorderSize(1)
-    leg.SetTextSize(0.03)
-    leg.SetFillColor(0)
-    leg.SetFillStyle(0)
-    can.cd()
+
+    self.can= TCanvas('can','canvas',800,600)
+    self.can.cd()
+    self.leg = TLegend(0.81,0.73,0.97,0.92,'',"brNDC")
+    self.leg.SetBorderSize(1)
+    self.leg.SetTextSize(0.03)
+    self.leg.SetFillColor(0)
+    self.leg.SetFillStyle(0)
 
     # Set the bg histograms
     bgStack = bgList[0].Clone()
