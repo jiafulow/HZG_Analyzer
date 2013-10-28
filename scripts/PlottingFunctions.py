@@ -589,7 +589,7 @@ def ROCcurves(histList,directory,thisFile,year,lepton,sigName, sigWindow=True):
     tempHist = TH1F('tmp',lepton+lepton+' '+bgList[0].GetTitle()+' '+'Mass Proj',90,100,190)
     tempHist.SetMaximum(ymax)
     tempHist.SetMinimum(ymin)
-    tempHist.GetYaxis().SetTitle('N_{evts}')
+    tempHist.GetYaxis().SetTitle('Entries')
     tempHist.GetYaxis().SetTitleSize(0.06)
     tempHist.GetYaxis().CenterTitle()
     tempHist.GetXaxis().SetTitle(bgListM[0].GetXaxis().GetTitle())

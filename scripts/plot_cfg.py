@@ -29,6 +29,7 @@ def ROCPlotter():
   plotter = Plotter(FileMu, 'MEPlots', 'ROC', '2012','mu','Signal2012ggM125p8')
   for key in plotter.folderDict.keys():
     plotter.ROCcurves(plotter.folderDict[key])
+    plotter.ROCcurves(plotter.folderDict[key],125)
 
 #GenericPlotter('ZGamma')
 ROCPlotter()
