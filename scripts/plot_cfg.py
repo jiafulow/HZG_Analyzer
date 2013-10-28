@@ -18,6 +18,17 @@ def GenericPlotter(folder):
   for key in plotter.folderDict.keys():
     plotter.DataBGComp(plotter.folderDict[key])
     plotter.DataBGComp2DProj(plotter.folderDict[key])
-    #plotter.DataBGComp2DProj(plotter.folderDict[key],125)
+    #splotter.DataBGComp2DProj(plotter.folderDict[key],125)
 
-GenericPlotter('ZGamma')
+def ROCPlotter():
+  if os.environ.get('AT_NWU') == None:
+    FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-17-13.root")
+  else:
+    FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-23-13.root")
+
+  plotter = Plotter(FileMu, 'MEPlots', 'ROC', '2012','mu','Signal2012ggM125p8')
+  for key in plotter.folderDict.keys():
+    plotter.ROCcurves(plotter.folderDict[key])
+
+#GenericPlotter('ZGamma')
+ROCPlotter()
