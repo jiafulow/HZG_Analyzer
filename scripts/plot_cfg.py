@@ -35,11 +35,11 @@ def RatioPlotter():
   if os.environ.get('AT_NWU') == None:
     FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-17-13.root")
   else:
-    FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-23-13.root")
+    FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-29-13.root")
 
   plotter = Plotter(FileMu, 'PreGen', 'Ratio', '2012','mu','Signal2012ggM125p8')
   for key in plotter.folderDict.keys():
-    plotter.RatioPlots(plotter.folderDict[key],'Signal2012ggM125p6','Signal2012ggM125p8')
+    plotter.RatioPlot(plotter.folderDict[key],['Signal2012ggM125p6','Signal2012ggM125NLOp8'],['p6 NLO','p8 NLO'])
 
 
 if __name__=="__main__":
@@ -49,4 +49,5 @@ if __name__=="__main__":
   elif 'ROC' == sys.argv[1]:
     ROCPlotter()
   elif 'Ratio' == sys.argv[1]:
+    RatioPlotter()
 

@@ -67,6 +67,33 @@ class Plotter:
     scale = lumi/scale
     return scale
 
+  def ChooseTwoHists(self,histList,chooseNames):
+    outList = []
+    for hist in histList:
+      if chooseNames[0] in hist.GetName():
+        outList.append(hist.Clone())
+        break
+    for hist in histList:
+      if chooseNames[1] in hist.GetName():
+        outList.append(hist.Clone())
+        break
+    if len(outList) != 2: raise NameError('ChooseTwoHists gave wrong list length: {0}'.format(len(outList)))
+    ymax = max(map(lambda x:x.GetMaximum(),outList))*1.1
+    ymin = 0
+    outList[0].SetMaximum(ymax)
+    outList[0].SetMinimum(ymin)
+    outList[0].SetLineColor(kRed)
+    outList[0].SetLineWidth(2)
+    outList[0].GetYaxis().SetTitleOffset(0.82)
+    outList[0].GetYaxis().SetTitleSize(0.06)
+    outList[0].GetYaxis().CenterTitle()
+    outList[0].GetXaxis().SetTitleSize(0.05)
+
+    outList[1].SetLineColor(kBlue)
+    outList[1].SetLineWidth(2)
+    return outList
+
+
   def GetDataHist(self,histList,sigWindow = False):
     dataHist = None
     if self.doProj:
@@ -539,3 +566,89 @@ class Plotter:
 
     #self.can.IsA().Destructor(self.can)
 
+  def RatioPlot(self, histList, chooseNames, legendNames):
+    '''Get two plots, normalize them, compare with ratio'''
+    if len(histList) == 0: raise NameError('histList is empty')
+    gStyle.SetOptStat(0)
+    if histList[0].GetName().split('_')[0] == 'h2':
+      print 'skipping ratio plot for', histList[0].GetName()
+      return
+
+    compHists = self.ChooseTwoHists(histList,chooseNames)
+
+    if not os.path.isdir(self.directory):
+      os.mkdir(self.directory)
+
+    TH1.SetDefaultSumw2(kTRUE)
+    TProfile.SetDefaultSumw2(kTRUE)
+
+    self.can= TCanvas('ratioCan','canvas',800,600)
+    self.can.cd()
+    leg = self.MakeLegend(0.85,0.83,1.00,1.00)
+
+    pad1 = TPad('pad1', '', 0.00, 0.30, 1.0, 0.98, 0)
+    #SetOwnership(pad1,False)
+    pad1.SetBottomMargin(0.03)
+    pad1.SetLeftMargin(0.09)
+    pad1.SetRightMargin(0.018)
+    pad2 = TPad('pad2', '', 0.00, 0.02, 1.0, 0.32, 0)
+    #SetOwnership(pad2,False)
+    pad2.SetTopMargin(0.)
+    pad2.SetBottomMargin(0.25)
+    pad2.SetLeftMargin(0.09)
+    pad2.SetRightMargin(0.018)
+    pad2.SetGrid(2,2)
+
+    self.can.cd()
+    pad1.Draw()
+    pad2.Draw()
+    pad1.cd()
+    if type(compHists[0]) is TProfile:
+      h1 = compHists[0].ProjectionX()
+      h2 = compHists[1].ProjectionX()
+      ratio = h1.Clone()
+      ratio.Divide(h2.Clone())
+      h1.IsA().Destructor(h1)
+      h2.IsA().Destructor(h2)
+    else:
+      ratio = compHists[0].Clone()
+      ratio.Divide(compHists[1])
+    for i,plot in enumerate(compHists):
+      if i == 0:
+        plot.Draw('hist')
+      else:
+        plot.Draw('histsame')
+      leg.AddEntry(plot,legendNames[i],'l')
+    leg.Draw()
+    pad2.cd()
+    ratio.SetTitle('')
+    ratio.SetLineColor(kBlack)
+    ratio.SetMarkerColor(kBlack)
+    ratio.GetYaxis().SetTitle('#frac{'+legendNames[0]+'}{'+legendNames[1]+'}')
+    ratio.GetYaxis().CenterTitle()
+    ratio.GetXaxis().SetTitleSize(0.12)
+    ratio.GetXaxis().SetLabelSize(0.12)
+    ratio.GetYaxis().SetTitleSize(0.08)
+    ratio.GetYaxis().SetTitleOffset(0.38)
+    ratio.GetYaxis().SetLabelSize(0.09)
+    ratio.GetYaxis().SetNdivisions(506)
+    ratio.SetMinimum(-0.1)
+    #ratio.SetMaximum(min(ratio.GetMaximum()*1.5,4))
+    ratio.SetMaximum(1.8)
+    ratio.Draw()
+    line = TLine(ratio.GetBinLowEdge(1),1.00,ratio.GetBinLowEdge(ratio.GetNbinsX()+ 1),1.00)
+    line.SetLineColor(kRed)
+    line.SetLineWidth(2)
+    line.Draw()
+    self.can.cd()
+    zero = TPaveText(0.07,0.305,0.087,0.335)
+    #SetOwnership(zero,False)
+    zero.SetBorderSize(0)
+    zero.SetFillStyle(1001)
+    zero.SetFillColor(0)
+    zero.SetTextFont(42)
+    zero.SetTextSize(0.035)
+    zero.AddText('0')
+    zero.Draw()
+    self.can.SaveAs(self.directory+'/'+self.lepton+self.lepton+'_'+compHists[0].GetName().split('_')[1]+'.pdf')
+    self.can.IsA().Destructor(self.can)
