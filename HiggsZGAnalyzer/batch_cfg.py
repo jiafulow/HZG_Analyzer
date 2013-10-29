@@ -27,6 +27,7 @@ if os.environ.get('AT_NWU') == None:
 
   batcher = b.BatchMaster(configs, outputPathFNAL,'execBatch.csh')
 else:
+  configs.append(b.JobConfig('ggHZG_M125_pythia8_NLO', t3storage+'/V08_01_8TeV/ggHZG_M125_Pythia8_175_POWHEG_PDF7', 5, 'Signal2012ggM125NLOp8 ABCD mumuGamma 2012','mumuGamma'))
   configs.append(b.JobConfig('ggHZG_M125_pythia8_LO', t3storage+'/V08_01_8TeV/ggHZG_M125_Pythia8_175_LO', 5, 'Signal2012ggM125p8 ABCD mumuGamma 2012','mumuGamma'))
   configs.append(b.JobConfig('ggHZG_M125_pythia6', t3storage+'/V08_01_8TeV/ggH_M125_p6', 5, 'Signal2012ggM125p6 ABCD mumuGamma 2012','mumuGamma'))
 

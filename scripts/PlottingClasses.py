@@ -188,7 +188,7 @@ class Plotter:
     return (signalHistM, signalHistD)
 
 
-  def MakeBGStack(self, bgList, dontStack = False):
+  def MakeBGStack(self, bgList, leg = None, dontStack = False):
     if dontStack:
       bgStack = bgList[0].Clone()
       bgStack.Reset()
@@ -198,7 +198,7 @@ class Plotter:
         hist.Scale(scale)
         bgStack.Add(hist)
       bgStack.SetFillColor(kBlue)
-      self.leg.AddEntry(bgStack,'BG','f')
+      if leg: leg.AddEntry(bgStack,'BG','f')
     else:
       bgStack = THStack('bgs','bgs')
       for hist in bgList:
@@ -208,9 +208,22 @@ class Plotter:
         hist.SetLineColor(colorDict[label])
         scale = self.LumiXSScale(label)
         hist.Scale(scale)
-        self.leg.AddEntry(hist,label,'f')
+        if leg: leg.AddEntry(hist,label,'f')
         bgStack.Add(hist)
     return bgStack
+
+  def MakeLegend(self,x1 = None, y1 = None, x2 = None, y2 = None):
+    if x1 == y1 == x2 == y2 == None:
+      x1 = 0.81
+      y1 = 0.73
+      x2 = 0.97
+      y2 = 0.92
+    leg = TLegend(x1,y1,x2,y2,'',"brNDC")
+    leg.SetBorderSize(1)
+    leg.SetTextSize(0.03)
+    leg.SetFillColor(0)
+    leg.SetFillStyle(0)
+    return leg
 
   def DrawHists(self, data,bg,signal, do2D = False, sigWindow = None, lineX = None, lineY = None):
     ymax = max(map(lambda x:x.GetMaximum(),[data,bg,signal]))*1.2
@@ -377,30 +390,26 @@ class Plotter:
     self.can.cd()
     if do2D:
       self.can.SetRightMargin(0.1)
-      self.leg = TLegend(0.75,0.75,0.90,0.92,'',"brNDC")
+      leg = self.MakeLegend(0.75,0.75,0.90,0.92)
     else:
-      self.leg = TLegend(0.81,0.73,0.97,0.92,'',"brNDC")
-    self.leg.SetBorderSize(1)
-    self.leg.SetTextSize(0.03)
-    self.leg.SetFillColor(0)
-    self.leg.SetFillStyle(0)
+      leg = self.MakeLegend()
     if do2D:
-      self.leg.AddEntry(dataHist,'DATA','f')
+      leg.AddEntry(dataHist,'DATA','f')
     else:
-      self.leg.AddEntry(dataHist,'DATA','lep')
+      leg.AddEntry(dataHist,'DATA','lep')
 
-    bgStack = self.MakeBGStack(bgList,do2D)
+    bgStack = self.MakeBGStack(bgList,do2D,leg)
 
     scale = self.LumiXSScale(self.sigName)
     signalHist.Scale(scale*500)
     if do2D:
-      self.leg.AddEntry(signalHist,'Signalx500','f')
+      leg.AddEntry(signalHist,'Signalx500','f')
     else:
-      self.leg.AddEntry(signalHist,'Signalx500','l')
+      leg.AddEntry(signalHist,'Signalx500','l')
 
     self.DrawHists(dataHist,bgStack,signalHist,do2D)
 
-    self.leg.Draw()
+    leg.Draw()
     self.can.SaveAs(self.directory+'/'+self.lepton+self.lepton+'_'+dataHist.GetName().split('_')[1]+'.pdf')
     self.can.IsA().Destructor(self.can)
 
@@ -428,25 +437,21 @@ class Plotter:
     # Make canvas and legend
     self.can= TCanvas('can','canvas',800,600)
     self.can.cd()
-    self.leg = TLegend(0.81,0.73,0.97,0.92,'',"brNDC")
-    self.leg.SetBorderSize(1)
-    self.leg.SetTextSize(0.03)
-    self.leg.SetFillColor(0)
-    self.leg.SetFillStyle(0)
+    leg = self.MakeLegend()
 
-    self.leg.AddEntry(dataHist,'DATA','lep')
+    leg.AddEntry(dataHist,'DATA','lep')
 
     # Set the bg histograms
-    bgStack = self.MakeBGStack(bgList)
+    bgStack = self.MakeBGStack(bgList,leg)
 
     # Set the signal histograms
     scale = self.LumiXSScale(self.sigName)
     signalHist.Scale(scale*500)
-    self.leg.AddEntry(signalHist,'Signalx500','l')
+    leg.AddEntry(signalHist,'Signalx500','l')
 
     self.DrawHists(dataHist,bgStack,signalHist)
 
-    self.leg.Draw()
+    leg.Draw()
     if sigWindow:
       self.can.SaveAs(self.directory+'/'+self.lepton+self.lepton+'_'+dataHist.GetName().split('_')[1]+'projWindow.pdf')
     else:
@@ -476,17 +481,16 @@ class Plotter:
     if self.can == None:
       self.can= TCanvas('can','canvas',800,600)
       self.can.cd()
-    self.leg = TLegend(0.81,0.73,0.97,0.92,'',"brNDC")
-    self.leg.SetBorderSize(1)
-    self.leg.SetTextSize(0.03)
-    self.leg.SetFillColor(0)
-    self.leg.SetFillStyle(0)
+    legM = self.MakeLegend()
+    legD = self.MakeLegend()
+    legM.AddEntry(dataHistM,'DATA','lep')
+    legD.AddEntry(dataHistD,'DATA','lep')
 
     # Set the bg histograms
 
-    bgStackM = self.MakeBGStack(bgListM)
-    bgStackD = self.MakeBGStack(bgListD)
-    bgStackROC = self.MakeBGStack(bgListD,True)
+    bgStackM = self.MakeBGStack(bgListM,legM)
+    bgStackD = self.MakeBGStack(bgListD,legD)
+    bgStackROC = self.MakeBGStack(bgListD,None,True)
 
     scale = self.LumiXSScale(self.sigName)
     signalHistM.Scale(scale*100)
@@ -503,20 +507,24 @@ class Plotter:
     print 'signifVal:', signifVal
     print 'signifChange:', signifChange
 
+    legM.AddEntry(signalHistM,'Signalx100','l')
+    legD.AddEntry(signalHistD,'Signalx100','l')
+
     if sigWindow: tmp = self.DrawHists(dataHistM,bgStackM,signalHistM,False,sigWindow)
     else: self.DrawHists(dataHistM,bgStackM,signalHistM,False,sigWindow)
+    legM.Draw()
 
     if sigWindow: self.can.SaveAs(self.directory+'/'+self.lepton+self.lepton+'_'+signalHistM.GetName().split('_')[1]+'_MassCheck_Window.pdf')
     else: self.can.SaveAs(self.directory+'/'+self.lepton+self.lepton+'_'+signalHistM.GetName().split('_')[1]+'_MassCheck.pdf')
     self.can.Clear()
-    self.leg.Clear()
+    signalHistD.Scale(100)
 
     self.DrawHists(dataHistD,bgStackD,signalHistD,False,False,cutVal)
+    legD.Draw()
 
     if sigWindow: self.can.SaveAs(self.directory+'/'+self.lepton+self.lepton+'_'+signalHistD.GetName().split('_')[1]+'_DiscCheck_Window.pdf')
     else: self.can.SaveAs(self.directory+'/'+self.lepton+self.lepton+'_'+signalHistD.GetName().split('_')[1]+'_DiscCheck.pdf')
     self.can.Clear()
-    self.leg.Clear()
 
     dataHistD.IsA().Destructor(dataHistD)
     dataHistM.IsA().Destructor(dataHistM)
@@ -530,3 +538,4 @@ class Plotter:
       tmp.IsA().Destructor(tmp)
 
     #self.can.IsA().Destructor(self.can)
+
