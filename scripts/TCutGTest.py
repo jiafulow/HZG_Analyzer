@@ -19,19 +19,19 @@ h2.FillRandom("f2",40000)
 can= TCanvas('can','canvas',800,600)
 can.cd()
 
-myCut = TCutG('myCut',5)
+myCut = TCutG('mycut',5)
 myCut.SetPoint(0,-1,-1)
 myCut.SetPoint(1,-1,1)
 myCut.SetPoint(2,1,1)
 myCut.SetPoint(3,1,-1)
 myCut.SetPoint(4,-1,-1)
 
-h2.Draw('colz[myCut]')
+h2.Draw('colz[mycut]')
 myCut.Draw()
 can.SaveAs('testCut1.pdf')
 
 h2Proj = h2.ProjectionX('noCut')
-h2ProjCut = h2.ProjectionX('yesCut',1,h2.GetNbinsX(),'[myCut]')
+h2ProjCut = h2.ProjectionX('yesCut',1,h2.GetNbinsX(),'[mycut]')
 
 h2Proj.Draw('hist')
 can.SaveAs('testCut2.pdf')

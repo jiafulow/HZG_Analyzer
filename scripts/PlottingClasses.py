@@ -230,6 +230,7 @@ class Plotter:
       bgStack = THStack('bgs','bgs')
       for hist in bgList:
         label = hist.GetName().split('_')[-1]
+        print label
         hist.SetFillStyle(1001)
         hist.SetFillColor(colorDict[label])
         hist.SetLineColor(colorDict[label])
@@ -425,7 +426,7 @@ class Plotter:
     else:
       leg.AddEntry(dataHist,'DATA','lep')
 
-    bgStack = self.MakeBGStack(bgList,do2D,leg)
+    bgStack = self.MakeBGStack(bgList,leg,do2D)
 
     scale = self.LumiXSScale(self.sigName)
     signalHist.Scale(scale*500)
