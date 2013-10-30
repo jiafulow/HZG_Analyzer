@@ -1218,6 +1218,13 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   //////////////
   // VBF Cuts //
   //////////////
+  // VBF determination
+  bool isVBF = false;
+
+  if (jetsID.size() > 1){
+    TCJet jet1, jet2;
+    isVBF = particleSelector->FindGoodDiJets(jetsID, lepton1, lepton2, GP4, jet1, jet2);
+  }
 
 
   hm->fill1DHist(23,"h1_acceptanceByCut_"+params->suffix, "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");
@@ -1227,9 +1234,41 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   /////////////
   // ME Disc //
   /////////////
+
+  bool goodLep = false;
+  if (params->selection == "mumuGamma"){
+    goodLep = (fabs(lepton1.Eta()) < 0.9 || fabs(lepton2.Eta()) < 0.9) && (fabs(lepton1.Eta()) < 2.1 && fabs(lepton2.Eta()) < 2.1);
+  }else if (params->selection == "eeGamma"){
+    goodLep = (fabs(SCetaEl1) < 1.4442 && fabs(SCetaEl2) < 1.4442);
+  }
+  int catNum = -1;
+  // If lep1 or lep2 is in 0.9 and both are in 2.1 //
+  if (isVBF){
+    catNum = 5;
+  }else if (goodLep && (fabs(GP4scEta) < 1.4442) ){
+    if (R9Cor >= 0.94){
+      catNum = 1;
+    }else{
+      catNum = 4;
+    }
+  } else if ( fabs(GP4scEta) < 1.4442){
+    catNum = 2;
+  } else {
+    catNum = 3;
+  }
   
   float MEdisc = MEDiscriminator(lepton1,lepton2,GP4);
   //if (MEdisc < cuts->ME) return kTRUE;
+  if (catNum ==1){
+    if (MEdisc < 0.018) return kTRUE;
+  }else if (catNum==2){
+    if (MEdisc < 0.0022) return kTRUE;
+  }else if (catNum==3){
+    if (MEdisc < 0) return kTRUE;
+  }else if (catNum==4){
+    if (MEdisc < 0.031) return kTRUE;
+  }
+
   hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsME_"+params->suffix,"Mass vs ME; m_{ll#gamma}; ME Disc", 90,100,190,90,0,0.2,eventWeight,"MEPlots");
   hm->fill1DHist(MEdisc,"h1_ME_"+params->suffix,"ME Disc;ME Disc;Entries", 45,0,0.2,eventWeight,"MEPlots");
   hm->fill1DHist(24,"h1_acceptanceByCut_"+params->suffix, "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");
@@ -1243,13 +1282,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   //////////////
 
 
-  // VBF determination
-  bool isVBF = false;
-
-  if (jetsID.size() > 1){
-    TCJet jet1, jet2;
-    isVBF = particleSelector->FindGoodDiJets(jetsID, lepton1, lepton2, GP4, jet1, jet2);
-  }
 
   // Cross Section Weighting //
   LumiXSWeight(&unBinnedLumiXS);
@@ -1322,12 +1354,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
 
 
-    bool goodLep = false;
-    if (params->selection == "mumuGamma"){
-      goodLep = (fabs(lepton1.Eta()) < 0.9 || fabs(lepton2.Eta()) < 0.9) && (fabs(lepton1.Eta()) < 2.1 && fabs(lepton2.Eta()) < 2.1);
-    }else if (params->selection == "eeGamma"){
-      goodLep = (fabs(SCetaEl1) < 1.4442 && fabs(SCetaEl2) < 1.4442);
-    }
 
     m_llg = (GP4+ZP4).M();
 
@@ -1343,24 +1369,15 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     }
 
 
-    int catNum = -1;
-    // If lep1 or lep2 is in 0.9 and both are in 2.1 //
     if (isVBF){
-      catNum = 5;
       m_llgCAT5 = (GP4+ZP4).M();
-    }else if (goodLep && (fabs(GP4scEta) < 1.4442) ){
-      if (R9Cor >= 0.94){
-        catNum = 1;
-        m_llgCAT1 = (GP4+ZP4).M();
-      }else{
-        catNum = 4;
-        m_llgCAT4 = (GP4+ZP4).M();
-      }
-    } else if ( fabs(GP4scEta) < 1.4442){
-      catNum = 2;
+    }else if (catNum == 1) {
+      m_llgCAT1 = (GP4+ZP4).M();
+    }else if (catNum == 4) {
+      m_llgCAT4 = (GP4+ZP4).M();
+    }else if ( catNum == 2){
       m_llgCAT2 = (GP4+ZP4).M();
-    } else {
-      catNum = 3;
+    }else {
       m_llgCAT3 = (GP4+ZP4).M();
     }
 
