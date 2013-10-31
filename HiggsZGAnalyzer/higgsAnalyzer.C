@@ -239,7 +239,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   //genHZG = {0,0,0,0,0,0};
   if(!isRealData){
     ///////// load all the relevent particles into a struct /////////
-    particleSelector->FindGenParticles(*genParticles, params->selection, vetoPhotons, genHZG);
+    particleSelector->FindGenParticles(*genParticles, vetoPhotons, genHZG);
 
     ///////// whzh decomposition /////////////////
 
@@ -276,6 +276,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       }
     }
 
+    /*
     //////////// DYJets Gamma Veto ////////////
     vector<TCGenParticle>::iterator testIt;
 
@@ -298,6 +299,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
       }
     }
+    */
 
     //////////// gen yields with basic kinematic cuts ////////////
 
@@ -1044,7 +1046,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   if (!params->doPhotonPurityStudy){
     if (photonsIDIso.size() < 1) return kTRUE;
-    goodPhoton = particleSelector->FindGoodPhoton(photonsIDIso, GP4, lepton1, lepton2, R9Cor, GP4scEta);
+    goodPhoton = particleSelector->FindGoodPhoton(photonsIDIso, GP4, lepton1, lepton2, R9Cor, GP4scEta, vetoPhotons);
     if(!goodPhoton) return kTRUE;
 
     if (params->doScaleFactors) eventWeight   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
@@ -1057,19 +1059,19 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
 
     if (photonsIDIso.size() > 0){
-      goodPhoton = particleSelector->FindGoodPhoton(photonsIDIso, GP4, lepton1, lepton2, R9Cor, GP4scEta);
+      goodPhoton = particleSelector->FindGoodPhoton(photonsIDIso, GP4, lepton1, lepton2, R9Cor, GP4scEta, vetoPhotons);
     }
     if (photonsLIDMIso.size() > 0){
-      goodPhoton_LIDMIso = particleSelector->FindGoodPhoton(photonsLIDMIso, GP4_LIDMIso, lepton1, lepton2, R9Cor_LIDMIso, GP4scEta_LIDMIso);
+      goodPhoton_LIDMIso = particleSelector->FindGoodPhoton(photonsLIDMIso, GP4_LIDMIso, lepton1, lepton2, R9Cor_LIDMIso, GP4scEta_LIDMIso, vetoPhotons);
     }
     if (photonsMIDLIso.size() > 0){
-      goodPhoton_MIDLIso = particleSelector->FindGoodPhoton(photonsMIDLIso, GP4_MIDLIso, lepton1, lepton2, R9Cor_MIDLIso, GP4scEta_MIDLIso);
+      goodPhoton_MIDLIso = particleSelector->FindGoodPhoton(photonsMIDLIso, GP4_MIDLIso, lepton1, lepton2, R9Cor_MIDLIso, GP4scEta_MIDLIso, vetoPhotons);
     }
     if (photonsLIDLIso.size() > 0){
-      goodPhoton_LIDLIso = particleSelector->FindGoodPhoton(photonsLIDLIso, GP4_LIDLIso, lepton1, lepton2, R9Cor_LIDLIso, GP4scEta_LIDLIso);
+      goodPhoton_LIDLIso = particleSelector->FindGoodPhoton(photonsLIDLIso, GP4_LIDLIso, lepton1, lepton2, R9Cor_LIDLIso, GP4scEta_LIDLIso, vetoPhotons);
     }
     if (photonsNoIDIso.size() > 0){
-      goodPhoton_NoIDIso = particleSelector->FindGoodPhoton(photonsNoIDIso, GP4_NoIDIso, lepton1, lepton2, R9Cor_NoIDIso, GP4scEta_NoIDIso);
+      goodPhoton_NoIDIso = particleSelector->FindGoodPhoton(photonsNoIDIso, GP4_NoIDIso, lepton1, lepton2, R9Cor_NoIDIso, GP4scEta_NoIDIso, vetoPhotons);
     }
 
     if (!goodPhoton && !goodPhoton_LIDMIso && !goodPhoton_MIDLIso && !goodPhoton_LIDLIso && !goodPhoton_NoIDIso) return kTRUE;
@@ -1259,6 +1261,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   
   float MEdisc = MEDiscriminator(lepton1,lepton2,GP4);
   //if (MEdisc < cuts->ME) return kTRUE;
+  /*
   if (catNum ==1){
     if (MEdisc < 0.018) return kTRUE;
   }else if (catNum==2){
@@ -1268,7 +1271,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   }else if (catNum==4){
     if (MEdisc < 0.031) return kTRUE;
   }
-
+  */
   hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsME_"+params->suffix,"Mass vs ME; m_{ll#gamma}; ME Disc", 90,100,190,90,0,0.2,eventWeight,"MEPlots");
   hm->fill1DHist(MEdisc,"h1_ME_"+params->suffix,"ME Disc;ME Disc;Entries", 45,0,0.2,eventWeight,"MEPlots");
   hm->fill1DHist(24,"h1_acceptanceByCut_"+params->suffix, "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");
