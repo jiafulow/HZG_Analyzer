@@ -141,9 +141,21 @@ bool ParticleSelector::FindGoodZMuon(const vector<TCMuon>& muonList, TCPhysObjec
   }
   return goodZ;
 }
-bool ParticleSelector::FindGoodPhoton(const vector<TCPhoton>& photonList, TLorentzVector& gamma, const TCPhysObject& lepton1, const TCPhysObject& lepton2, float& R9, float& scEta){
+bool ParticleSelector::FindGoodPhoton(const vector<TCPhoton>& photonList, TLorentzVector& gamma, const TCPhysObject& lepton1, const TCPhysObject& lepton2, float& R9, float& scEta, const vector<TCGenParticle>& vetoPhotons){
   bool goodPhoton = false;
   for (UInt_t i = 0; i<photonList.size(); i++){
+    //////////// DYJets Gamma Veto ////////////
+    if (!_parameters.doPhotonPurityStudy && _parameters.DYGammaVeto && _parameters.suffix.find("DYJets") != string::npos){
+      bool doVeto = false;
+      for (UInt_t j = 0; j<vetoPhotons.size(); j++){
+        if(photonList[i].DeltaR(vetoPhotons[j]) < 0.2){
+          doVeto = true;
+          break;
+        }
+      }
+      if (doVeto) continue;
+    }
+
 
     gamma = photonList[i];    // define GP4
     scEta = photonList[i].SCEta();
@@ -223,7 +235,7 @@ bool ParticleSelector::FindGoodDiJets(const vector<TCJet>& jetList, const TCPhys
   return goodDiJets;
 }
 
-void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, string selection, vector<TCGenParticle>& vetoPhotons, genHZGParticles& _genHZG){
+void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, vector<TCGenParticle>& vetoPhotons, genHZGParticles& _genHZG){
   vector<TCGenParticle> genElectrons;
   vector<TCGenParticle> genMuons;
   vector<TCGenParticle> genZs;
@@ -246,8 +258,20 @@ void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, strin
       if (thisGen->Mother() && abs(thisGen->Mother()->GetPDGId())==23) isMuMuGamma = true;
     }else if (abs(thisGen->GetPDGId()) == 23) genZs.push_back(*thisGen);
     else if (abs(thisGen->GetPDGId()) == 24) genWs.push_back(*thisGen);
-    else if (abs(thisGen->GetPDGId()) == 22) genPhotons.push_back(*thisGen);
-    else if (abs(thisGen->GetPDGId()) == 25) genHs.push_back(*thisGen);
+    else if (abs(thisGen->GetPDGId()) == 22){
+      //////////// DYJets Gamma Veto ////////////
+      if (_parameters.DYGammaVeto && (_parameters.suffix.find("DYJets") != string::npos)){
+        if ((*thisGen).Mother() && (abs((*thisGen).Mother()->GetPDGId()) <= 22)){
+          vetoPhotons.push_back(*thisGen);
+        }else{
+          genPhotons.push_back(*thisGen);
+        }
+      }else{
+        genPhotons.push_back(*thisGen);
+        vetoPhotons = genPhotons;
+      }
+
+    }else if (abs(thisGen->GetPDGId()) == 25) genHs.push_back(*thisGen);
   }
   ///////// sort gen particles by PT ///////////
 
@@ -256,12 +280,11 @@ void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, strin
   sort(genZs.begin(), genZs.end(), P4SortCondition);
   sort(genWs.begin(), genWs.end(), P4SortCondition);
   sort(genPhotons.begin(), genPhotons.end(), P4SortCondition);
+  sort(vetoPhotons.begin(), vetoPhotons.end(), P4SortCondition);
   sort(genHs.begin(), genHs.end(), P4SortCondition);
 
-  vetoPhotons = genPhotons;
-
-  if (isMuMuGamma && (selection == "mumuGamma")) genLeptons = genMuons;
-  else if (isEEGamma && (selection == "eeGamma")) genLeptons = genElectrons;
+  if (isMuMuGamma && (_parameters.selection == "mumuGamma")) genLeptons = genMuons;
+  else if (isEEGamma && (_parameters.selection == "eeGamma")) genLeptons = genElectrons;
   
   if (_genHZG.lp){
     cout<<"well here's your fucking problem"<<endl;
