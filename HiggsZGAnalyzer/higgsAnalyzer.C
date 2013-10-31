@@ -1261,17 +1261,15 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   
   float MEdisc = MEDiscriminator(lepton1,lepton2,GP4);
   //if (MEdisc < cuts->ME) return kTRUE;
-  /*
   if (catNum ==1){
     if (MEdisc < 0.018) return kTRUE;
   }else if (catNum==2){
-    if (MEdisc < 0.0022) return kTRUE;
+    if (MEdisc < 0.02) return kTRUE;
   }else if (catNum==3){
-    if (MEdisc < 0) return kTRUE;
+    if (MEdisc < 0.032) return kTRUE;
   }else if (catNum==4){
-    if (MEdisc < 0.031) return kTRUE;
+    if (MEdisc < 0.061) return kTRUE;
   }
-  */
   hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsME_"+params->suffix,"Mass vs ME; m_{ll#gamma}; ME Disc", 90,100,190,90,0,0.2,eventWeight,"MEPlots");
   hm->fill1DHist(MEdisc,"h1_ME_"+params->suffix,"ME Disc;ME Disc;Entries", 45,0,0.2,eventWeight,"MEPlots");
   hm->fill1DHist(24,"h1_acceptanceByCut_"+params->suffix, "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");

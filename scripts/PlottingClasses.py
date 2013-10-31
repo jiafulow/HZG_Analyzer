@@ -204,7 +204,7 @@ class Plotter:
         if sigWindow: hist.GetXaxis().SetRange(hist.GetXaxis().FindBin(sigWindow-3),hist.GetXaxis().FindBin(sigWindow+3))
         signalHistM = hist.Clone().ProjectionX('projM'+hist.GetName())
         signalHistD = hist.Clone().ProjectionY('projD'+hist.GetName())
-      break
+        break
     if not signalHistM: raise NameError('No signalHist found in this list')
     signalHistM.SetLineColor(kRed)
     signalHistM.SetLineWidth(2)
@@ -429,11 +429,11 @@ class Plotter:
     bgStack = self.MakeBGStack(bgList,leg,do2D)
 
     scale = self.LumiXSScale(self.sigName)
-    signalHist.Scale(scale*500)
+    signalHist.Scale(scale*100)
     if do2D:
-      leg.AddEntry(signalHist,'Signalx500','f')
+      leg.AddEntry(signalHist,'Signalx100','f')
     else:
-      leg.AddEntry(signalHist,'Signalx500','l')
+      leg.AddEntry(signalHist,'Signalx100','l')
 
     self.DrawHists(dataHist,bgStack,signalHist,do2D)
 
