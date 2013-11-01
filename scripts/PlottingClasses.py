@@ -30,6 +30,7 @@ class Plotter:
     self.FolderDump()
     self.doProj = False
     self.can = None
+    self.myCut = None
 
   def FolderDump(self):
     '''Input file and folder name, output default dictionary of histogram lists. the key name is the distribution, the lists are all the samples for the given distribution'''
@@ -119,9 +120,8 @@ class Plotter:
     dataHistD = None
     for hist in histList:
       if 'DATA' in hist.GetName():
-        if sigWindow: hist.GetXaxis().SetRange(hist.GetXaxis().FindBin(sigWindow-3),hist.GetXaxis().FindBin(sigWindow+3))
-        dataHistM = hist.Clone().ProjectionX('projM'+hist.GetName())
-        dataHistD = hist.Clone().ProjectionY('projD'+hist.GetName())
+        dataHistM = hist.Clone().ProjectionX('projM'+hist.GetName(),1,hist.GetNbinsY(),'[mycut]')
+        dataHistD = hist.Clone().ProjectionY('projD'+hist.GetName(),1,hist.GetNbinsX(),'[mycut]')
         break
     if not dataHistM: raise NameError('No dataHist found in this list')
     dataHistM.SetLineColor(kBlack)
@@ -155,17 +155,10 @@ class Plotter:
     return bgList
 
   def GetBGHistsMD(self, histList,sigWindow = False):
-    if sigWindow:
-      bgListM = []
-      bgListD = []
-      for hist in histList:
-        if (hist.GetName().find('DATA') == -1 and hist.GetName().find('Signal') == -1):
-          hist.GetXaxis().SetRange(hist.GetXaxis().FindBin(sigWindow-3),hist.GetXaxis().FindBin(sigWindow+3))
-          bgListM.append(hist.Clone().ProjectionX('projM'+hist.GetName()))
-          bgListD.append(hist.Clone().ProjectionY('projD'+hist.GetName()))
-    else:
-      bgListM = [hist.ProjectionX('projM'+hist.GetName()) for hist in histList if (hist.GetName().find('DATA') == -1 and hist.GetName().find('Signal') == -1)]
-      bgListD = [hist.ProjectionY('projD'+hist.GetName()) for hist in histList if (hist.GetName().find('DATA') == -1 and hist.GetName().find('Signal') == -1)]
+    bgListM = [hist.Clone().ProjectionX('projM'+hist.GetName(),1,hist.GetNbinsY(),'[mycut]') for hist in histList if (hist.GetName().find('DATA') == -1 and hist.GetName().find('Signal') == -1)]
+    bgListD = [hist.Clone().ProjectionY('projD'+hist.GetName(),1,hist.GetNbinsX(),'[mycut]') for hist in histList if (hist.GetName().find('DATA') == -1 and hist.GetName().find('Signal') == -1)]
+    #bgListM = [hist.ProjectionX('projM'+hist.GetName(),1,hist.GetNbinsY(),'') for hist in histList if (hist.GetName().find('DATA') == -1 and hist.GetName().find('Signal') == -1)]
+    #bgListD = [hist.ProjectionY('projD'+hist.GetName(),1,hist.GetNbinsX(),'') for hist in histList if (hist.GetName().find('DATA') == -1 and hist.GetName().find('Signal') == -1)]
 
     if len(bgListM) == 0: raise NameError('No BG hists found in this list')
     bgListM = sorted(bgListM, key=lambda hist:hist.GetName()[-1], reverse=True)
@@ -201,9 +194,8 @@ class Plotter:
     signalHistD = None
     for hist in histList:
       if self.sigName in hist.GetName():
-        if sigWindow: hist.GetXaxis().SetRange(hist.GetXaxis().FindBin(sigWindow-3),hist.GetXaxis().FindBin(sigWindow+3))
-        signalHistM = hist.Clone().ProjectionX('projM'+hist.GetName())
-        signalHistD = hist.Clone().ProjectionY('projD'+hist.GetName())
+        signalHistM = hist.Clone().ProjectionX('projM'+hist.GetName(),1,hist.GetNbinsY(),'[mycut]')
+        signalHistD = hist.Clone().ProjectionY('projD'+hist.GetName(),1,hist.GetNbinsX(),'[mycut]')
         break
     if not signalHistM: raise NameError('No signalHist found in this list')
     signalHistM.SetLineColor(kRed)
@@ -220,6 +212,7 @@ class Plotter:
       bgStack = bgList[0].Clone()
       bgStack.Reset()
       for hist in bgList:
+        hist = hist.Clone()
         label = hist.GetName().split('_')[-1]
         scale = self.LumiXSScale(label)
         hist.Scale(scale)
@@ -227,10 +220,10 @@ class Plotter:
       bgStack.SetFillColor(kBlue)
       if leg: leg.AddEntry(bgStack,'BG','f')
     else:
-      bgStack = THStack('bgs','bgs')
+      bgStack = THStack('stack'+bgList[0].GetName(),'bgs')
       for hist in bgList:
+        hist = hist.Clone()
         label = hist.GetName().split('_')[-1]
-        print label
         hist.SetFillStyle(1001)
         hist.SetFillColor(colorDict[label])
         hist.SetLineColor(colorDict[label])
@@ -238,6 +231,10 @@ class Plotter:
         hist.Scale(scale)
         if leg: leg.AddEntry(hist,label,'f')
         bgStack.Add(hist)
+        print hist.GetName()
+        print hist.Integral(0,hist.GetNbinsX())
+        print 'bin1:',hist.GetBinContent(1)
+        #raw_input()
     return bgStack
 
   def MakeLegend(self,x1 = None, y1 = None, x2 = None, y2 = None):
@@ -253,30 +250,12 @@ class Plotter:
     leg.SetFillStyle(0)
     return leg
 
-  def DrawHists(self, data,bg,signal, do2D = False, sigWindow = None, lineX = None, lineY = None):
+  def DrawHists(self, data,bg,signal, do2D = False, lineX = None, lineY = None):
     ymax = max(map(lambda x:x.GetMaximum(),[data,bg,signal]))*1.2
     ymin = 0
-    if sigWindow:
-      tempHist = TH1F('tmp','tmp',90,100,190)
-      tempHist.SetMaximum(ymax)
-      tempHist.SetMinimum(ymin)
-      tempHist.GetYaxis().SetTitle(data.GetYaxis().GetTitle())
-      tempHist.GetYaxis().SetTitleSize(0.06)
-      tempHist.GetYaxis().CenterTitle()
-      tempHist.GetXaxis().SetTitle(data.GetXaxis().GetTitle())
-      tempHist.GetXaxis().SetTitleSize(0.05)
-      #tempHist.GetYaxis().SetLabelSize(0.05)
-      #tempHist.GetXaxis().SetLabelSize(0.05)
-      #tempHist.GetXaxis().SetTitle(dist)
-      tempHist.GetYaxis().SetTitleOffset(0.82)
-      tempHist.SetTitle(self.lepton+self.lepton+' '+data.GetTitle())
-
-      tempHist.Draw()
-
     bg.SetMaximum(ymax)
     bg.SetMinimum(ymin)
-    if sigWindow: bg.Draw('histsame')
-    elif not do2D and not sigWindow: bg.Draw('hist')
+    if not do2D: bg.Draw('hist')
     else: bg.Draw('colz')
     bg.GetYaxis().SetTitle(data.GetYaxis().GetTitle())
     bg.GetYaxis().SetTitleSize(0.06)
@@ -305,7 +284,6 @@ class Plotter:
       line.Draw()
       SetOwnership(line,0)
 
-    if sigWindow: return tempHist
 
 
   def MakeDrawROCandSignif(self,signalHist,bgStack,sigWindow=None):
@@ -494,6 +472,14 @@ class Plotter:
     if histList[0].GetName().split('_')[0] != 'h2':
       print 'skipping ROC curve for', histList[0].GetName()
       return
+    if sigWindow:
+      self.myCut = TCutG('mycut',5)
+      self.myCut.SetPoint(0,sigWindow-3,-1)
+      self.myCut.SetPoint(1,sigWindow-3,1)
+      self.myCut.SetPoint(2,sigWindow+3,1)
+      self.myCut.SetPoint(3,sigWindow+3,-1)
+      self.myCut.SetPoint(4,sigWindow-3,-1)
+
 
     dataHistM,dataHistD = self.GetDataHistsMD(histList,sigWindow)
     bgListM,bgListD = self.GetBGHistsMD(histList,sigWindow)
@@ -504,6 +490,7 @@ class Plotter:
       os.mkdir(self.directory)
 
     TH1.SetDefaultSumw2(kTRUE)
+    TH2.SetDefaultSumw2(kTRUE)
     TProfile.SetDefaultSumw2(kTRUE)
 
     if self.can == None:
@@ -516,7 +503,9 @@ class Plotter:
 
     # Set the bg histograms
 
+    print 'mass'
     bgStackM = self.MakeBGStack(bgListM,legM)
+    print 'disc'
     bgStackD = self.MakeBGStack(bgListD,legD)
     bgStackROC = self.MakeBGStack(bgListD,None,True)
 
@@ -538,8 +527,7 @@ class Plotter:
     legM.AddEntry(signalHistM,'Signalx100','l')
     legD.AddEntry(signalHistD,'Signalx100','l')
 
-    if sigWindow: tmp = self.DrawHists(dataHistM,bgStackM,signalHistM,False,sigWindow)
-    else: self.DrawHists(dataHistM,bgStackM,signalHistM,False,sigWindow)
+    self.DrawHists(dataHistM,bgStackM,signalHistM,False)
     legM.Draw()
 
     if sigWindow: self.can.SaveAs(self.directory+'/'+self.lepton+self.lepton+'_'+signalHistM.GetName().split('_')[1]+'_MassCheck_Window.pdf')
@@ -547,7 +535,7 @@ class Plotter:
     self.can.Clear()
     signalHistD.Scale(100)
 
-    self.DrawHists(dataHistD,bgStackD,signalHistD,False,False,cutVal)
+    self.DrawHists(dataHistD,bgStackD,signalHistD,False,cutVal)
     legD.Draw()
 
     if sigWindow: self.can.SaveAs(self.directory+'/'+self.lepton+self.lepton+'_'+signalHistD.GetName().split('_')[1]+'_DiscCheck_Window.pdf')
@@ -563,7 +551,7 @@ class Plotter:
     for hist in bgListD:
       hist.IsA().Destructor(hist)
     if sigWindow:
-      tmp.IsA().Destructor(tmp)
+      self.myCut.Clear()
 
     #self.can.IsA().Destructor(self.can)
 
