@@ -1266,9 +1266,9 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   }else if (catNum==2){
     if (MEdisc < 0.02) return kTRUE;
   }else if (catNum==3){
-    if (MEdisc < 0.032) return kTRUE;
+    if (MEdisc < 0.0) return kTRUE;
   }else if (catNum==4){
-    if (MEdisc < 0.061) return kTRUE;
+    if (MEdisc < 0.029) return kTRUE;
   }
   hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsME_"+params->suffix,"Mass vs ME; m_{ll#gamma}; ME Disc", 90,100,190,90,0,0.2,eventWeight,"MEPlots");
   hm->fill1DHist(MEdisc,"h1_ME_"+params->suffix,"ME Disc;ME Disc;Entries", 45,0,0.2,eventWeight,"MEPlots");
