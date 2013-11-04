@@ -48,7 +48,8 @@ void higgsAnalyzer::Begin(TTree * tree)
   // Initialize utilities and selectors here //
   cuts.reset(new Cuts());
   cuts->InitEA(params->period);
-  weighter.reset(new WeightUtils(params->suffix, params->period, params->abcd, params->selection, isRealData));
+  weighter.reset(new WeightUtils(*params, isRealData, runNumber));
+  cout<<"isRealData "<<isRealData<<endl;
   triggerSelector.reset(new TriggerSelector(params->selection, params->period, *triggerNames));
   rmcor2011.reset(new rochcor_2011(229));
   rmcor2012.reset(new rochcor2012(229));
@@ -216,7 +217,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   ++nEvents[0];
   //if (nEvents[0] > 10) Abort("quick terminate");
 
-  if (nEvents[0] == 1) weighter->SetDataBit(isRealData);
+  if (nEvents[0] == 1) weighter->SetIsRealData(isRealData);
+  weighter->SetRunNumber(runNumber);
 
   if (nEvents[0] % (int)1e5 == 0) cout<<nEvents[17]<<" events passed of "<<nEvents[0]<<" checked!"<<endl;
 
@@ -1261,6 +1263,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   
   float MEdisc = MEDiscriminator(lepton1,lepton2,GP4);
   //if (MEdisc < cuts->ME) return kTRUE;
+  /*
   if (catNum ==1){
     if (MEdisc < 0.018) return kTRUE;
   }else if (catNum==2){
@@ -1270,6 +1273,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   }else if (catNum==4){
     if (MEdisc < 0.029) return kTRUE;
   }
+  */
   hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsME_"+params->suffix,"Mass vs ME; m_{ll#gamma}; ME Disc", 90,100,190,90,0,0.2,eventWeight,"MEPlots");
   hm->fill1DHist(MEdisc,"h1_ME_"+params->suffix,"ME Disc;ME Disc;Entries", 45,0,0.2,eventWeight,"MEPlots");
   hm->fill1DHist(24,"h1_acceptanceByCut_"+params->suffix, "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");

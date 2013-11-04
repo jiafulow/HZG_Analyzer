@@ -1,13 +1,11 @@
 #include "../interface/WeightUtils.h"
 #include "../interface/WeightUtilsLinkDef.h"
 
-WeightUtils::WeightUtils(string sampleName, string dataPeriod, string abcd, string selection, bool isRealData)
+WeightUtils::WeightUtils(const Parameters& params, bool isRealData, int runNumber):
+  _params(params),
+  _isRealData(isRealData),
+  _runNumber(runNumber)
 {
-  _sampleName          = sampleName;
-  _dataPeriod          = dataPeriod;
-  _selection           = selection;
-  _isRealData          = isRealData;
-  _abcd                = abcd;
 
   Initialize();
 
@@ -25,6 +23,10 @@ WeightUtils::WeightUtils(string sampleName, string dataPeriod, string abcd, stri
   _inFileSomeTuneto2012ABCDTrue = new TFile("otherHistos/SomeTuneTo2012ABCD.root", "OPEN");
   _inFileRD1to2012ABCDTrue = new TFile("otherHistos/RD1to2012ABCDTrue.root", "OPEN");
   _inFileRD1to2012ABCDTrue_6_40 = new TFile("otherHistos/RD1to2012ABCDTrue_6-40.root", "OPEN");
+
+  _inFileRD1to2012ABTrue = new TFile("otherHistos/RD1to2012ABTrue.root", "OPEN");
+  _inFileRD1to2012CTrue = new TFile("otherHistos/RD1to2012CTrue.root", "OPEN");
+  _inFileRD1to2012DTrue = new TFile("otherHistos/RD1to2012DTrue.root", "OPEN");
 
   _MuTrig2011          = new TFile("otherHistos/Eff_HLT_Mu17_Mu8_2011_TPfit_v2.root", "OPEN");
   _kFactors            = new TFile("otherHistos/KFactors_AllScales.root", "OPEN");
@@ -49,6 +51,10 @@ WeightUtils::WeightUtils(string sampleName, string dataPeriod, string abcd, stri
   h1_RD1to2012ABCDTrue     = (TH1F*)_inFileRD1to2012ABCDTrue->Get("pileupWeights");
   h1_RD1to2012ABCDTrue_6_40     = (TH1F*)_inFileRD1to2012ABCDTrue_6_40->Get("pileupWeights");
 
+  h1_RD1to2012ABTrue     = (TH1F*)_inFileRD1to2012ABTrue->Get("pileupWeights");
+  h1_RD1to2012CTrue     = (TH1F*)_inFileRD1to2012CTrue->Get("pileupWeights");
+  h1_RD1to2012DTrue     = (TH1F*)_inFileRD1to2012DTrue->Get("pileupWeights");
+
   // higgs pt weights
   kfact120_0           = (TH1D*)_kFactors->Get("kfact120_0");
   kfact125_0           = (TH1D*)_kFactors->Get("kfact125_0");
@@ -70,8 +76,8 @@ WeightUtils::WeightUtils(string sampleName, string dataPeriod, string abcd, stri
   
 }
 
-  void WeightUtils::Initialize()
-  {
+void WeightUtils::Initialize()
+{
   _puWeight          = 1.;
   _zzWeight          = 1.;
   _glugluWeight      = 1.;
@@ -86,45 +92,36 @@ WeightUtils::WeightUtils(string sampleName, string dataPeriod, string abcd, stri
 
 }
 
-void WeightUtils::SetDataBit(bool isRealData)
+void WeightUtils::SetRunNumber(int runNumber)
+{
+  _runNumber = runNumber;
+}
+
+void WeightUtils::SetIsRealData(bool isRealData)
 {
   _isRealData = isRealData;
 }
 
-void WeightUtils::SetDataPeriod(string dataPeriod)
-{
-  _dataPeriod = dataPeriod;
-}
-
-void WeightUtils::SetSampleName(string sampleName)
-{
-  _sampleName = sampleName;
-}
-
-void WeightUtils::SetSelection(string selection)
-{
-  _selection = selection;
-}
-
-
 float WeightUtils::PUWeight(float nPU)
 {
-  //cout<<nPU<<endl;
-  if (!_isRealData){
-    if (nPU < 100 && _dataPeriod == "2011" ){
+  if (_isRealData){
+    return 1;
+  }else{
+    if (nPU < 100 && _params.period == "2011" ){
       _puWeight = h1_S6to2011obs->GetBinContent(h1_S6to2011obs->FindBin(nPU)); 
-    } else if (nPU < 40 && nPU > 4 && _dataPeriod == "2012" && (_sampleName.find("DYJets")!= string::npos || _sampleName.find("ZGToLLG")!= string::npos)){
-      _puWeight = h1_RD1to2012ABCDTrue_6_40->GetBinContent(h1_RD1to2012ABCDTrue_6_40->FindBin(nPU)); 
-    } else if (nPU < 100 && _dataPeriod == "2012" && (_sampleName.find("DYJets")== string::npos && _sampleName.find("ZGToLLG")== string::npos)){
-      if (_abcd == "AB") _puWeight = h1_S10to2012ABTrue->GetBinContent(h1_S10to2012ABTrue->FindBin(nPU)); 
-      else if (_abcd == "CD") _puWeight = h1_S10to2012CDTrue->GetBinContent(h1_S10to2012CDTrue->FindBin(nPU)); 
-      else if (_abcd == "ABCD") _puWeight = h1_S10to2012ABCDTrue->GetBinContent(h1_S10to2012ABCDTrue->FindBin(nPU)); 
+    } else if (nPU < 40 && nPU > 4 && _params.period == "2012" && (_params.suffix.find("DYJets")!= string::npos || _params.suffix.find("ZGToLLG")!= string::npos)){
+        if (_runNumber < 196531) _puWeight = h1_RD1to2012ABTrue->GetBinContent(h1_RD1to2012ABTrue->FindBin(nPU));
+        else if (_runNumber > 198022 && _runNumber < 203742) _puWeight = h1_RD1to2012CTrue->GetBinContent(h1_RD1to2012CTrue->FindBin(nPU));
+        else if (_runNumber > 203777 && _runNumber < 208686) _puWeight = h1_RD1to2012DTrue->GetBinContent(h1_RD1to2012DTrue->FindBin(nPU));
+        else _puWeight = 1;
+    } else if (nPU < 100 && _params.period == "2012" && (_params.suffix.find("DYJets")== string::npos && _params.suffix.find("ZGToLLG")== string::npos)){
+      if (_params.abcd == "AB") _puWeight = h1_S10to2012ABTrue->GetBinContent(h1_S10to2012ABTrue->FindBin(nPU)); 
+      else if (_params.abcd == "CD") _puWeight = h1_S10to2012CDTrue->GetBinContent(h1_S10to2012CDTrue->FindBin(nPU)); 
+      else if (_params.abcd == "ABCD") _puWeight = h1_S10to2012ABCDTrue->GetBinContent(h1_S10to2012ABCDTrue->FindBin(nPU)); 
       //_puWeight = h1_S10to2012ABCDTrue_73500->GetBinContent(h1_S10to2012ABCDTrue_73500->FindBin(nPU));
     } else{
       _puWeight = 1; 
     }
-  } else {
-    _puWeight = 1;
   }
   return _puWeight;
 }
@@ -136,26 +133,26 @@ float WeightUtils::HqtWeight(TLorentzVector l1)
 
   float hqtWeight = 1.0;
   if (_isRealData) return hqtWeight;
-  if (_sampleName.find("gg") == string::npos) return hqtWeight;
-  if (_dataPeriod.find("2012") != string::npos){
+  if (_params.suffix.find("gg") == string::npos) return hqtWeight;
+  if (_params.period.find("2012") != string::npos){
     return hqtWeight;
   }else{
 
     float hqt = l1.Pt();
     if (hqt>250) hqt=250.0;
-    if (_sampleName.find("120") != string::npos){
+    if (_params.suffix.find("120") != string::npos){
       hqtWeight = kfact120_0->GetBinContent(kfact120_0->FindBin(hqt));
-    }else if (_sampleName.find("125") != string::npos){
+    }else if (_params.suffix.find("125") != string::npos){
       hqtWeight = kfact125_0->GetBinContent(kfact125_0->FindBin(hqt));
-    }else if (_sampleName.find("130") != string::npos){
+    }else if (_params.suffix.find("130") != string::npos){
       hqtWeight = kfact130_0->GetBinContent(kfact130_0->FindBin(hqt));
-    }else if (_sampleName.find("135") != string::npos){
+    }else if (_params.suffix.find("135") != string::npos){
       hqtWeight = kfact135_0->GetBinContent(kfact135_0->FindBin(hqt));
-    }else if (_sampleName.find("140") != string::npos){
+    }else if (_params.suffix.find("140") != string::npos){
       hqtWeight = kfact140_0->GetBinContent(kfact140_0->FindBin(hqt));
-    }else if (_sampleName.find("145") != string::npos){
+    }else if (_params.suffix.find("145") != string::npos){
       hqtWeight = kfact145_0->GetBinContent(kfact145_0->FindBin(hqt));
-    }else if (_sampleName.find("150") != string::npos){
+    }else if (_params.suffix.find("150") != string::npos){
       hqtWeight = kfact150_0->GetBinContent(kfact150_0->FindBin(hqt));
     }
     
@@ -263,7 +260,7 @@ float WeightUtils::MuonSelectionWeight(TLorentzVector l1)
     }
   }
 
-  if (_dataPeriod.find("2011") != string::npos){
+  if (_params.period.find("2011") != string::npos){
     muSF = _muonID2011[ptBin][etaBin]*_muonISO2011[ptBin][etaBin];
   }else{
     muSF = _muonID2012[ptBin][etaBin]*_muonISO2012[ptBin][etaBin];
@@ -309,7 +306,7 @@ float WeightUtils::GammaSelectionWeight(TLorentzVector l1, float SCEta)
     }
   }
 
-  if (_dataPeriod.find("2011") != string::npos){
+  if (_params.period.find("2011") != string::npos){
     if (etaBin <= 1){
       phoSF = _gammaMedID2011[etaBin][ptBin]*_gammaMedVeto2011Barrel;
     }else{
@@ -332,7 +329,7 @@ float WeightUtils::ElectronSelectionWeight(TLorentzVector l1){
   yBin = h1_EleMoriondWP2012->GetYaxis()->FindFixBin(fabs(l1.Eta()));
   if (yBin>5) yBin=5;
 
-  if (_dataPeriod.find("2012") != string::npos){
+  if (_params.period.find("2012") != string::npos){
     eleSF = h1_EleMoriondWP2012->GetBinContent(xBin,yBin);
   }else{
     eleSF = 1;
@@ -421,7 +418,7 @@ float WeightUtils::MuonTriggerWeight(TLorentzVector l1, TLorentzVector l2)
   if (_isRealData) return 1.0;
 
   // 2011 use the 2D histogram
-  if (_dataPeriod.find("2011") != string::npos){
+  if (_params.period.find("2011") != string::npos){
     muTrigSF1 = _HLTMu17Mu8_2011->GetBinContent(_HLTMu17Mu8_2011->FindBin(l1.Eta(),l2.Eta()));
     if (muTrigSF1 == 0.0) muTrigSF1 = 1.0;
     return muTrigSF1;
@@ -633,7 +630,7 @@ float WeightUtils::ElectronTriggerWeight(TLorentzVector l1, TLorentzVector l2)
     }
   }
 
-  if (_dataPeriod.find("2011") != string::npos){
+  if (_params.period.find("2011") != string::npos){
     elTrigSF1 = _HLTEl17El8_17Leg2011[etaBin1][ptBin1];
     elTrigSF2 = _HLTEl17El8_8Leg2011[etaBin2][ptBin2];
     //elTrigDataA17 = _DataEff_HLTEl17El8_17Leg2011[etaBin1][ptBin1];

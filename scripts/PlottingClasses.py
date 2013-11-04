@@ -89,9 +89,11 @@ class Plotter:
     outList[0].GetYaxis().SetTitleSize(0.06)
     outList[0].GetYaxis().CenterTitle()
     outList[0].GetXaxis().SetTitleSize(0.05)
+    outList[0].Scale(1/outList[0].Integral())
 
     outList[1].SetLineColor(kBlue)
     outList[1].SetLineWidth(2)
+    outList[1].Scale(1/outList[1].Integral())
     return outList
 
 

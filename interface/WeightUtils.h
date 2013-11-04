@@ -15,20 +15,18 @@
 #include "TH2D.h"
 #include "TFile.h"
 #include "TLorentzVector.h"
+#include "AnalysisParameters.h"
 //#include "../../src/TCJet.h"
 
 using namespace std;
 
 class WeightUtils: public TObject {
     public:
-        WeightUtils() {};
         virtual ~WeightUtils() {};
-        WeightUtils(string sampleName, string dataPeriod, string abcd, string selection, bool isRealData);
+        WeightUtils(const Parameters& params, bool isRealData, int runNumber);
         void  Initialize();
-        void  SetDataBit(bool isRealData);
-        void  SetDataPeriod(string dataPeriod);
-        void  SetSampleName(string sampleName);
-        void  SetSelection(string selection);
+        void  SetRunNumber(int runNumber);
+        void  SetIsRealData(bool isRealData);
 
         float PUWeight(float nPU);
         float MuonSelectionWeight(TLorentzVector l1);
@@ -42,11 +40,9 @@ class WeightUtils: public TObject {
 
     private:
         //input parameters
-        string _dataPeriod;
-        string _abcd;
-        string _sampleName;
-        string _selection;
+        Parameters _params;
         bool   _isRealData;
+        int _runNumber;
 
         //sources
         TFile * _inFileS6to2011;
@@ -64,6 +60,10 @@ class WeightUtils: public TObject {
 
         TFile * _inFileRD1to2012ABCDTrue;
         TFile * _inFileRD1to2012ABCDTrue_6_40;
+
+        TFile * _inFileRD1to2012ABTrue;
+        TFile * _inFileRD1to2012CTrue;
+        TFile * _inFileRD1to2012DTrue;
 
         TFile *_MuTrig2011;
 
@@ -92,6 +92,10 @@ class WeightUtils: public TObject {
         TH1F * h1_SomeTuneto2012ABCDTrue;
         TH1F * h1_RD1to2012ABCDTrue;
         TH1F * h1_RD1to2012ABCDTrue_6_40;
+
+        TH1F * h1_RD1to2012ABTrue;
+        TH1F * h1_RD1to2012CTrue;
+        TH1F * h1_RD1to2012DTrue;
 
         TH1D * kfact120_0;
         TH1D * kfact125_0;
