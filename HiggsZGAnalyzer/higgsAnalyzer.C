@@ -115,11 +115,10 @@ void higgsAnalyzer::Begin(TTree * tree)
   histoFile->mkdir("MEPlots", "MEPlots");
   //histoFile->mkdir("FakeRateWeight", "FakeRateWeight");
 
-  diffZGscalar = diffZGvector = threeBodyMass = threeBodyPt = divPt = cosZ = cosG = METdivQt = GPt = ZPt = DPhi = diffPlaneMVA = vtxVariable = dr1 = dr2 = M12 = scaleFactor = -99999;
+  diffZGscalar = diffZGvector = threeBodyMass = threeBodyPt = divPt = cosZ = cosG = METdivQt = GPt = ZPt = DPhi = diffPlaneMVA = vtxVariable = dr1 = dr2 = M12 = medisc = smallTheta = bigTheta = comPhi = scaleFactor = -99999;
 
   sampleChain->Branch("diffZGscalar",&diffZGscalar,"diffZGscalar/F");
   trainingChain->Branch("diffZGscalar",&diffZGscalar,"diffZGscalar/F");
-  /*
   sampleChain->Branch("diffZGvector",&diffZGvector,"diffZGvector/F");
   trainingChain->Branch("diffZGvector",&diffZGvector,"diffZGvector/F");
   sampleChain->Branch("threeBodyMass",&threeBodyMass,"threeBodyMass/F");
@@ -150,8 +149,15 @@ void higgsAnalyzer::Begin(TTree * tree)
   trainingChain->Branch("dr2",&dr2,"dr2/F");
   sampleChain->Branch("M12",&M12,"M12/F");
   trainingChain->Branch("M12",&M12,"M12/F");
+  sampleChain->Branch("medisc",&medisc,"medisc/F");
+  trainingChain->Branch("medisc",&medisc,"medisc/F");
+  sampleChain->Branch("smallTheta",&smallTheta,"smallTheta/F");
+  trainingChain->Branch("smallTheta",&smallTheta,"smallTheta/F");
+  sampleChain->Branch("bigTheta",&bigTheta,"bigTheta/F");
+  trainingChain->Branch("bigTheta",&bigTheta,"bigTheta/F");
+  sampleChain->Branch("comPhi",&comPhi,"comPhi/F");
+  trainingChain->Branch("comPhi",&comPhi,"comPhi/F");
   sampleChain->Branch("scaleFactor",&scaleFactor,"scaleFactor/F");
-  */
   trainingChain->Branch("scaleFactor",&scaleFactor,"scaleFactor/F");
 
   m_llgChain->Branch(("m_llg_"+params->suffix).c_str(), &m_llg, "m_llg/D");
@@ -1463,26 +1469,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       hm->fill1DHist(ZP4.M(),"h1_gammaStarMll2_"+params->suffix,"gammaStar M_ll low range; M_ll (GeV);Entries",50,-5,45,eventWeight,"ZGamma");
     }
 
-    diffZGscalar    = ZP4.Pt()-GP4.Pt();
-    diffZGvector    = (ZP4-GP4).Pt();
-    threeBodyMass   = (ZP4+GP4).M();
-    threeBodyPt     = (ZP4+GP4).Pt();
-    divPt           = ZP4.Pt()/GP4.Pt();
-    GPt             = GP4.Pt();
-    ZPt             = ZP4.Pt();
-    DPhi            = fabs(ZP4.DeltaPhi(GP4));
-    dr1             = lepton1.DeltaR(GP4);
-    dr2             = lepton2.DeltaR(GP4);
-    M12             = CalculateM12sqrd(ZP4,GP4);
-    scaleFactor     = eventWeight;
-    if (params->suffix == "HZG125Signal") scaleFactor *= 4.98/124532.73;
-    if (params->suffix == "ZJets") scaleFactor *= (4.98*2.5)/11.900;
-    if (params->suffix == "ZGMuMu") scaleFactor *= 4.98/7.11;
-    if (params->suffix == "ZGEE") scaleFactor *= 4.98/7.11;
-    if (params->suffix == "ZZJets") scaleFactor *= 4.98/6175;
-    if (params->suffix == "WZJets") scaleFactor *= 4.98/1426.5;
-    if (params->suffix == "WWJets") scaleFactor *= 4.98/250.4;
-
   }
 
 
@@ -1540,7 +1526,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   }
 
   getZGAngles(recoLevelInputs,recoLevelOutputs, false);
-  AnglePlots(recoLevelOutputs,1,"ZGAngles_RECO","RECO");
+  AnglePlots(recoLevelOutputs,eventWeight,"ZGAngles_RECO","RECO");
 
   hm->fill1DHist(eventWeight,"h1_eventWeight_"+params->suffix, "event weight", 100, 0., 2.,1,"Misc");
   if (!isRealData) hm->fill1DHist(ptHat,"h1_ptHat_"+params->suffix,"ptHat",37, 15.0, 200.0, eventWeight,"Misc");
@@ -1549,6 +1535,33 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     hm->fill1DHist(runNumber,"h1_goodRuns_"+params->suffix, "Number of events passing selection cuts by run;Run number; nEvents", 9200, 160000., 175000.,1,"Misc");
     hm->fillProfile(runNumber,primaryVtx->GetSize(),"p1_nVtcs", "Average number of vertices per run; Run Number; nVertices", 8700.0, 135000.0, 144200.0, 0.0, 6.0, 1,"Misc");
   }
+
+  // MVA Variables
+
+  diffZGscalar    = ZP4.Pt()-GP4.Pt();
+  diffZGvector    = (ZP4-GP4).Pt();
+  threeBodyMass   = (ZP4+GP4).M();
+  threeBodyPt     = (ZP4+GP4).Pt();
+  divPt           = ZP4.Pt()/GP4.Pt();
+  GPt             = GP4.Pt();
+  ZPt             = ZP4.Pt();
+  DPhi            = fabs(ZP4.DeltaPhi(GP4));
+  dr1             = lepton1.DeltaR(GP4);
+  dr2             = lepton2.DeltaR(GP4);
+  M12             = CalculateM12sqrd(ZP4,GP4);
+  medisc          = MEdisc;
+  smallTheta      = recoLevelOutputs.costheta_lp;
+  bigTheta        = recoLevelOutputs.cosTheta;
+  comPhi          = recoLevelOutputs.phi;
+  scaleFactor     = eventWeight;
+  if (params->suffix.find("ggM125") != string::npos) scaleFactor *= 19.672/(unskimmedEventsTotal/(19.52*0.00154*0.10098*1000));
+  if (params->suffix == "DYJets") scaleFactor *= 19.672/(unskimmedEventsTotal/(3503.71*1000));
+  if (params->suffix == "ZGToLLG") scaleFactor *= 19.672/(unskimmedEventsTotal/(156.2*1000)); 
+  //if (params->suffix == "ZGEE") scaleFactor *= 4.98/7.11;
+  //if (params->suffix == "ZZJets") scaleFactor *= 4.98/6175;
+  //if (params->suffix == "WZJets") scaleFactor *= 4.98/1426.5;
+  //if (params->suffix == "WWJets") scaleFactor *= 4.98/250.4;
+
 
   if (nEvents[0]%2 == 0){
     trainingChain->Fill();

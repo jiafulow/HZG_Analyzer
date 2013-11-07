@@ -147,6 +147,10 @@ class higgsAnalyzer : public TSelector {
     float          dr1;
     float          dr2;
     float          M12;
+    float          medisc;
+    float          smallTheta;
+    float          bigTheta;
+    float          comPhi; 
     float          scaleFactor;
 
     //M_llg branches
