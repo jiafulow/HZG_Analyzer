@@ -12,8 +12,8 @@ def GenericPlotter(inFolder, outFolder):
   if os.environ.get('AT_NWU') == None:
     FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-17-13.root")
   else:
-    #FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-23-13.root")
-    FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_11-4-13.root")
+    FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-31-13.root")
+    #FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_11-4-13.root")
 
   plotter = Plotter(FileMu, inFolder, outFolder, '2012','mu','Signal2012ggM125p8')
   for key in plotter.folderDict.keys():
@@ -25,7 +25,7 @@ def ROCPlotter():
   if os.environ.get('AT_NWU') == None:
     FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-17-13.root")
   else:
-    FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-31-13.root")
+    FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_11-4-13.root")
 
   plotter = Plotter(FileMu, 'MEPlots', 'ROC', '2012','mu','Signal2012ggM125p8')
   for key in plotter.folderDict.keys():
@@ -36,13 +36,14 @@ def RatioPlotter():
   if os.environ.get('AT_NWU') == None:
     FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-17-13.root")
   else:
-    FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_11-4-13.root")
+    FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_11-6-13.root")
 
-  plotter = Plotter(FileMu, 'Vtx', 'PUCheck', '2012','mu','Signal2012ggM125p8')
-  #plotter = Plotter(FileMu, 'PreGen', 'Ratio', '2012','mu','Signal2012ggM125p8')
-    #plotter.RatioPlot(plotter.folderDict[key],['DATA','Signal2012ggM125NLOp8'],['p6 NLO','p8 NLO'])
+  #plotter = Plotter(FileMu, 'Vtx', 'PUCheck_NoRD', '2012','mu','Signal2012ggM125p8')
+  plotter = Plotter(FileMu, 'PreGen', 'Ratio', '2012','mu','Signal2012ggM125p8')
+  for key in plotter.folderDict.keys():
+    plotter.RatioPlot(plotter.folderDict[key],['Signal2012ggM125p6','Signal2012ggM125NLOp8'],['p6 NLO','p8 NLO'])
     #plotter.RatioPlot(plotter.folderDict[key],['DATA','DYJets'],['DATA','DYJets'])
-  plotter.RatioPlot(plotter.folderDict['pvMult'],['DATA','DYJets'],['DATA','DYJets'])
+  #plotter.RatioPlot(plotter.folderDict['pvMult'],['DATA','DYJets'],['DATA','DYJets'])
 
 
 if __name__=="__main__":

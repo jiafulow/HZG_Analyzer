@@ -2,23 +2,30 @@
 import sys, os
 import subprocess
 
-def checkFiles(selection):
-  if selection == 'mumu':
-    proc = subprocess.Popen(["bash -c 'wc -l <(ls -1 ~/nobackup/BatchOutput/mumuGamma_Combined)'"],stdout=subprocess.PIPE, shell=True)
-    (out,err) = proc.communicate()
-    proc2 = subprocess.Popen(["bash -c 'wc -l <(ls -1 ~/nobackup/BatchOutput/mumuGamma_Combined/res)'"],stdout=subprocess.PIPE, shell=True)
-    (out2,err2) = proc2.communicate()
-  elif selection == 'ee':
-    proc = subprocess.Popen(["bash -c 'wc -l <(ls -1 ~/nobackup/BatchOutput/eeGamma_Combined)'"],stdout=subprocess.PIPE, shell=True)
-    (out,err) = proc.communicate()
-    proc2 = subprocess.Popen(["bash -c 'wc -l <(ls -1 ~/nobackup/BatchOutput/eeGamma_Combined/res)'"],stdout=subprocess.PIPE, shell=True)
-    (out2,err2) = proc2.communicate()
-  else: print 'choose ee or mumu'; return
-  num1 = int(out.rsplit(" ")[0])-1
-  num2 = int(out2.rsplit(" ")[0])
-  print num1/7, num2/3
-  if num1/7 == num2/3: print 'ALL JOBS FINISHED'
-  else: print "SOME JOBS HAVEN'T FUCKING FINISHED GODDAMNIT!"
+def checkFiles():
+  if not os.path.isfile(os.getenv('CMSSW_BASE')+'/src/HZG_Analyzer/HiggsZGAnalyzer/.checkfile.txt'):
+    print 'where is the .checkfile.txt?! you fucked something up, I aint checkin shit. fuck you.'
+    return
+  infile = open(os.getenv('CMSSW_BASE')+'/src/HZG_Analyzer/HiggsZGAnalyzer/.checkfile.txt','r')
+  for line in infile:
+    selectionList = line.split()
+    for dataType in selectionList[1:]:
+      if os.environ.get('AT_NWU') == None:
+        rootProc = subprocess.Popen(["bash -c 'wc -l <(ls -1 ~/nobackup/BatchOutput/{0}/{1})'".format(selectionList[0],dataType)],stdout=subprocess.PIPE, shell=True)
+        resProc  = subprocess.Popen(["bash -c 'wc -l <(ls -1 ~/nobackup/BatchOutput/{0}/{1}/res)'".format(selectionList[0],dataType)],stdout=subprocess.PIPE, shell=True)
+      else:
+        rootProc = subprocess.Popen(["bash -c 'wc -l <(ls -1 ~/BatchOutput/{0}/{1})'".format(selectionList[0],dataType)],stdout=subprocess.PIPE, shell=True)
+        resProc  = subprocess.Popen(["bash -c 'wc -l <(ls -1 ~/BatchOutput/{0}/{1}/res)'".format(selectionList[0],dataType)],stdout=subprocess.PIPE, shell=True)
+      rootOut  = rootProc.communicate()[0]
+      resOut   = resProc.communicate()[0]
+
+      num1 = int(rootOut.rsplit(" ")[0])-3
+      num2 = int(resOut.rsplit(" ")[0])
+      print
+      print selectionList[0], dataType
+      print ' ',num1/5,num2/3
+      if num1/5 == num2/3: print '  ALL JOBS FINISHED'
+      else: print "  SOME JOBS HAVEN'T FUCKING FINISHED GODDAMNIT!"
 
 
 
@@ -26,8 +33,4 @@ def checkFiles(selection):
 
 
 if __name__=="__main__":
-  if len(sys.argv)==2:
-    checkFiles(sys.argv[1])
-  else:
-    #answer = hadd()
-    print "You need 1 argument, asshole"
+  checkFiles()

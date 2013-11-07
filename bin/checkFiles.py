@@ -3,10 +3,10 @@ import sys, os
 import subprocess
 
 def checkFiles():
-  if not os.path.isfile('.checkfile.txt'):
+  if not os.path.isfile(os.getenv('CMSSW_BASE')+'/src/HZG_Analyzer/HiggsZGAnalyzer/.checkfile.txt'):
     print 'where is the .checkfile.txt?! you fucked something up, I aint checkin shit. fuck you.'
     return
-  infile = open('.checkfile.txt','r')
+  infile = open(os.getenv('CMSSW_BASE')+'/src/HZG_Analyzer/HiggsZGAnalyzer/.checkfile.txt','r')
   for line in infile:
     selectionList = line.split()
     for dataType in selectionList[1:]:
