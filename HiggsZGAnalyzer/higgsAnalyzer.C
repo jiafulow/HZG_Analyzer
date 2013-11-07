@@ -49,7 +49,6 @@ void higgsAnalyzer::Begin(TTree * tree)
   cuts.reset(new Cuts());
   cuts->InitEA(params->period);
   weighter.reset(new WeightUtils(*params, isRealData, runNumber));
-  cout<<"isRealData "<<isRealData<<endl;
   triggerSelector.reset(new TriggerSelector(params->selection, params->period, *triggerNames));
   rmcor2011.reset(new rochcor_2011(229));
   rmcor2012.reset(new rochcor2012(229));
@@ -72,7 +71,6 @@ void higgsAnalyzer::Begin(TTree * tree)
   histoFile.reset(new TFile(("higgsHistograms_"+params->dataname+"_"+params->selection+"_"+params->jobCount+".root").c_str(), "RECREATE"));
   trainingFile.reset(new TFile(("higgsTraining_"+params->dataname+"_"+params->selection+"_"+params->jobCount+".root").c_str(), "RECREATE"));
   sampleFile.reset(new TFile(("higgsSample_"+params->dataname+"_"+params->selection+"_"+params->jobCount+".root").c_str(), "RECREATE"));
-  higgsFile.reset(new TFile(("higgsFile_"+params->dataname+"_"+params->selection+"_"+params->jobCount+".root").c_str(), "RECREATE"));
   m_llgFile.reset(new TFile(("m_llgFile_"+params->dataname+"_"+params->selection+"_"+params->jobCount+".root").c_str(),"RECREATE"));
 
   trainingFile->cd();
@@ -85,8 +83,6 @@ void higgsAnalyzer::Begin(TTree * tree)
 
   initializeEfficiencyWeights( "otherHistos/elsf2011.root", "otherHistos/elsf2012.root");
 
-  higgsFile->cd();
-  hmHiggs.reset(new HistManager(higgsFile.get()));
   histoFile->cd();
   hm.reset(new HistManager(histoFile.get()));
   histoFile->mkdir("Misc", "Misc");
@@ -1354,18 +1350,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     hm->fill1DHist((ZP4+GP4).M(),"h1_InvariantMassCut_"+params->suffix,"Invariant Mass (H->Z#gamma);Mass (GeV);Entries",65,115,190,eventWeight,"ZGamma");
 
 
-    ///// OK Lets make some stoyan plots /////
-
-    hmHiggs->fill1DHist((ZP4+GP4).M(),"h1_InvariantMassRecoStoyan1GevFULLRANGE_"+params->suffix,"Invariant Mass (H->Z#gamma);Mass (GeV);Entries",90,90,190,eventWeight);
-    hmHiggs->fill1DHist((ZP4+GP4).M(),"h1_InvariantMassRecoStoyan1Gev_"+params->suffix,"Invariant Mass (H->Z#gamma);Mass (GeV);Entries",65,115,190,eventWeight);
-    hmHiggs->fill1DHist(R9, "h1_R9FullStoyan_"+params->suffix,"R9;R9;Entries",100,0,1,eventWeight);
-    hmHiggs->fill1DHist(R9Cor, "h1_R9CorFullStoyan_"+params->suffix,"R9 Corrected;R9;Entries",100,0,1,eventWeight);
-    if (genHZG.h) hmHiggs->fill1DHist(genHZG.h->M()-(ZP4+GP4).M(),"h1_genHiggsMassResFull_"+params->suffix, "Gen-Reco M_{ll#gamma} Full; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight);
-    
-
-
-
-
     m_llg = (GP4+ZP4).M();
 
     if (params->dumps){
@@ -1392,13 +1376,9 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       m_llgCAT3 = (GP4+ZP4).M();
     }
 
-    hmHiggs->fill1DHist((ZP4+GP4).M(),"h1_InvariantMassReco1GevCAT"+str(catNum)+"FULLRANGE_"+params->suffix,"Invariant Mass (H->Z#gamma);Mass (GeV);Entries",90,90,190,eventWeight);
-    if (genHZG.h) hmHiggs->fill1DHist(genHZG.h->M()-(ZP4+GP4).M(),"h1_genHiggsMassResCAT"+str(catNum)+"_"+params->suffix, "Gen-Reco M_{ll#gamma} CAT"+str(catNum)+"; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight);
     hm->fill1DHist((ZP4+GP4).M(),"h1_InvariantMassReco1GevCAT"+str(catNum)+"FULLRANGE_"+params->suffix,"Invariant Mass (H->Z#gamma);Mass (GeV);Entries",90,90,190,eventWeight);
     StandardPlots(lepton1,lepton2,GP4,eventWeight,"CAT"+str(catNum)+"", "CAT"+str(catNum)+"");
-    hmHiggs->fill1DHist(R9, "h1_R9CAT"+str(catNum)+"_"+params->suffix,"R9;R9;Entries",100,0,1,eventWeight);
     hm->fill1DHist(R9, "h1_R9CAT"+str(catNum)+"_"+params->suffix,"R9;R9;Entries",100,0,1,eventWeight);
-    hmHiggs->fill1DHist(R9Cor, "h1_R9CorCAT"+str(catNum)+"_"+params->suffix,"R9Cor;R9Cor;Entries",100,0,1,eventWeight);
     hm->fill1DHist(R9Cor, "h1_R9CorCAT"+str(catNum)+"_"+params->suffix,"R9Cor;R9Cor;Entries",100,0,1,eventWeight);
     hm->fill2DHist(lepton1.Eta(),lepton2.Eta(),"h2_dilepEtaCAT"+str(catNum)+"_"+params->suffix,"Dilepton Eta CAT"+str(catNum)+"; Eta (leading); Eta (trailing)", 50,-2.5,2.5,50,-2.5,2.5,eventWeight,"CAT"+str(catNum)+"");
     hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsMECAT"+str(catNum)+"_"+params->suffix,"Mass vs ME; m_{ll#gamma}; ME Disc", 90,100,190,90,0,0.2,eventWeight,"MEPlots");
@@ -1408,19 +1388,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     ++nEvents[60+catNum];
 
       
-
-    //High R9
-    if (R9Cor>0.94){
-      hmHiggs->fill1DHist((ZP4+GP4).M(),"h1_InvariantMassReco1GevHighR9FULLRANGE_"+params->suffix,"Invariant Mass (H->Z#gamma);Mass (GeV);Entries",90,90,190,eventWeight);
-      if (genHZG.h) hmHiggs->fill1DHist(genHZG.h->M()-(ZP4+GP4).M(),"h1_genHiggsMassResHighR9_"+params->suffix, "Gen-Reco M_{ll#gamma} HighR9; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight);
-      hmHiggs->fill1DHist(R9, "h1_R9HighR9_"+params->suffix,"R9;R9;Entries",100,0,1,eventWeight);
-      hmHiggs->fill1DHist(R9Cor, "h1_R9CorHighR9Cor_"+params->suffix,"R9Cor;R9Cor;Entries",100,0,1,eventWeight);
-    } else {
-      hmHiggs->fill1DHist((ZP4+GP4).M(),"h1_InvariantMassReco1GevLowR9FULLRANGE_"+params->suffix,"Invariant Mass (H->Z#gamma);Mass (GeV);Entries",90,90,190,eventWeight);
-      if (genHZG.h) hmHiggs->fill1DHist(genHZG.h->M()-(ZP4+GP4).M(),"h1_genHiggsMassResLowR9_"+params->suffix, "Gen-Reco M_{ll#gamma} LowR9; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight);
-      hmHiggs->fill1DHist(R9, "h1_R9LowR9_"+params->suffix,"R9;R9;Entries",100,0,1,eventWeight);
-      hmHiggs->fill1DHist(R9Cor, "h1_R9CorLowR9Cor_"+params->suffix,"R9Cor;R9Cor;Entries",100,0,1,eventWeight);
-    }
 
     if (params->dataDumps && isRealData){
       dumper->DataDumper(lepton1, lepton2, GP4, R9Cor, GP4scEta, SCetaEl1,SCetaEl2);
@@ -1625,12 +1592,10 @@ void higgsAnalyzer::Terminate()
   trainingFile->Write();
   sampleFile->Write();
   histoFile->Write();
-  higgsFile->Write();
   m_llgFile->Write();
   trainingFile->Close();
   sampleFile->Close();
   histoFile->Close();  
-  higgsFile->Close();
   m_llgFile->Close();
 
   dumper->CloseDumps();
@@ -1751,7 +1716,6 @@ void higgsAnalyzer::GenPlots(vector<TCGenParticle> Zs, vector<TCGenParticle> lep
   }
   if (Hs.size()>0){
     //cout<<"yarp there's some Zs"<<endl;
-    hmHiggs->fill1DHist(Hs[0].M(),"h1_genHMass_"+params->suffix, "GEN M_{H}; M_{H};N_{evts}", 90, 90., 190., eventWeight);     
     hm->fill1DHist(Hs[0].M(),"h1_genHMass_"+params->suffix, "GEN M_{H}; M_{H};N_{evts}", 90, 90., 190., eventWeight,"GenLvl");     
     hm->fill1DHist(Hs[0].Pt(),"h1_genHQt_"+params->suffix, "H p_{T};Q_{T};N_{evts}", 50, 0., 500., eventWeight,"GenLvl");       
   }

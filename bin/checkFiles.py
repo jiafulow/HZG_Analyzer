@@ -23,8 +23,8 @@ def checkFiles():
       num2 = int(resOut.rsplit(" ")[0])
       print
       print selectionList[0], dataType
-      print ' ',num1/5,num2/3
-      if num1/5 == num2/3: print '  ALL JOBS FINISHED'
+      print ' ',num1/4,num2/3
+      if num1/4 == num2/3: print '  ALL JOBS FINISHED'
       else: print "  SOME JOBS HAVEN'T FUCKING FINISHED GODDAMNIT!"
 
 

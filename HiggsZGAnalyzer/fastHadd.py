@@ -24,12 +24,16 @@ def fastHadd():
       leptonB = 'eeGamma'
     tag = sys.argv[1]
 
-    os.system('./hadd.py ForStoyan/higgsHistograms_'+leptonA+year+'_Limits_'+tag+'.root '+leptonB+' File {0}'.format(' '.join(selectionList[1:])))
     if os.environ.get('AT_NWU') == None:
       os.system('./hadd.py ~/afsHome/public/m_llgFile_'+leptonA+year+'_'+tag+'.root '+leptonB+' m_llgFile {0}'.format(' '.join(selectionList[1:])))
     else:
+      if not os.path.isdir('massTrees'): os.mkdir('massTrees')
       os.system('./hadd.py massTrees/m_llgFile_'+leptonA+year+'_'+tag+'.root '+leptonB+' m_llgFile {0}'.format(' '.join(selectionList[1:])))
+    if not os.path.isdir('batchHistos'): os.mkdir('batchHistos')
     os.system('./hadd.py batchHistos/higgsHistograms_'+leptonA+year+'_'+tag+'.root '+leptonB+' Histograms {0}'.format(' '.join(selectionList[1:])))
+    if not os.path.isdir('mvaFiles'): os.mkdir('mvaFiles')
+    os.system('./hadd.py mvaFiles/higgsTraining_'+leptonA+year+'_'+tag+'.root '+leptonB+' Training {0}'.format(' '.join(selectionList[1:])))
+    os.system('./hadd.py mvaFiles/higgsSample_'+leptonA+year+'_'+tag+'.root '+leptonB+' Sample {0}'.format(' '.join(selectionList[1:])))
 
   dataDumpList = glob.glob('dumps/dataDump*.txt')
   if len(dataDumpList) >0:
