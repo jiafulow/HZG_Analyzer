@@ -74,9 +74,9 @@ void higgsAnalyzer::Begin(TTree * tree)
   m_llgFile.reset(new TFile(("m_llgFile_"+params->dataname+"_"+params->selection+"_"+params->jobCount+".root").c_str(),"RECREATE"));
 
   trainingFile->cd();
-  trainingChain = new TTree("varMVA","hey everyone it's the training tree");
+  trainingChain = new TTree("varMVA","for training the MVA");
   sampleFile->cd();
-  sampleChain.reset(new TTree("varMVA","ZOMG the sample tree!"));
+  sampleChain.reset(new TTree("varMVA","for testing the MVA"));
 
   m_llgFile->cd();
   m_llgChain.reset(new TTree("m_llg_SUFFIX","three body mass values"));
