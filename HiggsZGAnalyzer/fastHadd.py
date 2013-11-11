@@ -33,9 +33,11 @@ def fastHadd():
     os.system('./hadd.py batchHistos/higgsHistograms_'+leptonA+year+'_'+tag+'.root '+leptonB+' Histograms {0}'.format(' '.join(selectionList[1:])))
     if not os.path.isdir('mvaFiles'): os.mkdir('mvaFiles')
     if 'ggHZG_M125_pythia8_LO' in selectionList:
-      os.system('./hadd.py mvaFiles/higgsTraining_'+leptonA+year+'_'+tag+'_signal.root '+leptonB+' Training {0}'.format(' '.join('ggHZG_M125_pythia8_LO')))
-      os.system('./hadd.py mvaFiles/higgsSample_'+leptonA+year+'_'+tag+'_signal.root '+leptonB+' Sample {0}'.format(' '.join('ggHZG_M125_pythia8_LO')))
+      print 'signal mva'
+      os.system('./hadd.py mvaFiles/higgsTraining_'+leptonA+year+'_'+tag+'_signal.root '+leptonB+' Training {0}'.format(' '.join(['ggHZG_M125_pythia8_LO'])))
+      os.system('./hadd.py mvaFiles/higgsSample_'+leptonA+year+'_'+tag+'_signal.root '+leptonB+' Sample {0}'.format(' '.join(['ggHZG_M125_pythia8_LO'])))
     if [bg for bg in ['DYJets','ZGToLLG'] if bg in selectionList]:
+      print 'bg mva'
       bgList = filter(lambda bg: bg in ['DYJets','ZGToLLG'],selectionList)
       os.system('./hadd.py mvaFiles/higgsTraining_'+leptonA+year+'_'+tag+'_bg.root '+leptonB+' Training {0}'.format(' '.join(bgList)))
       os.system('./hadd.py mvaFiles/higgsSample_'+leptonA+year+'_'+tag+'_bg.root '+leptonB+' Sample {0}'.format(' '.join(bgList)))
