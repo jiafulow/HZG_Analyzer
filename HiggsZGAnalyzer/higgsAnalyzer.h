@@ -279,13 +279,13 @@ class higgsAnalyzer : public TSelector {
     } mvaInits;
 
     struct mvaVarStruct{
-      Float_t _medisc;
-      Float_t _smallTheta;
-      Float_t _bigTheta;
-      Float_t _comPhi;
+      float _medisc;
+      float _smallTheta;
+      float _bigTheta;
+      float _comPhi;
     } mvaVars; 
 
-    virtual TMVA::Reader*   MVAInitializer(mvaVarStruct vars, mvaInitStruct inits);
+    virtual TMVA::Reader*   MVAInitializer();
     virtual void MVACalculator (mvaInitStruct inits, TMVA::Reader* _tmvaReader, const TLorentzVector& HP4, float evtWeight);
 
 

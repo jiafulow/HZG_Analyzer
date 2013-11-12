@@ -184,7 +184,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   mvaInits.mvaHiggsMassPoint[0] = 125;
 
   mvaInits.bdtCut[0] = -0.1;
-  if (params->doAnglesMVA) tmvaReader = MVAInitializer(mvaVars, mvaInits);
+  if (params->doAnglesMVA) tmvaReader = MVAInitializer();
 
   //ElectronMVA Selection
 
@@ -2052,30 +2052,31 @@ void higgsAnalyzer::LumiXSWeight(double * _LumiXSWeight){
   }
 }
 
-TMVA::Reader* higgsAnalyzer::MVAInitializer(mvaVarStruct vars, mvaInitStruct inits){
+TMVA::Reader* higgsAnalyzer::MVAInitializer(){
   // -----------------  MVA stuff -----------------------------------------------------------
   tmvaReader = new TMVA::Reader("!Color:!Silent");
 
-  //add  variables... some are exclusive to particular sample/jet multi discriminators
-  tmvaReader->AddVariable("medisc", &(vars._medisc));
-  tmvaReader->AddVariable("smallTheta", &(vars._smallTheta));
-  tmvaReader->AddVariable("bigTheta", &(vars._bigTheta));
-  tmvaReader->AddVariable("comPhi", &(vars._comPhi));
+  //add  variables... some are exclusive to particular sample/jet multi discriminator
+  
+  tmvaReader->AddVariable("medisc", &(mvaVars._medisc));
+  tmvaReader->AddVariable("smallTheta", &(mvaVars._smallTheta));
+  tmvaReader->AddVariable("bigTheta", &(mvaVars._bigTheta));
+  tmvaReader->AddVariable("comPhi", &(mvaVars._comPhi));
 
   // Book the methods
   // for testing we will set only the BDT and hotwire this loop
 
   int discr = BDTG;
+  //int discr = BDT;
   //int discr = MLPBNN;
 
   for (int mh = 0; mh < 1; ++mh) {
 
-    TString label = TString::Format("%s_%s_ggM%i", inits.discrMethodName[discr].Data(), inits.discrSampleName.Data(),
-        inits.mvaHiggsMassPoint[mh]);
+    TString label = TString::Format("%s_%s_ggM%i", mvaInits.discrMethodName[discr].Data(), mvaInits.discrSampleName.Data(),
+        mvaInits.mvaHiggsMassPoint[mh]);
 
-    //discr_MVA_ZJets_MVA_HZG125___BDTG.weights.xml
     TString weightFile = TString::Format("%sdiscr_%s_ggM%i___%s.weights.xml",
-        inits.weightsDir.Data(), inits.discrSampleName.Data(), inits.mvaHiggsMassPoint[mh], inits.discrMethodName[discr].Data());
+        mvaInits.weightsDir.Data(), mvaInits.discrSampleName.Data(), mvaInits.mvaHiggsMassPoint[mh], mvaInits.discrMethodName[discr].Data());
 
     tmvaReader->BookMVA(label.Data(), weightFile.Data());
     
@@ -2105,6 +2106,7 @@ void higgsAnalyzer::MVACalculator (mvaInitStruct inits, TMVA::Reader* _tmvaReade
   Float_t tmvaValue[3][1] = {{-999}};
 
   int discr = BDTG; // use only this one for now
+  //int discr = BDT; // use only this one for now
   //int discr = MLPBNN; // use only this one for now
 
   for (int mh = 0; mh<1; ++mh) {
