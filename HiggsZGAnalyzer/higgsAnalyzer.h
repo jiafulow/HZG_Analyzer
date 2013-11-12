@@ -276,20 +276,14 @@ class higgsAnalyzer : public TSelector {
     } mvaInits;
 
     struct mvaVarStruct{
-      Float_t _diffZGvector;
-      Float_t _threeBodyPt;
-      Float_t _GPt;
-      Float_t _cosZ;
-      Float_t _diffPlaneMVA;
-      Float_t _vtxVariable;
-      Float_t _threeBodyMass;
-      Float_t _dr1;
-      Float_t _dr2;
-      Float_t _M12;
+      Float_t _medisc;
+      Float_t _smallTheta;
+      Float_t _bigTheta;
+      Float_t _comPhi;
     } mvaVars; 
 
     virtual TMVA::Reader*   MVAInitializer(mvaVarStruct vars, mvaInitStruct inits);
-    virtual void MVACalulator (mvaVarStruct vars, mvaInitStruct inits, TMVA::Reader* _tmvaReader);
+    virtual void MVACalculator (mvaInitStruct inits, TMVA::Reader* _tmvaReader);
 
 
 
@@ -354,24 +348,6 @@ void higgsAnalyzer::Init(TTree *tree)
 	fChain->SetBranchAddress("hltPrescale",&hltPrescale, &b_hltPrescale);
 
 
-  ///////////////////////
-  // ZGAngles MVA init //
-  ///////////////////////
-
-  // TMVA weights directory
-  mvaInits.weightsDir = "/uscms_data/d2/bpollack/CMSSW_4_4_2/src/MVACodes/mvaExamples_brian/weights/";
-
-  // here we will use only BDTG... but will keep the structure 
-  mvaInits.discrMethodName[0] = "MLPBNN";
-  mvaInits.discrMethodName[1] = "BDTG";
-  mvaInits.discrMethodName[2] = "BDT";
-
-  mvaInits.discrSampleName = "MVA_ZJets";
-
-
-  mvaInits.mvaHiggsMassPoint[0] = 125;
-
-  mvaInits.bdtCut[0] = 0.75;
 
 }
 

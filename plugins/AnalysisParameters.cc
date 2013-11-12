@@ -18,7 +18,7 @@ Parameters::Parameters():
   R9switch(false),
   doEleMVA(true),
   doLooseMuIso(true),
-  doAnglesMVA(false),
+  doAnglesMVA(true),
   doPhotonPurityStudy(false),
 
   dumps(false),
