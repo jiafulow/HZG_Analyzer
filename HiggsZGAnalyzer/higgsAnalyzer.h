@@ -122,6 +122,9 @@ class higgsAnalyzer : public TSelector {
 
     auto_ptr<TEvtProb> Xcal2;
 
+    //category stuff
+    int catNum;
+
   public :
     TTree          *fChain;   //!pointer to the analyzed TTree or TChain
     auto_ptr<TTree> sampleChain; 
@@ -209,7 +212,7 @@ class higgsAnalyzer : public TSelector {
     int          nEvents[100];
     int          genAccept[2];
 
-		higgsAnalyzer(TTree * /*tree*/ =0): fChain(0){ }
+		higgsAnalyzer(TTree * /*tree*/ =0): catNum(-1),fChain(0){ }
 		virtual ~higgsAnalyzer() {}
 		virtual int     Version() const { return 2; }
 		virtual void    Begin(TTree *tree);
@@ -283,7 +286,7 @@ class higgsAnalyzer : public TSelector {
     } mvaVars; 
 
     virtual TMVA::Reader*   MVAInitializer(mvaVarStruct vars, mvaInitStruct inits);
-    virtual void MVACalculator (mvaInitStruct inits, TMVA::Reader* _tmvaReader);
+    virtual void MVACalculator (mvaInitStruct inits, TMVA::Reader* _tmvaReader, const TLorentzVector& HP4, float evtWeight);
 
 
 

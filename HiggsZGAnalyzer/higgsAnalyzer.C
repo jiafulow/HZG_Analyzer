@@ -109,6 +109,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   histoFile->mkdir("ZGAngles_RECO", "ZGAngles_RECO");
   histoFile->mkdir("PhotonPurity", "PhotonPurity");
   histoFile->mkdir("MEPlots", "MEPlots");
+  histoFile->mkdir("MVAPlots", "MVAPlots");
   //histoFile->mkdir("FakeRateWeight", "FakeRateWeight");
 
   diffZGscalar = diffZGvector = threeBodyMass = threeBodyPt = divPt = cosZ = cosG = METdivQt = GPt = ZPt = DPhi = diffPlaneMVA = vtxVariable = dr1 = dr2 = M12 = medisc = smallTheta = bigTheta = comPhi = scaleFactor = -99999;
@@ -170,8 +171,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   ///////////////////////
 
   // TMVA weights directory
-  string cmsbase(getenv("CMSSW_BASE"));
-  mvaInits.weightsDir = cmsbase+"/src/HZG_Analyzer/mva/testWeights/";
+  mvaInits.weightsDir = "../mva/testWeights/";
 
   // here we will use only BDTG... but will keep the structure 
   mvaInits.discrMethodName[0] = "MLPBNN";
@@ -1263,7 +1263,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   }else if (params->selection == "eeGamma"){
     goodLep = (fabs(SCetaEl1) < 1.4442 && fabs(SCetaEl2) < 1.4442);
   }
-  int catNum = -1;
   // If lep1 or lep2 is in 0.9 and both are in 2.1 //
   if (isVBF){
     catNum = 5;
@@ -1549,7 +1548,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   mvaVars._smallTheta = smallTheta;
   mvaVars._bigTheta = bigTheta;
   mvaVars._comPhi = comPhi;
-  if (params->doAnglesMVA) MVACalculator(mvaInits, tmvaReader);
+  if (params->doAnglesMVA) MVACalculator(mvaInits, tmvaReader, GP4+ZP4, eventWeight);
 
   if (nEvents[0]%2 == 0){
     trainingChain->Fill();
@@ -2066,7 +2065,7 @@ TMVA::Reader* higgsAnalyzer::MVAInitializer(mvaVarStruct vars, mvaInitStruct ini
   // Book the methods
   // for testing we will set only the BDT and hotwire this loop
 
-  int discr = BDT;
+  int discr = BDTG;
   //int discr = MLPBNN;
 
   for (int mh = 0; mh < 1; ++mh) {
@@ -2086,7 +2085,7 @@ TMVA::Reader* higgsAnalyzer::MVAInitializer(mvaVarStruct vars, mvaInitStruct ini
   // ------------------ End of MVA stuff --------------------------------------------------------------------------
 }
 
-void higgsAnalyzer::MVACalculator (mvaInitStruct inits, TMVA::Reader* _tmvaReader){
+void higgsAnalyzer::MVACalculator (mvaInitStruct inits, TMVA::Reader* _tmvaReader, const TLorentzVector& HP4, float eventWeight){
 
   // -------------------------- MVA stuff -------------------------------------------
   // the sequence of cuts is a bit different for the pre-selection
@@ -2103,9 +2102,9 @@ void higgsAnalyzer::MVACalculator (mvaInitStruct inits, TMVA::Reader* _tmvaReade
 
 
   //                    [mva method][higgs mass point]
-  Float_t tmvaValue[3][1] = {{0.0}};
+  Float_t tmvaValue[3][1] = {{-999}};
 
-  int discr = BDT; // use only this one for now
+  int discr = BDTG; // use only this one for now
   //int discr = MLPBNN; // use only this one for now
 
   for (int mh = 0; mh<1; ++mh) {
@@ -2117,8 +2116,9 @@ void higgsAnalyzer::MVACalculator (mvaInitStruct inits, TMVA::Reader* _tmvaReade
     if (tmvaValue[discr][mh] > inits.bdtCut[mh]) passBdtCut[mh] = kTRUE;
     passAllBdtCuts[mh] = (passAllBdtCuts[mh] && passBdtCut[mh]);
 
+    hm->fill2DHist(HP4.M(),tmvaValue[discr][mh],"h2_MassVsMVACAT"+str(catNum)+"_"+params->suffix,"Mass vs MVA output (BTDG); m_{ll#gamma}; MVA Disc", 90,100,190,90,-1,1,eventWeight,"MVAPlots");
+    hm->fill2DHist(HP4.M(),tmvaValue[discr][mh],"h2_MassVsMVA_"+params->suffix,"Mass vs MVA output (BTDG); m_{ll#gamma}; MVA Disc", 90,100,190,90,-1,1,eventWeight,"MVAPlots");
   }
-
 
 
   // here we can count events, fill histograms etc

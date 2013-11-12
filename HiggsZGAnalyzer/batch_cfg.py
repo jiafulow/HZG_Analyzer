@@ -9,14 +9,14 @@ t3storage   = '/tthome/bpollack/storage/'
 outputPathFNAL  = '/uscms/home/bpollack/nobackup/BatchOutput'
 outputPathNWU  = '/tthome/bpollack/BatchOutput'
 
-os.system('tar -zcvf stageball.tar.gz higgsAnalyzer* ../src  otherHistos ../plugins ../interface ../hzgammaME')
+os.system('tar -zcvf stageball.tar.gz higgsAnalyzer* ../src  otherHistos ../plugins ../interface ../hzgammaME ../mva/testWeights')
 configs = []
 
 #different pathnames and executables for NWU or FNAL
 if os.environ.get('AT_NWU') == None:
   configs.append(b.JobConfig('ggHZG_M125_pythia8_153', EOS+'/V08_01_8TeV/ggH_M125_p8153_crab', 5, 'Signal2012ggM125v153p8 ABCD mumuGamma 2012','mumuGamma'))
   configs.append(b.JobConfig('ggHZG_M125_pythia8_NLO', EOS+'/V08_01_8TeV/ggH_M125_p8175_crab', 5, 'Signal2012ggM125NLOp8 ABCD mumuGamma 2012','mumuGamma'))
-  configs.append(b.JobConfig('ggHZG_M125_pythia8_LO', EOS+'/V08_01_8TeV/ggHZG_M125_Pythia8_175_LO', 5, 'Signal2012ggM125LOp8 ABCD mumuGamma 2012','mumuGamma'))
+  configs.append(b.JobConfig('ggHZG_M125_pythia8_LO', EOS+'/V08_01_8TeV/ggHZG_M125_Pythia8_175_LO', 5, 'Signal2012ggM125p8 ABCD mumuGamma 2012','mumuGamma'))
   configs.append(b.JobConfig('ggHZG_M125_pythia6', dCache+'/V08_01_8TeV/ggH_M125_p6', 5, 'Signal2012ggM125p6 ABCD mumuGamma 2012','mumuGamma'))
 
   configs.append(b.JobConfig('Run2012A', dCache+'/V08_01_8TeV/DoubleMu/Run2012A', 50, 'DATA ABCD mumuGamma 2012','mumuGamma'))

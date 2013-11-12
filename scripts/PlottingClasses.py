@@ -476,11 +476,11 @@ class Plotter:
       return
     if sigWindow:
       self.myCut = TCutG('mycut',5)
-      self.myCut.SetPoint(0,sigWindow-4,-1)
-      self.myCut.SetPoint(1,sigWindow-4,1)
-      self.myCut.SetPoint(2,sigWindow+4,1)
-      self.myCut.SetPoint(3,sigWindow+4,-1)
-      self.myCut.SetPoint(4,sigWindow-4,-1)
+      self.myCut.SetPoint(0,sigWindow-4,-2)
+      self.myCut.SetPoint(1,sigWindow-4,2)
+      self.myCut.SetPoint(2,sigWindow+4,2)
+      self.myCut.SetPoint(3,sigWindow+4,-2)
+      self.myCut.SetPoint(4,sigWindow-4,-2)
 
 
     dataHistM,dataHistD = self.GetDataHistsMD(histList,sigWindow)
