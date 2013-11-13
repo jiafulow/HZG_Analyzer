@@ -187,7 +187,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   mvaInits.discrMethodName[2] = "BDT";
 
   mvaInits.discrSampleName = "allBG";
-  mvaInits.discrSuffixName = "comAndPtsAndME";
+  mvaInits.discrSuffixName = "comAndPts";
 
 
   mvaInits.mvaHiggsMassPoint[0] = 125;
@@ -1262,9 +1262,9 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   hm->fill1DHist(23,"h1_acceptanceByCutRaw_"+params->suffix, "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
   ++nEvents[22];
 
-  /////////////
-  // ME Disc //
-  /////////////
+  /////////////////////
+  // ME and MVA Disc //
+  /////////////////////
 
   bool goodLep = false;
   if (params->selection == "mumuGamma"){
@@ -1300,8 +1300,83 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     if (MEdisc < 0.029) return kTRUE;
   }
   */
+
+  ZGLabVectors recoLevelInputs;
+  ZGAngles     recoLevelOutputs;
+
+
+  recoLevelInputs.veczg = lepton1+lepton2+GP4;
+  recoLevelInputs.vecz = lepton1+lepton2;
+  recoLevelInputs.vecg = GP4;
+
+  if (lepton1.Charge() == 1){
+    recoLevelInputs.veclp = lepton1;
+    recoLevelInputs.veclm = lepton2;
+  }else{
+    recoLevelInputs.veclp = lepton2;
+    recoLevelInputs.veclm = lepton1;
+  }
+
+  getZGAngles(recoLevelInputs,recoLevelOutputs, false);
+
+
+  // MVA Variables
+
+  diffZGscalar    = ZP4.Pt()-GP4.Pt();
+  diffZGvector    = (ZP4-GP4).Pt();
+  threeBodyMass   = (ZP4+GP4).M();
+  threeBodyPt     = (ZP4+GP4).Pt();
+  divPt           = ZP4.Pt()/GP4.Pt();
+  GPt             = GP4.Pt();
+  ZPt             = ZP4.Pt();
+  DPhi            = fabs(ZP4.DeltaPhi(GP4));
+  dr1             = lepton1.DeltaR(GP4);
+  dr2             = lepton2.DeltaR(GP4);
+  M12             = CalculateM12sqrd(ZP4,GP4);
+  medisc          = MEdisc;
+  smallTheta      = recoLevelOutputs.costheta_lp;
+  bigTheta        = recoLevelOutputs.cosTheta;
+  comPhi          = recoLevelOutputs.phi;
+  GPtOM           = GP4.Pt()/(ZP4+GP4).M();
+  diffZGvectorOM  = (ZP4-GP4).Pt()/(ZP4+GP4).M();
+  threeBodyPtOM   = (ZP4+GP4).Pt()/(ZP4+GP4).M();
+  ZPtOM           = ZP4.Pt()/(ZP4+GP4).M();
+  scaleFactor     = eventWeight;
+  if (params->suffix.find("ggM125") != string::npos) scaleFactor *= 19.672/(unskimmedEventsTotal/(19.52*0.00154*0.10098*1000));
+  if (params->suffix == "DYJets") scaleFactor *= 19.672/(unskimmedEventsTotal/(3503.71*1000));
+  if (params->suffix == "ZGToLLG") scaleFactor *= 19.672/(unskimmedEventsTotal/(156.2*1000)); 
+  //if (params->suffix == "ZGEE") scaleFactor *= 4.98/7.11;
+  //if (params->suffix == "ZZJets") scaleFactor *= 4.98/6175;
+  //if (params->suffix == "WZJets") scaleFactor *= 4.98/1426.5;
+  //if (params->suffix == "WWJets") scaleFactor *= 4.98/250.4;
+
+  mvaVars._medisc = medisc;
+  mvaVars._smallTheta = smallTheta;
+  mvaVars._bigTheta = bigTheta;
+  mvaVars._comPhi = comPhi;
+  mvaVars._GPtOM = GPtOM;
+  mvaVars._diffZGvectorOM = diffZGvectorOM;
+  mvaVars._threeBodyPtOM = threeBodyPtOM;
+  mvaVars._ZPtOM = ZPtOM;
+  if (params->doAnglesMVA){
+    float mvaVal = MVACalculator(mvaInits, tmvaReader);
+    if (catNum ==1){
+      if (mvaVal < 0.022) return kTRUE;
+    }else if (catNum==2){
+      if (mvaVal < -0.067) return kTRUE;
+    }else if (catNum==3){
+      if (mvaVal < -0.36) return kTRUE;
+    }else if (catNum==4){
+      if (mvaVal < -0.089) return kTRUE;
+    }
+    hm->fill2DHist((GP4+ZP4).M(),mvaVal,"h2_MassVsMVACAT"+str(catNum)+"_"+params->suffix,"Mass vs MVA output (BTDG); m_{ll#gamma}; MVA Disc", 90,100,190,90,-1,1,eventWeight,"MVAPlots");
+    hm->fill2DHist((GP4+ZP4).M(),mvaVal,"h2_MassVsMVA_"+params->suffix,"Mass vs MVA output (BTDG); m_{ll#gamma}; MVA Disc", 90,100,190,90,-1,1,eventWeight,"MVAPlots");
+  }
+
+
   hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsME_"+params->suffix,"Mass vs ME; m_{ll#gamma}; ME Disc", 90,100,190,90,0,0.2,eventWeight,"MEPlots");
   hm->fill1DHist(MEdisc,"h1_ME_"+params->suffix,"ME Disc;ME Disc;Entries", 45,0,0.2,eventWeight,"MEPlots");
+
   hm->fill1DHist(24,"h1_acceptanceByCut_"+params->suffix, "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");
   hm->fill1DHist(24,"h1_acceptanceByCutRaw_"+params->suffix, "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
   ++nEvents[23];
@@ -1499,24 +1574,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   // misc //
   //////////
   
-
-  ZGLabVectors recoLevelInputs;
-  ZGAngles     recoLevelOutputs;
-
-
-  recoLevelInputs.veczg = lepton1+lepton2+GP4;
-  recoLevelInputs.vecz = lepton1+lepton2;
-  recoLevelInputs.vecg = GP4;
-
-  if (lepton1.Charge() == 1){
-    recoLevelInputs.veclp = lepton1;
-    recoLevelInputs.veclm = lepton2;
-  }else{
-    recoLevelInputs.veclp = lepton2;
-    recoLevelInputs.veclm = lepton1;
-  }
-
-  getZGAngles(recoLevelInputs,recoLevelOutputs, false);
   AnglePlots(recoLevelOutputs,eventWeight,"ZGAngles_RECO","RECO");
 
   hm->fill1DHist(eventWeight,"h1_eventWeight_"+params->suffix, "event weight", 100, 0., 2.,1,"Misc");
@@ -1527,45 +1584,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     hm->fillProfile(runNumber,primaryVtx->GetSize(),"p1_nVtcs", "Average number of vertices per run; Run Number; nVertices", 8700.0, 135000.0, 144200.0, 0.0, 6.0, 1,"Misc");
   }
 
-  // MVA Variables
-
-  diffZGscalar    = ZP4.Pt()-GP4.Pt();
-  diffZGvector    = (ZP4-GP4).Pt();
-  threeBodyMass   = (ZP4+GP4).M();
-  threeBodyPt     = (ZP4+GP4).Pt();
-  divPt           = ZP4.Pt()/GP4.Pt();
-  GPt             = GP4.Pt();
-  ZPt             = ZP4.Pt();
-  DPhi            = fabs(ZP4.DeltaPhi(GP4));
-  dr1             = lepton1.DeltaR(GP4);
-  dr2             = lepton2.DeltaR(GP4);
-  M12             = CalculateM12sqrd(ZP4,GP4);
-  medisc          = MEdisc;
-  smallTheta      = recoLevelOutputs.costheta_lp;
-  bigTheta        = recoLevelOutputs.cosTheta;
-  comPhi          = recoLevelOutputs.phi;
-  GPtOM           = GP4.Pt()/(ZP4+GP4).M();
-  diffZGvectorOM  = (ZP4-GP4).Pt()/(ZP4+GP4).M();
-  threeBodyPtOM   = (ZP4+GP4).Pt()/(ZP4+GP4).M();
-  ZPtOM           = ZP4.Pt()/(ZP4+GP4).M();
-  scaleFactor     = eventWeight;
-  if (params->suffix.find("ggM125") != string::npos) scaleFactor *= 19.672/(unskimmedEventsTotal/(19.52*0.00154*0.10098*1000));
-  if (params->suffix == "DYJets") scaleFactor *= 19.672/(unskimmedEventsTotal/(3503.71*1000));
-  if (params->suffix == "ZGToLLG") scaleFactor *= 19.672/(unskimmedEventsTotal/(156.2*1000)); 
-  //if (params->suffix == "ZGEE") scaleFactor *= 4.98/7.11;
-  //if (params->suffix == "ZZJets") scaleFactor *= 4.98/6175;
-  //if (params->suffix == "WZJets") scaleFactor *= 4.98/1426.5;
-  //if (params->suffix == "WWJets") scaleFactor *= 4.98/250.4;
-
-  mvaVars._medisc = medisc;
-  mvaVars._smallTheta = smallTheta;
-  mvaVars._bigTheta = bigTheta;
-  mvaVars._comPhi = comPhi;
-  mvaVars._GPtOM = GPtOM;
-  mvaVars._diffZGvectorOM = diffZGvectorOM;
-  mvaVars._threeBodyPtOM = threeBodyPtOM;
-  mvaVars._ZPtOM = ZPtOM;
-  if (params->doAnglesMVA) MVACalculator(mvaInits, tmvaReader, GP4+ZP4, eventWeight);
 
   if (nEvents[0]%2 == 0){
     trainingChain->Fill();
@@ -1716,7 +1734,7 @@ void higgsAnalyzer::StandardPlots(TLorentzVector p1, TLorentzVector p2, TLorentz
   hm->fill1DHist(threeBody.Pt(),"h1_threeBodyPt"+tag+"_"+params->suffix, "p_{T} 3body;p_{T};N_{evts}", 20, 0., 100., eventWeight,folder);     
   hm->fill1DHist(threeBody.Eta(),"h1_threeBodyEta"+tag+"_"+params->suffix, "#eta 3body;#eta;N_{evts}", 18, -2.5, 2.5, eventWeight,folder);    
   hm->fill1DHist(threeBody.Phi(),"h1_threeBodyPhi"+tag+"_"+params->suffix, "#phi 3body;#phi;N_{evts}", 18, -TMath::Pi(), TMath::Pi(), eventWeight,folder);    
-  hm->fill1DHist(threeBody.M(),"h1_threeBodyMass"+tag+"_"+params->suffix, "M_{3body};M (GeV);N_{evts}", 75, 50, 200, eventWeight,folder);    
+  hm->fill1DHist(threeBody.M(),"h1_threeBodyMass"+tag+"_"+params->suffix, "M_{3body};M (GeV);N_{evts}", 50, 100, 200, eventWeight,folder);    
 
 
   hm->fill1DHist(primaryVtx->GetSize(),"h1_pvMultCopy"+tag+"_"+params->suffix, "Multiplicity of PVs;N_{PV};N_{evts}", 25, 0.5, 25.5, eventWeight, folder);
@@ -2075,7 +2093,7 @@ TMVA::Reader* higgsAnalyzer::MVAInitializer(){
 
   //add  variables... some are exclusive to particular sample/jet multi discriminator
   
-  tmvaReader->AddVariable("medisc", &(mvaVars._medisc));
+  //tmvaReader->AddVariable("medisc", &(mvaVars._medisc));
   tmvaReader->AddVariable("smallTheta", &(mvaVars._smallTheta));
   tmvaReader->AddVariable("bigTheta", &(mvaVars._bigTheta));
   tmvaReader->AddVariable("comPhi", &(mvaVars._comPhi));
@@ -2107,7 +2125,7 @@ TMVA::Reader* higgsAnalyzer::MVAInitializer(){
   // ------------------ End of MVA stuff --------------------------------------------------------------------------
 }
 
-void higgsAnalyzer::MVACalculator (mvaInitStruct inits, TMVA::Reader* _tmvaReader, const TLorentzVector& HP4, float eventWeight){
+float higgsAnalyzer::MVACalculator (mvaInitStruct inits, TMVA::Reader* _tmvaReader){
 
   // -------------------------- MVA stuff -------------------------------------------
   // the sequence of cuts is a bit different for the pre-selection
@@ -2124,38 +2142,18 @@ void higgsAnalyzer::MVACalculator (mvaInitStruct inits, TMVA::Reader* _tmvaReade
 
 
   //                    [mva method][higgs mass point]
-  Float_t tmvaValue[3][1] = {{-999}};
+  Float_t tmvaValue[3] = {-999};
 
   int discr = BDTG; // use only this one for now
   //int discr = BDT; // use only this one for now
   //int discr = MLPBNN; // use only this one for now
 
-  for (int mh = 0; mh<1; ++mh) {
 
-    TString label = TString::Format("%s_%s_ggM%i_%s", inits.discrMethodName[discr].Data(), inits.discrSampleName.Data(),
-        inits.mvaHiggsMassPoint[mh], inits.discrSuffixName.Data());
-    tmvaValue[discr][mh] = _tmvaReader->EvaluateMVA(label.Data());
+  TString label = TString::Format("%s_%s_ggM%i_%s", inits.discrMethodName[discr].Data(), inits.discrSampleName.Data(),
+      inits.mvaHiggsMassPoint[0], inits.discrSuffixName.Data());
+  tmvaValue[discr] = _tmvaReader->EvaluateMVA(label.Data());
+  return tmvaValue[discr];
 
-    if (tmvaValue[discr][mh] > inits.bdtCut[mh]) passBdtCut[mh] = kTRUE;
-    passAllBdtCuts[mh] = (passAllBdtCuts[mh] && passBdtCut[mh]);
-
-    hm->fill2DHist(HP4.M(),tmvaValue[discr][mh],"h2_MassVsMVACAT"+str(catNum)+"_"+params->suffix,"Mass vs MVA output (BTDG); m_{ll#gamma}; MVA Disc", 90,100,190,90,-1,1,eventWeight,"MVAPlots");
-    hm->fill2DHist(HP4.M(),tmvaValue[discr][mh],"h2_MassVsMVA_"+params->suffix,"Mass vs MVA output (BTDG); m_{ll#gamma}; MVA Disc", 90,100,190,90,-1,1,eventWeight,"MVAPlots");
-  }
-
-
-  // here we can count events, fill histograms etc
-
-  /*
-  for (int mh = 0; mh<1; ++mh) { // loop over mass points -> at the moment I put only one!
-
-    if (!passAllBdtCuts[mh]) return kTRUE;
-    if (nEvents[0]%2 == 0 && suffix != "DATA") return kTRUE;
-    if (suffix != "DATA") eventWeight = eventWeight*2;
-    hm->fill1DHist(tmvaValue[discr][mh],"h1_mvaValue_"+params->suffix, "MVA value;;N_{evts}", 20, -1, 1, eventWeight,"ZGamma");
-  }
-*/
-  // we can also produce histograms and count events based on passing a subset of th discriminator cuts
 
 }
 

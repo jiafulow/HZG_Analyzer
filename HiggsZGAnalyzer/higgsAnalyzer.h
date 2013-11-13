@@ -294,8 +294,8 @@ class higgsAnalyzer : public TSelector {
       float _ZPtOM;
     } mvaVars; 
 
-    virtual TMVA::Reader*   MVAInitializer();
-    virtual void MVACalculator (mvaInitStruct inits, TMVA::Reader* _tmvaReader, const TLorentzVector& HP4, float evtWeight);
+    TMVA::Reader*   MVAInitializer();
+    float MVACalculator (mvaInitStruct inits, TMVA::Reader* _tmvaReader);
 
 
 
