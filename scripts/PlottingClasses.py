@@ -304,7 +304,7 @@ class Plotter:
       if bin == 1:
         initialSignif = sigYield/sqrt(sigYield+bgYield)
       if sigYield+bgYield > 0:
-        if sigYield/sqrt(sigYield+bgYield) > bestSignif:
+        if (sigYield/sqrt(sigYield+bgYield) > bestSignif) and (sigYield>0.7*signalHist.Integral(1, signalHist.GetNbinsX())):
           bestSignif = sigYield/sqrt(sigYield+bgYield)
           bestCut = signalHist.GetBinLowEdge(bin)
           bestBGEff = bgYield/bgStack.Integral()
@@ -347,6 +347,7 @@ class Plotter:
     signifPlot.SetMarkerColor(kRed)
     signifPlot.GetYaxis().SetTitleSize(0.05)
     signifPlot.GetYaxis().CenterTitle()
+    signifPlot.GetXaxis().SetTitle(signalHist.GetXaxis().GetTitle())
     signifPlot.GetXaxis().SetTitleSize(0.05)
     signifPlot.GetYaxis().SetTitleOffset(1.04)
     signifPlot.GetYaxis().SetLabelSize(0.045)

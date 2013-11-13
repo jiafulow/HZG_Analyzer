@@ -278,6 +278,7 @@ class higgsAnalyzer : public TSelector {
       TString weightsDir; 
       TString discrMethodName[3];
       TString discrSampleName; 
+      TString discrSuffixName; 
       Int_t mvaHiggsMassPoint[1];
       Float_t bdtCut[1];
     } mvaInits;
@@ -287,6 +288,10 @@ class higgsAnalyzer : public TSelector {
       float _smallTheta;
       float _bigTheta;
       float _comPhi;
+      float _GPtOM;
+      float _diffZGvectorOM;
+      float _threeBodyPtOM;
+      float _ZPtOM;
     } mvaVars; 
 
     virtual TMVA::Reader*   MVAInitializer();
