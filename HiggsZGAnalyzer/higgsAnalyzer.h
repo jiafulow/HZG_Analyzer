@@ -296,6 +296,11 @@ class higgsAnalyzer : public TSelector {
       float _diffZGvectorOM;
       float _threeBodyPtOM;
       float _ZPtOM;
+      float _GEta;
+      float _ZEta;
+      float _threeBodyEta;
+      float _GPtOHPt;
+      float _threeBodyMass;
     } mvaVars; 
 
     TMVA::Reader*   MVAInitializer();
