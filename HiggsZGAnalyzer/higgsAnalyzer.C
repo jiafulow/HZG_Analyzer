@@ -112,7 +112,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   histoFile->mkdir("MVAPlots", "MVAPlots");
   //histoFile->mkdir("FakeRateWeight", "FakeRateWeight");
 
-  diffZGscalar = diffZGvector = threeBodyMass = threeBodyPt = divPt = cosZ = cosG = METdivQt = GPt = ZPt = DPhi = diffPlaneMVA = vtxVariable = dr1 = dr2 = M12 = medisc = smallTheta = bigTheta = comPhi = GPtOM = diffZGvectorOM = threeBodyPtOM = ZPtOM = scaleFactor = -99999;
+  diffZGscalar = diffZGvector = threeBodyMass = threeBodyPt = divPt = cosZ = cosG = METdivQt = GPt = ZPt = DPhi = diffPlaneMVA = vtxVariable = dr1 = dr2 = M12 = medisc = smallTheta = bigTheta = comPhi = GPtOM = diffZGvectorOM = threeBodyPtOM = ZPtOM = GEta = ZEta = threeBodyEta = GPtOHPt = scaleFactor = -99999;
 
   sampleChain->Branch("diffZGscalar",&diffZGscalar,"diffZGscalar/F");
   trainingChain->Branch("diffZGscalar",&diffZGscalar,"diffZGscalar/F");
@@ -162,6 +162,15 @@ void higgsAnalyzer::Begin(TTree * tree)
   trainingChain->Branch("threeBodyPtOM",&threeBodyPtOM,"threeBodyPtOM/F");
   sampleChain->Branch("ZPtOM",&ZPtOM,"ZPtOM/F");
   trainingChain->Branch("ZPtOM",&ZPtOM,"ZPtOM/F");
+  sampleChain->Branch("GEta",&GEta,"GEta/F");
+  trainingChain->Branch("GEta",&GEta,"GEta/F");
+  sampleChain->Branch("ZEta",&ZEta,"ZEta/F");
+  trainingChain->Branch("ZEta",&ZEta,"ZEta/F");
+  sampleChain->Branch("threeBodyEta",&threeBodyEta,"threeBodyEta/F");
+  trainingChain->Branch("threeBodyEta",&threeBodyEta,"threeBodyEta/F");
+  sampleChain->Branch("GPtOHPt",&GPtOHPt,"GPtOHPt/F");
+  trainingChain->Branch("GPtOHPt",&GPtOHPt,"GPtOHPt/F");
+
   sampleChain->Branch("scaleFactor",&scaleFactor,"scaleFactor/F");
   trainingChain->Branch("scaleFactor",&scaleFactor,"scaleFactor/F");
 
@@ -1341,6 +1350,10 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   diffZGvectorOM  = (ZP4-GP4).Pt()/(ZP4+GP4).M();
   threeBodyPtOM   = (ZP4+GP4).Pt()/(ZP4+GP4).M();
   ZPtOM           = ZP4.Pt()/(ZP4+GP4).M();
+  GEta            = GP4.Eta();
+  ZEta            = ZP4.Eta();
+  threeBodyEta    = (GP4+ZP4).Eta();
+  GPtOHPt         = GP4.Pt()/(GP4+ZP4).Pt();
   scaleFactor     = eventWeight;
   if (params->suffix.find("ggM125") != string::npos) scaleFactor *= 19.672/(unskimmedEventsTotal/(19.52*0.00154*0.10098*1000));
   if (params->suffix == "DYJets") scaleFactor *= 19.672/(unskimmedEventsTotal/(3503.71*1000));
