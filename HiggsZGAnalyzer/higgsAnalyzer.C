@@ -195,6 +195,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   mvaInits.discrMethodName[1] = "BDTG";
   mvaInits.discrMethodName[2] = "BDT";
 
+  mvaInits.discrSelection = params->selection;
   mvaInits.discrSampleName = "allBG";
   mvaInits.discrSuffixName = "anglesOnly";
 
@@ -2136,11 +2137,11 @@ TMVA::Reader* higgsAnalyzer::MVAInitializer(){
 
   for (int mh = 0; mh < 1; ++mh) {
 
-    TString label = TString::Format("%s_%s_ggM%i_%s", mvaInits.discrMethodName[discr].Data(), mvaInits.discrSampleName.Data(),
+    TString label = TString::Format("%s_%s_%s_ggM%i_%s", mvaInits.discrMethodName[discr].Data(), mvaInits.discrSelection.Data(), mvaInits.discrSampleName.Data(),
         mvaInits.mvaHiggsMassPoint[mh], mvaInits.discrSuffixName.Data());
 
     TString weightFile = TString::Format("%sdiscr_%s_ggM%i_%s___%s.weights.xml",
-        mvaInits.weightsDir.Data(), mvaInits.discrSampleName.Data(), mvaInits.mvaHiggsMassPoint[mh], mvaInits.discrSuffixName.Data(), mvaInits.discrMethodName[discr].Data());
+        mvaInits.weightsDir.Data(), mvaInits.discrSelection.Data(), mvaInits.discrSampleName.Data(), mvaInits.mvaHiggsMassPoint[mh], mvaInits.discrSuffixName.Data(), mvaInits.discrMethodName[discr].Data());
 
     tmvaReader->BookMVA(label.Data(), weightFile.Data());
     

@@ -19,7 +19,7 @@ def fastHadd():
     if selectionList[0] == 'mumuGamma':
       leptonA = 'MuMu'
       leptonB = 'mumuGamma'
-    elif selectionList[0] == 'eeGamma_Combined':
+    elif selectionList[0] == 'eeGamma':
       leptonA = 'EE'
       leptonB = 'eeGamma'
     tag = sys.argv[1]

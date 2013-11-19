@@ -283,6 +283,7 @@ class higgsAnalyzer : public TSelector {
       TString discrMethodName[3];
       TString discrSampleName; 
       TString discrSuffixName; 
+      TString discrSelection; 
       Int_t mvaHiggsMassPoint[1];
       Float_t bdtCut[1];
     } mvaInits;
