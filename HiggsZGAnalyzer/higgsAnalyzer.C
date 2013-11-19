@@ -1380,6 +1380,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   if (params->doAnglesMVA){
     float mvaVal = MVACalculator(mvaInits, tmvaReader);
+    /*
     if (catNum ==1){
       if (mvaVal < -0.13) return kTRUE;
     }else if (catNum==2){
@@ -1389,6 +1390,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     }else if (catNum==4){
       if (mvaVal < -0.31) return kTRUE;
     }
+    */
     hm->fill2DHist((GP4+ZP4).M(),mvaVal,"h2_MassVsMVACAT"+str(catNum)+"_"+params->suffix,"Mass vs MVA output (BTDG); m_{ll#gamma}; MVA Disc", 90,100,190,90,-1,1,eventWeight,"MVAPlots");
     hm->fill2DHist((GP4+ZP4).M(),mvaVal,"h2_MassVsMVA_"+params->suffix,"Mass vs MVA output (BTDG); m_{ll#gamma}; MVA Disc", 90,100,190,90,-1,1,eventWeight,"MVAPlots");
   }
@@ -2140,7 +2142,7 @@ TMVA::Reader* higgsAnalyzer::MVAInitializer(){
     TString label = TString::Format("%s_%s_%s_ggM%i_%s", mvaInits.discrMethodName[discr].Data(), mvaInits.discrSelection.Data(), mvaInits.discrSampleName.Data(),
         mvaInits.mvaHiggsMassPoint[mh], mvaInits.discrSuffixName.Data());
 
-    TString weightFile = TString::Format("%sdiscr_%s_ggM%i_%s___%s.weights.xml",
+    TString weightFile = TString::Format("%sdiscr_%s_%s_ggM%i_%s___%s.weights.xml",
         mvaInits.weightsDir.Data(), mvaInits.discrSelection.Data(), mvaInits.discrSampleName.Data(), mvaInits.mvaHiggsMassPoint[mh], mvaInits.discrSuffixName.Data(), mvaInits.discrMethodName[discr].Data());
 
     tmvaReader->BookMVA(label.Data(), weightFile.Data());
@@ -2175,7 +2177,7 @@ float higgsAnalyzer::MVACalculator (mvaInitStruct inits, TMVA::Reader* _tmvaRead
   //int discr = MLPBNN; // use only this one for now
 
 
-  TString label = TString::Format("%s_%s_ggM%i_%s", inits.discrMethodName[discr].Data(), inits.discrSampleName.Data(),
+  TString label = TString::Format("%s_%s_%s_ggM%i_%s", inits.discrMethodName[discr].Data(), inits.discrSelection.Data(), inits.discrSampleName.Data(),
       inits.mvaHiggsMassPoint[0], inits.discrSuffixName.Data());
   tmvaValue[discr] = _tmvaReader->EvaluateMVA(label.Data());
   return tmvaValue[discr];

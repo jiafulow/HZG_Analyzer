@@ -341,8 +341,8 @@ class Plotter:
     line.SetLineWidth(2)
     line.Draw()
 
-    if sigWindow: can.SaveAs(self.directory+'/'+self.lepton+self.lepton+'_'+signalHist.GetName().split('_')[1]+'_ROC_window.pdf')
-    else: can.SaveAs(self.directory+'/'+self.lepton+self.lepton+'_'+signalHist.GetName().split('_')[1]+'_ROC.pdf')
+    if sigWindow: self.can.SaveAs(self.directory+'/'+self.lepton+self.lepton+'_'+signalHist.GetName().split('_')[1]+'_ROC_window.pdf')
+    else: self.can.SaveAs(self.directory+'/'+self.lepton+self.lepton+'_'+signalHist.GetName().split('_')[1]+'_ROC.pdf')
 
     signifPlot.SetMarkerColor(kRed)
     signifPlot.GetYaxis().SetTitleSize(0.05)
@@ -370,8 +370,8 @@ class Plotter:
     signifStats.Draw()
 
 
-    if sigWindow: can.SaveAs(self.directory+'/'+self.lepton+self.lepton+'_'+signalHist.GetName().split('_')[1]+'_Signif_Window.pdf')
-    else: can.SaveAs(self.directory+'/'+self.lepton+self.lepton+'_'+signalHist.GetName().split('_')[1]+'_Signif.pdf')
+    if sigWindow: self.can.SaveAs(self.directory+'/'+self.lepton+self.lepton+'_'+signalHist.GetName().split('_')[1]+'_Signif_Window.pdf')
+    else: self.can.SaveAs(self.directory+'/'+self.lepton+self.lepton+'_'+signalHist.GetName().split('_')[1]+'_Signif.pdf')
 
     return (bestCut,bestBGEff,bestSignif,percentImprovement)
 
@@ -484,6 +484,8 @@ class Plotter:
       self.myCut.SetPoint(4,sigWindow-4,-2)
 
 
+    for hist in histList:
+      print hist.GetName()
     dataHistM,dataHistD = self.GetDataHistsMD(histList,sigWindow)
     bgListM,bgListD = self.GetBGHistsMD(histList,sigWindow)
     signalHistM, signalHistD = self.GetSignalHistsMD(histList,sigWindow)
@@ -496,9 +498,8 @@ class Plotter:
     TH2.SetDefaultSumw2(kTRUE)
     TProfile.SetDefaultSumw2(kTRUE)
 
-    if self.can == None:
-      self.can= TCanvas('can','canvas',800,600)
-      self.can.cd()
+    self.can= TCanvas('can'+self.lepton,'canvas',800,600)
+    self.can.cd()
     legM = self.MakeLegend()
     legD = self.MakeLegend()
     legM.AddEntry(dataHistM,'DATA','lep')

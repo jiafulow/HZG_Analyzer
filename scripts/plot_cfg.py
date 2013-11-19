@@ -23,7 +23,8 @@ def GenericPlotter(inFolder, outFolder):
 
 def ROCPlotter():
   if os.environ.get('AT_NWU') == None:
-    FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_11-18-13.root")
+    FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_11-18-13_anglesOnly.root")
+    FileEl= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_11-18-13_anglesOnly.root")
   else:
     FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_11-12-13.root")
 
@@ -31,6 +32,10 @@ def ROCPlotter():
   for key in plotter.folderDict.keys():
     plotter.ROCcurves(plotter.folderDict[key])
     plotter.ROCcurves(plotter.folderDict[key],125)
+  plotterEl = Plotter(FileEl, 'MVAPlots', 'ROC_MVA_anglesOnly', '2012','el','Signal2012ggM125p8')
+  for key in plotterEl.folderDict.keys():
+    plotterEl.ROCcurves(plotterEl.folderDict[key])
+    plotterEl.ROCcurves(plotterEl.folderDict[key],125)
 
 def RatioPlotter():
   if os.environ.get('AT_NWU') == None:
