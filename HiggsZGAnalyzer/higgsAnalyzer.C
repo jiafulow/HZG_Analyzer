@@ -1380,17 +1380,27 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   if (params->doAnglesMVA){
     float mvaVal = MVACalculator(mvaInits, tmvaReader);
-    /*
-    if (catNum ==1){
-      if (mvaVal < -0.13) return kTRUE;
-    }else if (catNum==2){
-      if (mvaVal < -0.33) return kTRUE;
-    }else if (catNum==3){
-      if (mvaVal < -0.62) return kTRUE;
-    }else if (catNum==4){
-      if (mvaVal < -0.31) return kTRUE;
+    if (params->selection == "mumuGamma"){
+      if (catNum ==1){
+        if (mvaVal < -0.13) return kTRUE;
+      }else if (catNum==2){
+        if (mvaVal < -0.33) return kTRUE;
+      }else if (catNum==3){
+        if (mvaVal < -0.62) return kTRUE;
+      }else if (catNum==4){
+        if (mvaVal < -0.31) return kTRUE;
+      }
+    }else if (params->selection == "eeGamma"){
+      if (catNum ==1){
+        if (mvaVal < -0.11) return kTRUE;
+      }else if (catNum==2){
+        if (mvaVal < -0.42) return kTRUE;
+      }else if (catNum==3){
+        if (mvaVal < -0.67) return kTRUE;
+      }else if (catNum==4){
+        if (mvaVal < -0.36) return kTRUE;
+      }
     }
-    */
     hm->fill2DHist((GP4+ZP4).M(),mvaVal,"h2_MassVsMVACAT"+str(catNum)+"_"+params->suffix,"Mass vs MVA output (BTDG); m_{ll#gamma}; MVA Disc", 90,100,190,90,-1,1,eventWeight,"MVAPlots");
     hm->fill2DHist((GP4+ZP4).M(),mvaVal,"h2_MassVsMVA_"+params->suffix,"Mass vs MVA output (BTDG); m_{ll#gamma}; MVA Disc", 90,100,190,90,-1,1,eventWeight,"MVAPlots");
   }
