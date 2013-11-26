@@ -79,7 +79,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   sampleChain.reset(new TTree("varMVA","for testing the MVA"));
 
   m_llgFile->cd();
-  m_llgChain.reset(new TTree("m_llg_SUFFIX","three body mass values"));
+  m_llgChain.reset(new TTree(("m_llg_"+params->suffix).c_str(),"three body mass values"));
 
   initializeEfficiencyWeights( "otherHistos/elsf2011.root", "otherHistos/elsf2012.root");
 
