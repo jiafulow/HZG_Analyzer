@@ -292,6 +292,7 @@ class Plotter:
     '''Make the ROC and significance plots, and return the best values'''
     bestCut = None
     bestBGEff= None
+    bestSigEff= None
     bestSignif = 0
     rocCurve = TProfile('rocCurve',signalHist.GetTitle()+' ROC;BG eff;Signal eff',signalHist.GetNbinsX(),0,1,0,1)
     signifPlot = TProfile('signifPlot',signalHist.GetTitle()+' Signif;MEDisc;s/#sqrt{s+b}',signalHist.GetNbinsX(),signalHist.GetBinLowEdge(1),signalHist.GetBinLowEdge(1+signalHist.GetNbinsX()))
@@ -308,6 +309,7 @@ class Plotter:
           bestSignif = sigYield/sqrt(sigYield+bgYield)
           bestCut = signalHist.GetBinLowEdge(bin)
           bestBGEff = bgYield/bgStack.Integral()
+          bestSigEff = sigYield/signalHist.Integral()
         signifPlot.Fill(signalHist.GetBinLowEdge(bin),sigYield/sqrt(sigYield+bgYield))
       else:
         signifPlot.Fill(signalHist.GetBinLowEdge(bin),0)
@@ -357,7 +359,7 @@ class Plotter:
     line.SetLineWidth(2)
     line.SetLineStyle(2)
     line.Draw()
-    signifStats = TPaveText(bestCut,signifPlot.GetMaximum()*0.02,bestCut+0.05,signifPlot.GetMaximum()*0.2)
+    signifStats = TPaveText(bestCut,signifPlot.GetMaximum()*0.02,bestCut+0.05,signifPlot.GetMaximum()*0.25)
     #SetOwnership(signifStats,False)
     signifStats.SetBorderSize(0)
     signifStats.SetFillStyle(0)
@@ -367,6 +369,8 @@ class Plotter:
     signifStats.AddText('Discrim Cut: {0:.2}'.format(bestCut))
     signifStats.AddText('Significance: {0:.2}'.format(bestSignif))
     signifStats.AddText('Improvement: {0:.2}%'.format(percentImprovement))
+    signifStats.AddText('BG Eff: {0:.2}'.format(bestBGEff))
+    signifStats.AddText('Sig Eff: {0:.2}'.format(bestSigEff))
     signifStats.Draw()
 
 
