@@ -75,7 +75,6 @@ class WeightUtils: public TObject {
         TFile *_EleMoriondWP2012;
 
 
-
         TH2D * _HLTMu17Mu8_2011;
 
         TH1F * h1_S6to2011;

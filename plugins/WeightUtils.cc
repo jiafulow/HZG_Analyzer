@@ -73,6 +73,7 @@ WeightUtils::WeightUtils(const Parameters& params, bool isRealData, int runNumbe
 
   //electron histo
   h1_EleMoriondWP2012 = (TH2F*)_EleMoriondWP2012->Get("heff_electron_selection");
+
   
 }
 
@@ -185,6 +186,14 @@ float WeightUtils::MuonSelectionWeight(TLorentzVector l1)
     { 0.9635,0.9833,0.9733,0.9796,0.9771,0.988,0.9895,0.9832,0.9788,0.9961,0.9839,0.9775,0.9869,1.007,0.9825,0.979 }
   };
 
+  float _muonID2012_2012ReReco[4][10] = {
+  //pt 10-20,    20-25,     25-30,   30-35,    35-40,    40-50,    50-60,   60-90,   90-140,   140-300
+    { 0.970275, 0.988865, 0.992338, 0.993283, 0.993662, 0.992392, 0.99119,  0.989417, 1.00375, 1.0185   }, //abseta<0.9
+    { 1.00173,  0.993947, 0.994722, 0.993391, 0.992285, 0.99187,  0.99501,  0.990406, 1.00903, 1.01096  }, //0.9<abseta<1.2
+    { 1.01802,  1.00035,  0.998486, 0.996558, 0.996026, 0.996062, 0.995183, 0.992486, 1.02313, 0.974754 }, //1.2<abseta<2.1
+    { 1.00504,  0.998089, 0.996183, 1.00055,  0.992563, 0.995144, 0.99359,  0.989484, 1.06017, 0.890547 }  //2.1<abseta<2.4
+  };
+
 
   float _muonISO2012[15][16] = {
     { 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, },
@@ -245,6 +254,11 @@ float WeightUtils::MuonSelectionWeight(TLorentzVector l1)
   int ptBin = 0;
   int etaBin = 0;
 
+  float binningPt_v2[]  = {10,20,25,30,35,40,50,60,90,140,300};
+  float binningEta_v2[] = {0,0.9,1.2,2.1,2.4};
+  int ptBin_v2 = -99;
+  int etaBin_v2 = -99;
+
   if (_isRealData) return muSF;
 
   for (int i = 0; i<16; i++){
@@ -260,11 +274,32 @@ float WeightUtils::MuonSelectionWeight(TLorentzVector l1)
     }
   }
 
+  for (int i = 0; i<5; i++){
+    if (l1.Eta() > binningEta_v2[i] && l1.Eta() < binningEta_v2[i+1]){
+      etaBin_v2 = i;
+      break;
+    }
+  }
+  for (int i = 0; i<11; i++){
+    if (l1.Pt() > binningPt_v2[i] && l1.Pt() < binningPt_v2[i+1]){
+      ptBin_v2 = i;
+      break;
+    }
+  }
+
   if (_params.period.find("2011") != string::npos){
     muSF = _muonID2011[ptBin][etaBin]*_muonISO2011[ptBin][etaBin];
   }else{
-    muSF = _muonID2012[ptBin][etaBin]*_muonISO2012[ptBin][etaBin];
+    //modified for 2012 rereco
+    //muSF = _muonID2012[ptBin][etaBin]*_muonISO2012[ptBin][etaBin];
+    if (ptBin_v2 == -99 || etaBin_v2 == -99){
+      muSF = _muonISO2012[ptBin][etaBin];
+    }else{
+      muSF = _muonID2012_2012ReReco[etaBin_v2][ptBin_v2]*_muonISO2012[ptBin][etaBin];
+    }
   }
+
+      
   return muSF;
 
 }
