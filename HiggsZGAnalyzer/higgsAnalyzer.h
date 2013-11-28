@@ -115,7 +115,6 @@ class higgsAnalyzer : public TSelector {
     float R9Cor;
 
     //ElectronMVA selection
-    auto_ptr<EGammaMvaEleEstimator> myMVATrig;
     auto_ptr<TMVA::Reader> myTMVAReader;
 
     //ZGAngles ME shit

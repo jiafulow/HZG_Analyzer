@@ -204,26 +204,6 @@ void higgsAnalyzer::Begin(TTree * tree)
 
   mvaInits.bdtCut[0] = -0.1;
   if (params->doAnglesMVA) tmvaReader = MVAInitializer();
-
-  //ElectronMVA Selection
-
-  cout<<"load and initialize MVA"<<endl;
-  std::vector<std::string> myManualCatWeigthsTrig;
-
-  myManualCatWeigthsTrig.push_back("../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat1.weights.xml");
-  myManualCatWeigthsTrig.push_back("../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat2.weights.xml");
-  myManualCatWeigthsTrig.push_back("../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat3.weights.xml");
-  myManualCatWeigthsTrig.push_back("../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat4.weights.xml");
-  myManualCatWeigthsTrig.push_back("../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat5.weights.xml");
-  myManualCatWeigthsTrig.push_back("../plugins/MVAWeights/Electrons_BDTG_TrigV0_Cat6.weights.xml");
-
-  myMVATrig.reset(new EGammaMvaEleEstimator());
-  myMVATrig->initialize("BDT",
-      EGammaMvaEleEstimator::kTrig,
-      true,
-      myManualCatWeigthsTrig);
-
-  cout<<"MVA Loaded"<<endl;
 }
 
 
@@ -538,50 +518,17 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     if(params->doEleMVA){
       bool passAll = false;
 
-      dumper->MVADumper(*thisElec, myMVATrig.get()); 
+      //dumper->MVADumper(*thisElec, myMVATrig.get()); 
 
       if (thisElec->IdMap("preSelPassV1")) electronsID.push_back(*thisElec);			
-      double tmpMVAValue = myMVATrig->mvaValue(
-          thisElec->IdMap("fbrem"),    
-          thisElec->IdMap("kfChi2"),                            
-          thisElec->IdMap("kfNLayers"),                            
-          thisElec->IdMap("gsfChi2"),                           
-          thisElec->IdMap("dEta"),
-          thisElec->IdMap("dPhi"),            
-          thisElec->IdMap("dEtaAtCalo"),
-          thisElec->SigmaIEtaIEta(), 
-          thisElec->IdMap("SigmaIPhiIPhi"),
-          thisElec->IdMap("SCEtaWidth"),
-          thisElec->IdMap("SCPhiWidth"),
-          thisElec->IdMap("ome1x5oe5x5"),
-          thisElec->IdMap("R9"),
-          thisElec->HadOverEm(),
-          thisElec->IdMap("EoP"),
-          thisElec->IdMap("ooemoopV1"), 
-          thisElec->IdMap("eopOut"), 
-          thisElec->IdMap("preShowerORaw"), 
-          thisElec->IdMap("d0"),
-          thisElec->IdMap("ip3d"), 
-          thisElec->SCEta(),
-          thisElec->Pt(),
-          false);                
-                                                                  
+
       /// inner barrel
-      if (thisElec->IdMap("preSelPassV1") && thisElec->Pt() > 20 && tmpMVAValue > -0.5 && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
+      if (thisElec->IdMap("preSelPassV1") && thisElec->Pt() > 20 && thisElec->MvaID() > -0.5 && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
         passAll = true;
       /// outer barrel
-      }else if (thisElec->IdMap("preSelPassV1") && thisElec->Pt() < 20 && tmpMVAValue > -0.90 && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
+      }else if (thisElec->IdMap("preSelPassV1") && thisElec->Pt() < 20 && thisElec->MvaID() > -0.90 && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
         passAll = true;
       }
-      /*
-      /// inner barrel
-      if (thisElec->IdMap("preSelPassV1") && thisElec->Pt() > 20 && thisElec->MvaID() > -0.5 && particleSelector->PassElectronIso(thisElec, cuts->looseElIso, cuts->EAEle)){
-        passAll = true;
-      /// outer barrel
-      }else if (thisElec->IdMap("preSelPassV1") && thisElec->Pt() < 20 && thisElec->MvaID() > -0.90 && particleSelector->PassElectronIso(thisElec, cuts->looseElIso, cuts->EAEle)){
-        passAll = true;
-      }
-      */
 
       if (passAll){
         cloneElectron = thisElec;
