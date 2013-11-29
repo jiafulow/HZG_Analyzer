@@ -70,17 +70,43 @@ class Plotter:
 
   def ChooseTwoHists(self,histList,chooseNames):
     outList = []
-    for hist in histList:
-      if chooseNames[0].lower() == 'bg' or chooseNames[0].lower() == 'background':
+    if chooseNames[0].lower() == 'bg' or chooseNames[0].lower() == 'background':
+      bgList = self.GetBGHists(histList)
+      bgHist = bgList[0].Clone()
+      bgHist.Reset()
+      for hist in bgList:
+        label = hist.GetName().split('_')[-1]
+        scale = self.LumiXSScale(label)
+        hist.Scale(scale)
+        bgHist.Add(hist)
+      outList.append(bgHist)
+    else:
+      for hist in histList:
+        if chooseNames[0] in hist.GetName():
+          outList.append(hist.Clone())
+          break
 
-      if chooseNames[0] in hist.GetName():
-        outList.append(hist.Clone())
-        break
-    for hist in histList:
-      if chooseNames[1] in hist.GetName():
-        outList.append(hist.Clone())
-        break
+    if chooseNames[1].lower() == 'bg' or chooseNames[1].lower() == 'background':
+      bgList = self.GetBGHists(histList)
+      bgHist = bgList[0].Clone()
+      bgHist.Reset()
+      for hist in bgList:
+        label = hist.GetName().split('_')[-1]
+        scale = self.LumiXSScale(label)
+        hist.Scale(scale)
+        bgHist.Add(hist)
+      outList.append(bgHist)
+    else:
+      for hist in histList:
+        if chooseNames[1] in hist.GetName():
+          outList.append(hist.Clone())
+          break
+
     if len(outList) != 2: raise NameError('ChooseTwoHists gave wrong list length: {0}'.format(len(outList)))
+
+    outList[0].Scale(1/outList[0].Integral())
+    outList[1].Scale(1/outList[1].Integral())
+
     ymax = max(map(lambda x:x.GetMaximum(),outList))*1.1
     ymin = 0
     outList[0].SetMaximum(ymax)
@@ -91,7 +117,6 @@ class Plotter:
     outList[0].GetYaxis().SetTitleSize(0.06)
     outList[0].GetYaxis().CenterTitle()
     outList[0].GetXaxis().SetTitleSize(0.05)
-    outList[0].Scale(1/outList[0].Integral())
 
     outList[1].SetLineColor(kBlue)
     outList[1].SetLineWidth(2)

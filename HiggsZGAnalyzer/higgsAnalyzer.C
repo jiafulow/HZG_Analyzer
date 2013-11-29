@@ -741,7 +741,11 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
           if (testDr < 0.2){
             corrPhoPt = phoCorrector->GetCorrEtMC(R9Cor, periodNum, thisPhoton->Pt(), thisPhoton->Eta(), goodGenPhoton.E());
             //cout<<"uncor pt: "<<thisPhoton->Pt()<<" cor pt: "<<corrPhoPt<<" gen pt: "<<vetoPhotons[vetoPos].Pt()<<endl;
-            thisPhoton->SetPtEtaPhiM(corrPhoPt,thisPhoton->Eta(),thisPhoton->Phi(),0.0);
+            if (params->suffix.find("Signal") != string::npos){ 
+              thisPhoton->SetPtEtaPhiM(corrPhoPt+10,thisPhoton->Eta(),thisPhoton->Phi(),0.0);
+            }else{
+              thisPhoton->SetPtEtaPhiM(corrPhoPt,thisPhoton->Eta(),thisPhoton->Phi(),0.0);
+            }
           }
           //else cout<<" no match, pt: "<<thisPhoton->Pt()<<endl;
         }else if (isRealData && thisPhoton->Pt()>10.){
