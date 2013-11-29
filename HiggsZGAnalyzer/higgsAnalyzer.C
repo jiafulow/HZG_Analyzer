@@ -724,17 +724,23 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         if(!isRealData && thisPhoton->Pt()>10.){
           TCGenParticle goodGenPhoton;
           float testDr = 9999;
+          int vetoPos = -1;
+          //cout<<"veto photon size: "<<vetoPhotons.size()<<endl;
           for (UInt_t j = 0; j<vetoPhotons.size(); j++){
-            if(thisPhoton->DeltaR(vetoPhotons[j]) < 0.2 && vetoPhotons[j].GetStatus()==1 && vetoPhotons[j].Mother() && fabs(vetoPhotons[j].Mother()->GetPDGId()) == 22){
+            //if (vetoPhotons[j].Mother() && fabs(vetoPhotons[j].Mother()->GetPDGId()) == 22) cout<<"mother: "<<vetoPhotons[j].Mother()->GetPDGId()<<endl;
+            //if(thisPhoton->DeltaR(vetoPhotons[j]) < 0.2 && vetoPhotons[j].GetStatus()==1 && vetoPhotons[j].Mother() && fabs(vetoPhotons[j].Mother()->GetPDGId()) == 22){
+            if(vetoPhotons[j].Mother() && (fabs(vetoPhotons[j].Mother()->GetPDGId()) == 25 || fabs(vetoPhotons[j].Mother()->GetPDGId()) == 22) && vetoPhotons[j].GetStatus()==1){
               if(thisPhoton->DeltaR(vetoPhotons[j])<testDr){
                 goodGenPhoton = vetoPhotons[j];
                 testDr = thisPhoton->DeltaR(vetoPhotons[j]);
+                vetoPos = j;
+                //cout<<"testdr: "<<testDr<<endl;
               }
             }
           }
           if (testDr < 0.2){
             corrPhoPt = phoCorrector->GetCorrEtMC(R9Cor, periodNum, thisPhoton->Pt(), thisPhoton->Eta(), goodGenPhoton.E());
-            //cout<<"uncor pt: "<<thisPhoton->Pt()<<" cor pt: "<<corrPhoPt<<endl;
+            //cout<<"uncor pt: "<<thisPhoton->Pt()<<" cor pt: "<<corrPhoPt<<" gen pt: "<<vetoPhotons[vetoPos].Pt()<<endl;
             thisPhoton->SetPtEtaPhiM(corrPhoPt,thisPhoton->Eta(),thisPhoton->Phi(),0.0);
           }
           //else cout<<" no match, pt: "<<thisPhoton->Pt()<<endl;
@@ -1327,6 +1333,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   if (params->doAnglesMVA){
     float mvaVal = MVACalculator(mvaInits, tmvaReader);
+    /*
     if (params->selection == "mumuGamma"){
       if (catNum ==1){
         if (mvaVal < -0.13) return kTRUE;
@@ -1348,6 +1355,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         if (mvaVal < -0.36) return kTRUE;
       }
     }
+    */
     hm->fill2DHist((GP4+ZP4).M(),mvaVal,"h2_MassVsMVACAT"+str(catNum)+"_"+params->suffix,"Mass vs MVA output (BTDG); m_{ll#gamma}; MVA Disc", 90,100,190,90,-1,1,eventWeight,"MVAPlots");
     hm->fill2DHist((GP4+ZP4).M(),mvaVal,"h2_MassVsMVA_"+params->suffix,"Mass vs MVA output (BTDG); m_{ll#gamma}; MVA Disc", 90,100,190,90,-1,1,eventWeight,"MVAPlots");
   }

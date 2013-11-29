@@ -71,6 +71,8 @@ class Plotter:
   def ChooseTwoHists(self,histList,chooseNames):
     outList = []
     for hist in histList:
+      if chooseNames[0].lower() == 'bg' or chooseNames[0].lower() == 'background':
+
       if chooseNames[0] in hist.GetName():
         outList.append(hist.Clone())
         break
