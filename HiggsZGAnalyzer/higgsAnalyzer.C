@@ -201,7 +201,8 @@ void higgsAnalyzer::Begin(TTree * tree)
 
   mvaInits.discrSelection = params->selection;
   mvaInits.discrSampleName = "allBG";
-  mvaInits.discrSuffixName = "anglesOnly";
+  //mvaInits.discrSuffixName = "anglesOnly";
+  mvaInits.discrSuffixName = "newAngles";
 
 
   mvaInits.mvaHiggsMassPoint[0] = 125;
@@ -1246,12 +1247,12 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     if (R9Cor >= 0.94){
       catNum = 1;
     }else{
-      catNum = 4;
+      catNum = 2;
     }
   } else if ( fabs(GP4scEta) < 1.4442){
-    catNum = 2;
-  } else {
     catNum = 3;
+  } else {
+    catNum = 4;
   }
   
   float MEdisc = MEDiscriminator(lepton1,lepton2,GP4);
@@ -1333,12 +1334,35 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   mvaVars._ZPtOM = ZPtOM;
   mvaVars._GEta = GEta;
   mvaVars._ZEta = ZEta;
+  mvaVars._l1Eta = l1Eta;
+  mvaVars._l2Eta = l2Eta;
   mvaVars._threeBodyEta = threeBodyEta;
   mvaVars._GPtOHPt = GPtOHPt;
   mvaVars._threeBodyMass = threeBodyMass;
 
   if (params->doAnglesMVA){
     float mvaVal = MVACalculator(mvaInits, tmvaReader);
+    if (params->selection == "mumuGamma"){
+      if (catNum ==1){
+        if (mvaVal < -0.2) return kTRUE;
+      }else if (catNum==2){
+        if (mvaVal < -0.36) return kTRUE;
+      }else if (catNum==3){
+        if (mvaVal < -0.64) return kTRUE;
+      }else if (catNum==4){
+        if (mvaVal < -0.29) return kTRUE;
+      }
+    }else if (params->selection == "eeGamma"){
+      if (catNum ==1){
+        if (mvaVal < -0.11) return kTRUE;
+      }else if (catNum==2){
+        if (mvaVal < -0.42) return kTRUE;
+      }else if (catNum==3){
+        if (mvaVal < -0.67) return kTRUE;
+      }else if (catNum==4){
+        if (mvaVal < -0.36) return kTRUE;
+      }
+    }
     /*
     if (params->selection == "mumuGamma"){
       if (catNum ==1){
@@ -2092,11 +2116,13 @@ TMVA::Reader* higgsAnalyzer::MVAInitializer(){
   tmvaReader->AddVariable("comPhi", &(mvaVars._comPhi));
   //tmvaReader->AddVariable("GPtOM", &(mvaVars._GPtOM));
   //tmvaReader->AddVariable("diffZGvectorOM", &(mvaVars._diffZGvectorOM));
-  //tmvaReader->AddVariable("threeBodyPtOM", &(mvaVars._threeBodyPtOM));
+  tmvaReader->AddVariable("threeBodyPtOM", &(mvaVars._threeBodyPtOM));
   //tmvaReader->AddVariable("ZPtOM", &(mvaVars._ZPtOM));
   tmvaReader->AddVariable("GEta", &(mvaVars._GEta));
-  tmvaReader->AddVariable("ZEta", &(mvaVars._ZEta));
-  tmvaReader->AddVariable("threeBodyEta", &(mvaVars._threeBodyEta));
+  tmvaReader->AddVariable("l1Eta", &(mvaVars._l1Eta));
+  tmvaReader->AddVariable("l2Eta", &(mvaVars._l2Eta));
+  //tmvaReader->AddVariable("ZEta", &(mvaVars._ZEta));
+  //tmvaReader->AddVariable("threeBodyEta", &(mvaVars._threeBodyEta));
   //tmvaReader->AddVariable("GPtOHPt", &(mvaVars._GPtOHPt));
   
   tmvaReader->AddSpectator("threeBodyMass",&(mvaVars._threeBodyMass));

@@ -11,8 +11,8 @@ outputPathNWU  = '/tthome/bpollack/BatchOutput'
 
 os.system('tar -zcvf stageball.tar.gz higgsAnalyzer* ../src  otherHistos ../plugins ../interface ../hzgammaME ../mva/testWeights')
 
-doMuMuGamma = False
-doEEGamma = True
+doMuMuGamma = True
+doEEGamma = False
 configs = []
 
 #different pathnames and executables for NWU or FNAL
