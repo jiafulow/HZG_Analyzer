@@ -34,8 +34,8 @@ def fastHadd():
     if not os.path.isdir('mvaFiles'): os.mkdir('mvaFiles')
     if 'ggHZG_M125_pythia8_LO' in selectionList:
       print 'signal mva'
-      os.system('./hadd.py mvaFiles/higgsTraining_'+leptonA+year+'_'+tag+'_signal.root '+leptonB+' Training {0}'.format(' '.join(['ggHZG_M125_pythia8_LO'])))
-      os.system('./hadd.py mvaFiles/higgsSample_'+leptonA+year+'_'+tag+'_signal.root '+leptonB+' Sample {0}'.format(' '.join(['ggHZG_M125_pythia8_LO'])))
+      os.system('./hadd.py mvaFiles/higgsTraining_'+leptonA+year+'_'+tag+'_signal.root '+leptonB+' Training {0}'.format(' '.join(['ggHZG_M125_pythia8_NLO'])))
+      os.system('./hadd.py mvaFiles/higgsSample_'+leptonA+year+'_'+tag+'_signal.root '+leptonB+' Sample {0}'.format(' '.join(['ggHZG_M125_pythia8_NLO'])))
     if [bg for bg in ['DYJets','ZGToLLG'] if bg in selectionList]:
       print 'bg mva'
       bgList = filter(lambda bg: bg in ['DYJets','ZGToLLG'],selectionList)
