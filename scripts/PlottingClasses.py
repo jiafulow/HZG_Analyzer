@@ -296,6 +296,7 @@ class Plotter:
     #bg.GetXaxis().SetTitle(dist)
     bg.SetTitle(self.lepton+self.lepton+' '+data.GetTitle())
     bg.GetYaxis().SetTitleOffset(0.82)
+    #bg.GetXaxis().SetRangeUser(100,200)
 
     if not do2D: data.Draw('pesame')
     else: data.Draw('boxsame')

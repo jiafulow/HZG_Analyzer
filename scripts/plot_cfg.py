@@ -15,18 +15,18 @@ def GenericPlotter(inFolder, outFolder):
     #FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_11-18-13_anglesOnly.root")
     #FileEl= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_11-18-13_anglesOnly.root")
   else:
-    FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-31-13.root")
-    #FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_11-4-13.root")
+    #FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_10-31-13_MECuts.root")
+    FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_11-4-13.root")
 
   plotterMu = Plotter(FileMu, inFolder, outFolder, '2012','mu','Signal2012ggM125p8')
   for key in plotterMu.folderDict.keys():
     plotterMu.DataBGComp(plotterMu.folderDict[key])
     plotterMu.DataBGComp2DProj(plotterMu.folderDict[key])
     #splotter.DataBGComp2DProj(plotter.folderDict[key],125)
-  plotterEl = Plotter(FileEl, inFolder, outFolder, '2012','el','Signal2012ggM125p8')
-  for key in plotterEl.folderDict.keys():
-    plotterEl.DataBGComp(plotterEl.folderDict[key])
-    plotterEl.DataBGComp2DProj(plotterEl.folderDict[key])
+  #plotterEl = Plotter(FileEl, inFolder, outFolder, '2012','el','Signal2012ggM125p8')
+  #for key in plotterEl.folderDict.keys():
+  #  plotterEl.DataBGComp(plotterEl.folderDict[key])
+  #  plotterEl.DataBGComp2DProj(plotterEl.folderDict[key])
     #splotter.DataBGComp2DProj(plotter.folderDict[key],125)
 
 def ROCPlotter():
