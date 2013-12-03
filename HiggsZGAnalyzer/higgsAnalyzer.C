@@ -112,7 +112,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   histoFile->mkdir("MVAPlots", "MVAPlots");
   //histoFile->mkdir("FakeRateWeight", "FakeRateWeight");
 
-  diffZGscalar = diffZGvector = threeBodyMass = threeBodyPt = divPt = cosZ = cosG = METdivQt = GPt = ZPt = DPhi = diffPlaneMVA = vtxVariable = dr1 = dr2 = M12 = medisc = smallTheta = bigTheta = comPhi = GPtOM = diffZGvectorOM = threeBodyPtOM = ZPtOM = GEta = ZEta = threeBodyEta = GPtOHPt = scaleFactor = -99999;
+  diffZGscalar = diffZGvector = threeBodyMass = threeBodyPt = divPt = cosZ = cosG = METdivQt = GPt = ZPt = DPhi = diffPlaneMVA = vtxVariable = dr1 = dr2 = M12 = medisc = smallTheta = bigTheta = comPhi = GPtOM = diffZGvectorOM = threeBodyPtOM = ZPtOM = GEta = ZEta = threeBodyEta = GPtOHPt = l1Eta = l2Eta =  scaleFactor = -99999;
 
   sampleChain->Branch("diffZGscalar",&diffZGscalar,"diffZGscalar/F");
   trainingChain->Branch("diffZGscalar",&diffZGscalar,"diffZGscalar/F");
@@ -166,6 +166,10 @@ void higgsAnalyzer::Begin(TTree * tree)
   trainingChain->Branch("GEta",&GEta,"GEta/F");
   sampleChain->Branch("ZEta",&ZEta,"ZEta/F");
   trainingChain->Branch("ZEta",&ZEta,"ZEta/F");
+  sampleChain->Branch("l1Eta",&l1Eta,"l1Eta/F");
+  trainingChain->Branch("l1Eta",&l1Eta,"l1Eta/F");
+  sampleChain->Branch("l2Eta",&l2Eta,"l2Eta/F");
+  trainingChain->Branch("l2Eta",&l2Eta,"l2Eta/F");
   sampleChain->Branch("threeBodyEta",&threeBodyEta,"threeBodyEta/F");
   trainingChain->Branch("threeBodyEta",&threeBodyEta,"threeBodyEta/F");
   sampleChain->Branch("GPtOHPt",&GPtOHPt,"GPtOHPt/F");
@@ -741,11 +745,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
           if (testDr < 0.2){
             corrPhoPt = phoCorrector->GetCorrEtMC(R9Cor, periodNum, thisPhoton->Pt(), thisPhoton->Eta(), goodGenPhoton.E());
             //cout<<"uncor pt: "<<thisPhoton->Pt()<<" cor pt: "<<corrPhoPt<<" gen pt: "<<vetoPhotons[vetoPos].Pt()<<endl;
-            if (params->suffix.find("Signal") != string::npos){ 
-              thisPhoton->SetPtEtaPhiM(corrPhoPt+10,thisPhoton->Eta(),thisPhoton->Phi(),0.0);
-            }else{
-              thisPhoton->SetPtEtaPhiM(corrPhoPt,thisPhoton->Eta(),thisPhoton->Phi(),0.0);
-            }
+            thisPhoton->SetPtEtaPhiM(corrPhoPt,thisPhoton->Eta(),thisPhoton->Phi(),0.0);
           }
           //else cout<<" no match, pt: "<<thisPhoton->Pt()<<endl;
         }else if (isRealData && thisPhoton->Pt()>10.){
@@ -1309,6 +1309,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   threeBodyPtOM   = (ZP4+GP4).Pt()/(ZP4+GP4).M();
   ZPtOM           = ZP4.Pt()/(ZP4+GP4).M();
   GEta            = GP4.Eta();
+  l1Eta           = lepton1.Eta();
+  l2Eta           = lepton2.Eta();
   ZEta            = ZP4.Eta();
   threeBodyEta    = (GP4+ZP4).Eta();
   GPtOHPt         = GP4.Pt()/(GP4+ZP4).Pt();

@@ -10,8 +10,9 @@ setTDRStyle()
 
 def GenericPlotter(inFolder, outFolder):
   if os.environ.get('AT_NWU') == None:
-    FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_11-20-13_anglesOnly.root")
-    FileEl= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_11-20-13_anglesOnly.root")
+    #FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_11-20-13_anglesOnly.root")
+    FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_ME_2Dv5.root")
+    #FileEl= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_11-20-13_anglesOnly.root")
     #FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_11-18-13_anglesOnly.root")
     #FileEl= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_11-18-13_anglesOnly.root")
   else:
@@ -25,8 +26,8 @@ def GenericPlotter(inFolder, outFolder):
     #splotter.DataBGComp2DProj(plotter.folderDict[key],125)
   #plotterEl = Plotter(FileEl, inFolder, outFolder, '2012','el','Signal2012ggM125p8')
   #for key in plotterEl.folderDict.keys():
-  #  plotterEl.DataBGComp(plotterEl.folderDict[key])
-  #  plotterEl.DataBGComp2DProj(plotterEl.folderDict[key])
+    #plotterEl.DataBGComp(plotterEl.folderDict[key])
+    #plotterEl.DataBGComp2DProj(plotterEl.folderDict[key])
     #splotter.DataBGComp2DProj(plotter.folderDict[key],125)
 
 def ROCPlotter():
@@ -50,19 +51,19 @@ def ROCPlotter():
 def RatioPlotter():
   if os.environ.get('AT_NWU') == None:
     #FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_signalComp.root")
-    FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_11-20-13_anglesOnly.root")
-    FileEl= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_11-20-13_anglesOnly.root")
+    FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_signalTest.root")
+    #FileEl= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_11-20-13_anglesOnly.root")
   else:
     FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_11-6-13.root")
 
   #plotter = Plotter(FileMu, 'Vtx', 'PUCheck_NoRD', '2012','mu','Signal2012ggM125p8')
-  plotterMu = Plotter(FileMu, 'pT-Eta-Phi', 'Ratio_PostMVA', '2012','mu','Signal2012ggM125p8')
+  plotterMu = Plotter(FileMu, 'ZGAngles_RECO', 'signalTest', '2012','mu','Signal2012ggM125p8')
   for key in plotterMu.folderDict.keys():
-    plotterMu.RatioPlot(plotterMu.folderDict[key],['bg','Signal2012ggM125p8'],['bg','p8 NLO'])
+    plotterMu.RatioPlot(plotterMu.folderDict[key],['Signal2012ggM125p6','Signal2012ggM125NLOp8'],['p6 NLO','p8 NLO'])
 
-  plotterEl = Plotter(FileEl, 'pT-Eta-Phi', 'Ratio_PostMVA', '2012','el','Signal2012ggM125p8')
-  for key in plotterEl.folderDict.keys():
-    plotterEl.RatioPlot(plotterEl.folderDict[key],['bg','Signal2012ggM125p8'],['bg','p8 NLO'])
+  #plotterEl = Plotter(FileEl, 'ZGAngles_RECO', 'Ratio_PostMVA', '2012','el','Signal2012ggM125p8')
+  #for key in plotterEl.folderDict.keys():
+  #  plotterEl.RatioPlot(plotterEl.folderDict[key],['bg','Signal2012ggM125p8'],['bg','p8 NLO'])
 
 
 if __name__=="__main__":

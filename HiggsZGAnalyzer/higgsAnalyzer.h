@@ -157,6 +157,8 @@ class higgsAnalyzer : public TSelector {
     float          ZPtOM;
     float          GEta;
     float          ZEta;
+    float          l1Eta;
+    float          l2Eta;
     float          threeBodyEta;
     float          GPtOHPt;
     float          scaleFactor;
