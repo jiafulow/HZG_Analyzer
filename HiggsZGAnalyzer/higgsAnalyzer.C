@@ -112,7 +112,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   histoFile->mkdir("MVAPlots", "MVAPlots");
   //histoFile->mkdir("FakeRateWeight", "FakeRateWeight");
 
-  diffZGscalar = diffZGvector = threeBodyMass = threeBodyPt = divPt = cosZ = cosG = METdivQt = GPt = ZPt = DPhi = diffPlaneMVA = vtxVariable = dr1 = dr2 = M12 = medisc = smallTheta = bigTheta = comPhi = GPtOM = diffZGvectorOM = threeBodyPtOM = ZPtOM = GEta = ZEta = threeBodyEta = GPtOHPt = l1Eta = l2Eta =  scaleFactor = -99999;
+  diffZGscalar = diffZGvector = threeBodyMass = threeBodyPt = divPt = cosZ = cosG = METdivQt = GPt = ZPt = DPhi = diffPlaneMVA = vtxVariable = dr1 = dr2 = M12 = medisc = smallTheta = bigTheta = comPhi = GPtOM = diffZGvectorOM = threeBodyPtOM = ZPtOM = GEta = ZEta = threeBodyEta = GPtOHPt = l1Eta = l2Eta = R9var = scaleFactor = -99999;
 
   sampleChain->Branch("diffZGscalar",&diffZGscalar,"diffZGscalar/F");
   trainingChain->Branch("diffZGscalar",&diffZGscalar,"diffZGscalar/F");
@@ -174,6 +174,8 @@ void higgsAnalyzer::Begin(TTree * tree)
   trainingChain->Branch("threeBodyEta",&threeBodyEta,"threeBodyEta/F");
   sampleChain->Branch("GPtOHPt",&GPtOHPt,"GPtOHPt/F");
   trainingChain->Branch("GPtOHPt",&GPtOHPt,"GPtOHPt/F");
+  sampleChain->Branch("R9var",&R9var,"R9var/F");
+  trainingChain->Branch("R9var",&R9var,"R9var/F");
 
   sampleChain->Branch("scaleFactor",&scaleFactor,"scaleFactor/F");
   trainingChain->Branch("scaleFactor",&scaleFactor,"scaleFactor/F");
@@ -202,7 +204,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   mvaInits.discrSelection = params->selection;
   mvaInits.discrSampleName = "allBG";
   //mvaInits.discrSuffixName = "anglesOnly";
-  mvaInits.discrSuffixName = "newAngles";
+  mvaInits.discrSuffixName = "newAnglesR9";
 
 
   mvaInits.mvaHiggsMassPoint[0] = 125;
@@ -1315,6 +1317,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   ZEta            = ZP4.Eta();
   threeBodyEta    = (GP4+ZP4).Eta();
   GPtOHPt         = GP4.Pt()/(GP4+ZP4).Pt();
+  R9var           = R9Cor;
   scaleFactor     = eventWeight;
   if (params->suffix.find("ggM125") != string::npos) scaleFactor *= 19.672/(unskimmedEventsTotal/(19.52*0.00154*0.10098*1000));
   if (params->suffix == "DYJets") scaleFactor *= 19.672/(unskimmedEventsTotal/(3503.71*1000));
@@ -1339,18 +1342,19 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   mvaVars._threeBodyEta = threeBodyEta;
   mvaVars._GPtOHPt = GPtOHPt;
   mvaVars._threeBodyMass = threeBodyMass;
+  mvaVars._R9 = R9var;
 
   if (params->doAnglesMVA){
     float mvaVal = MVACalculator(mvaInits, tmvaReader);
     if (params->selection == "mumuGamma"){
       if (catNum ==1){
-        if (mvaVal < -0.2) return kTRUE;
+        if (mvaVal <0.089) return kTRUE;
       }else if (catNum==2){
-        if (mvaVal < -0.36) return kTRUE;
+        if (mvaVal < -0.49) return kTRUE;
       }else if (catNum==3){
-        if (mvaVal < -0.64) return kTRUE;
+        if (mvaVal < -0.22) return kTRUE;
       }else if (catNum==4){
-        if (mvaVal < -0.29) return kTRUE;
+        if (mvaVal < -0.67) return kTRUE;
       }
     }else if (params->selection == "eeGamma"){
       if (catNum ==1){
@@ -1363,6 +1367,29 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         if (mvaVal < -0.36) return kTRUE;
       }
     }
+    /*
+    if (params->selection == "mumuGamma"){
+      if (catNum ==1){
+        if (mvaVal < -0.2) return kTRUE;
+      }else if (catNum==4){
+        if (mvaVal < -0.36) return kTRUE;
+      }else if (catNum==2){
+        if (mvaVal < -0.64) return kTRUE;
+      }else if (catNum==3){
+        if (mvaVal < -0.29) return kTRUE;
+      }
+    }else if (params->selection == "eeGamma"){
+      if (catNum ==1){
+        if (mvaVal < -0.11) return kTRUE;
+      }else if (catNum==4){
+        if (mvaVal < -0.42) return kTRUE;
+      }else if (catNum==2){
+        if (mvaVal < -0.67) return kTRUE;
+      }else if (catNum==3){
+        if (mvaVal < -0.36) return kTRUE;
+      }
+    }
+    */
     /*
     if (params->selection == "mumuGamma"){
       if (catNum ==1){
@@ -2121,6 +2148,7 @@ TMVA::Reader* higgsAnalyzer::MVAInitializer(){
   tmvaReader->AddVariable("GEta", &(mvaVars._GEta));
   tmvaReader->AddVariable("l1Eta", &(mvaVars._l1Eta));
   tmvaReader->AddVariable("l2Eta", &(mvaVars._l2Eta));
+  tmvaReader->AddVariable("R9var", &(mvaVars._R9));
   //tmvaReader->AddVariable("ZEta", &(mvaVars._ZEta));
   //tmvaReader->AddVariable("threeBodyEta", &(mvaVars._threeBodyEta));
   //tmvaReader->AddVariable("GPtOHPt", &(mvaVars._GPtOHPt));

@@ -333,7 +333,7 @@ class Plotter:
       if bin == 1:
         initialSignif = sigYield/sqrt(sigYield+bgYield)
       if sigYield+bgYield > 0:
-        if (sigYield/sqrt(sigYield+bgYield) > bestSignif) and (sigYield>0.7*signalHist.Integral(1, signalHist.GetNbinsX())):
+        if (sigYield/sqrt(sigYield+bgYield) > bestSignif) and (sigYield>0.6*signalHist.Integral(1, signalHist.GetNbinsX())):
           bestSignif = sigYield/sqrt(sigYield+bgYield)
           bestCut = signalHist.GetBinLowEdge(bin)
           bestBGEff = bgYield/bgStack.Integral()
