@@ -39,12 +39,13 @@ def ROCPlotter():
   else:
     #FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_11-12-13.root")
     FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_12-4-13_newAnglesR9.root")
+    FileEl= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_12-4-13_newAnglesR9.root")
 
-  plotter = Plotter(FileMu, 'MVAPlots', 'ROC_MVA_newAnglesR9', '2012','mu','Signal2012ggM125NLOp8')
-  for key in plotter.folderDict.keys():
-    plotter.ROCcurves(plotter.folderDict[key])
-    plotter.ROCcurves(plotter.folderDict[key],125)
-  #plotterEl = Plotter(FileEl, 'MVAPlots', 'ROC_MVA_anglesOnly', '2012','el','Signal2012ggM125NLOp8')
+  #plotter = Plotter(FileMu, 'MVAPlots', 'ROC_MVA_newAnglesR9', '2012','mu','Signal2012ggM125NLOp8')
+  #for key in plotter.folderDict.keys():
+    #plotter.ROCcurves(plotter.folderDict[key])
+    #plotter.ROCcurves(plotter.folderDict[key],125)
+  #plotterEl = Plotter(FileEl, 'MVAPlots', 'ROC_MVA_newAnglesR9', '2012','el','Signal2012ggM125NLOp8')
   #for key in plotterEl.folderDict.keys():
     #plotterEl.ROCcurves(plotterEl.folderDict[key])
     #plotterEl.ROCcurves(plotterEl.folderDict[key],125)
