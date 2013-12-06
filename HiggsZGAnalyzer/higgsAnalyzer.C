@@ -1359,13 +1359,13 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       }
     }else if (params->selection == "eeGamma"){
       if (catNum ==1){
-        if (mvaVal < -0.11) return kTRUE;
+        if (mvaVal < -0.067) return kTRUE;
       }else if (catNum==2){
         if (mvaVal < -0.42) return kTRUE;
       }else if (catNum==3){
-        if (mvaVal < -0.67) return kTRUE;
+        if (mvaVal < -0.2) return kTRUE;
       }else if (catNum==4){
-        if (mvaVal < -0.36) return kTRUE;
+        if (mvaVal < -0.53) return kTRUE;
       }
     }
     */

@@ -45,10 +45,10 @@ def ROCPlotter():
   #for key in plotter.folderDict.keys():
     #plotter.ROCcurves(plotter.folderDict[key])
     #plotter.ROCcurves(plotter.folderDict[key],125)
-  #plotterEl = Plotter(FileEl, 'MVAPlots', 'ROC_MVA_newAnglesR9', '2012','el','Signal2012ggM125NLOp8')
-  #for key in plotterEl.folderDict.keys():
-    #plotterEl.ROCcurves(plotterEl.folderDict[key])
-    #plotterEl.ROCcurves(plotterEl.folderDict[key],125)
+  plotterEl = Plotter(FileEl, 'MVAPlots', 'ROC_MVA_newAnglesR9', '2012','el','Signal2012ggM125NLOp8')
+  for key in plotterEl.folderDict.keys():
+    plotterEl.ROCcurves(plotterEl.folderDict[key])
+    plotterEl.ROCcurves(plotterEl.folderDict[key],125)
 
 def RatioPlotter():
   if os.environ.get('AT_NWU') == None:
@@ -56,12 +56,12 @@ def RatioPlotter():
     FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_signalTest.root")
     #FileEl= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_11-20-13_anglesOnly.root")
   else:
-    FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_11-6-13.root")
+    FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_EmVeto.root")
 
   #plotter = Plotter(FileMu, 'Vtx', 'PUCheck_NoRD', '2012','mu','Signal2012ggM125p8')
-  plotterMu = Plotter(FileMu, 'ZGAngles_RECO', 'signalTest', '2012','mu','Signal2012ggM125NLOp8')
+  plotterMu = Plotter(FileMu, 'pT-Eta-Phi', 'EmVetoTest', '2012','mu','Signal2012ggM125NLOp8')
   for key in plotterMu.folderDict.keys():
-    plotterMu.RatioPlot(plotterMu.folderDict[key],['Signal2012ggM125p6','Signal2012ggM125NLOp8'],['p6 NLO','p8 NLO'])
+    plotterMu.RatioPlot(plotterMu.folderDict[key],['Signal2012ggM125p6','Signal2012ggM125NLOEmVetop8'],['p6 NLO','p8 NLO EmVeto'])
 
   #plotterEl = Plotter(FileEl, 'ZGAngles_RECO', 'Ratio_PostMVA', '2012','el','Signal2012ggM125p8')
   #for key in plotterEl.folderDict.keys():
