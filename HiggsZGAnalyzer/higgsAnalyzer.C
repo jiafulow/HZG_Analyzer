@@ -204,7 +204,8 @@ void higgsAnalyzer::Begin(TTree * tree)
   mvaInits.discrSelection = params->selection;
   mvaInits.discrSampleName = "allBG";
   //mvaInits.discrSuffixName = "anglesOnly";
-  mvaInits.discrSuffixName = "newAnglesR9";
+  //mvaInits.discrSuffixName = "newAnglesR9";
+  mvaInits.discrSuffixName = "01-13-14";
 
 
   mvaInits.mvaHiggsMassPoint[0] = 125;
@@ -1346,7 +1347,29 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   if (params->doAnglesMVA){
     float mvaVal = MVACalculator(mvaInits, tmvaReader);
+    if (params->selection == "mumuGamma"){
+      if (catNum ==1){
+        if (mvaVal <0.29) return kTRUE;
+      }else if (catNum==2){
+        if (mvaVal < -0.18) return kTRUE;
+      }else if (catNum==3){
+        if (mvaVal < -0.089) return kTRUE;
+      }else if (catNum==4){
+        if (mvaVal < -0.33) return kTRUE;
+      }
+    }else if (params->selection == "eeGamma"){
+      if (catNum ==1){
+        if (mvaVal < -0.067) return kTRUE;
+      }else if (catNum==2){
+        if (mvaVal < -0.42) return kTRUE;
+      }else if (catNum==3){
+        if (mvaVal < -0.2) return kTRUE;
+      }else if (catNum==4){
+        if (mvaVal < -0.53) return kTRUE;
+      }
+    }
     /*
+     // newAnglesR9
     if (params->selection == "mumuGamma"){
       if (catNum ==1){
         if (mvaVal <0.089) return kTRUE;
@@ -2143,7 +2166,7 @@ TMVA::Reader* higgsAnalyzer::MVAInitializer(){
   tmvaReader->AddVariable("smallTheta", &(mvaVars._smallTheta));
   tmvaReader->AddVariable("bigTheta", &(mvaVars._bigTheta));
   tmvaReader->AddVariable("comPhi", &(mvaVars._comPhi));
-  //tmvaReader->AddVariable("GPtOM", &(mvaVars._GPtOM));
+  tmvaReader->AddVariable("GPtOM", &(mvaVars._GPtOM));
   //tmvaReader->AddVariable("diffZGvectorOM", &(mvaVars._diffZGvectorOM));
   tmvaReader->AddVariable("threeBodyPtOM", &(mvaVars._threeBodyPtOM));
   //tmvaReader->AddVariable("ZPtOM", &(mvaVars._ZPtOM));
