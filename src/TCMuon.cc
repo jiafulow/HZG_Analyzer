@@ -1,6 +1,5 @@
 #include "../interface/TCMuon.h"
 #include "TCMuonLinkDef.h"
-#include <iostream>
 
 TCMuon::TCMuon() {
 }
@@ -90,6 +89,26 @@ float TCMuon::SegComp() const {
    return _segComp;
 }
 
+float TCMuon::PfIsoPU() const {
+  return _pfIsoPU;
+}
+float TCMuon::PfIsoCharged() const {
+  return _pfIsoChargedHad;
+}
+float TCMuon::PfIsoChargedHad() const {
+  return _pfIsoChargedHad;
+}
+float TCMuon::PfIsoChargedPart() const {
+  return _pfIsoChargedPart;
+}
+float TCMuon::PfIsoNeutral() const {
+  return _pfIsoNeutral;
+}
+float TCMuon::PfIsoPhoton() const {
+  return _pfIsoPhoton;
+}
+
+
 // "set" methods ---------------------------------------------
 void TCMuon::SetNumberOfMatchedStations(int n){
   _numberOfMatchedStations = n;
@@ -169,3 +188,18 @@ void TCMuon::SetSegComp(float s){
    _segComp = s;
 }
 
+void TCMuon::SetPfIsoPU(float f) {
+  _pfIsoPU = f;
+}
+void TCMuon::SetPfIsoChargedHad(float f) {
+  _pfIsoChargedHad = f;
+}
+void TCMuon::SetPfIsoChargedPart(float f) {
+  _pfIsoChargedPart = f;
+}
+void TCMuon::SetPfIsoNeutral(float f) {
+  _pfIsoNeutral = f;
+}
+void TCMuon::SetPfIsoPhoton(float f) {
+  _pfIsoPhoton = f;
+}
