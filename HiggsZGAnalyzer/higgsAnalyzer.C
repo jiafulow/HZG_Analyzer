@@ -17,7 +17,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   string selection = static_cast<string>(static_cast<TObjString*>(option.Tokenize(" ")->At(2))->GetString());
   string period = static_cast<string>(static_cast<TObjString*>(option.Tokenize(" ")->At(3))->GetString());
   string dataname = static_cast<string>(static_cast<TObjString*>(option.Tokenize(" ")->At(4))->GetString());
-  string count = static_cast<string>(static_cast<TObjString*>(option.Tokenize(" ")->At(5))->GetString());
+  string count = static_cast<string>(static_cast<TObjString*>(option.Tokenize(" ")->At(5))->GetString()); 
 
   params.reset(new Parameters());
 
