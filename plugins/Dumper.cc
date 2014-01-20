@@ -157,9 +157,9 @@ void Dumper::ElectronDump(const TCElectron& el, const TClonesArray& recoMuons, b
   else dump = &elDump2;
 
   *dump << _runNumber << " "                          << _eventNumber << " "                                 << el.Pt()
-       << " "       << el.Eta()                    << " "         << el.DetaSuperCluster()              << " "      << el.DphiSuperCluster()
+       << " "       << el.Eta()                    << " "         << el.DeltaEtaSeedCluster()              << " "      << el.DeltaPhiSeedCluster()
        << " "       << el.SigmaIEtaIEta()          << " "         << el.HadOverEm()                     << " "      << el.IdMap("fabsEPDiff")
-       << " "       << el.ConversionVeto()         << " "         << el.ConversionMissHits()            << " "      << el.Dxy(&_pv)
+       << " "       << el.PassConversionVeto()         << " "         << el.ConversionMissHits()            << " "      << el.Dxy(&_pv)
        << " "       << el.Dz(&_pv)           << " "         << el.IsoMap("pfChIso_R04")           << " "      << el.IsoMap("pfNeuIso_R04")
        << " "       << el.IsoMap("pfPhoIso_R04")   << " "         << combIso                             << " "      << _rhoFactor
        << " "       << thisEA                       << " "         << idPass                              << " "      << isoPass

@@ -390,26 +390,26 @@ bool ParticleSelector::PassElectronID(const TCElectron& el, const Cuts::elIDCuts
   if (fabs(el.SCEta()) > 1.4442 && fabs(el.SCEta()) < 1.566) return elPass;
   if (
     (fabs(el.Eta()) < 1.566
-      && fabs(el.DetaSuperCluster())    < cutLevel.dEtaIn[0]
-      && fabs(el.DphiSuperCluster())    < cutLevel.dPhiIn[0]
+      && fabs(el.DeltaEtaSeedCluster())    < cutLevel.dEtaIn[0]
+      && fabs(el.DeltaPhiSeedCluster())    < cutLevel.dPhiIn[0]
       && el.SigmaIEtaIEta()             < cutLevel.sigmaIetaIeta[0]
       && el.HadOverEm()                 < cutLevel.HadOverEm[0]
       && fabs(el.Dxy(&_pv))       < cutLevel.dxy[0]
       && fabs(el.Dz(&_pv))        < cutLevel.dz[0]
       && el.IdMap("fabsEPDiff")         < cutLevel.fabsEPDiff[0]
       && el.ConversionMissHits()        <= cutLevel.ConversionMissHits[0]
-      && el.ConversionVeto()            == cutLevel.PassedConversionProb[0]
+      && el.PassConversionVeto()            == cutLevel.PassedConversionProb[0]
       ) ||
     (fabs(el.Eta()) > 1.566  
-      && fabs(el.DetaSuperCluster())    < cutLevel.dEtaIn[1]
-      && fabs(el.DphiSuperCluster())    < cutLevel.dPhiIn[1]
+      && fabs(el.DeltaEtaSeedCluster())    < cutLevel.dEtaIn[1]
+      && fabs(el.DeltaPhiSeedCluster())    < cutLevel.dPhiIn[1]
       && el.SigmaIEtaIEta()             < cutLevel.sigmaIetaIeta[1]
       && el.HadOverEm()                 < cutLevel.HadOverEm[1]
       && fabs(el.Dxy(&_pv))       < cutLevel.dxy[1]
       && fabs(el.Dz(&_pv))        < cutLevel.dz[1]
       && el.IdMap("fabsEPDiff")         < cutLevel.fabsEPDiff[1]
       && el.ConversionMissHits()        <= cutLevel.ConversionMissHits[1]
-      && el.ConversionVeto()            == cutLevel.PassedConversionProb[1]
+      && el.PassConversionVeto()            == cutLevel.PassedConversionProb[1]
       )
       ) elPass = true; 
     //   cout<<"evt: "<<eventNumber<<" muon num: "<<recoMuons->GetSize()<<endl;
