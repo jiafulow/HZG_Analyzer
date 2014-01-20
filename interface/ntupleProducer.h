@@ -36,8 +36,6 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/JetID.h"
-#include "DataFormats/JetReco/interface/JPTJetCollection.h"
-#include "DataFormats/JetReco/interface/JPTJet.h"
 
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
@@ -77,16 +75,6 @@
 #include "SimDataFormats/JetMatching/interface/MatchedPartons.h"
 #include "SimDataFormats/JetMatching/interface/JetMatchedPartons.h"
 
-// PAT
-#include "DataFormats/PatCandidates/interface/Electron.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
-#include "DataFormats/PatCandidates/interface/Photon.h"
-#include "DataFormats/PatCandidates/interface/MET.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
-#include "DataFormats/PatCandidates/interface/Tau.h"
-
-//#include "RecoVertex/PrimaryVertexProducer/interface/VertexHigherPtSquared.h"
-
 // JEC
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
@@ -97,31 +85,32 @@
 // Jet associators
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDRCalo.h"
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDRVertex.h"
+
 #include "RecoJets/JetProducers/interface/PileupJetIdAlgo.h"
 
 // EGamma tools
 #include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
-#include "EGamma/EGammaAnalysisTools/interface/ElectronEffectiveArea.h"
-#include "EGamma/EGammaAnalysisTools/src/PFIsolationEstimator.cc"
-//#include "EGamma/EGammaAnalysisTools/interface/EGammaMvaEleEstimator.h"
+#include "EgammaAnalysis/ElectronTools/interface/ElectronEffectiveArea.h"
+#include "EgammaAnalysis/ElectronTools/interface/PFIsolationEstimator.h"
+//#include "EgammaAnalysis/ElectronTools/interface/ElectronEnergyRegressionEvaluate.h"
+
+#include "TrackingTools/IPTools/interface/IPTools.h"
+
+// Tracking tools, supposedly for track-met:
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/METReco/interface/BeamHaloSummary.h"
-#include "EGamma/EGammaAnalysisTools/interface/ElectronEnergyRegressionEvaluate.h"
-#include "EgammaAnalysis/ElectronTools/interface/PatElectronEnergyCalibrator.h"
 
-#include "RecoMET/METProducers/interface/TrackMETProducer.h"
-#include "RecoMET/METProducers/interface/ParticleFlowForChargedMETProducer.h"
-#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 // ntuple storage classes
 #include "TCPhysObject.h"
 #include "TCPrimaryVtx.h"
 #include "TCJet.h"
 #include "TCMET.h"
 #include "TCMuon.h"
+#include "TCEGamma.h"
 #include "TCElectron.h"
 #include "TCTau.h"
 #include "TCPhoton.h"
@@ -136,6 +125,17 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
+
+//Supercluster footprint removal:
+#include "PFIsolation/SuperClusterFootprintRemoval/interface/SuperClusterFootprintRemoval.h"
+
+//Photon Lazytools and ESEff
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+#include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
+#include "RecoCaloTools/Navigation/interface/EcalPreshowerNavigator.h"
 
 //Root  stuff
 #include "TROOT.h"
@@ -193,25 +193,36 @@ class ntupleProducer : public edm::EDAnalyzer {
   virtual bool  triggerDecision(edm::Handle<edm::TriggerResults>& hltR, int iTrigger);
   virtual float sumPtSquared(const Vertex& v);
   virtual bool  associateJetToVertex(reco::PFJet inJet, Handle<reco::VertexCollection> vtxCollection, TCJet* outJet);   
-  virtual void  electronMVA(const reco::GsfElectron* iElectron, TCElectron* eleCon, const edm::Event& iEvent,const edm::EventSetup& iSetup, const reco::PFCandidateCollection& PFCandidates, float Rho);
-  virtual bool  isFilteredOutScraping(const edm::Event& iEvent, const edm::EventSetup& iSetup, int numtrack=10, double thresh=0.25);
+  //virtual void  electronMVA(const reco::GsfElectron* iElectron, TCElectron* eleCon, 
+  //                        const edm::Event& iEvent, const edm::EventSetup& iSetup, 
+  //                        const reco::PFCandidateCollection& PFCandidates, float Rho);
+  virtual bool  isFilteredOutScraping(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
+                                      int numtrack=10, double thresh=0.25);
   virtual float MatchBTagsToJets(const reco::JetTagCollection, const reco::PFJet);
-  void analyzeTrigger(edm::Handle<edm::TriggerResults> &hltR, edm::Handle<trigger::TriggerEvent> &hltE, const std::string& triggerName, int* trigCount);                   
+  void analyzeTrigger(edm::Handle<edm::TriggerResults> &hltR, edm::Handle<trigger::TriggerEvent> &hltE, 
+                      const std::string& triggerName, int* trigCount);                   
   void initJetEnergyCorrector(const edm::EventSetup &iSetup, bool isData);
   TCGenParticle* addGenParticle(const reco::GenParticle* myParticle, int& genPartCount, std::map<const reco::GenParticle*,TCGenParticle*>& genMap);
+  TCTrack::ConversionInfo CheckForConversions(const edm::Handle<reco::ConversionCollection> &convCol,
+                                              const reco::GsfTrackRef &trk,
+                                              const math::XYZPoint &bs, const math::XYZPoint &pv);
+  vector<float> getESHits(double X, double Y, double Z, map<DetId, EcalRecHit> rechits_map, const CaloSubdetectorGeometry*& geometry_p, CaloSubdetectorTopology *topology_p, int row=0);
+  vector<float> getESEffSigmaRR(vector<float> ESHits0);
+
+
   // ----------member data ---------------------------
   
   struct JetCompare :
-    public std::binary_function<reco::Jet, reco::Jet, bool> {
+  public std::binary_function<reco::Jet, reco::Jet, bool> {
     inline bool operator () (const reco::Jet &j1,
-			     const reco::Jet &j2) const
+                             const reco::Jet &j2) const
     { return (j1.p4().Pt() > j2.p4().Pt()); }
   };
   
-    static bool EnergySortCriterium( const TCPhoton::CrystalInfo p1,const TCPhoton::CrystalInfo p2 ){
-      return p1.energy > p2.energy;
-    };
-    
+  static bool EnergySortCriterium( const TCPhoton::CrystalInfo p1,const TCPhoton::CrystalInfo p2 ){
+    return p1.energy > p2.energy;
+  };
+  
   typedef std::map<reco::Jet, unsigned int, JetCompare> flavourMap;
   typedef reco::JetTagCollection::const_iterator tag_iter;
   
@@ -253,25 +264,29 @@ class ntupleProducer : public edm::EDAnalyzer {
   edm::ParameterSet photonIsoCalcTag_;
   edm::ParameterSet jetPUIdAlgo_;
   edm::InputTag triggerEventTag_;
+  edm::InputTag ebReducedRecHitCollection_;
+  edm::InputTag eeReducedRecHitCollection_;
+  edm::InputTag esReducedRecHitCollection_;
 
   bool skimLepton_;
+  bool saveMuons_;
   bool saveJets_;
   bool saveElectrons_;
-  bool saveMuons_;
+  bool saveEleCrystals_;
   bool savePhotons_;
+  bool savePhoCrystals_;
   bool saveMET_;
-  bool saveTrackMET_; 
-  bool saveT0MET_; 
-  bool saveT2MET_;
   bool saveGenJets_;
   bool saveGenParticles_;
   bool isRealData;
   bool verboseTrigs;
   bool verboseMVAs;
+  bool saveMoreEgammaVars_;
+  bool saveTriggerObj_;
+  double SCFPRemovalCone_;
   
   //Physics object containers
   TClonesArray* recoJets;
-  TClonesArray* recoJPT;
   TClonesArray* recoMuons;
   TClonesArray* recoElectrons;
   TClonesArray* recoPhotons;
@@ -279,11 +294,6 @@ class ntupleProducer : public edm::EDAnalyzer {
   TClonesArray* genJets;
   TClonesArray* genParticles;
   auto_ptr<TCMET>   recoMET;
-  auto_ptr<TCMET>   track_MET;
-  auto_ptr<TCMET>	  T0MET; 
-  auto_ptr<TCMET>	  T2MET;
-  auto_ptr<TCMET>   recoMET_corr;
-  auto_ptr<TCMET>   mva_MET;
 
   //Vertex info
   TClonesArray* primaryVtx;
@@ -311,10 +321,14 @@ class ntupleProducer : public edm::EDAnalyzer {
   TH1F * h1_numOfEvents;
 
   // Electron Regression
-  auto_ptr<ElectronEnergyRegressionEvaluate> myEleReg;
+  //auto_ptr<ElectronEnergyRegressionEvaluate> myEleReg;
 
   // PU Jet Id Algo
   auto_ptr<PileupJetIdAlgo> myPUJetID;
-  auto_ptr<FactorizedJetCorrector> jecCor;
-  
+  auto_ptr<FactorizedJetCorrector> jecCor;  
+
+  // Photon LazyTool and such
+  auto_ptr<EcalClusterLazyTools> lazyTool;
+  map<DetId, EcalRecHit> rechits_map_;
+  auto_ptr<CaloSubdetectorTopology> topology_p;
 };
