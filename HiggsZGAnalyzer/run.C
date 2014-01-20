@@ -1,24 +1,3 @@
-#!/bin/csh
-
-set dir=`echo $1 | cut -d _ -f 1 `
-
-#cp $6 higgsAnalyzer.C
-
-#sed -i "s/SUFFIX/$1/g" higgsAnalyzer.C
-#sed -i "s/ABCD/$2/g" higgsAnalyzer.C
-#sed -i "s/DATANAME/$3/g" higgsAnalyzer.C
-#sed -i "s/SELECTION/$4/g" higgsAnalyzer.C
-#sed -i "s/PERIOD/$5/g" higgsAnalyzer.C
-#sed -i "s/COUNT/local/g" higgsAnalyzer.C
-
-set suffix=$1
-set abcd=$2
-set dataName=$3
-set selection=$4
-set period=$5
-set count='local'
-
-cat > run.C << +EOF
 
   #include <iostream>
   #include <fstream>
@@ -63,10 +42,10 @@ cat > run.C << +EOF
 
     TChain* fChain = new TChain("ntupleProducer/eventTree");
 
-    ifstream sourceFiles("sourceFiles/$3.txt");
+    ifstream sourceFiles("sourceFiles/ggM125_NWU_v0904.txt");
     string myLine;
     int  count = 0;
-    cout<<"Adding files from $3 to chain..."<<endl;
+    cout<<"Adding files from ggM125_NWU_v0904 to chain..."<<endl;
 
     while (sourceFiles >> myLine) {
       if (count == 0 && myLine.find("dcache")==string::npos){
@@ -98,8 +77,3 @@ cat > run.C << +EOF
     cout << "\n";
   }
 
-+EOF
-
-root -l -b -q 'run.C("'$suffix' '$abcd' '$selection' '$period' '$dataName' '$count'")'
-rm run.C
-mv *local.root localHistos/.

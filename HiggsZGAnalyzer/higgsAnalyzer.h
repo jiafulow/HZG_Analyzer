@@ -36,6 +36,9 @@
 #include "TMVA/Reader.h"
 #include "TMVA/MethodCuts.h"
 
+#include "../interface/TCPhysObject.h"
+#include "../interface/TCTrack.h"
+#include "../interface/TCEGamma.h"
 #include "../interface/TCJet.h"
 #include "../interface/TCMET.h"
 #include "../interface/TCElectron.h"
