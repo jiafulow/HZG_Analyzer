@@ -1385,6 +1385,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   if (params->doAnglesMVA){
     float mvaVal = MVACalculator(mvaInits, tmvaReader);
+    /*
+    // test version for photon pt, don't use it's shit
     if (params->selection == "mumuGamma"){
       if (catNum ==1){
         if (mvaVal <0.29) return kTRUE;
@@ -1406,7 +1408,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         if (mvaVal < -0.53) return kTRUE;
       }
     }
-    /*
      // newAnglesR9
     if (params->selection == "mumuGamma"){
       if (catNum ==1){

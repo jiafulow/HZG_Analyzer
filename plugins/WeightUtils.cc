@@ -33,6 +33,7 @@ WeightUtils::WeightUtils(const Parameters& params, bool isRealData, int runNumbe
   _PhoMedWP2012        = new TFile("otherHistos/PhotonSF_MediumWP.root", "OPEN");
   _PhoMedWPveto2012    = new TFile("otherHistos/PhotonSF_MediumWP_includingVetoCut_Full2012.root", "OPEN");
   _EleMoriondWP2012    = new TFile("otherHistos/efficiency_results_EleHZGammaMoriond2013WPMixed_Moriond2013.root", "OPEN");
+  _EleLegacyWP2012    = new TFile("otherHistos/CombinedMethod_ScaleFactors_RecoIdIsoSip.root", "OPEN");
 
 
   // PU weights
@@ -73,6 +74,7 @@ WeightUtils::WeightUtils(const Parameters& params, bool isRealData, int runNumbe
 
   //electron histo
   h1_EleMoriondWP2012 = (TH2F*)_EleMoriondWP2012->Get("heff_electron_selection");
+  h1_EleLegacyWP2012 = (TH2F*)_EleLegacyWP2012->Get("h_electronScaleFactor_RecoIdIsoSip");
 
   
 }
@@ -359,13 +361,14 @@ float WeightUtils::ElectronSelectionWeight(TLorentzVector l1){
   int xBin;
   int yBin;
 
-  xBin = h1_EleMoriondWP2012->GetXaxis()->FindFixBin(l1.Pt());
+  xBin = h1_EleLegacyWP2012->GetXaxis()->FindFixBin(l1.Pt());
   if (xBin>7) xBin=7;
-  yBin = h1_EleMoriondWP2012->GetYaxis()->FindFixBin(fabs(l1.Eta()));
-  if (yBin>5) yBin=5;
+  yBin = h1_EleLegacyWP2012->GetYaxis()->FindFixBin(l1.Eta());
+  if (yBin>10) yBin=10;
+
 
   if (_params.period.find("2012") != string::npos){
-    eleSF = h1_EleMoriondWP2012->GetBinContent(xBin,yBin);
+    eleSF = h1_EleLegacyWP2012->GetBinContent(xBin,yBin);
   }else{
     eleSF = 1;
   }
