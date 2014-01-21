@@ -66,9 +66,9 @@ def RatioPlotter():
   for key in plotterMu.folderDict[0].keys():
     plotterMu.RatioPlot(key,['Signal2012ggM125NLOp8','Signal2012ggM125NLOp8'],['nv8.2','nv9.4'])
 
-  #plotterEl = Plotter(FileEl, 'ZGAngles_RECO', 'Ratio_PostMVA', '2012','el','Signal2012ggM125p8')
-  #for key in plotterEl.folderDict.keys():
-  #  plotterEl.RatioPlot(plotterEl.folderDict[key],['bg','Signal2012ggM125p8'],['bg','p8 NLO'])
+  plotterEl = Plotter([FileEl1,FileEl2], 'pT-Eta-Phi', 'ntuple8v9', '2012','el','Signal2012ggM125NLOp8')
+  for key in plotterEl.folderDict[0].keys():
+    plotterEl.RatioPlot(key,['Signal2012ggM125NLOp8','Signal2012ggM125NLOp8'],['nv8.2','nv9.4'])
 
 
 if __name__=="__main__":
