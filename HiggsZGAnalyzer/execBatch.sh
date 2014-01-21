@@ -41,6 +41,8 @@ cat > run.C << +EOF
 
     gROOT->SetMacroPath(".:../src/:../interface/:../plugins/");
     gROOT->LoadMacro("TCPhysObject.cc+");
+    gROOT->LoadMacro("TCEGamma.cc+");
+    gROOT->LoadMacro("TCTrack.cc+");
     gROOT->LoadMacro("TCJet.cc+");
     gROOT->LoadMacro("TCMET.cc+");
     gROOT->LoadMacro("TCElectron.cc+");

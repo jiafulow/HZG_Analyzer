@@ -56,12 +56,13 @@ def RatioPlotter():
     FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_signalTest.root")
     #FileEl= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_11-20-13_anglesOnly.root")
   else:
-    FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_EmVeto.root")
+    FileMu1= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_01-13-14.root")
+    FileMu2= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_01-21-14_v9_4.root")
 
   #plotter = Plotter(FileMu, 'Vtx', 'PUCheck_NoRD', '2012','mu','Signal2012ggM125p8')
-  plotterMu = Plotter(FileMu, 'pT-Eta-Phi', 'EmVetoTest', '2012','mu','Signal2012ggM125NLOp8')
-  for key in plotterMu.folderDict.keys():
-    plotterMu.RatioPlot(plotterMu.folderDict[key],['Signal2012ggM125p6','Signal2012ggM125NLOEmVetop8'],['p6 NLO','p8 NLO EmVeto'])
+  plotterMu = Plotter([FileMu1,FileMu2], 'pT-Eta-Phi', 'ntuple8v9', '2012','mu','Signal2012ggM125NLOp8')
+  for key in plotterMu.folderDict[0].keys():
+    plotterMu.RatioPlot(key,['Signal2012ggM125NLOp8','Signal2012ggM125NLOp8'],['nv8.2','nv9.4'])
 
   #plotterEl = Plotter(FileEl, 'ZGAngles_RECO', 'Ratio_PostMVA', '2012','el','Signal2012ggM125p8')
   #for key in plotterEl.folderDict.keys():

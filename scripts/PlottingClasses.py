@@ -34,13 +34,25 @@ class Plotter:
 
   def FolderDump(self):
     '''Input file and folder name, output default dictionary of histogram lists. the key name is the distribution, the lists are all the samples for the given distribution'''
-    folderDict = defaultdict(list)
-    lok = self.thisFile.GetDirectory(self.folder).GetListOfKeys()
-    for i in range(0, lok.GetEntries()):
-      name = lok.At(i).GetName()
-      key = name.split('_')[1]
-      folderDict[key].append(self.thisFile.GetDirectory(self.folder).Get(name))
-    self.folderDict = folderDict
+    if type(self.thisFile) != list:
+        folderDict = defaultdict(list)
+        lok = self.thisFile.GetDirectory(self.folder).GetListOfKeys()
+        for i in range(0, lok.GetEntries()):
+          name = lok.At(i).GetName()
+          key = name.split('_')[1]
+          folderDict[key].append(self.thisFile.GetDirectory(self.folder).Get(name))
+        self.folderDict = folderDict
+    else:
+        folderDict = []
+        for aFile in self.thisFile:
+            lok = aFile.GetDirectory(self.folder).GetListOfKeys()
+            folderDict.append(defaultdict(list))
+            for i in range(0, lok.GetEntries()):
+              name = lok.At(i).GetName()
+              key = name.split('_')[1]
+              folderDict[-1][key].append(aFile.GetDirectory(self.folder).Get(name))
+        self.folderDict = folderDict
+
 
   def LumiXSScale(self,name):
     '''Outputs scale for MC with respect to lumi and XS'''
@@ -68,7 +80,7 @@ class Plotter:
     scale = lumi/scale
     return scale
 
-  def ChooseTwoHists(self,histList,chooseNames):
+  def ChooseTwoHists(self,chooseNames,histList, histList2 = None):
     outList = []
     if chooseNames[0].lower() == 'bg' or chooseNames[0].lower() == 'background':
       bgList = self.GetBGHists(histList)
@@ -87,7 +99,8 @@ class Plotter:
           break
 
     if chooseNames[1].lower() == 'bg' or chooseNames[1].lower() == 'background':
-      bgList = self.GetBGHists(histList)
+      if histList2 == None: histList2 = histList
+      bgList = self.GetBGHists(histList2)
       bgHist = bgList[0].Clone()
       bgHist.Reset()
       for hist in bgList:
@@ -97,7 +110,7 @@ class Plotter:
         bgHist.Add(hist)
       outList.append(bgHist)
     else:
-      for hist in histList:
+      for hist in histList2:
         if chooseNames[1] in hist.GetName():
           outList.append(hist.Clone())
           break
@@ -591,15 +604,31 @@ class Plotter:
 
     #self.can.IsA().Destructor(self.can)
 
-  def RatioPlot(self, histList, chooseNames, legendNames):
+  def RatioPlot(self, key, chooseNames, legendNames):
     '''Get two plots, normalize them, compare with ratio'''
-    if len(histList) == 0: raise NameError('histList is empty')
-    gStyle.SetOptStat(0)
-    if histList[0].GetName().split('_')[0] == 'h2':
-      print 'skipping ratio plot for', histList[0].GetName()
-      return
+    if type(self.thisFile) != list:
+        histList = self.folderDict[key]
+        if len(histList) == 0: raise NameError('histList is empty')
+        gStyle.SetOptStat(0)
+        if histList[0].GetName().split('_')[0] == 'h2':
+          print 'skipping ratio plot for', histList[0].GetName()
+          return
 
-    compHists = self.ChooseTwoHists(histList,chooseNames)
+        compHists = self.ChooseTwoHists(chooseNames, histList)
+    else:
+        histList1 = self.folderDict[0][key]
+        histList2 = self.folderDict[1][key]
+        if len(histList1) == 0: raise NameError('histList1 is empty')
+        if len(histList2) == 0: raise NameError('histList2 is empty')
+        gStyle.SetOptStat(0)
+        if histList1[0].GetName().split('_')[0] == 'h2':
+          print 'skipping ratio plot for', histList1[0].GetName()
+          return
+        if histList2[0].GetName().split('_')[0] == 'h2':
+          print 'skipping ratio plot for', histList2[0].GetName()
+          return
+
+        compHists = self.ChooseTwoHists(chooseNames,histList1,histList2)
 
     if not os.path.isdir(self.directory):
       os.mkdir(self.directory)
