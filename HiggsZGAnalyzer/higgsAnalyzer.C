@@ -528,14 +528,52 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
       //dumper->MVADumper(*thisElec, myMVATrig.get()); 
 
+      /*
       if (thisElec->IdMap("preSelPassV1")) electronsID.push_back(*thisElec);			
-
       /// inner barrel
       if (thisElec->IdMap("preSelPassV1") && thisElec->Pt() > 20 && thisElec->MvaID() > -0.5 && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
         passAll = true;
       /// outer barrel
       }else if (thisElec->IdMap("preSelPassV1") && thisElec->Pt() < 20 && thisElec->MvaID() > -0.90 && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
         passAll = true;
+      }
+      */
+      if (thisElec->Pt() > 5 && thisElec->ConversionMissHits() <=1) electronsID.push_back(*thisElec);			
+      /// inner barrel, low pt
+      if (thisElec->Pt() > 5 && thisElec->Pt() < 10){
+          if (fabs(thisElec->SCEta()) < 0.8
+                  && thisElec->MvaID() > 0.47
+                  && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
+              passAll = true;
+      /// outer barrel, low pt
+          }else if(fabs(thisElec->SCEta()) > 0.8 && fabs(thisElec->SCEta()) < 1.479
+                  && thisElec->MvaID() > 0.004
+                  && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
+              passAll = true;
+      /// endcap, low pt
+          }else if(fabs(thisElec->SCEta()) > 1.479
+                  && thisElec->MvaID() > 0.295
+                  && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
+              passAll = true;
+          }
+      }else if (thisElec->Pt() > 10){
+      /// inner barrel, high pt
+          if (fabs(thisElec->SCEta()) < 0.8
+                  && thisElec->MvaID() > -0.34
+                  && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
+              passAll = true;
+      /// outer barrel, high pt
+          }else if(fabs(thisElec->SCEta()) > 0.8 && fabs(thisElec->SCEta()) < 1.479
+                  && thisElec->MvaID() > -0.65
+                  && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
+              passAll = true;
+      /// endcap, high pt
+          }else if(fabs(thisElec->SCEta()) > 1.479
+                  && thisElec->MvaID() > 0.6
+                  && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
+              passAll = true;
+          }
+
       }
 
       if (passAll){

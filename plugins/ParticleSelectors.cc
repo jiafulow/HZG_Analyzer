@@ -374,8 +374,8 @@ bool ParticleSelector::PassMuonIso(const TCMuon& mu, const Cuts::muIsoCuts& cutL
 
   float combIso;
 
-  combIso = (mu.IsoMap("pfChargedHadronPt_R04")
-    + max(0.,(double)mu.IsoMap("pfNeutralHadronEt_R04") + mu.IsoMap("pfPhotonEt_R04") - 0.5*mu.IsoMap("pfPUPt_R04")));
+  combIso = (mu.PfIsoChargedHad()
+    + max(0.,(double)mu.PfIsoNeutral()+ mu.PfIsoPhoton() - 0.5*mu.PfIsoPU()));
 
   bool isoPass = false;
   if (combIso/mu.Pt() < cutLevel.relCombIso04) isoPass = true;
@@ -438,8 +438,8 @@ bool ParticleSelector::PassElectronIso(const TCElectron& el, const Cuts::elIsoCu
   else if (fabs(el.Eta())     <  2.4) thisEA = EAEle[5];
   else if (fabs(el.Eta())     >  2.4) thisEA = EAEle[6];
 
-  float combIso = (el.IsoMap("pfChIso_R04")
-    + max(0.,(double)el.IsoMap("pfNeuIso_R04") + el.IsoMap("pfPhoIso_R04") - _rhoFactor*thisEA));
+  float combIso = (el.PfIsoCharged()
+    + max(0.,(double)el.PfIsoNeutral() + el.PfIsoPhoton() - _rhoFactor*thisEA));
   bool isoPass = false;
   if (combIso/el.Pt() < cutLevel.relCombIso04) isoPass = true;
   return isoPass;
@@ -503,9 +503,9 @@ bool ParticleSelector::PassPhotonIso(const TCPhoton& ph, const Cuts::phIsoCuts& 
     phEA = EAPho[6][2];
   }
 
-  chIsoCor = ph.IsoMap("chIso03")-_rhoFactor*chEA;
-  nhIsoCor = ph.IsoMap("nhIso03")-_rhoFactor*nhEA;
-  phIsoCor = ph.IsoMap("phIso03")-_rhoFactor*phEA;
+  chIsoCor = ph.PfIsoCharged()-_rhoFactor*chEA;
+  nhIsoCor = ph.PfIsoNeutral()-_rhoFactor*nhEA;
+  phIsoCor = ph.PfIsoPhoton() -_rhoFactor*phEA;
 
   if (cutLevel.cutName == "loosePhIso"){
     if (
