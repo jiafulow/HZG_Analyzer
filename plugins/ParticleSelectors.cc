@@ -72,6 +72,7 @@ bool ParticleSelector::FindGoodZElectron(vector<TCElectron>& electronList, const
             }
           }
           /// do eng cor
+          /* old style
           if(_parameters.engCor){
             float energyElCorI;
             float energyElCorJ;
@@ -96,6 +97,21 @@ bool ParticleSelector::FindGoodZElectron(vector<TCElectron>& electronList, const
             float newPtJ = energyElCorJ/cosh(electronList[j].Eta());
             electronList[i].SetPtEtaPhiM(newPtI,electronList[i].Eta(),electronList[i].Phi(),0.000511);
             electronList[j].SetPtEtaPhiM(newPtJ,electronList[j].Eta(),electronList[j].Phi(),0.000511);
+          }
+          */
+          if(_parameters.engCor){
+              if ( _parameters.period.find("2011") != string::npos ){
+                  float energyElCorI;
+                  float energyElCorJ;
+                  energyElCorI = correctedElectronEnergy( electronList[i].E(), electronList[i].SCEta(), electronList[i].R9(), _runNumber, 0, "2011", !_isRealData, &_rEl );
+                  energyElCorJ = correctedElectronEnergy( electronList[j].E(), electronList[j].SCEta(), electronList[j].R9(), _runNumber, 0, "2011", !_isRealData, &_rEl );
+                  //float newPtI = sqrt((pow(energyElCorI,2)-pow(0.000511,2))/pow(cosh(electronList[i].Eta()),2));
+                  //float newPtJ = sqrt((pow(energyElCorJ,2)-pow(0.000511,2))/pow(cosh(electronList[j].Eta()),2));
+                  float newPtI = energyElCorI/cosh(electronList[i].Eta());
+                  float newPtJ = energyElCorJ/cosh(electronList[j].Eta());
+                  electronList[i].SetPtEtaPhiM(newPtI,electronList[i].Eta(),electronList[i].Phi(),0.000511);
+                  electronList[j].SetPtEtaPhiM(newPtJ,electronList[j].Eta(),electronList[j].Phi(),0.000511);
+              }
           }
           tmpZ = (electronList[i]+electronList[j]);
           if(fabs(91.1876-tmpZ.M()) < ZmassDiff){

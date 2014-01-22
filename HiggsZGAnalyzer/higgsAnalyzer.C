@@ -205,7 +205,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   mvaInits.discrSampleName = "allBG";
   //mvaInits.discrSuffixName = "anglesOnly";
   //mvaInits.discrSuffixName = "newAnglesR9";
-  mvaInits.discrSuffixName = "01-13-14";
+  mvaInits.discrSuffixName = "01-21-14_v9_4";
 
 
   mvaInits.mvaHiggsMassPoint[0] = 125;
@@ -585,6 +585,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
                                                                   
 
     }else{
+        /* old style
       if(params->engCor){
         float energyElCor;
         if ( params->period.find("2011") != string::npos ){
@@ -595,6 +596,16 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         float newPt = sqrt((pow(energyElCor,2)-pow(0.000511,2))/pow(cosh(thisElec->Eta()),2));
         cloneElectron = thisElec;
         thisElec->SetPtEtaPhiM(newPt,thisElec->Eta(),thisElec->Phi(),0.000511);
+      }
+      */
+      if(params->engCor){
+        float energyElCor;
+        if ( params->period.find("2011") != string::npos ){
+          energyElCor = correctedElectronEnergy( thisElec->E(), thisElec->SCEta(), thisElec->R9(), runNumber, 0, "2011", !isRealData, rEl.get() );
+            float newPt = sqrt((pow(energyElCor,2)-pow(0.000511,2))/pow(cosh(thisElec->Eta()),2));
+            cloneElectron = thisElec;
+            thisElec->SetPtEtaPhiM(newPt,thisElec->Eta(),thisElec->Phi(),0.000511);
+        }
       }
       dumper->ElectronDump(*thisElec, *recoMuons, false);
       if (particleSelector->PassElectronID(*thisElec, cuts->looseElID, *recoMuons)) electronsID.push_back(*thisElec);			
@@ -1349,7 +1360,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   GPtOM           = GP4.Pt()/(ZP4+GP4).M();
   diffZGvectorOM  = (ZP4-GP4).Pt()/(ZP4+GP4).M();
   threeBodyPtOM   = (ZP4+GP4).Pt()/(ZP4+GP4).M();
-  ZPtOM           = ZP4.Pt()/(ZP4+GP4).M();
+  ZPtOM           = ZP4.Pt()/ZP4.M();
   GEta            = GP4.Eta();
   l1Eta           = lepton1.Eta();
   l2Eta           = lepton2.Eta();
@@ -2205,10 +2216,10 @@ TMVA::Reader* higgsAnalyzer::MVAInitializer(){
   tmvaReader->AddVariable("smallTheta", &(mvaVars._smallTheta));
   tmvaReader->AddVariable("bigTheta", &(mvaVars._bigTheta));
   tmvaReader->AddVariable("comPhi", &(mvaVars._comPhi));
-  tmvaReader->AddVariable("GPtOM", &(mvaVars._GPtOM));
+  //tmvaReader->AddVariable("GPtOM", &(mvaVars._GPtOM));
   //tmvaReader->AddVariable("diffZGvectorOM", &(mvaVars._diffZGvectorOM));
   tmvaReader->AddVariable("threeBodyPtOM", &(mvaVars._threeBodyPtOM));
-  //tmvaReader->AddVariable("ZPtOM", &(mvaVars._ZPtOM));
+  tmvaReader->AddVariable("ZPtOM", &(mvaVars._ZPtOM));
   tmvaReader->AddVariable("GEta", &(mvaVars._GEta));
   tmvaReader->AddVariable("l1Eta", &(mvaVars._l1Eta));
   tmvaReader->AddVariable("l2Eta", &(mvaVars._l2Eta));

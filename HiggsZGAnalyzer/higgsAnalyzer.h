@@ -78,9 +78,9 @@ class higgsAnalyzer : public TSelector {
     auto_ptr<Cuts> cuts;
     auto_ptr<Dumper> dumper;
 
-		auto_ptr<TFile> histoFile;
-		auto_ptr<TFile> trainingFile;
-		auto_ptr<TFile> sampleFile;
+    auto_ptr<TFile> histoFile;
+    auto_ptr<TFile> trainingFile;
+    auto_ptr<TFile> sampleFile;
     auto_ptr<TFile> eleSmearFile;
     auto_ptr<TFile> eleIDISOFile;
     auto_ptr<TFile> m_llgFile;

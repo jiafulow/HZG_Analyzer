@@ -704,5 +704,8 @@ class Plotter:
     zero.SetTextSize(0.035)
     zero.AddText('0')
     zero.Draw()
-    self.can.SaveAs(self.directory+'/'+self.lepton+self.lepton+'_'+compHists[0].GetName().split('_')[1]+'.pdf')
+    if chooseNames[0] == chooseNames[1]: ratioNames = chooseNames[0]
+    else: ratioNames = chooseNames[0]+chooseNames[1]
+    self.can.SaveAs(self.directory+'/'+self.lepton+self.lepton+'_'+compHists[0].GetName().split('_')[1]+
+            '_'+ratioNames+'.pdf')
     self.can.IsA().Destructor(self.can)
