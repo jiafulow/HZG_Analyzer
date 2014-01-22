@@ -529,12 +529,12 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       //dumper->MVADumper(*thisElec, myMVATrig.get()); 
 
       /*
-      if (thisElec->IdMap("preSelPassV1")) electronsID.push_back(*thisElec);			
+      if (thisElec->Pt() > 20) electronsID.push_back(*thisElec);			
       /// inner barrel
-      if (thisElec->IdMap("preSelPassV1") && thisElec->Pt() > 20 && thisElec->MvaID() > -0.5 && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
+      if (thisElec->Pt() > 20 && thisElec->MvaID_Old() > -0.5 && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
         passAll = true;
       /// outer barrel
-      }else if (thisElec->IdMap("preSelPassV1") && thisElec->Pt() < 20 && thisElec->MvaID() > -0.90 && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
+      }else if (thisElec->Pt() < 20 && thisElec->MvaID_Old() > -0.90 && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
         passAll = true;
       }
       */
@@ -1396,6 +1396,27 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   if (params->doAnglesMVA){
     float mvaVal = MVACalculator(mvaInits, tmvaReader);
+    if (params->selection == "mumuGamma"){
+      if (catNum ==1){
+        if (mvaVal <0.13) return kTRUE;
+      }else if (catNum==2){
+        if (mvaVal < -0.44) return kTRUE;
+      }else if (catNum==3){
+        if (mvaVal < -0.11) return kTRUE;
+      }else if (catNum==4){
+        if (mvaVal < -0.47) return kTRUE;
+      }
+    }else if (params->selection == "eeGamma"){
+      if (catNum ==1){
+        if (mvaVal < 0.0) return kTRUE;
+      }else if (catNum==2){
+        if (mvaVal < -0.29) return kTRUE;
+      }else if (catNum==3){
+        if (mvaVal < -0.18) return kTRUE;
+      }else if (catNum==4){
+        if (mvaVal < -0.42) return kTRUE;
+      }
+    }
     /*
     // test version for photon pt, don't use it's shit
     if (params->selection == "mumuGamma"){
