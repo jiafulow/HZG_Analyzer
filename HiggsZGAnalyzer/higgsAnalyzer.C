@@ -1099,7 +1099,10 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     goodPhoton = particleSelector->FindGoodPhoton(photonsIDIso, GP4, lepton1, lepton2, R9Cor, GP4scEta, vetoPhotons);
     if(!goodPhoton) return kTRUE;
 
-    if (params->doScaleFactors) eventWeight   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
+    if (params->doScaleFactors){
+        eventWeight   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
+        if (params->suffix == "DYJets") eventWeight   *= weighter->PhotonFakeWeight(GP4.Eta(), GP4.Pt()); 
+    }
     eventWeightPho   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
   }else{
 
@@ -1396,6 +1399,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   if (params->doAnglesMVA){
     float mvaVal = MVACalculator(mvaInits, tmvaReader);
+    /*
+    //newest
     if (params->selection == "mumuGamma"){
       if (catNum ==1){
         if (mvaVal <0.13) return kTRUE;
@@ -1417,7 +1422,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         if (mvaVal < -0.42) return kTRUE;
       }
     }
-    /*
     // test version for photon pt, don't use it's shit
     if (params->selection == "mumuGamma"){
       if (catNum ==1){

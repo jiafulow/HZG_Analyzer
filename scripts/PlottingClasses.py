@@ -400,7 +400,7 @@ class Plotter:
     line.SetLineWidth(2)
     line.SetLineStyle(2)
     line.Draw()
-    signifStats = TPaveText(bestCut,signifPlot.GetMaximum()*0.02,bestCut+0.05,signifPlot.GetMaximum()*0.25)
+    signifStats = TPaveText(bestCut,signifPlot.GetMaximum()*0.02,bestCut+0.5,signifPlot.GetMaximum()*0.30)
     #SetOwnership(signifStats,False)
     signifStats.SetBorderSize(0)
     signifStats.SetFillStyle(0)
@@ -408,7 +408,8 @@ class Plotter:
     signifStats.SetTextFont(42)
     signifStats.SetTextSize(0.035)
     signifStats.AddText('Discrim Cut: {0:.2}'.format(bestCut))
-    signifStats.AddText('Significance: {0:.2}'.format(bestSignif))
+    signifStats.AddText('Significance (start): {0:.2}'.format(initialSignif))
+    signifStats.AddText('Significance (best): {0:.2}'.format(bestSignif))
     signifStats.AddText('Improvement: {0:.2}%'.format(percentImprovement))
     signifStats.AddText('BG Eff: {0:.2}'.format(bestBGEff))
     signifStats.AddText('Sig Eff: {0:.2}'.format(bestSigEff))
@@ -563,7 +564,10 @@ class Plotter:
     signalHistD.Scale(scale)
 
     #temp switch, use data instead of MC:
-    #bgStack = dataHist
+    #WARNING: TURN THIS OFF FOR ACTUAL RUNNING
+    bgStackM = dataHistM
+    bgStackD = dataHistD
+    bgStackROC = dataHistD
 
     #make ROC and signif plots and get the best values
     cutVal,BGeffVal,signifVal,signifChange = self.MakeDrawROCandSignif(signalHistD,bgStackROC,sigWindow)

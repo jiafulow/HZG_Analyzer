@@ -36,6 +36,7 @@ class WeightUtils: public TObject {
 
         float ElectronTriggerWeight(TLorentzVector l1, TLorentzVector l2);
         float MuonTriggerWeight(TLorentzVector l1, TLorentzVector l2);
+        float PhotonFakeWeight(float eta, float pt);
 
 
     private:
