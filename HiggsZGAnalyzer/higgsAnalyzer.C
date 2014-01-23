@@ -205,7 +205,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   mvaInits.discrSampleName = "allBG";
   //mvaInits.discrSuffixName = "anglesOnly";
   //mvaInits.discrSuffixName = "newAnglesR9";
-  mvaInits.discrSuffixName = "01-21-14_v9_4";
+  mvaInits.discrSuffixName = "01-22-14_AndyWeight";
 
 
   mvaInits.mvaHiggsMassPoint[0] = 125;
@@ -1399,8 +1399,30 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   if (params->doAnglesMVA){
     float mvaVal = MVACalculator(mvaInits, tmvaReader);
+    //andy weight
+    if (params->selection == "mumuGamma"){
+      if (catNum ==1){
+        if (mvaVal <0.13) return kTRUE;
+      }else if (catNum==2){
+        if (mvaVal < -0.44) return kTRUE;
+      }else if (catNum==3){
+        if (mvaVal < -0.11) return kTRUE;
+      }else if (catNum==4){
+        if (mvaVal < -0.47) return kTRUE;
+      }
+    }else if (params->selection == "eeGamma"){
+      if (catNum ==1){
+        if (mvaVal < 0.0) return kTRUE;
+      }else if (catNum==2){
+        if (mvaVal < -0.29) return kTRUE;
+      }else if (catNum==3){
+        if (mvaVal < -0.18) return kTRUE;
+      }else if (catNum==4){
+        if (mvaVal < -0.47) return kTRUE;
+      }
+    }
     /*
-    //newest
+    //newest, no andy weight
     if (params->selection == "mumuGamma"){
       if (catNum ==1){
         if (mvaVal <0.13) return kTRUE;

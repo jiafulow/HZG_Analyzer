@@ -80,7 +80,7 @@ class Plotter:
     scale = lumi/scale
     return scale
 
-  def ChooseTwoHists(self,chooseNames,histList, histList2 = None):
+  def ChooseTwoHists(self,chooseNames,histList, histList2 = None, norm = False):
     outList = []
     if chooseNames[0].lower() == 'bg' or chooseNames[0].lower() == 'background':
       bgList = self.GetBGHists(histList)
@@ -117,21 +117,28 @@ class Plotter:
 
     if len(outList) != 2: raise NameError('ChooseTwoHists gave wrong list length: {0}'.format(len(outList)))
 
-    outList[0].Scale(1/outList[0].Integral())
-    outList[1].Scale(1/outList[1].Integral())
+    if norm:
+      outList[0].Scale(1/outList[0].Integral())
+      outList[1].Scale(1/outList[1].Integral())
 
     ymax = max(map(lambda x:x.GetMaximum(),outList))*1.1
     ymin = 0
     outList[0].SetMaximum(ymax)
     outList[0].SetMinimum(ymin)
-    outList[0].SetLineColor(kRed)
+    if chooseNames[0] == 'DATA' and chooseNames[1] != 'DATA':
+      outList[0].SetLineColor(kBlack)
+    else:
+      outList[0].SetLineColor(kRed)
     outList[0].SetLineWidth(2)
     outList[0].GetYaxis().SetTitleOffset(0.82)
     outList[0].GetYaxis().SetTitleSize(0.06)
     outList[0].GetYaxis().CenterTitle()
     outList[0].GetXaxis().SetTitleSize(0.05)
 
-    outList[1].SetLineColor(kBlue)
+    if chooseNames[1] == 'DATA' and chooseNames[0] != 'DATA':
+      outList[1].SetLineColor(kBlack)
+    else:
+      outList[1].SetLineColor(kBlue)
     outList[1].SetLineWidth(2)
     outList[1].Scale(1/outList[1].Integral())
     return outList
@@ -565,9 +572,9 @@ class Plotter:
 
     #temp switch, use data instead of MC:
     #WARNING: TURN THIS OFF FOR ACTUAL RUNNING
-    bgStackM = dataHistM
-    bgStackD = dataHistD
-    bgStackROC = dataHistD
+    #bgStackM = dataHistM
+    #bgStackD = dataHistD
+    #bgStackROC = dataHistD
 
     #make ROC and signif plots and get the best values
     cutVal,BGeffVal,signifVal,signifChange = self.MakeDrawROCandSignif(signalHistD,bgStackROC,sigWindow)
@@ -608,7 +615,7 @@ class Plotter:
 
     #self.can.IsA().Destructor(self.can)
 
-  def RatioPlot(self, key, chooseNames, legendNames):
+  def RatioPlot(self, key, chooseNames, legendNames, norm = False):
     '''Get two plots, normalize them, compare with ratio'''
     if type(self.thisFile) != list:
         histList = self.folderDict[key]
@@ -618,7 +625,7 @@ class Plotter:
           print 'skipping ratio plot for', histList[0].GetName()
           return
 
-        compHists = self.ChooseTwoHists(chooseNames, histList)
+        compHists = self.ChooseTwoHists(chooseNames, histList, norm = norm)
     else:
         histList1 = self.folderDict[0][key]
         histList2 = self.folderDict[1][key]
@@ -632,7 +639,7 @@ class Plotter:
           print 'skipping ratio plot for', histList2[0].GetName()
           return
 
-        compHists = self.ChooseTwoHists(chooseNames,histList1,histList2)
+        compHists = self.ChooseTwoHists(chooseNames,histList1,histList2,norm = norm)
 
     if not os.path.isdir(self.directory):
       os.mkdir(self.directory)
@@ -673,9 +680,15 @@ class Plotter:
       ratio.Divide(compHists[1])
     for i,plot in enumerate(compHists):
       if i == 0:
-        plot.Draw('hist')
+        if chooseNames[0] == 'DATA' and chooseNames[1] != 'DATA':
+          plot.Draw('pe')
+        else:
+          plot.Draw('hist')
       else:
-        plot.Draw('histsame')
+        if chooseNames[1] == 'DATA' and chooseNames[2] != 'DATA':
+          plot.Draw('pesame')
+        else:
+          plot.Draw('histsame')
       leg.AddEntry(plot,legendNames[i],'l')
     leg.Draw()
     pad2.cd()
