@@ -538,6 +538,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         passAll = true;
       }
       */
+      //cout<<"MVA OLD: "<<thisElec->MvaID_Old()<<" MVA HZZ: "<<thisElec->MvaID()<<endl;
       if (thisElec->Pt() > 5 && thisElec->ConversionMissHits() <=1) electronsID.push_back(*thisElec);			
       /// inner barrel, low pt
       if (thisElec->Pt() > 5 && thisElec->Pt() < 10){
