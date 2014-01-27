@@ -756,24 +756,48 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       // Section for photon energy/momentum corrections.  NOTE: this will change the pt and thus ID/ISO of photon
       
       if(params->engCor){
-        R9Cor = thisPhoton->R9();
-        if (params->doR9Cor){
-          if (params->suffix != "DATA"){
-            if (params->period == "2011"){
-              if (fabs(thisPhoton->SCEta()) < 1.479){
-                R9Cor = thisPhoton->R9()*1.0048;
-              }else{
-                R9Cor = thisPhoton->R9()*1.00492;
+        //old R9 correction
+        if (params->suffix.find("S10") != string::npos){
+          R9Cor = thisPhoton->R9();
+          if (params->doR9Cor){
+            if (params->suffix != "DATA"){
+              if (params->period == "2011"){
+                if (fabs(thisPhoton->SCEta()) < 1.479){
+                  R9Cor = thisPhoton->R9()*1.0048;
+                }else{
+                  R9Cor = thisPhoton->R9()*1.00492;
+                }
+              } else if (params->period == "2012"){
+                if (fabs(thisPhoton->SCEta()) < 1.479){
+                  R9Cor = thisPhoton->R9()*1.0045 + 0.0010;
+                }else{
+                  R9Cor = thisPhoton->R9()*1.0086 - 0.0007;
+                }
               }
-            } else if (params->period == "2012"){
-              if (fabs(thisPhoton->SCEta()) < 1.479){
-                R9Cor = thisPhoton->R9()*1.0045 + 0.0010;
-              }else{
-                R9Cor = thisPhoton->R9()*1.0086 - 0.0007;
+            }
+          }
+        //new R9 correction
+        }else{
+          R9Cor = thisPhoton->R9();
+          if (params->doR9Cor){
+            if (params->suffix != "DATA"){
+              if (params->period == "2011"){
+                if (fabs(thisPhoton->SCEta()) < 1.479){
+                  R9Cor = thisPhoton->R9()*1.00153 + 0.000854;
+                }else{
+                  R9Cor = thisPhoton->R9()*1.00050+ 0.001231;
+                }
+              } else if (params->period == "2012"){
+                if (fabs(thisPhoton->SCEta()) < 1.479){
+                  R9Cor = thisPhoton->R9()*1.00139 + 0.000740;
+                }else{
+                  R9Cor = thisPhoton->R9()*1.00016- 0.000399;
+                }
               }
             }
           }
         }
+
         clonePhoton = thisPhoton;
         float corrPhoPt = -1;
         int periodNum   = -1;
