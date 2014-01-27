@@ -334,6 +334,31 @@ class Plotter:
       line.Draw()
       SetOwnership(line,0)
 
+  def DrawHist(self, hist, do2D = False, lineX = None, lineY = None):
+    if not do2D: hist.Draw('hist')
+    else: hist.Draw('colz')
+    hist.GetYaxis().SetTitle(hist.GetYaxis().GetTitle())
+    hist.GetYaxis().SetTitleSize(0.06)
+    hist.GetYaxis().CenterTitle()
+    hist.GetXaxis().SetTitle(hist.GetXaxis().GetTitle())
+    hist.GetXaxis().SetTitleSize(0.05)
+    #bg.GetYaxis().SetLabelSize(0.05)
+    #bg.GetXaxis().SetLabelSize(0.05)
+    #bg.GetXaxis().SetTitle(dist)
+    hist.SetTitle(self.lepton+self.lepton+' '+hist.GetTitle())
+    hist.GetYaxis().SetTitleOffset(0.82)
+    #bg.GetXaxis().SetRangeUser(100,200)
+
+    if lineX:
+      print 'lineX',lineX
+      print 'lineStats', lineX,bg.GetMinimum(),lineX,bg.GetMaximum()*1.05
+      line = TLine(lineX,bg.GetMinimum(),lineX,ymax*1.05)
+      line.SetLineColor(kRed+1)
+      line.SetLineWidth(2)
+      line.SetLineStyle(2)
+      line.Draw()
+      SetOwnership(line,0)
+
 
 
   def MakeDrawROCandSignif(self,signalHist,bgStack,sigWindow=None):
@@ -429,7 +454,7 @@ class Plotter:
     return (bestCut,bestBGEff,bestSignif,percentImprovement)
 
 
-  def DataBGComp(self,histList):
+  def DataBGComp(self,histList,soloPlot = None):
     '''Give a list of histograms that contain the data and backgrounds, plot them and save them'''
     if len(histList) == 0: raise NameError('histList is empty')
 
@@ -455,24 +480,41 @@ class Plotter:
       leg = self.MakeLegend(0.75,0.75,0.90,0.92)
     else:
       leg = self.MakeLegend()
-    if do2D:
-      leg.AddEntry(dataHist,'DATA','f')
-    else:
-      leg.AddEntry(dataHist,'DATA','lep')
+    if soloPlot in [None, 'Data']:
+      if do2D:
+        leg.AddEntry(dataHist,'DATA','f')
+      else:
+        leg.AddEntry(dataHist,'DATA','lep')
 
-    bgStack = self.MakeBGStack(bgList,leg,do2D)
+    if soloPlot in [None, 'bg']:
+      bgStack = self.MakeBGStack(bgList,leg,do2D)
 
     scale = self.LumiXSScale(self.sigName)
     signalHist.Scale(scale*100)
-    if do2D:
-      leg.AddEntry(signalHist,'Signalx100','f')
-    else:
-      leg.AddEntry(signalHist,'Signalx100','l')
+    if soloPlot in [None, 'Signal']:
+      if do2D:
+        leg.AddEntry(signalHist,'Signalx100','f')
+      else:
+        leg.AddEntry(signalHist,'Signalx100','l')
 
-    self.DrawHists(dataHist,bgStack,signalHist,do2D)
+    if soloPlot == None:
+      self.DrawHists(dataHist,bgStack,signalHist,do2D)
+    elif soloPlot == 'Data':
+      self.DrawHist(dataHist,do2D)
+    elif soloPlot == 'Signal':
+      self.DrawHist(signalHist,do2D)
+    elif soloPlot == 'bg':
+      self.DrawHist(bgStack,do2D)
+    else:
+      print 'you didnt specify soloPlot correctly'
+
 
     leg.Draw()
-    self.can.SaveAs(self.directory+'/'+self.lepton+self.lepton+'_'+dataHist.GetName().split('_')[1]+'.pdf')
+    if soloPlot == None:
+      self.can.SaveAs(self.directory+'/'+self.lepton+self.lepton+'_'+dataHist.GetName().split('_')[1]+'.pdf')
+    else:
+      self.can.SaveAs(self.directory+'/'+self.lepton+self.lepton+'_'+dataHist.GetName().split('_')[1]+'_'+soloPlot+'.pdf')
+
     self.can.IsA().Destructor(self.can)
 
   def DataBGComp2DProj(self,histList, sigWindow = False):
