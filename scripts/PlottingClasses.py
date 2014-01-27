@@ -337,15 +337,26 @@ class Plotter:
   def DrawHist(self, hist, do2D = False, lineX = None, lineY = None):
     if not do2D: hist.Draw('hist')
     else: hist.Draw('colz')
-    hist.GetYaxis().SetTitle(hist.GetYaxis().GetTitle())
+    if 'ME Disc' in hist.GetYaxis().GetTitle():
+      ytitle = 'ME Discriminator'
+    else:
+      ytitle = hist.GetYaxis().GetTitle()
+    hist.GetYaxis().SetTitle(ytitle)
     hist.GetYaxis().SetTitleSize(0.06)
     hist.GetYaxis().CenterTitle()
-    hist.GetXaxis().SetTitle(hist.GetXaxis().GetTitle())
+    if 'm_{ll#gamma}' in hist.GetXaxis().GetTitle():
+      xtitle = 'm_{ll#gamma} (GeV)'
+    else:
+      xtitle = hist.GetXaxis().GetTitle()
+    hist.GetXaxis().SetTitle(xtitle)
     hist.GetXaxis().SetTitleSize(0.05)
     #bg.GetYaxis().SetLabelSize(0.05)
     #bg.GetXaxis().SetLabelSize(0.05)
     #bg.GetXaxis().SetTitle(dist)
-    hist.SetTitle(self.lepton+self.lepton+' '+hist.GetTitle())
+    if 'ME Disc' in hist.GetYaxis().GetTitle():
+      hist.SetTitle('ME Discriminator vs Mass')
+    else:
+      hist.SetTitle(self.lepton+self.lepton+' '+hist.GetTitle())
     hist.GetYaxis().SetTitleOffset(0.82)
     #bg.GetXaxis().SetRangeUser(100,200)
 
@@ -454,7 +465,7 @@ class Plotter:
     return (bestCut,bestBGEff,bestSignif,percentImprovement)
 
 
-  def DataBGComp(self,histList,soloPlot = None):
+  def DataBGComp(self,histList,soloPlot = None, doLeg = True):
     '''Give a list of histograms that contain the data and backgrounds, plot them and save them'''
     if len(histList) == 0: raise NameError('histList is empty')
 
@@ -509,7 +520,7 @@ class Plotter:
       print 'you didnt specify soloPlot correctly'
 
 
-    leg.Draw()
+    if doLeg: leg.Draw()
     if soloPlot == None:
       self.can.SaveAs(self.directory+'/'+self.lepton+self.lepton+'_'+dataHist.GetName().split('_')[1]+'.pdf')
     else:

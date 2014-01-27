@@ -29,7 +29,8 @@ def GenericPlotter(inFolder, outFolder):
 
   plotterMu = Plotter(FileMu, inFolder, outFolder, '2012','mu','Signal2012ggM125NLOp8')
   for key in plotterMu.folderDict.keys():
-    plotterMu.DataBGComp(plotterMu.folderDict[key],'bg')
+    plotterMu.DataBGComp(plotterMu.folderDict[key],'bg',doLeg = False)
+    plotterMu.DataBGComp(plotterMu.folderDict[key],'Signal',doLeg = False)
     plotterMu.DataBGComp2DProj(plotterMu.folderDict[key])
     #plotter.DataBGComp2DProj(plotter.folderDict[key],125)
   #plotterEl = Plotter(FileEl, inFolder, outFolder, '2012','el','Signal2012ggM125NLOp8')
