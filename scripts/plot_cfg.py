@@ -71,10 +71,12 @@ def RatioPlotter():
     #FileMu2= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_01-21-14_v9_4.root")
     #FileEl1= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_01-13-14.root")
     #FileEl2= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_01-21-14_v9_4.root")
-    FileEl1= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_01-22-14_AndyWeight.root")
-    FileEl2= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_01-22-14.root")
-    FileMu1= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_01-22-14_AndyWeight.root")
-    FileMu2= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_01-22-14.root")
+    #FileEl1= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_01-22-14_AndyWeight.root")
+    #FileEl2= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_01-22-14.root")
+    #FileMu1= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_01-22-14_AndyWeight.root")
+    #FileMu2= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_01-22-14.root")
+    FileMu = TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_12-4-13_newAnglesR9.root")
+    FileEl = TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_12-4-13_newAnglesR9.root")
 
   #plotter = Plotter(FileMu, 'Vtx', 'PUCheck_NoRD', '2012','mu','Signal2012ggM125p8')
   #plotterMu = Plotter([FileMu1,FileMu2], 'pT-Eta-Phi', 'ntuple8v9', '2012','mu','Signal2012ggM125NLOp8')
@@ -89,20 +91,14 @@ def RatioPlotter():
     #plotterEl.RatioPlot(key,['Signal2012ggM125NLOp8','Signal2012ggM125NLOp8'],['nv8.2','nv9.4'])
     #plotterEl.RatioPlot(key,['DATA','DATA'],['nv8.2','nv9.4'])
 
-  folders = ['CAT1','CAT2','CAT3','CAT4']
+  folders = ['ZGamma','pT-Eta-Phi']
   for folder in folders:
-    plotterEl = Plotter(FileEl1, folder, 'FakeRateRatios_On', '2012','el','Signal2012ggM125NLOp8')
+    plotterEl = Plotter(FileEl, folder, 'NewAnglesR9_Ratios', '2012','el','Signal2012ggM125NLOp8')
     for key in plotterEl.folderDict.keys():
-      plotterEl.RatioPlot(key,['DATA','bg'],['DATA','BG'])
-    plotterEl = Plotter(FileEl2, folder, 'FakeRateRatios_Off', '2012','el','Signal2012ggM125NLOp8')
-    for key in plotterEl.folderDict.keys():
-      plotterEl.RatioPlot(key,['DATA','bg'],['DATA','BG'])
-    plotterMu = Plotter(FileMu1, folder, 'FakeRateRatios_On', '2012','mu','Signal2012ggM125NLOp8')
+      plotterEl.RatioPlot(key,['Signal','bg'],['signal','BG'])
+    plotterMu = Plotter(FileMu, folder, 'NewAnglesR9_Ratios', '2012','mu','Signal2012ggM125NLOp8')
     for key in plotterMu.folderDict.keys():
-      plotterMu.RatioPlot(key,['DATA','bg'],['DATA','BG'])
-    plotterMu = Plotter(FileMu2, folder, 'FakeRateRatios_Off', '2012','mu','Signal2012ggM125NLOp8')
-    for key in plotterMu.folderDict.keys():
-      plotterMu.RatioPlot(key,['DATA','bg'],['DATA','BG'])
+      plotterMu.RatioPlot(key,['Signal','bg'],['signal','BG'])
 
 
 
