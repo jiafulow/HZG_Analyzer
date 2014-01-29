@@ -113,6 +113,36 @@ Cuts::Cuts():
   looseElID.fabsEPDiff[1] =               0.05;
   looseElID.ConversionMissHits[1] =       1;
   looseElID.PassedConversionProb[1] =     1;
+
+  mvaPreElID.cutName =                     "mvaPreElID";
+  mvaPreElID.dEtaIn[0] =                   99999;
+  mvaPreElID.dPhiIn[0] =                   9999;
+  mvaPreElID.sigmaIetaIeta[0] =            0.014;
+  mvaPreElID.HadOverEm[0] =                0.15;
+  mvaPreElID.dxy[0] =                      99999;
+  mvaPreElID.dz[0] =                       99999;
+  mvaPreElID.fabsEPDiff[0] =               99999;
+  mvaPreElID.ConversionMissHits[0] =       99999;
+  mvaPreElID.PassedConversionProb[0] =     99999;
+  mvaPreElID.dr03TkSumPt[0] =              0.2;
+  mvaPreElID.dr03EcalRecHitSumEt[0] =      0.2;
+  mvaPreElID.dr03HcalTowerSumEt[0] =       0.2;
+  mvaPreElID.numberOfLostHits[0] =         0;
+
+  mvaPreElID.dEtaIn[1] =                   99999;
+  mvaPreElID.dPhiIn[1] =                   99999;
+  mvaPreElID.sigmaIetaIeta[1] =            0.035;
+  mvaPreElID.HadOverEm[1] =                0.10;
+  mvaPreElID.dxy[1] =                      99999;
+  mvaPreElID.dz[1] =                       99999;
+  mvaPreElID.fabsEPDiff[1] =               99999;
+  mvaPreElID.ConversionMissHits[1] =       99999;
+  mvaPreElID.PassedConversionProb[1] =     99999;
+  mvaPreElID.dr03TkSumPt[1] =              0.2;
+  mvaPreElID.dr03EcalRecHitSumEt[1] =      0.2;
+  mvaPreElID.dr03HcalTowerSumEt[1] =       0.2;
+  mvaPreElID.numberOfLostHits[1] =         0;
+
   
   looseElIso.cutName =                    "looseElIso";
   looseElIso.chIso04 =                    99999;

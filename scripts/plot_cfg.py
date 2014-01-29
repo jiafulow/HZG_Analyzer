@@ -8,6 +8,8 @@ import numpy as np
 gROOT.ProcessLine('.L ./tdrstyle.C')
 setTDRStyle()
 
+print "Hello< anvdfsdfsd fgdsf dsfsd dfg dfgdf gdf ghdf Bian!"
+
 def GenericPlotter(inFolder, outFolder):
   if os.environ.get('AT_NWU') == None:
     #FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_11-20-13_anglesOnly.root")

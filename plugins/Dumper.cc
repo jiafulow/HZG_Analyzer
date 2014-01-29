@@ -150,8 +150,8 @@ void Dumper::ElectronDump(const TCElectron& el, const TClonesArray& recoMuons, b
   bool idPass = _psel.PassElectronID(el, _cuts.looseElID, recoMuons);
   bool isoPass = _psel.PassElectronIso(el, _cuts.looseElIso, _cuts.EAEle);
 
-  float combIso = (el.IsoMap("pfChIso_R04")
-    + max(0.,(double)el.IsoMap("pfNeuIso_R04") + el.IsoMap("pfPhoIso_R04") - _rhoFactor*thisEA));
+  float combIso = (el.IdMap("pfChIso_R04")
+    + max(0.,(double)el.IdMap("pfNeuIso_R04") + el.IdMap("pfPhoIso_R04") - _rhoFactor*thisEA));
   ofstream* dump;
   if (final) dump = &elDumpFinal;
   else dump = &elDump2;
@@ -160,8 +160,8 @@ void Dumper::ElectronDump(const TCElectron& el, const TClonesArray& recoMuons, b
        << " "       << el.Eta()                    << " "         << el.DeltaEtaSeedCluster()              << " "      << el.DeltaPhiSeedCluster()
        << " "       << el.SigmaIEtaIEta()          << " "         << el.HadOverEm()                     << " "      << el.IdMap("fabsEPDiff")
        << " "       << el.PassConversionVeto()         << " "         << el.ConversionMissHits()            << " "      << el.Dxy(&_pv)
-       << " "       << el.Dz(&_pv)           << " "         << el.IsoMap("pfChIso_R04")           << " "      << el.IsoMap("pfNeuIso_R04")
-       << " "       << el.IsoMap("pfPhoIso_R04")   << " "         << combIso                             << " "      << _rhoFactor
+       << " "       << el.Dz(&_pv)           << " "         << el.IdMap("pfChIso_R04")           << " "      << el.IdMap("pfNeuIso_R04")
+       << " "       << el.IdMap("pfPhoIso_R04")   << " "         << combIso                             << " "      << _rhoFactor
        << " "       << thisEA                       << " "         << idPass                              << " "      << isoPass
        << endl;
 }
@@ -179,8 +179,8 @@ void Dumper::MuonDump(const TCMuon& mu, bool final)
   }
 
   float combIso; 
-  combIso = (mu.IsoMap("pfChargedHadronPt_R04")
-    + max(0.,(double)mu.IsoMap("pfNeutralHadronEt_R04") + mu.IsoMap("pfPhotonEt_R04") - 0.5*mu.IsoMap("pfPUPt_R04")));
+  combIso = (mu.IdMap("pfChargedHadronPt_R04")
+    + max(0.,(double)mu.IdMap("pfNeutralHadronEt_R04") + mu.IdMap("pfPhotonEt_R04") - 0.5*mu.IdMap("pfPUPt_R04")));
   ofstream* dump;
   if (final) dump = &muDumpFinal;
   else dump = &muDump1;
@@ -189,8 +189,8 @@ void Dumper::MuonDump(const TCMuon& mu, bool final)
        << " "       << mu.Eta()                        << " "         << mu.IsGLB()                         << " "      << mu.IsPF()
        << " "       << mu.NormalizedChi2()             << " "         << mu.NumberOfValidMuonHits()         << " "      << mu.NumberOfMatchedStations()
        << " "       << mu.Dxy(&_pv)              << " "         << mu.Dz(&_pv)                  << " "      << mu.NumberOfValidPixelHits()
-       << " "       << mu.TrackLayersWithMeasurement() << " "         << mu.IsoMap("pfChargedHadronPt_R04") << " "      << mu.IsoMap("pfNeutralHadronEt_R04")
-       << " "       << mu.IsoMap("pfPhotonEt_R04")     << " "         << combIso                             << " "      << mu.IsoMap("pfPUPt_R04")
+       << " "       << mu.TrackLayersWithMeasurement() << " "         << mu.IdMap("pfChargedHadronPt_R04") << " "      << mu.IdMap("pfNeutralHadronEt_R04")
+       << " "       << mu.IdMap("pfPhotonEt_R04")     << " "         << combIso                             << " "      << mu.IdMap("pfPUPt_R04")
        << " "         << idPass                              << " "      << isoPass
        << endl;
 }
@@ -236,8 +236,8 @@ void Dumper::PhotonDump(const TCPhoton& ph)
 
   phDump1 << _runNumber << " "                   << _eventNumber << " "                   << ph.Pt()
        << " "       << tmpEta                << " "         << ph.ConversionVeto()  << " "      << ph.HadOverEm()
-       << " "       << ph.SigmaIEtaIEta()   << " "         << ph.IsoMap("chIso03") << " "      << ph.IsoMap("nhIso03")
-       << " "       << ph.IsoMap("phIso03") << " "         << _rhoFactor             << " "      << chEA
+       << " "       << ph.SigmaIEtaIEta()   << " "         << ph.IdMap("chIso03") << " "      << ph.IdMap("nhIso03")
+       << " "       << ph.IdMap("phIso03") << " "         << _rhoFactor             << " "      << chEA
        << " "       << nhEA                  << " "         << phEA                  << " "      << idPass
        << " "       << isoPass
        << endl;
@@ -289,8 +289,8 @@ void Dumper::PhotonDump2(const TCPhoton& ph, const TLorentzVector& lepton1, cons
 
   phDump2 << _runNumber << " "                   << _eventNumber << " "                   << ph.Pt()
        << " "       << tmpEta                << " "         << ph.ConversionVeto()  << " "      << ph.HadOverEm()
-       << " "       << ph.SigmaIEtaIEta()   << " "         << ph.IsoMap("chIso03") << " "      << ph.IsoMap("nhIso03")
-       << " "       << ph.IsoMap("phIso03") << " "         << _rhoFactor             << " "      << chEA
+       << " "       << ph.SigmaIEtaIEta()   << " "         << ph.IdMap("chIso03") << " "      << ph.IdMap("nhIso03")
+       << " "       << ph.IdMap("phIso03") << " "         << _rhoFactor             << " "      << chEA
        << " "       << nhEA                  << " "         << phEA                  << " "      << idPass
        << " "       << isoPass               << " "         << dr1                   << " "      << dr2
        << " "       << scaledPt              << endl;
@@ -423,13 +423,13 @@ elDumpMVA << " run: "                   << setw(7)  << _runNumber               
      << " phiWidth: "              << setw(10) << ele.IdMap("SCPhiWidth")             << " ome1x5oe5x5: "           << setw(10) << ele.IdMap("ome1x5oe5x5")            << " R9: "                    << setw(10) << ele.IdMap("R9")
      << " HoE: "                   << setw(10) << ele.HadOverEm()                     << " EoP: "                   << setw(10) << ele.IdMap("EoP")                    << " ooemoop: "               << setw(10) << ele.IdMap("ooemoopV1")
      << " EoPout: "                << setw(10) << ele.IdMap("eopOut")                 << " preShowerOverRaw: "      << setw(10) << ele.IdMap("preShowerORaw")          << " d0: "                    << setw(10) << ele.IdMap("d0")
-     << " ip3d: "                  << setw(10) << ele.IdMap("ip3d")                   << " ChargedIso_DR0p0To0p1: " << setw(10) << ele.IsoMap("ChargedIso_DR0p0To0p1") << " ChargedIso_DR0p1To0p2: " << setw(10) << ele.IsoMap("ChargedIso_DR0p1To0p2")
-     << " ChargedIso_DR0p2To0p3: " << setw(10) << ele.IsoMap("ChargedIso_DR0p2To0p3") << " ChargedIso_DR0p3To0p4: " << setw(10) << ele.IsoMap("ChargedIso_DR0p3To0p4") << " ChargedIso_DR0p4To0p5: " << setw(10) << ele.IsoMap("ChargedIso_DR0p4To0p5")
-     << " GammaIso_DR0p0To0p1: "   << setw(10) << ele.IsoMap("GammaIso_DR0p0To0p1")   << " GammaIso_DR0p1To0p2: "   << setw(10) << ele.IsoMap("GammaIso_DR0p1To0p2")   << " GammaIso_DR0p2To0p3: "   << setw(10) << ele.IsoMap("GammaIso_DR0p2To0p3")
-     << " GammaIso_DR0p3To0p4: "   << setw(10) << ele.IsoMap("GammaIso_DR0p3To0p4")   << " GammaIso_DR0p4To0p5: "   << setw(10) << ele.IsoMap("GammaIso_DR0p4To0p5")
-     << " NeutralHadronIso_DR0p0To0p1: " << setw(10) << ele.IsoMap("NeutralHadronIso_DR0p0To0p1") << " NeutralHadronIso_DR0p1To0p2: " << setw(10) << ele.IsoMap("NeutralHadronIso_DR0p1To0p2")
-     << " NeutralHadronIso_DR0p2To0p3: " << setw(10) << ele.IsoMap("NeutralHadronIso_DR0p2To0p3") << " NeutralHadronIso_DR0p3To0p4: " << setw(10) << ele.IsoMap("NeutralHadronIso_DR0p3To0p4")
-     << " NeutralHadronIso_DR0p4To0p5: " << setw(10) << ele.IsoMap("NeutralHadronIso_DR0p4To0p5") << " _rhoFactor: "                   << setw(10) << _rhoFactor
+     << " ip3d: "                  << setw(10) << ele.IdMap("ip3d")                   << " ChargedIso_DR0p0To0p1: " << setw(10) << ele.IdMap("ChargedIso_DR0p0To0p1") << " ChargedIso_DR0p1To0p2: " << setw(10) << ele.IdMap("ChargedIso_DR0p1To0p2")
+     << " ChargedIso_DR0p2To0p3: " << setw(10) << ele.IdMap("ChargedIso_DR0p2To0p3") << " ChargedIso_DR0p3To0p4: " << setw(10) << ele.IdMap("ChargedIso_DR0p3To0p4") << " ChargedIso_DR0p4To0p5: " << setw(10) << ele.IdMap("ChargedIso_DR0p4To0p5")
+     << " GammaIso_DR0p0To0p1: "   << setw(10) << ele.IdMap("GammaIso_DR0p0To0p1")   << " GammaIso_DR0p1To0p2: "   << setw(10) << ele.IdMap("GammaIso_DR0p1To0p2")   << " GammaIso_DR0p2To0p3: "   << setw(10) << ele.IdMap("GammaIso_DR0p2To0p3")
+     << " GammaIso_DR0p3To0p4: "   << setw(10) << ele.IdMap("GammaIso_DR0p3To0p4")   << " GammaIso_DR0p4To0p5: "   << setw(10) << ele.IdMap("GammaIso_DR0p4To0p5")
+     << " NeutralHadronIso_DR0p0To0p1: " << setw(10) << ele.IdMap("NeutralHadronIso_DR0p0To0p1") << " NeutralHadronIso_DR0p1To0p2: " << setw(10) << ele.IdMap("NeutralHadronIso_DR0p1To0p2")
+     << " NeutralHadronIso_DR0p2To0p3: " << setw(10) << ele.IdMap("NeutralHadronIso_DR0p2To0p3") << " NeutralHadronIso_DR0p3To0p4: " << setw(10) << ele.IdMap("NeutralHadronIso_DR0p3To0p4")
+     << " NeutralHadronIso_DR0p4To0p5: " << setw(10) << ele.IdMap("NeutralHadronIso_DR0p4To0p5") << " _rhoFactor: "                   << setw(10) << _rhoFactor
      << " mva Value: " << setw(10) << tmpMVAValue << " pass PreSel: " << setw(5) << passPreSel << " pass MVA: " << setw(5) << passMVA << " pass ISO: " << setw(5) << passIso
      << endl;
 }

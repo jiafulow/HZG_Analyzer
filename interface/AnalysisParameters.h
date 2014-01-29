@@ -89,8 +89,12 @@ class Cuts{
       float fabsEPDiff[2];
       float ConversionMissHits[2];
       float PassedConversionProb[2];
+      float dr03TkSumPt[2];
+      float dr03EcalRecHitSumEt[2];
+      float dr03HcalTowerSumEt[2];
+      int   numberOfLostHits[2];
       string cutName;
-    } vetoElID,looseElID;
+    } vetoElID,looseElID,mvaPreElID;
 
     struct elIsoCuts{
       float chIso04;

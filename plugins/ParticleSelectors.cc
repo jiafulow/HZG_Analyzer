@@ -403,45 +403,65 @@ bool ParticleSelector::PassElectronID(const TCElectron& el, const Cuts::elIDCuts
 {
   bool elPass = false;
   if (fabs(el.SCEta()) > 2.5) return elPass;
-  if (fabs(el.SCEta()) > 1.4442 && fabs(el.SCEta()) < 1.566) return elPass;
-  if (
-    (fabs(el.Eta()) < 1.566
-      && fabs(el.DeltaEtaSeedCluster())    < cutLevel.dEtaIn[0]
-      && fabs(el.DeltaPhiSeedCluster())    < cutLevel.dPhiIn[0]
-      && el.SigmaIEtaIEta()             < cutLevel.sigmaIetaIeta[0]
-      && el.HadOverEm()                 < cutLevel.HadOverEm[0]
-      && fabs(el.Dxy(&_pv))       < cutLevel.dxy[0]
-      && fabs(el.Dz(&_pv))        < cutLevel.dz[0]
-      && el.IdMap("fabsEPDiff")         < cutLevel.fabsEPDiff[0]
-      && el.ConversionMissHits()        <= cutLevel.ConversionMissHits[0]
-      && el.PassConversionVeto()            == cutLevel.PassedConversionProb[0]
-      ) ||
-    (fabs(el.Eta()) > 1.566  
-      && fabs(el.DeltaEtaSeedCluster())    < cutLevel.dEtaIn[1]
-      && fabs(el.DeltaPhiSeedCluster())    < cutLevel.dPhiIn[1]
-      && el.SigmaIEtaIEta()             < cutLevel.sigmaIetaIeta[1]
-      && el.HadOverEm()                 < cutLevel.HadOverEm[1]
-      && fabs(el.Dxy(&_pv))       < cutLevel.dxy[1]
-      && fabs(el.Dz(&_pv))        < cutLevel.dz[1]
-      && el.IdMap("fabsEPDiff")         < cutLevel.fabsEPDiff[1]
-      && el.ConversionMissHits()        <= cutLevel.ConversionMissHits[1]
-      && el.PassConversionVeto()            == cutLevel.PassedConversionProb[1]
-      )
-      ) elPass = true; 
+  if (cutLevel.cutName == "mvaPreElID"){
+    if (fabs(el.SCEta()) < 1.479){
+      if(el.SigmaIEtaIEta()                             < cutLevel.sigmaIetaIeta[0]
+          && el.IdMap("hadronicOverEm")                 < cutLevel.HadOverEm[0]
+          && el.IdMap("dr03TkSumPt")/el.Pt()            < cutLevel.dr03TkSumPt[0]
+          && el.IdMap("dr03EcalRecHitSumEt")/el.Pt()    < cutLevel.dr03EcalRecHitSumEt[0]
+          && el.IdMap("dr03HcalTowerSumEt")/el.Pt()     < cutLevel.dr03HcalTowerSumEt[0]
+          && el.IdMap("gsf_numberOfLostHits")          == cutLevel.numberOfLostHits[0])
+        elPass = true;
+    }else {
+      if(el.SigmaIEtaIEta()                             < cutLevel.sigmaIetaIeta[1]
+          && el.IdMap("hadronicOverEm")                 < cutLevel.HadOverEm[1]
+          && el.IdMap("dr03TkSumPt")/el.Pt()            < cutLevel.dr03TkSumPt[1]
+          && el.IdMap("dr03EcalRecHitSumEt")/el.Pt()    < cutLevel.dr03EcalRecHitSumEt[1]
+          && el.IdMap("dr03HcalTowerSumEt")/el.Pt()     < cutLevel.dr03HcalTowerSumEt[1]
+          && el.IdMap("gsf_numberOfLostHits")          == cutLevel.numberOfLostHits[1])
+        elPass = true;
+    }
+  }else{
+    if (fabs(el.SCEta()) > 1.4442 && fabs(el.SCEta()) < 1.566) return elPass;
+    if (
+        (fabs(el.Eta()) < 1.566
+         && fabs(el.DeltaEtaSeedCluster())    < cutLevel.dEtaIn[0]
+         && fabs(el.DeltaPhiSeedCluster())    < cutLevel.dPhiIn[0]
+         && el.SigmaIEtaIEta()             < cutLevel.sigmaIetaIeta[0]
+         && el.HadOverEm()                 < cutLevel.HadOverEm[0]
+         && fabs(el.Dxy(&_pv))       < cutLevel.dxy[0]
+         && fabs(el.Dz(&_pv))        < cutLevel.dz[0]
+         && el.IdMap("fabsEPDiff")         < cutLevel.fabsEPDiff[0]
+         && el.ConversionMissHits()        <= cutLevel.ConversionMissHits[0]
+         && el.PassConversionVeto()            == cutLevel.PassedConversionProb[0]
+        ) ||
+        (fabs(el.Eta()) > 1.566  
+         && fabs(el.DeltaEtaSeedCluster())    < cutLevel.dEtaIn[1]
+         && fabs(el.DeltaPhiSeedCluster())    < cutLevel.dPhiIn[1]
+         && el.SigmaIEtaIEta()             < cutLevel.sigmaIetaIeta[1]
+         && el.HadOverEm()                 < cutLevel.HadOverEm[1]
+         && fabs(el.Dxy(&_pv))       < cutLevel.dxy[1]
+         && fabs(el.Dz(&_pv))        < cutLevel.dz[1]
+         && el.IdMap("fabsEPDiff")         < cutLevel.fabsEPDiff[1]
+         && el.ConversionMissHits()        <= cutLevel.ConversionMissHits[1]
+         && el.PassConversionVeto()            == cutLevel.PassedConversionProb[1]
+        )
+        ) elPass = true; 
     //   cout<<"evt: "<<eventNumber<<" muon num: "<<recoMuons->GetSize()<<endl;
-       for (int j = 0; j < recoMuons.GetSize(); ++ j)
-       {
-         TCMuon* thisMuon = (TCMuon*) recoMuons.At(j);    
-    //     if (eventNumber==11944 || eventNumber==1780) cout<<thisMuon->DeltaR(*el)<<endl;
-         if (thisMuon->DeltaR(el) < 0.05){
-           //cout<<"event: "<<eventNumber<<endl;
-           //cout<<"unclean"<<endl;
-           //el.Print();
-           elPass = false;
-           break;
-         }
-       }
-       return elPass;
+    for (int j = 0; j < recoMuons.GetSize(); ++ j)
+    {
+      TCMuon* thisMuon = (TCMuon*) recoMuons.At(j);    
+      //     if (eventNumber==11944 || eventNumber==1780) cout<<thisMuon->DeltaR(*el)<<endl;
+      if (thisMuon->DeltaR(el) < 0.05){
+        //cout<<"event: "<<eventNumber<<endl;
+        //cout<<"unclean"<<endl;
+        //el.Print();
+        elPass = false;
+        break;
+      }
+    }
+  }
+  return elPass;
 }
 
 bool ParticleSelector::PassElectronIso(const TCElectron& el, const Cuts::elIsoCuts& cutLevel, float EAEle[7]){

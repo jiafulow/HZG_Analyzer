@@ -112,12 +112,12 @@ float WeightUtils::PUWeight(float nPU)
   }else{
     if (nPU < 100 && _params.period == "2011" ){
       _puWeight = h1_S6to2011obs->GetBinContent(h1_S6to2011obs->FindBin(nPU)); 
-    } else if (nPU < 40 && nPU > 4 && _params.period == "2012" && (_params.suffix.find("DYJets")!= string::npos || _params.suffix.find("ZGToLLG")!= string::npos)){
+    } else if (nPU < 40 && nPU > 4 && _params.period == "2012"){ 
         if (_runNumber < 196531) _puWeight = h1_RD1to2012ABTrue->GetBinContent(h1_RD1to2012ABTrue->FindBin(nPU));
         else if (_runNumber > 198022 && _runNumber < 203742) _puWeight = h1_RD1to2012CTrue->GetBinContent(h1_RD1to2012CTrue->FindBin(nPU));
         else if (_runNumber > 203777 && _runNumber < 208686) _puWeight = h1_RD1to2012DTrue->GetBinContent(h1_RD1to2012DTrue->FindBin(nPU));
         else _puWeight = 1;
-    } else if (nPU < 100 && _params.period == "2012" && (_params.suffix.find("DYJets")== string::npos && _params.suffix.find("ZGToLLG")== string::npos)){
+    } else if (nPU < 100 && _params.period == "2012" && (_params.suffix.find("S10"))){
       if (_params.abcd == "AB") _puWeight = h1_S10to2012ABTrue->GetBinContent(h1_S10to2012ABTrue->FindBin(nPU)); 
       else if (_params.abcd == "CD") _puWeight = h1_S10to2012CDTrue->GetBinContent(h1_S10to2012CDTrue->FindBin(nPU)); 
       else if (_params.abcd == "ABCD") _puWeight = h1_S10to2012ABCDTrue->GetBinContent(h1_S10to2012ABCDTrue->FindBin(nPU)); 

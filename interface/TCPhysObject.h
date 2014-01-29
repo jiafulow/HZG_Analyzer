@@ -1,5 +1,5 @@
 #ifndef _TCPHYSOBJECT_H
-#define	_TCPHYSOBJECT_H
+#define        _TCPHYSOBJECT_H
 
 
 #include "TObject.h"
@@ -17,7 +17,7 @@ class TCPhysObject : public TLorentzVector {
     private:
         TVector3 _vtx;
         map<string, float> _IdMap;
-        map<string, float> _IsoMap;
+        //map<string, float> _IsoMap;
         int _charge;
         bool _isPF;
 
@@ -29,7 +29,7 @@ class TCPhysObject : public TLorentzVector {
         // "get" methods -----------
 
         float IdMap(string key) const;
-        float IsoMap(string key) const;
+        //float IsoMap(string key) const;
         TVector2 P2() const;
         TVector3 Vtx() const;
         int Charge() const;  
@@ -41,7 +41,7 @@ class TCPhysObject : public TLorentzVector {
         // "set" methods ---------
         void SetP4(TLorentzVector p4);
         void SetIdMap(string s, float v);
-        void SetIsoMap(string s, float v);
+        //void SetIsoMap(string s, float v);
         void SetVtx(float vx, float vy, float vz);
         void SetCharge(int c);  
         void SetPF(bool);
@@ -49,4 +49,4 @@ class TCPhysObject : public TLorentzVector {
         ClassDef(TCPhysObject, 1);
 };
 
-#endif	/* _TCPHYSOBJECT_H */
+#endif        /* _TCPHYSOBJECT_H */

@@ -528,17 +528,16 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
       //dumper->MVADumper(*thisElec, myMVATrig.get()); 
 
-      /*
-      if (thisElec->Pt() > 20) electronsID.push_back(*thisElec);			
-      /// inner barrel
-      if (thisElec->Pt() > 20 && thisElec->MvaID_Old() > -0.5 && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
+      if (particleSelector->PassElectronID(*thisElec, cuts->mvaPreElID, *recoMuons)) electronsID.push_back(*thisElec);			
+      /// low pt
+      if (thisElec->Pt() < 20 && particleSelector->PassElectronID(*thisElec, cuts->mvaPreElID, *recoMuons) && thisElec->MvaID_Old() > -0.5 && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
         passAll = true;
-      /// outer barrel
-      }else if (thisElec->Pt() < 20 && thisElec->MvaID_Old() > -0.90 && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
+      /// high pt
+      }else if (thisElec->Pt() > 20 && particleSelector->PassElectronID(*thisElec, cuts->mvaPreElID, *recoMuons) && thisElec->MvaID_Old() > -0.90 && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
         passAll = true;
       }
-      */
       //cout<<"MVA OLD: "<<thisElec->MvaID_Old()<<" MVA HZZ: "<<thisElec->MvaID()<<endl;
+      /*
       if (thisElec->Pt() > 5 && thisElec->ConversionMissHits() <=1) electronsID.push_back(*thisElec);			
       /// inner barrel, low pt
       if (thisElec->Pt() > 5 && thisElec->Pt() < 10){
@@ -576,6 +575,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
           }
 
       }
+      */
 
       if (passAll){
         cloneElectron = thisElec;
@@ -1424,6 +1424,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   if (params->doAnglesMVA){
     float mvaVal = MVACalculator(mvaInits, tmvaReader);
+    /*
     //andy weight
     if (params->selection == "mumuGamma"){
       if (catNum ==1){
@@ -1446,7 +1447,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         if (mvaVal < -0.47) return kTRUE;
       }
     }
-    /*
     //newest, no andy weight
     if (params->selection == "mumuGamma"){
       if (catNum ==1){
