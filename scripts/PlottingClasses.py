@@ -304,7 +304,7 @@ class Plotter:
     ymin = 0
     bg.SetMaximum(ymax)
     bg.SetMinimum(ymin)
-    if not do2D: bg.Draw('hist')
+    if not do2D: bg.Draw('pe')
     else: bg.Draw('colz')
     bg.GetYaxis().SetTitle(data.GetYaxis().GetTitle())
     bg.GetYaxis().SetTitleSize(0.06)
@@ -497,19 +497,20 @@ class Plotter:
       else:
         leg.AddEntry(dataHist,'DATA','lep')
 
-    if soloPlot in [None, 'bg']:
-      bgStack = self.MakeBGStack(bgList,leg,do2D)
+    #if soloPlot in [None, 'bg']:
+      #bgStack = self.MakeBGStack(bgList,leg,do2D)
 
     scale = self.LumiXSScale(self.sigName)
-    signalHist.Scale(scale*100)
+    signalHist.Scale(scale*200)
     if soloPlot in [None, 'Signal']:
       if do2D:
-        leg.AddEntry(signalHist,'Signalx100','f')
+        leg.AddEntry(signalHist,'Signalx200','f')
       else:
-        leg.AddEntry(signalHist,'Signalx100','l')
+        leg.AddEntry(signalHist,'Signalx200','l')
 
     if soloPlot == None:
-      self.DrawHists(dataHist,bgStack,signalHist,do2D)
+      #self.DrawHists(dataHist,bgStack,signalHist,do2D)
+      self.DrawHists(dataHist,dataHist,signalHist,do2D)
     elif soloPlot == 'Data':
       self.DrawHist(dataHist,do2D)
     elif soloPlot == 'Signal':
