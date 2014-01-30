@@ -304,7 +304,7 @@ class Plotter:
     ymin = 0
     bg.SetMaximum(ymax)
     bg.SetMinimum(ymin)
-    if not do2D: bg.Draw('pe')
+    if not do2D: bg.Draw('hist')
     else: bg.Draw('colz')
     bg.GetYaxis().SetTitle(data.GetYaxis().GetTitle())
     bg.GetYaxis().SetTitleSize(0.06)
@@ -509,8 +509,8 @@ class Plotter:
         leg.AddEntry(signalHist,'Signalx200','l')
 
     if soloPlot == None:
-      #self.DrawHists(dataHist,bgStack,signalHist,do2D)
-      self.DrawHists(dataHist,dataHist,signalHist,do2D)
+      self.DrawHists(dataHist,bgStack,signalHist,do2D)
+      #self.DrawHists(dataHist,dataHist,signalHist,do2D)
     elif soloPlot == 'Data':
       self.DrawHist(dataHist,do2D)
     elif soloPlot == 'Signal':

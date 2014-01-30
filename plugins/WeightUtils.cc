@@ -713,13 +713,13 @@ float WeightUtils::ElectronTriggerWeight(TLorentzVector l1, TLorentzVector l2)
 
 float WeightUtils::PhotonFakeWeight(float eta, float pt){
     float etaWeight = 1;
-    float p0                        =      1.08287;
-    float p1                        =   0.00556804;
-    float p2                        =   -0.0563121;
-    float p3                        =  -0.00276669;
-    float p4                        =    0.0281433;
-    float p5                        =  0.000511135;
-    float p6                        =  -0.00578852;
+    float p0                        =      1.08009;
+    float p1                        =   0.00692323;
+    float p2                        =   -0.0640588;
+    float p3                        =  -0.00313191;
+    float p4                        =    0.0323788;
+    float p5                        =  0.000534298;
+    float p6                        =  -0.00631299;
     etaWeight = p0 + p1*eta + p2*pow(eta,2) + p3*pow(eta,3) + p4*pow(eta,4) + p5*pow(eta,5) + p6*pow(eta,6);
 
     float ptWeight = 1;
@@ -731,8 +731,8 @@ float WeightUtils::PhotonFakeWeight(float eta, float pt){
 //    p1 = -3.31882
 //    p2 =  .124946
 
-    float p0a =     0.731159; //  +/-   0.0156722   
-    float p1a =    0.0322366; //  +/-   0.00193736
+    float p0a =     0.685916; //  +/-   0.0156722   
+    float p1a =    0.0357364; //  +/-   0.00193736
 
     //return p0 + pow((et - p1)<Plug>PeepOpen2)
     ptWeight = p0a + p1a*pt;

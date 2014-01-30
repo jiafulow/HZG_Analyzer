@@ -8,7 +8,6 @@ import numpy as np
 gROOT.ProcessLine('.L ./tdrstyle.C')
 setTDRStyle()
 
-print "Hello< anvdfsdfsd fgdsf dsfsd dfg dfgdf gdf ghdf Bian!"
 
 def GenericPlotter(inFolder, outFolder):
   if os.environ.get('AT_NWU') == None:
@@ -52,16 +51,18 @@ def ROCPlotter():
     FileEl= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_11-29-13_plusPtTest.root")
   else:
     #FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_11-12-13.root")
-    FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_01-22-14_AndyWeight.root")
-    FileEl= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_01-22-14_AndyWeight.root")
+    #FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_01-22-14_AndyWeight.root")
+    #FileEl= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_01-22-14_AndyWeight.root")
     #FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_01-13-14.root")
     #FileEl= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_01-13-14.root")
+    FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_01-30-14.root")
+    FileEl= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_01-30-14.root")
 
-  plotter = Plotter(FileMu, 'MVAPlots', 'ROC_MVA_01-22-14_AndyWeight', '2012','mu','Signal2012ggM125NLOp8')
+  plotter = Plotter(FileMu, 'MVAPlots', 'ROC_MVA_01-30-14', '2012','mu','Signal2012ggM125NLOp8')
   for key in plotter.folderDict.keys():
     plotter.ROCcurves(plotter.folderDict[key])
     plotter.ROCcurves(plotter.folderDict[key],125)
-  plotterEl = Plotter(FileEl, 'MVAPlots', 'ROC_MVA_01-22-14_AndyWeight', '2012','el','Signal2012ggM125NLOp8')
+  plotterEl = Plotter(FileEl, 'MVAPlots', 'ROC_MVA_01-30-14', '2012','el','Signal2012ggM125NLOp8')
   for key in plotterEl.folderDict.keys():
     plotterEl.ROCcurves(plotterEl.folderDict[key])
     plotterEl.ROCcurves(plotterEl.folderDict[key],125)
