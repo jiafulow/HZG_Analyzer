@@ -205,7 +205,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   mvaInits.discrSampleName = "allBG";
   //mvaInits.discrSuffixName = "anglesOnly";
   //mvaInits.discrSuffixName = "newAnglesR9";
-  mvaInits.discrSuffixName = "01-22-14_AndyWeight";
+  mvaInits.discrSuffixName = "01-29-14_v0905";
 
 
   mvaInits.mvaHiggsMassPoint[0] = 125;
@@ -2291,7 +2291,7 @@ TMVA::Reader* higgsAnalyzer::MVAInitializer(){
   //tmvaReader->AddVariable("GPtOM", &(mvaVars._GPtOM));
   //tmvaReader->AddVariable("diffZGvectorOM", &(mvaVars._diffZGvectorOM));
   tmvaReader->AddVariable("threeBodyPtOM", &(mvaVars._threeBodyPtOM));
-  tmvaReader->AddVariable("ZPtOM", &(mvaVars._ZPtOM));
+  //tmvaReader->AddVariable("ZPtOM", &(mvaVars._ZPtOM));
   tmvaReader->AddVariable("GEta", &(mvaVars._GEta));
   tmvaReader->AddVariable("l1Eta", &(mvaVars._l1Eta));
   tmvaReader->AddVariable("l2Eta", &(mvaVars._l2Eta));
