@@ -112,7 +112,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   histoFile->mkdir("MVAPlots", "MVAPlots");
   //histoFile->mkdir("FakeRateWeight", "FakeRateWeight");
 
-  diffZGscalar = diffZGvector = threeBodyMass = threeBodyPt = divPt = cosZ = cosG = METdivQt = GPt = ZPt = DPhi = diffPlaneMVA = vtxVariable = dr1 = dr2 = M12 = medisc = smallTheta = bigTheta = comPhi = GPtOM = diffZGvectorOM = threeBodyPtOM = ZPtOM = GEta = ZEta = threeBodyEta = GPtOHPt = l1Eta = l2Eta = R9var = scaleFactor = -99999;
+  diffZGscalar = diffZGvector = threeBodyMass = threeBodyPt = divPt = cosZ = cosG = METdivQt = GPt = ZPt = DPhi = diffPlaneMVA = vtxVariable = dr1 = dr2 = M12 = medisc = smallTheta = bigTheta = comPhi = GPtOM = diffZGvectorOM = threeBodyPtOM = ZPtOM = GEta = ZEta = threeBodyEta = GPtOHPt = l1Eta = l2Eta = R9var = sieip = sipip = SCRawE = SCPSE = e5x5 = e2x2 = scaleFactor = -99999;
 
   sampleChain->Branch("diffZGscalar",&diffZGscalar,"diffZGscalar/F");
   trainingChain->Branch("diffZGscalar",&diffZGscalar,"diffZGscalar/F");
@@ -176,6 +176,18 @@ void higgsAnalyzer::Begin(TTree * tree)
   trainingChain->Branch("GPtOHPt",&GPtOHPt,"GPtOHPt/F");
   sampleChain->Branch("R9var",&R9var,"R9var/F");
   trainingChain->Branch("R9var",&R9var,"R9var/F");
+  sampleChain->Branch("sieip",&sieip,"sieip/F");
+  trainingChain->Branch("sieip",&sieip,"sieip/F");
+  sampleChain->Branch("sipip",&sipip,"sipip/F");
+  trainingChain->Branch("sipip",&sipip,"sipip/F");
+  sampleChain->Branch("SCRawE",&SCRawE,"SCRawE/F");
+  trainingChain->Branch("SCRawE",&SCRawE,"SCRawE/F");
+  sampleChain->Branch("SCPSE",&SCPSE,"SCPSE/F");
+  trainingChain->Branch("SCPSE",&SCPSE,"SCPSE/F");
+  sampleChain->Branch("e5x5",&e5x5,"e5x5/F");
+  trainingChain->Branch("e5x5",&e5x5,"e5x5/F");
+  sampleChain->Branch("e2x2",&e2x2,"e2x2/F");
+  trainingChain->Branch("e2x2",&e2x2,"e2x2/F");
 
   sampleChain->Branch("scaleFactor",&scaleFactor,"scaleFactor/F");
   trainingChain->Branch("scaleFactor",&scaleFactor,"scaleFactor/F");
@@ -886,7 +898,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   TLorentzVector ZP4;
   TLorentzVector ZP4Gen;
-  TLorentzVector GP4;
+  TCPhoton GP4;
   TLorentzVector GP4Gen;
   TLorentzVector JetOne, JetTwo;
   float GP4scEta = -9999;
@@ -1107,10 +1119,10 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   ////////////////////////////
 
 
-  TLorentzVector GP4_LIDMIso;
-  TLorentzVector GP4_MIDLIso;
-  TLorentzVector GP4_LIDLIso;
-  TLorentzVector GP4_NoIDIso;
+  TCPhoton GP4_LIDMIso;
+  TCPhoton GP4_MIDLIso;
+  TCPhoton GP4_LIDLIso;
+  TCPhoton GP4_NoIDIso;
 
   float R9Cor_LIDMIso, R9Cor_MIDLIso, R9Cor_LIDLIso, R9Cor_NoIDIso;
   R9Cor_LIDMIso = R9Cor_MIDLIso = R9Cor_LIDLIso = R9Cor_NoIDIso = -999;
@@ -1396,6 +1408,12 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   threeBodyEta    = (GP4+ZP4).Eta();
   GPtOHPt         = GP4.Pt()/(GP4+ZP4).Pt();
   R9var           = R9Cor;
+  sieip           = GP4.SigmaIEtaIPhi();
+  sipip           = GP4.SigmaIPhiIPhi();
+  SCRawE          = GP4.SCRawEnergy();
+  SCPSE           = GP4.SCPSEnergy();
+  e5x5            = GP4.E5x5();
+  e2x2            = GP4.E2x2();
   scaleFactor     = eventWeight;
   if (params->suffix.find("ggM125") != string::npos) scaleFactor *= 19.672/(unskimmedEventsTotal/(19.52*0.00154*0.10098*1000));
   if (params->suffix == "DYJets") scaleFactor *= 19.672/(unskimmedEventsTotal/(3503.71*1000));
@@ -1421,10 +1439,39 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   mvaVars._GPtOHPt = GPtOHPt;
   mvaVars._threeBodyMass = threeBodyMass;
   mvaVars._R9 = R9var;
+  mvaVars._sieip = sieip;
+  mvaVars._sipip = sipip;
+  mvaVars._SCRawE = SCRawE;
+  mvaVars._SCPSE = SCPSE;
+  mvaVars._e5x5 = e5x5;
+  mvaVars._e2x2 = e2x2;
 
   if (params->doAnglesMVA){
     float mvaVal = MVACalculator(mvaInits, tmvaReader);
     /*
+    //nv9.5
+    if (params->selection == "mumuGamma"){
+      if (catNum ==1){
+        if (mvaVal <0.11) return kTRUE;
+      }else if (catNum==2){
+        if (mvaVal < -0.4) return kTRUE;
+      }else if (catNum==3){
+        if (mvaVal < -0.22) return kTRUE;
+      }else if (catNum==4){
+        if (mvaVal < -0.56) return kTRUE;
+      }
+    }else if (params->selection == "eeGamma"){
+      if (catNum ==1){
+        if (mvaVal < 0.067) return kTRUE;
+      }else if (catNum==2){
+        if (mvaVal < -0.44) return kTRUE;
+      }else if (catNum==3){
+        if (mvaVal < -0.31) return kTRUE;
+      }else if (catNum==4){
+        if (mvaVal < -0.4) return kTRUE;
+      }
+    }
+
     //andy weight
     if (params->selection == "mumuGamma"){
       if (catNum ==1){

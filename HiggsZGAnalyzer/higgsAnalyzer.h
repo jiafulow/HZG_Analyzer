@@ -165,6 +165,12 @@ class higgsAnalyzer : public TSelector {
     float          threeBodyEta;
     float          GPtOHPt;
     float          R9var;
+    float          sieip;
+    float          sipip;
+    float          SCRawE;
+    float          SCPSE;
+    float          e5x5;
+    float          e2x2;
     float          scaleFactor;
 
     //M_llg branches
@@ -310,6 +316,12 @@ class higgsAnalyzer : public TSelector {
       float _GPtOHPt;
       float _threeBodyMass;
       float _R9;
+      float _sieip;
+      float _sipip;
+      float _SCRawE;
+      float _SCPSE;
+      float _e5x5;
+      float _e2x2;
     } mvaVars; 
 
     TMVA::Reader*   MVAInitializer();

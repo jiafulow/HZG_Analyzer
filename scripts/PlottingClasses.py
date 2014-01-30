@@ -589,6 +589,15 @@ class Plotter:
       self.myCut.SetPoint(2,sigWindow+4,2)
       self.myCut.SetPoint(3,sigWindow+4,-2)
       self.myCut.SetPoint(4,sigWindow-4,-2)
+    else:
+      self.myCut = TCutG('mycut',5)
+      self.myCut.SetPoint(0,115,-2)
+      self.myCut.SetPoint(1,115,2)
+      self.myCut.SetPoint(2,165,2)
+      self.myCut.SetPoint(3,165,-2)
+      self.myCut.SetPoint(4,115,-2)
+
+
 
 
     for hist in histList:
@@ -664,8 +673,7 @@ class Plotter:
       hist.IsA().Destructor(hist)
     for hist in bgListD:
       hist.IsA().Destructor(hist)
-    if sigWindow:
-      self.myCut.Clear()
+    self.myCut.Clear()
 
     #self.can.IsA().Destructor(self.can)
 

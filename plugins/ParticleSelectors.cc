@@ -157,7 +157,7 @@ bool ParticleSelector::FindGoodZMuon(const vector<TCMuon>& muonList, TCPhysObjec
   }
   return goodZ;
 }
-bool ParticleSelector::FindGoodPhoton(const vector<TCPhoton>& photonList, TLorentzVector& gamma, const TCPhysObject& lepton1, const TCPhysObject& lepton2, float& R9, float& scEta, const vector<TCGenParticle>& vetoPhotons){
+bool ParticleSelector::FindGoodPhoton(const vector<TCPhoton>& photonList, TCPhoton& gamma, const TCPhysObject& lepton1, const TCPhysObject& lepton2, float& R9, float& scEta, const vector<TCGenParticle>& vetoPhotons){
   bool goodPhoton = false;
   for (UInt_t i = 0; i<photonList.size(); i++){
     //////////// DYJets Gamma Veto ////////////
