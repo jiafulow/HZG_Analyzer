@@ -497,8 +497,8 @@ class Plotter:
       else:
         leg.AddEntry(dataHist,'DATA','lep')
 
-    #if soloPlot in [None, 'bg']:
-      #bgStack = self.MakeBGStack(bgList,leg,do2D)
+    if soloPlot in [None, 'bg']:
+      bgStack = self.MakeBGStack(bgList,leg,do2D)
 
     scale = self.LumiXSScale(self.sigName)
     signalHist.Scale(scale*200)
