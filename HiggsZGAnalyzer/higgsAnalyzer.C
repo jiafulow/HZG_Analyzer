@@ -217,7 +217,8 @@ void higgsAnalyzer::Begin(TTree * tree)
   mvaInits.discrSampleName = "allBG";
   //mvaInits.discrSuffixName = "anglesOnly";
   //mvaInits.discrSuffixName = "newAnglesR9";
-  mvaInits.discrSuffixName = "01-29-14_v0905";
+  //mvaInits.discrSuffixName = "01-29-14_v0905";
+  mvaInits.discrSuffixName = "01-30-14_MoreShape";
 
 
   mvaInits.mvaHiggsMassPoint[0] = 125;
@@ -1448,6 +1449,28 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   if (params->doAnglesMVA){
     float mvaVal = MVACalculator(mvaInits, tmvaReader);
+    //MoreShapes
+    if (params->selection == "mumuGamma"){
+      if (catNum ==1){
+        if (mvaVal <0.2) return kTRUE;
+      }else if (catNum==2){
+        if (mvaVal < -0.067) return kTRUE;
+      }else if (catNum==3){
+        if (mvaVal < -0.022) return kTRUE;
+      }else if (catNum==4){
+        if (mvaVal < -0.36) return kTRUE;
+      }
+    }else if (params->selection == "eeGamma"){
+      if (catNum ==1){
+        if (mvaVal < 0.29) return kTRUE;
+      }else if (catNum==2){
+        if (mvaVal < -0.13) return kTRUE;
+      }else if (catNum==3){
+        if (mvaVal < -0.24) return kTRUE;
+      }else if (catNum==4){
+        if (mvaVal < -0.42) return kTRUE;
+      }
+    }
     /*
     //nv9.5
     if (params->selection == "mumuGamma"){
@@ -2343,6 +2366,12 @@ TMVA::Reader* higgsAnalyzer::MVAInitializer(){
   tmvaReader->AddVariable("l1Eta", &(mvaVars._l1Eta));
   tmvaReader->AddVariable("l2Eta", &(mvaVars._l2Eta));
   tmvaReader->AddVariable("R9var", &(mvaVars._R9));
+  tmvaReader->AddVariable("sieip", &(mvaVars._sieip));
+  tmvaReader->AddVariable("sipip", &(mvaVars._sipip));
+  tmvaReader->AddVariable("SCRawE", &(mvaVars._SCRawE));
+  tmvaReader->AddVariable("SCPSE", &(mvaVars._SCPSE));
+  tmvaReader->AddVariable("e5x5", &(mvaVars._e5x5));
+  tmvaReader->AddVariable("e2x2", &(mvaVars._e2x2));
   //tmvaReader->AddVariable("ZEta", &(mvaVars._ZEta));
   //tmvaReader->AddVariable("threeBodyEta", &(mvaVars._threeBodyEta));
   //tmvaReader->AddVariable("GPtOHPt", &(mvaVars._GPtOHPt));
