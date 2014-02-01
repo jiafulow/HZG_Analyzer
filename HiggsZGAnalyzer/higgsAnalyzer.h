@@ -322,6 +322,9 @@ class higgsAnalyzer : public TSelector {
       float _SCPSE;
       float _e5x5;
       float _e2x2;
+      float _e2x2O5x5;
+      float _SCRawEOPt;
+      float _SCPSEOPt;
     } mvaVars; 
 
     TMVA::Reader*   MVAInitializer();

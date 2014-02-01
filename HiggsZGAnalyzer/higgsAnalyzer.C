@@ -1446,10 +1446,14 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   mvaVars._SCPSE = SCPSE;
   mvaVars._e5x5 = e5x5;
   mvaVars._e2x2 = e2x2;
+  mvaVars._e2x2O5x5 = e2x2/e5x5;
+  mvaVars._SCRawEOPt = SCRawE/GP4.Pt();
+  mvaVars._SCPSEOPt = SCPSE/GP4.Pt();
 
   if (params->doAnglesMVA){
     float mvaVal = MVACalculator(mvaInits, tmvaReader);
     //MoreShapes
+    /*
     if (params->selection == "mumuGamma"){
       if (catNum ==1){
         if (mvaVal <0.2) return kTRUE;
@@ -1471,7 +1475,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         if (mvaVal < -0.42) return kTRUE;
       }
     }
-    /*
     //nv9.5
     if (params->selection == "mumuGamma"){
       if (catNum ==1){
