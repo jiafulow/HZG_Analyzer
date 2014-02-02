@@ -112,7 +112,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   histoFile->mkdir("MVAPlots", "MVAPlots");
   //histoFile->mkdir("FakeRateWeight", "FakeRateWeight");
 
-  diffZGscalar = diffZGvector = threeBodyMass = threeBodyPt = divPt = cosZ = cosG = METdivQt = GPt = ZPt = DPhi = diffPlaneMVA = vtxVariable = dr1 = dr2 = M12 = medisc = smallTheta = bigTheta = comPhi = GPtOM = diffZGvectorOM = threeBodyPtOM = ZPtOM = GEta = ZEta = threeBodyEta = GPtOHPt = l1Eta = l2Eta = R9var = sieip = sipip = SCRawE = SCPSE = e5x5 = e2x2 = scaleFactor = -99999;
+  diffZGscalar = diffZGvector = threeBodyMass = threeBodyPt = divPt = cosZ = cosG = METdivQt = GPt = ZPt = DPhi = diffPlaneMVA = vtxVariable = dr1 = dr2 = M12 = medisc = smallTheta = bigTheta = comPhi = GPtOM = diffZGvectorOM = threeBodyPtOM = ZPtOM = GEta = ZEta = threeBodyEta = GPtOHPt = l1Eta = l2Eta = R9var = sieip = sipip = SCRawE = SCPSE = e5x5 = e2x2 = SCPSEOPt = SCRawEOPt = e2x2O5x5 = scaleFactor = -99999;
 
   sampleChain->Branch("diffZGscalar",&diffZGscalar,"diffZGscalar/F");
   trainingChain->Branch("diffZGscalar",&diffZGscalar,"diffZGscalar/F");
@@ -182,12 +182,18 @@ void higgsAnalyzer::Begin(TTree * tree)
   trainingChain->Branch("sipip",&sipip,"sipip/F");
   sampleChain->Branch("SCRawE",&SCRawE,"SCRawE/F");
   trainingChain->Branch("SCRawE",&SCRawE,"SCRawE/F");
+  sampleChain->Branch("SCRawEOPt",&SCRawEOPt,"SCRawEOPt/F");
+  trainingChain->Branch("SCRawEOPt",&SCRawEOPt,"SCRawEOPt/F");
   sampleChain->Branch("SCPSE",&SCPSE,"SCPSE/F");
   trainingChain->Branch("SCPSE",&SCPSE,"SCPSE/F");
+  sampleChain->Branch("SCPSEOPt",&SCPSEOPt,"SCPSEOPt/F");
+  trainingChain->Branch("SCPSEOPt",&SCPSEOPt,"SCPSEOPt/F");
   sampleChain->Branch("e5x5",&e5x5,"e5x5/F");
   trainingChain->Branch("e5x5",&e5x5,"e5x5/F");
   sampleChain->Branch("e2x2",&e2x2,"e2x2/F");
   trainingChain->Branch("e2x2",&e2x2,"e2x2/F");
+  sampleChain->Branch("e2x2O5x5",&e2x2O5x5,"e2x2O5x5/F");
+  trainingChain->Branch("e2x2O5x5",&e2x2O5x5,"e2x2O5x5/F");
 
   sampleChain->Branch("scaleFactor",&scaleFactor,"scaleFactor/F");
   trainingChain->Branch("scaleFactor",&scaleFactor,"scaleFactor/F");
@@ -1413,8 +1419,11 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   sipip           = GP4.SigmaIPhiIPhi();
   SCRawE          = GP4.SCRawEnergy();
   SCPSE           = GP4.SCPSEnergy();
+  SCRawEOPt       = GP4.SCRawEnergy()/GP4.Pt();
+  SCPSEOPt        = GP4.SCPSEnergy()/GP4.Pt();
   e5x5            = GP4.E5x5();
   e2x2            = GP4.E2x2();
+  e2x2O5x5        = GP4.E2x2()/GP4.E5x5();
   scaleFactor     = eventWeight;
   if (params->suffix.find("ggM125") != string::npos) scaleFactor *= 19.672/(unskimmedEventsTotal/(19.52*0.00154*0.10098*1000));
   if (params->suffix == "DYJets") scaleFactor *= 19.672/(unskimmedEventsTotal/(3503.71*1000));

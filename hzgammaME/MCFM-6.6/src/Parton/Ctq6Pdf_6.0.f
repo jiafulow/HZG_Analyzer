@@ -115,7 +115,7 @@ C             If data file not initialized, do so.
             Print *, 'Invalid Iset number in SetCtq6 :', Iset
             Stop
          Endif
-	 filename=checkpath('../hzgammaME/Pdfdata/'//Tablefile)
+	 filename=checkpath('../Pdfdata/'//Tablefile)
          Open(IU, File=filename, Status='OLD', Err=100)
  21      Call ReadTbl6 (IU)
          Close (IU)

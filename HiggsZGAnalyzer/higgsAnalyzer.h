@@ -62,8 +62,8 @@
 #include "../interface/AnalysisParameters.h"
 #include "../interface/ParticleSelectors.h"
 #include "../interface/Dumper.h"
-#include "../hzgammaME/TVar.hh"
-#include "../hzgammaME/TEvtProb.cc"
+#include "/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/hzgammaME/TVar.hh"
+#include "/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/hzgammaME/TEvtProb.cc"
 
 #ifdef __MAKECINT__
 #pragma link C++ class vector<string>+;
@@ -169,8 +169,11 @@ class higgsAnalyzer : public TSelector {
     float          sipip;
     float          SCRawE;
     float          SCPSE;
+    float          SCPSEOPt;
+    float          SCRawEOPt;
     float          e5x5;
     float          e2x2;
+    float          e2x2O5x5;
     float          scaleFactor;
 
     //M_llg branches

@@ -68,8 +68,8 @@ cat > run.C << +EOF
     gROOT->LoadMacro("Dumper.cc+");
     cout<<"loading fortran"<<endl;
     gSystem->Load("libgfortran.so");
-    gSystem->Load("../hzgammaME/MCFM-6.6/obj/libmcfm_6p6.so");
-    gSystem->Load("../hzgammaME/libME.so");
+    gSystem->Load("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/hzgammaME/MCFM-6.6/obj/libmcfm_6p6.so");
+    gSystem->Load("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/hzgammaME/libME.so");
     cout<<"fortran and ME loaded"<<endl;
 
     TChain* fChain = new TChain("ntupleProducer/eventTree");
@@ -107,8 +107,9 @@ mv *.root ../.
 rm higgsAnalyzer*
 rm ../input.txt 
 rm run.C
-rm process.DAT
-rm stageball.tar.gz
-rm garbage.txt
-rm br.sm1
-rm br.sm2
+rm ../process.DAT
+rm ../input.DAT
+rm ../stageball.tar.gz
+rm ../garbage.txt
+rm ../br.sm1
+rm ../br.sm2

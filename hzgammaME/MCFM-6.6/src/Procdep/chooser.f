@@ -67,7 +67,7 @@ c---- total cross-section comes out correctly when the BR is removed
       mcfmplotinfo(j)=-1
       enddo
 
-      string='../hzgammaME/process.DAT' 
+      string='../process.DAT' 
       open(unit=21,file=string,status='old',err=43)
       call checkversion(21,string)
       

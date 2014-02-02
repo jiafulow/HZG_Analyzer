@@ -18,7 +18,7 @@ C  Other branching ratios could be added.
 
       if (first) then
       first=.false.
-      open(unit=47,file='../hzgammaME/br.sm1',status='old',err=44)
+      open(unit=47,file='../br.sm1',status='old',err=44)
       read(47,*,err=75) string
  75   read(47,*,err=76) string
  76   continue
@@ -28,7 +28,7 @@ C  Other branching ratios could be added.
  77   continue
       close(unit=47)
 
-      open(unit=48,file='../hzgammaME/br.sm2',status='old',err=45)
+      open(unit=48,file='../br.sm2',status='old',err=45)
       read(48,*,err=85) string
  85   read(48,*,err=86) string
  86   continue

@@ -343,7 +343,7 @@ C                                                   (Cteq6.6AS)  460 - 463
           Stop
         Endif
         IU= NextUn_Cteq6()
-	filename=checkpath('../hzgammaME/Pdfdata/'//Tablefile)
+	filename=checkpath('../Pdfdata/'//Tablefile)
         Open(IU, File=filename, Status='OLD', Err=100)
  21     Call Readpds (IU,fmtpds)
         Close (IU)

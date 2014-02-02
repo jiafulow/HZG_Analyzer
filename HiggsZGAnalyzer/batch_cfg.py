@@ -9,10 +9,10 @@ t3storage   = '/tthome/bpollack/storage/'
 outputPathFNAL  = '/uscms/home/bpollack/nobackup/BatchOutput'
 outputPathNWU  = '/tthome/bpollack/BatchOutput'
 
-os.system('tar -zcvf stageball.tar.gz higgsAnalyzer* ../src  otherHistos ../plugins ../interface ../hzgammaME ../mva/testWeights')
+os.system('tar -zcvf stageball.tar.gz higgsAnalyzer* ../src  otherHistos ../plugins ../interface ../mva/testWeights ../txtFiles ../input.DAT ../process.DAT ../Pdfdata ../br.sm*')
 
 doMuMuGamma = True
-doEEGamma = True
+doEEGamma = False
 configs = []
 
 #different pathnames and executables for NWU or FNAL
@@ -50,15 +50,15 @@ if os.environ.get('AT_NWU') == None:
 else:
   if doMuMuGamma:
     configs.append(b.JobConfig('ggHZG_M125', t3storage+'/V09_05_8TeV/MC/ggHZG_M125_RD1', 5, 'Signal2012ggM125 ABCD mumuGamma 2012','mumuGamma'))
-    configs.append(b.JobConfig('ggHZG_M135', t3storage+'/V09_05_8TeV/MC/ggHZG_M135_RD1', 5, 'Signal2012ggM135 ABCD mumuGamma 2012','mumuGamma'))
+    #configs.append(b.JobConfig('ggHZG_M135', t3storage+'/V09_05_8TeV/MC/ggHZG_M135_RD1', 5, 'Signal2012ggM135 ABCD mumuGamma 2012','mumuGamma'))
 
-    configs.append(b.JobConfig('Run2012A', t3storage+'/V09_05_8TeV/DoubleMu/Run2012A', 50, 'DATA ABCD mumuGamma 2012','mumuGamma'))
-    configs.append(b.JobConfig('Run2012B', t3storage+'/V09_05_8TeV/DoubleMu/Run2012B', 100, 'DATA ABCD mumuGamma 2012','mumuGamma'))
-    configs.append(b.JobConfig('Run2012C', t3storage+'/V09_05_8TeV/DoubleMu/Run2012C', 150, 'DATA ABCD mumuGamma 2012','mumuGamma'))
-    configs.append(b.JobConfig('Run2012D', t3storage+'/V09_05_8TeV/DoubleMu/Run2012D', 150, 'DATA ABCD mumuGamma 2012','mumuGamma'))
+    #configs.append(b.JobConfig('Run2012A', t3storage+'/V09_05_8TeV/DoubleMu/Run2012A', 50, 'DATA ABCD mumuGamma 2012','mumuGamma'))
+    #configs.append(b.JobConfig('Run2012B', t3storage+'/V09_05_8TeV/DoubleMu/Run2012B', 100, 'DATA ABCD mumuGamma 2012','mumuGamma'))
+    #configs.append(b.JobConfig('Run2012C', t3storage+'/V09_05_8TeV/DoubleMu/Run2012C', 150, 'DATA ABCD mumuGamma 2012','mumuGamma'))
+    #configs.append(b.JobConfig('Run2012D', t3storage+'/V09_05_8TeV/DoubleMu/Run2012D', 150, 'DATA ABCD mumuGamma 2012','mumuGamma'))
 
-    configs.append(b.JobConfig('ZGToLLG', t3storage+'/V09_05_8TeV/MC/ZGToLLG', 50, 'ZGToLLG ABCD mumuGamma 2012','mumuGamma'))
-    configs.append(b.JobConfig('DYJets', t3storage+'/V09_05_8TeV/MC/DYJetsToLL_M-50', 150, 'DYJets ABCD mumuGamma 2012','mumuGamma'))
+    #configs.append(b.JobConfig('ZGToLLG', t3storage+'/V09_05_8TeV/MC/ZGToLLG', 50, 'ZGToLLG ABCD mumuGamma 2012','mumuGamma'))
+    #configs.append(b.JobConfig('DYJets', t3storage+'/V09_05_8TeV/MC/DYJetsToLL_M-50', 150, 'DYJets ABCD mumuGamma 2012','mumuGamma'))
 
   if doEEGamma:
     configs.append(b.JobConfig('ggHZG_M125', t3storage+'/V09_05_8TeV/MC/ggHZG_M125_RD1', 5, 'Signal2012ggM125 ABCD eeGamma 2012','eeGamma'))
