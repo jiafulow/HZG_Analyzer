@@ -224,7 +224,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   //mvaInits.discrSuffixName = "anglesOnly";
   //mvaInits.discrSuffixName = "newAnglesR9";
   //mvaInits.discrSuffixName = "01-29-14_v0905";
-  mvaInits.discrSuffixName = "01-30-14_MoreShape";
+  mvaInits.discrSuffixName = "02-01-14";
 
 
   mvaInits.mvaHiggsMassPoint[0] = 125;
@@ -2380,10 +2380,13 @@ TMVA::Reader* higgsAnalyzer::MVAInitializer(){
   tmvaReader->AddVariable("R9var", &(mvaVars._R9));
   tmvaReader->AddVariable("sieip", &(mvaVars._sieip));
   tmvaReader->AddVariable("sipip", &(mvaVars._sipip));
-  tmvaReader->AddVariable("SCRawE", &(mvaVars._SCRawE));
-  tmvaReader->AddVariable("SCPSE", &(mvaVars._SCPSE));
-  tmvaReader->AddVariable("e5x5", &(mvaVars._e5x5));
-  tmvaReader->AddVariable("e2x2", &(mvaVars._e2x2));
+  //tmvaReader->AddVariable("SCRawE", &(mvaVars._SCRawE));
+  //tmvaReader->AddVariable("SCPSE", &(mvaVars._SCPSE));
+  //tmvaReader->AddVariable("e5x5", &(mvaVars._e5x5));
+  //tmvaReader->AddVariable("e2x2", &(mvaVars._e2x2));
+  tmvaReader->AddVariable("SCRawEOPt", &(mvaVars._SCRawEOPt));
+  tmvaReader->AddVariable("SCPSEOPt", &(mvaVars._SCPSEOPt));
+  tmvaReader->AddVariable("e2x2O5x5", &(mvaVars._e2x2O5x5));
   //tmvaReader->AddVariable("ZEta", &(mvaVars._ZEta));
   //tmvaReader->AddVariable("threeBodyEta", &(mvaVars._threeBodyEta));
   //tmvaReader->AddVariable("GPtOHPt", &(mvaVars._GPtOHPt));
