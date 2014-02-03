@@ -50,25 +50,40 @@ def DoYield(fileName, secondName = None):
       rawTotal = thisFile.Get('h1_InvariantMass_'+suffix).Integral()
       scaledTotal = rawTotal*LumiXSScale(suffix, lep, '2012', thisFile)
       print '      ','rawTotal: {0:.0f} scaledTotal: {1:.2f}'.format(rawTotal,scaledTotal)
+# count number of cats
+      catTotal = 0
+      for i in range(1,10):
+        if thisFile.Get('h1_threeBodyMassCAT'+str(i)+'_'+suffix): catTotal +=1
+# do the cats
+      rawTotalCat = [-9999]
       for i in range(1,10):
         if thisFile.Get('h1_threeBodyMassCAT'+str(i)+'_'+suffix):
-          rawTotalCat = thisFile.Get('h1_threeBodyMassCAT'+str(i)+'_'+suffix).Integral()
-          scaledTotalCat = rawTotalCat*LumiXSScale(suffix, lep, '2012', thisFile)
-          percentage = (rawTotalCat/rawTotal)*100
+          rawTotalCat.append(thisFile.Get('h1_threeBodyMassCAT'+str(i)+'_'+suffix).Integral())
+          scaledTotalCat = rawTotalCat[i]*LumiXSScale(suffix, lep, '2012', thisFile)
+          percentage = (rawTotalCat[i]/rawTotal)*100
           if secondName:
             rawTotalCatSecond = secondFile.Get('h1_threeBodyMassCAT'+str(i)+'_'+suffix).Integral()
-            percentageChange = (rawTotalCat/rawTotalCatSecond)*100
+            percentageChange = (rawTotalCat[i]/rawTotalCatSecond)*100
 
           if secondName:
-            print '      ','CAT{0} rawTotal: {1:4.0f} scaledTotal: {2:7.2f} percent: {3:4.1f}% percentCh: {4:.1f}%'.format(i,rawTotalCat,scaledTotalCat,percentage,percentageChange)
+            print '      ','CAT{0} rawTotal: {1:4.0f} scaledTotal: {2:7.2f} percent: {3:4.1f}% percentCh: {4:.1f}%'.format(i,rawTotalCat[i],scaledTotalCat,percentage,percentageChange)
           else:
-            print '      ','CAT{0} rawTotal: {1:4.0f} scaledTotal: {2:7.2f} percent: {3:.1f}%'.format(i,rawTotalCat,scaledTotalCat,percentage)
+            print '      ','CAT{0} rawTotal: {1:4.0f} scaledTotal: {2:7.2f} percent: {3:.1f}%'.format(i,rawTotalCat[i],scaledTotalCat,percentage)
+      if catTotal == 9:
+        for i in range(1,10):
+          if i < 5:
+            print '        ','CAT{0} temp card scale: {1:.3f}'.format(i,rawTotalCat[i]/(rawTotalCat[i+5]+rawTotalCat[i]))
+          elif i == 5:
+            print '        ','CAT{0} temp card scale: {1:.3f}'.format(i,rawTotalCat[i]/(rawTotalCat[i]))
+          else:
+            print '        ','CAT{0} temp card scale: {1:.3f}'.format(i,rawTotalCat[i]/(rawTotalCat[i-5]+rawTotalCat[i]))
+
 
 
 if __name__ == '__main__':
   name = str(sys.argv[1])
   secondName = None
-  if sys.argv[2]: secondName = sys.argv[2]
+  if len(sys.argv)>2: secondName = sys.argv[2]
   DoYield(name, secondName)
 
 
