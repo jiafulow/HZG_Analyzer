@@ -29,17 +29,17 @@ def GenericPlotter(inFolder, outFolder):
     #FileEl= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_01-13-14.root")
     #FileMu = TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_12-4-13_newAnglesR9.root")
     #FileEl = TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_12-4-13_newAnglesR9.root")
-    FileMu = TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_01-30-14_MoreShapeCut.root")
-    FileEl = TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_01-30-14_MoreShapeCut.root")
+    FileMu = TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_02-01-14_Cut.root")
+    FileEl = TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_02-01-14_Cut.root")
 
-  plotterMu = Plotter(FileMu, inFolder, outFolder, '2012','mu','Signal2012ggM125NLOp8')
+  plotterMu = Plotter(FileMu, inFolder, outFolder, '2012','mu','Signal2012ggM125')
   for key in plotterMu.folderDict.keys():
     #plotterMu.DataBGComp(plotterMu.folderDict[key],'bg',doLeg = False)
     #plotterMu.DataBGComp(plotterMu.folderDict[key],'Signal',doLeg = False)
     plotterMu.DataBGComp(plotterMu.folderDict[key])
     plotterMu.DataBGComp2DProj(plotterMu.folderDict[key])
     #plotter.DataBGComp2DProj(plotter.folderDict[key],125)
-  plotterEl = Plotter(FileEl, inFolder, outFolder, '2012','el','Signal2012ggM125NLOp8')
+  plotterEl = Plotter(FileEl, inFolder, outFolder, '2012','el','Signal2012ggM125')
   for key in plotterEl.folderDict.keys():
     plotterEl.DataBGComp(plotterEl.folderDict[key])
     plotterEl.DataBGComp2DProj(plotterEl.folderDict[key])
@@ -57,17 +57,17 @@ def ROCPlotter():
     #FileEl= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_01-22-14_AndyWeight.root")
     #FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_01-13-14.root")
     #FileEl= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_01-13-14.root")
-    FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_01-30-14_MoreShape.root")
-    FileEl= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_01-30-14_MoreShape.root")
+    FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_02-01-14.root")
+    FileEl= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_02-01-14.root")
 
-  plotter = Plotter(FileMu, 'MVAPlots', 'ROC_MVA_01-30-14_MoreShape', '2012','mu','Signal2012ggM125NLOp8')
+  plotter = Plotter(FileMu, 'MVAPlots', 'ROC_MVA_02-01-14', '2012','mu','Signal2012ggM135')
   for key in plotter.folderDict.keys():
     plotter.ROCcurves(plotter.folderDict[key])
-    plotter.ROCcurves(plotter.folderDict[key],125)
-  plotterEl = Plotter(FileEl, 'MVAPlots', 'ROC_MVA_01-30-14_MoreShape', '2012','el','Signal2012ggM125NLOp8')
+    plotter.ROCcurves(plotter.folderDict[key],135)
+  plotterEl = Plotter(FileEl, 'MVAPlots', 'ROC_MVA_02-01-14', '2012','el','Signal2012ggM135')
   for key in plotterEl.folderDict.keys():
     plotterEl.ROCcurves(plotterEl.folderDict[key])
-    plotterEl.ROCcurves(plotterEl.folderDict[key],125)
+    plotterEl.ROCcurves(plotterEl.folderDict[key],135)
 
 def RatioPlotter():
   if os.environ.get('AT_NWU') == None:

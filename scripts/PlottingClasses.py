@@ -69,6 +69,7 @@ class Plotter:
     scaleDict['2012']['DYJets'] = 3503.71*1000
     scaleDict['2012']['ZGToLLG'] = 156.2*1000
     scaleDict['2012']['gg']['125'] = 19.52*0.00154*0.10098*1000
+    scaleDict['2012']['gg']['135'] = 16.79*0.00227*0.10098*1000
 
     initEvents = self.thisFile.GetDirectory('Misc').Get('h1_acceptanceByCut_'+name).Integral(1,1)
     if 'Signal' in name:

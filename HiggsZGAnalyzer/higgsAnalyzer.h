@@ -183,6 +183,10 @@ class higgsAnalyzer : public TSelector {
     double          m_llgCAT3;
     double          m_llgCAT4;
     double          m_llgCAT5;
+    double          m_llgCAT6;
+    double          m_llgCAT7;
+    double          m_llgCAT8;
+    double          m_llgCAT9;
     double          unBinnedWeight;
     double          unBinnedLumiXS;
 

@@ -103,6 +103,10 @@ void higgsAnalyzer::Begin(TTree * tree)
   histoFile->mkdir("CAT3", "CAT3");
   histoFile->mkdir("CAT4", "CAT4");
   histoFile->mkdir("CAT5", "CAT5");
+  histoFile->mkdir("CAT6", "CAT6");
+  histoFile->mkdir("CAT7", "CAT7");
+  histoFile->mkdir("CAT8", "CAT8");
+  histoFile->mkdir("CAT9", "CAT9");
   histoFile->mkdir("PreGen", "PreGen");
   histoFile->mkdir("PostGen", "PostGen");
   histoFile->mkdir("ZGAngles", "ZGAngles");
@@ -203,6 +207,10 @@ void higgsAnalyzer::Begin(TTree * tree)
   m_llgChain->Branch(("m_llgCAT2_"+params->suffix).c_str(), &m_llgCAT2, "m_llgCAT2/D");
   m_llgChain->Branch(("m_llgCAT3_"+params->suffix).c_str(), &m_llgCAT3, "m_llgCAT3/D");
   m_llgChain->Branch(("m_llgCAT4_"+params->suffix).c_str(), &m_llgCAT4, "m_llgCAT4/D");
+  m_llgChain->Branch(("m_llgCAT6_"+params->suffix).c_str(), &m_llgCAT6, "m_llgCAT6/D");
+  m_llgChain->Branch(("m_llgCAT7_"+params->suffix).c_str(), &m_llgCAT7, "m_llgCAT7/D");
+  m_llgChain->Branch(("m_llgCAT8_"+params->suffix).c_str(), &m_llgCAT8, "m_llgCAT8/D");
+  m_llgChain->Branch(("m_llgCAT9_"+params->suffix).c_str(), &m_llgCAT9, "m_llgCAT9/D");
   m_llgChain->Branch(("m_llgCAT5_"+params->suffix).c_str(), &m_llgCAT5, "m_llgCAT5/D");
   m_llgChain->Branch(("unBinnedWeight_"+params->suffix).c_str(), &unBinnedWeight, "unBinnedWeight/D");
   m_llgChain->Branch(("unBinnedLumiXS_"+params->suffix).c_str(), &unBinnedLumiXS, "unBinnedLumiXS/D");
@@ -267,7 +275,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   if (nEvents[0] % (int)1e5 == 0) cout<<nEvents[17]<<" events passed of "<<nEvents[0]<<" checked!"<<endl;
 
-  m_llg = m_llgCAT1 = m_llgCAT2 = m_llgCAT3 = m_llgCAT4 = m_llgCAT5 = -1;
+  m_llg = m_llgCAT1 = m_llgCAT2 = m_llgCAT3 = m_llgCAT4 = m_llgCAT5 = m_llgCAT6 = m_llgCAT7 = m_llgCAT8 = m_llgCAT9 =  -1;
   unBinnedWeight = unBinnedLumiXS = 1;
 
   particleSelector->SetRho(rhoFactor);
@@ -1461,8 +1469,51 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   if (params->doAnglesMVA){
     float mvaVal = MVACalculator(mvaInits, tmvaReader);
-    //MoreShapes
+    //scaled shapes, tuned on 135, no window, trying multicats
+    if (params->selection == "mumuGamma"){
+      if (catNum ==1){
+        if (mvaVal <0.16) catNum = 6;
+      }else if (catNum==2){
+        if (mvaVal < -0.33) catNum = 7; 
+      }else if (catNum==3){
+        if (mvaVal < -0.13) catNum = 8;
+      }else if (catNum==4){
+        if (mvaVal < -0.53) catNum = 9;
+      }
+    }else if (params->selection == "eeGamma"){
+      if (catNum ==1){
+        if (mvaVal < 0.13) catNum = 6;
+      }else if (catNum==2){
+        if (mvaVal < -0.29) catNum = 7;
+      }else if (catNum==3){
+        if (mvaVal < -0.16) catNum = 8;
+      }else if (catNum==4){
+        if (mvaVal < -0.58) catNum = 9;
+      }
+    }
     /*
+    if (params->selection == "mumuGamma"){
+      if (catNum ==1){
+        if (mvaVal <0.16) return kTRUE;
+      }else if (catNum==2){
+        if (mvaVal < -0.33) return kTRUE;
+      }else if (catNum==3){
+        if (mvaVal < -0.13) return kTRUE;
+      }else if (catNum==4){
+        if (mvaVal < -0.53) return kTRUE;
+      }
+    }else if (params->selection == "eeGamma"){
+      if (catNum ==1){
+        if (mvaVal < 0.13) return kTRUE;
+      }else if (catNum==2){
+        if (mvaVal < -0.29) return kTRUE;
+      }else if (catNum==3){
+        if (mvaVal < -0.16) return kTRUE;
+      }else if (catNum==4){
+        if (mvaVal < -0.58) return kTRUE;
+      }
+    }
+    //MoreShapes
     if (params->selection == "mumuGamma"){
       if (catNum ==1){
         if (mvaVal <0.2) return kTRUE;
@@ -1742,11 +1793,20 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       m_llgCAT1 = (GP4+ZP4).M();
     }else if (catNum == 4) {
       m_llgCAT4 = (GP4+ZP4).M();
-    }else if ( catNum == 2){
+    }else if (catNum == 2){
       m_llgCAT2 = (GP4+ZP4).M();
-    }else {
+    }else if (catNum == 3){
       m_llgCAT3 = (GP4+ZP4).M();
+    }else if (catNum == 6){
+      m_llgCAT6 = (GP4+ZP4).M();
+    }else if (catNum == 7){
+      m_llgCAT7 = (GP4+ZP4).M();
+    }else if (catNum == 8){
+      m_llgCAT8 = (GP4+ZP4).M();
+    }else{ 
+      m_llgCAT9 = (GP4+ZP4).M();
     }
+
 
     hm->fill1DHist((ZP4+GP4).M(),"h1_InvariantMassReco1GevCAT"+str(catNum)+"FULLRANGE_"+params->suffix,"Invariant Mass (H->Z#gamma);Mass (GeV);Entries",90,90,190,eventWeight);
     StandardPlots(lepton1,lepton2,GP4,eventWeight,"CAT"+str(catNum)+"", "CAT"+str(catNum)+"");
@@ -1912,6 +1972,10 @@ void higgsAnalyzer::Terminate()
   cout << "| CAT 2:                    |\t" << nEvents[62] <<"\t"<< eventHisto->Integral(61,61)                  << "\t|" << endl;
   cout << "| CAT 3:                    |\t" << nEvents[63] <<"\t"<< eventHisto->Integral(62,62)                  << "\t|" << endl;
   cout << "| CAT 4:                    |\t" << nEvents[64] <<"\t"<< eventHisto->Integral(63,63)                  << "\t|" << endl;
+  cout << "| CAT 6:                    |\t" << nEvents[66] <<"\t"<< eventHisto->Integral(65,65) << "\t|" << endl;
+  cout << "| CAT 7:                    |\t" << nEvents[67] <<"\t"<< eventHisto->Integral(66,66)                  << "\t|" << endl;
+  cout << "| CAT 8:                    |\t" << nEvents[68] <<"\t"<< eventHisto->Integral(67,67)                  << "\t|" << endl;
+  cout << "| CAT 9:                    |\t" << nEvents[69] <<"\t"<< eventHisto->Integral(68,68)                  << "\t|" << endl;
   cout << "| CAT 5:                    |\t" << nEvents[65] <<"\t"<< eventHisto->Integral(64,64)                  << "\t|" << endl;
   cout << "| GEN ACCEPTANCE Leptons:            |\t" << genAccept[0]                  << "\t|" << endl;
   cout << "| GEN ACCEPTANCE Total:              |\t" << genAccept[1]                  << "\t|" << endl;
