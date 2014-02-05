@@ -1472,6 +1472,28 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     //scaled shapes, tuned on 135, no window, trying multicats
     if (params->selection == "mumuGamma"){
       if (catNum ==1){
+        if (mvaVal <0.067) catNum = 6;
+      }else if (catNum==2){
+        if (mvaVal < -0.22) catNum = 7; 
+      }else if (catNum==3){
+        if (mvaVal < -0.16) catNum = 8;
+      }else if (catNum==4){
+        if (mvaVal < -0.53) catNum = 9;
+      }
+    }else if (params->selection == "eeGamma"){
+      if (catNum ==1){
+        if (mvaVal < 0.11) catNum = 6;
+      }else if (catNum==2){
+        if (mvaVal < -0.33) catNum = 7;
+      }else if (catNum==3){
+        if (mvaVal < -0.13) catNum = 8;
+      }else if (catNum==4){
+        if (mvaVal < -0.38) catNum = 9;
+      }
+    }
+    /*
+    if (params->selection == "mumuGamma"){
+      if (catNum ==1){
         if (mvaVal <0.16) catNum = 6;
       }else if (catNum==2){
         if (mvaVal < -0.33) catNum = 7; 
@@ -1491,7 +1513,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         if (mvaVal < -0.58) catNum = 9;
       }
     }
-    /*
     if (params->selection == "mumuGamma"){
       if (catNum ==1){
         if (mvaVal <0.16) return kTRUE;
