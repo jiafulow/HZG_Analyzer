@@ -784,46 +784,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       
       if(params->engCor){
         //old R9 correction
-        if (params->suffix.find("S10") != string::npos){
-          R9Cor = thisPhoton->R9();
-          if (params->doR9Cor){
-            if (params->suffix != "DATA"){
-              if (params->period == "2011"){
-                if (fabs(thisPhoton->SCEta()) < 1.479){
-                  R9Cor = thisPhoton->R9()*1.0048;
-                }else{
-                  R9Cor = thisPhoton->R9()*1.00492;
-                }
-              } else if (params->period == "2012"){
-                if (fabs(thisPhoton->SCEta()) < 1.479){
-                  R9Cor = thisPhoton->R9()*1.0045 + 0.0010;
-                }else{
-                  R9Cor = thisPhoton->R9()*1.0086 - 0.0007;
-                }
-              }
-            }
-          }
-        //new R9 correction
-        }else{
-          R9Cor = thisPhoton->R9();
-          if (params->doR9Cor){
-            if (params->suffix != "DATA"){
-              if (params->period == "2011"){
-                if (fabs(thisPhoton->SCEta()) < 1.479){
-                  R9Cor = thisPhoton->R9()*1.00153 + 0.000854;
-                }else{
-                  R9Cor = thisPhoton->R9()*1.00050+ 0.001231;
-                }
-              } else if (params->period == "2012"){
-                if (fabs(thisPhoton->SCEta()) < 1.479){
-                  R9Cor = thisPhoton->R9()*1.00139 + 0.000740;
-                }else{
-                  R9Cor = thisPhoton->R9()*1.00016- 0.000399;
-                }
-              }
-            }
-          }
-        }
+        if (params->doR9Cor) PhotonR9Corrector(*thisPhoton);
 
         clonePhoton = thisPhoton;
         float corrPhoPt = -1;
@@ -848,7 +809,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
             }
           }
           if (testDr < 0.2){
-            corrPhoPt = phoCorrector->GetCorrEtMC(R9Cor, periodNum, thisPhoton->Pt(), thisPhoton->Eta(), goodGenPhoton.E());
+            corrPhoPt = phoCorrector->GetCorrEtMC(thisPhoton->R9(), periodNum, thisPhoton->Pt(), thisPhoton->Eta(), goodGenPhoton.E());
             //cout<<"uncor pt: "<<thisPhoton->Pt()<<" cor pt: "<<corrPhoPt<<" gen pt: "<<vetoPhotons[vetoPos].Pt()<<endl;
             thisPhoton->SetPtEtaPhiM(corrPhoPt,thisPhoton->Eta(),thisPhoton->Phi(),0.0);
           }
@@ -1139,8 +1100,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   TCPhoton GP4_LIDLIso;
   TCPhoton GP4_NoIDIso;
 
-  float R9Cor_LIDMIso, R9Cor_MIDLIso, R9Cor_LIDLIso, R9Cor_NoIDIso;
-  R9Cor_LIDMIso = R9Cor_MIDLIso = R9Cor_LIDLIso = R9Cor_NoIDIso = -999;
   float GP4scEta_LIDMIso, GP4scEta_MIDLIso, GP4scEta_LIDLIso, GP4scEta_NoIDIso;
   GP4scEta_LIDMIso = GP4scEta_MIDLIso = GP4scEta_LIDLIso = GP4scEta_NoIDIso = -999;
   bool goodPhoton, goodPhoton_LIDMIso, goodPhoton_MIDLIso, goodPhoton_LIDLIso, goodPhoton_NoIDIso;
@@ -1148,7 +1107,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   if (!params->doPhotonPurityStudy){
     if (photonsIDIso.size() < 1) return kTRUE;
-    goodPhoton = particleSelector->FindGoodPhoton(photonsIDIso, GP4, lepton1, lepton2, R9Cor, GP4scEta, vetoPhotons);
+    goodPhoton = particleSelector->FindGoodPhoton(photonsIDIso, GP4, lepton1, lepton2, GP4scEta, vetoPhotons);
     if(!goodPhoton) return kTRUE;
 
     if (params->doScaleFactors){
@@ -1164,38 +1123,34 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
 
     if (photonsIDIso.size() > 0){
-      goodPhoton = particleSelector->FindGoodPhoton(photonsIDIso, GP4, lepton1, lepton2, R9Cor, GP4scEta, vetoPhotons);
+      goodPhoton = particleSelector->FindGoodPhoton(photonsIDIso, GP4, lepton1, lepton2, GP4scEta, vetoPhotons);
     }
     if (photonsLIDMIso.size() > 0){
-      goodPhoton_LIDMIso = particleSelector->FindGoodPhoton(photonsLIDMIso, GP4_LIDMIso, lepton1, lepton2, R9Cor_LIDMIso, GP4scEta_LIDMIso, vetoPhotons);
+      goodPhoton_LIDMIso = particleSelector->FindGoodPhoton(photonsLIDMIso, GP4_LIDMIso, lepton1, lepton2, GP4scEta_LIDMIso, vetoPhotons);
     }
     if (photonsMIDLIso.size() > 0){
-      goodPhoton_MIDLIso = particleSelector->FindGoodPhoton(photonsMIDLIso, GP4_MIDLIso, lepton1, lepton2, R9Cor_MIDLIso, GP4scEta_MIDLIso, vetoPhotons);
+      goodPhoton_MIDLIso = particleSelector->FindGoodPhoton(photonsMIDLIso, GP4_MIDLIso, lepton1, lepton2, GP4scEta_MIDLIso, vetoPhotons);
     }
     if (photonsLIDLIso.size() > 0){
-      goodPhoton_LIDLIso = particleSelector->FindGoodPhoton(photonsLIDLIso, GP4_LIDLIso, lepton1, lepton2, R9Cor_LIDLIso, GP4scEta_LIDLIso, vetoPhotons);
+      goodPhoton_LIDLIso = particleSelector->FindGoodPhoton(photonsLIDLIso, GP4_LIDLIso, lepton1, lepton2, GP4scEta_LIDLIso, vetoPhotons);
     }
     if (photonsNoIDIso.size() > 0){
-      goodPhoton_NoIDIso = particleSelector->FindGoodPhoton(photonsNoIDIso, GP4_NoIDIso, lepton1, lepton2, R9Cor_NoIDIso, GP4scEta_NoIDIso, vetoPhotons);
+      goodPhoton_NoIDIso = particleSelector->FindGoodPhoton(photonsNoIDIso, GP4_NoIDIso, lepton1, lepton2, GP4scEta_NoIDIso, vetoPhotons);
     }
 
     if (!goodPhoton && !goodPhoton_LIDMIso && !goodPhoton_MIDLIso && !goodPhoton_LIDLIso && !goodPhoton_NoIDIso) return kTRUE;
     if (!goodPhoton){
       if (goodPhoton_LIDMIso){
         GP4 = GP4_LIDMIso;
-        R9Cor = R9Cor_LIDMIso;
         GP4scEta = GP4scEta_LIDMIso;
       }else if (goodPhoton_MIDLIso){
         GP4 = GP4_MIDLIso;
-        R9Cor = R9Cor_MIDLIso;
         GP4scEta = GP4scEta_MIDLIso;
       }else if (goodPhoton_LIDLIso){
         GP4 = GP4_LIDLIso;
-        R9Cor = R9Cor_LIDLIso;
         GP4scEta = GP4scEta_LIDLIso;
       }else{
         GP4 = GP4_NoIDIso;
-        R9Cor = R9Cor_NoIDIso;
         GP4scEta = GP4scEta_NoIDIso;
       }
     }
@@ -1351,7 +1306,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   if (isVBF){
     catNum = 5;
   }else if (goodLep && (fabs(GP4scEta) < 1.4442) ){
-    if (R9Cor >= 0.94){
+    if (GP4.R9()>= 0.94){
       catNum = 1;
     }else{
       catNum = 2;
@@ -1422,7 +1377,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   ZEta            = ZP4.Eta();
   threeBodyEta    = (GP4+ZP4).Eta();
   GPtOHPt         = GP4.Pt()/(GP4+ZP4).Pt();
-  R9var           = R9Cor;
+  R9var           = GP4.R9();
   sieip           = GP4.SigmaIEtaIPhi();
   sipip           = GP4.SigmaIPhiIPhi();
   SCRawE          = GP4.SCRawEnergy();
@@ -1469,6 +1424,27 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   if (params->doAnglesMVA){
     float mvaVal = MVACalculator(mvaInits, tmvaReader);
+    if (params->selection == "mumuGamma"){
+      if (catNum ==1){
+        if (mvaVal <0.067) catNum = 6;
+      }else if (catNum==2){
+        if (mvaVal < -0.24) catNum = 7; 
+      }else if (catNum==3){
+        if (mvaVal < -0.29) catNum = 8;
+      }else if (catNum==4){
+        if (mvaVal < -0.64) catNum = 9;
+      }
+    }else if (params->selection == "eeGamma"){
+      if (catNum ==1){
+        if (mvaVal < 0.16) catNum = 6;
+      }else if (catNum==2){
+        if (mvaVal < -0.44) catNum = 7;
+      }else if (catNum==3){
+        if (mvaVal < -0.16) catNum = 8;
+      }else if (catNum==4){
+        if (mvaVal < -0.40) catNum = 9;
+      }
+    }
     //scaled shapes, tuned on 135, no window, trying multicats
     /*
     if (params->selection == "mumuGamma"){
@@ -1831,8 +1807,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
     hm->fill1DHist((ZP4+GP4).M(),"h1_InvariantMassReco1GevCAT"+str(catNum)+"FULLRANGE_"+params->suffix,"Invariant Mass (H->Z#gamma);Mass (GeV);Entries",90,90,190,eventWeight);
     StandardPlots(lepton1,lepton2,GP4,eventWeight,"CAT"+str(catNum)+"", "CAT"+str(catNum)+"");
-    hm->fill1DHist(R9, "h1_R9CAT"+str(catNum)+"_"+params->suffix,"R9;R9;Entries",100,0,1,eventWeight);
-    hm->fill1DHist(R9Cor, "h1_R9CorCAT"+str(catNum)+"_"+params->suffix,"R9Cor;R9Cor;Entries",100,0,1,eventWeight);
+    hm->fill1DHist(GP4.R9(), "h1_R9CAT"+str(catNum)+"_"+params->suffix,"R9;R9;Entries",100,0,1,eventWeight);
     hm->fill2DHist(lepton1.Eta(),lepton2.Eta(),"h2_dilepEtaCAT"+str(catNum)+"_"+params->suffix,"Dilepton Eta CAT"+str(catNum)+"; Eta (leading); Eta (trailing)", 50,-2.5,2.5,50,-2.5,2.5,eventWeight,"CAT"+str(catNum)+"");
     hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsMECAT"+str(catNum)+"_"+params->suffix,"Mass vs ME; m_{ll#gamma}; ME Disc", 90,100,190,90,0,0.2,eventWeight,"MEPlots");
     hm->fill1DHist(MEdisc,"h1_MECAT"+str(catNum)+"_"+params->suffix,"ME Disc CAT:"+str(catNum)+";ME Disc;Entries", 45,0,0.2,eventWeight,"MEPlots");
@@ -1843,7 +1818,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       
 
     if (params->dataDumps && isRealData){
-      dumper->DataDumper(lepton1, lepton2, GP4, R9Cor, GP4scEta, SCetaEl1,SCetaEl2);
+      dumper->DataDumper(lepton1, lepton2, GP4, GP4.R9(), GP4scEta, SCetaEl1,SCetaEl2);
     }
 
     if (params->dumps){
@@ -1854,8 +1829,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
 
 
-    hm->fill1DHist(R9, "h1_R9Full_"+params->suffix,"R9;R9;Entries",100,0,1,eventWeight);
-    hm->fill1DHist(R9Cor, "h1_R9CorFull_"+params->suffix,"R9Cor;R9Cor;Entries",100,0,1,eventWeight);
+    hm->fill1DHist(GP4.R9(), "h1_R9Full_"+params->suffix,"R9;R9;Entries",100,0,1,eventWeight);
     hm->fill1DHist(lepton1.DeltaR(GP4),"h1_DeltaRLeading_"+params->suffix,"DeltaR leading lepton vs photon;#Delta R;Entries",16,0,4,eventWeight,"ZGamma");
     hm->fill1DHist(lepton2.DeltaR(GP4),"h1_DeltaRTrailing_"+params->suffix,"DeltaR trailing lepton vs photon;#Delta R;Entries",16,0,4,eventWeight,"ZGamma");
     hm->fill1DHist(ZP4.DeltaR(GP4),"h1_DeltaRZG_"+params->suffix,"DeltaR diLepton vs photon;#Delta R;Entries",16,0,4,eventWeight,"ZGamma");
@@ -2605,7 +2579,47 @@ float higgsAnalyzer::MEDiscriminator(TCPhysObject lepton1, TCPhysObject lepton2,
   return Discriminant;
 
 }
-
+void higgsAnalyzer::PhotonR9Corrector(TCPhoton& ph){
+  //old R9 correction
+  float R9Cor;
+  if (params->suffix.find("S10") != string::npos){
+    R9Cor = ph.R9();
+    if (params->suffix != "DATA"){
+      if (params->period == "2011"){
+        if (fabs(ph.SCEta()) < 1.479){
+          R9Cor = ph.R9()*1.0048;
+        }else{
+          R9Cor = ph.R9()*1.00492;
+        }
+      } else if (params->period == "2012"){
+        if (fabs(ph.SCEta()) < 1.479){
+          R9Cor = ph.R9()*1.0045 + 0.0010;
+        }else{
+          R9Cor = ph.R9()*1.0086 - 0.0007;
+        }
+      }
+    }
+    //new R9 correction
+  }else{
+    R9Cor = ph.R9();
+    if (params->suffix != "DATA"){
+      if (params->period == "2011"){
+        if (fabs(ph.SCEta()) < 1.479){
+          R9Cor = ph.R9()*1.00153 + 0.000854;
+        }else{
+          R9Cor = ph.R9()*1.00050+ 0.001231;
+        }
+      } else if (params->period == "2012"){
+        if (fabs(ph.SCEta()) < 1.479){
+          R9Cor = ph.R9()*1.00139 + 0.000740;
+        }else{
+          R9Cor = ph.R9()*1.00016- 0.000399;
+        }
+      }
+    }
+  }
+  ph.SetR9(R9Cor);
+}
 
 
 

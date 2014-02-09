@@ -113,10 +113,6 @@ class higgsAnalyzer : public TSelector {
     TFile *file0;
     TH1F * h1_numOfEvents;
 
-    //R9
-    float R9;
-    float R9Cor;
-
     //ElectronMVA selection
     auto_ptr<TMVA::Reader> myTMVAReader;
 
@@ -275,6 +271,7 @@ class higgsAnalyzer : public TSelector {
     virtual float   CalculateX2(TLorentzVector p1, TLorentzVector p2);
     virtual float   MEDiscriminator(TCPhysObject lepton1, TCPhysObject lepton2, TLorentzVector gamma);
     virtual void    LumiXSWeight(double *_LumiXSWeight);
+    virtual void    PhotonR9Corrector(TCPhoton& ph);
 
 
     ///////////////////////

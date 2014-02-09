@@ -157,7 +157,7 @@ bool ParticleSelector::FindGoodZMuon(const vector<TCMuon>& muonList, TCPhysObjec
   }
   return goodZ;
 }
-bool ParticleSelector::FindGoodPhoton(const vector<TCPhoton>& photonList, TCPhoton& gamma, const TCPhysObject& lepton1, const TCPhysObject& lepton2, float& R9, float& scEta, const vector<TCGenParticle>& vetoPhotons){
+bool ParticleSelector::FindGoodPhoton(const vector<TCPhoton>& photonList, TCPhoton& gamma, const TCPhysObject& lepton1, const TCPhysObject& lepton2, float& scEta, const vector<TCGenParticle>& vetoPhotons){
   bool goodPhoton = false;
   for (UInt_t i = 0; i<photonList.size(); i++){
     //////////// DYJets Gamma Veto ////////////
@@ -177,43 +177,6 @@ bool ParticleSelector::FindGoodPhoton(const vector<TCPhoton>& photonList, TCPhot
     scEta = photonList[i].SCEta();
     if ((gamma.DeltaR(lepton1)<_cuts.dR || gamma.DeltaR(lepton2)<_cuts.dR)) continue;
     if (gamma.Pt()/(gamma+lepton1+lepton2).M() > _cuts.gPtOverMass && gamma.Pt() > _cuts.gPt) goodPhoton = true;
-    if(goodPhoton){
-      R9 = photonList[i].R9();
-      if (_parameters.doR9Cor){
-        if (_parameters.suffix != "DATA"){
-          if (_parameters.suffix.find("S10") != string::npos){
-            if (_parameters.period == "2011"){
-              if (fabs(photonList[i].SCEta()) < 1.479){
-                R9 = R9*1.0048;
-              }else{
-                R9 = R9*1.00492;
-              }
-            } else if (_parameters.period == "2012"){
-              if (fabs(photonList[i].SCEta()) < 1.479){
-                R9 = R9*1.0045 + 0.0010;
-              }else{
-                R9 = R9*1.0086 - 0.0007;
-              }
-            }
-          }else{
-            if (_parameters.period == "2011"){
-              if (fabs(photonList[i].SCEta()) < 1.479){
-                R9 = R9*1.00153 + 0.000854;
-              }else{
-                R9 = R9*1.00050+ 0.001231;
-              }
-            } else if (_parameters.period == "2012"){
-              if (fabs(photonList[i].SCEta()) < 1.479){
-                R9 = R9*1.00139 + 0.000740;
-              }else{
-                R9 = R9*1.00016- 0.000399;
-              }
-            }
-          }
-        }
-        break;
-      }
-    }
   }
   return goodPhoton;
 }
