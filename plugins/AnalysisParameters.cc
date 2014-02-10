@@ -209,6 +209,21 @@ Cuts::Cuts():
   mediumPhIso.nhIso03[1] =                 1.5;
   mediumPhIso.phIso03[1] =                 1.0;
 
+  preSelPhID.cutName =                     "preSelPhID";
+  preSelPhID.PassedEleSafeVeto[0] =        1;
+  preSelPhID.HadOverEm[0] =                0.082;
+  preSelPhID.sigmaIetaIeta[0] =            0.014;
+  preSelPhID.HcalIso[0] =                  50;
+  preSelPhID.TrkIso[0] =                   50;
+  preSelPhID.ChPfIso[0] =                  4;
+
+  preSelPhID.PassedEleSafeVeto[1] =        1;
+  preSelPhID.HadOverEm[1] =                0.075;
+  preSelPhID.sigmaIetaIeta[1] =            0.034;
+  preSelPhID.HcalIso[1] =                  4;
+  preSelPhID.TrkIso[1] =                   4;
+  preSelPhID.ChPfIso[1] =                  4;
+
   vbfJetID.cutName =                       "vbfJetID";
   vbfJetID.betaStarC[0] =                  0.2;
   vbfJetID.dR2Mean[0] =                    0.06;

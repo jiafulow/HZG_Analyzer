@@ -109,8 +109,11 @@ class Cuts{
       float PassedEleSafeVeto[2];
       float HadOverEm[2];
       float sigmaIetaIeta[2];
+      float HcalIso[2];
+      float TrkIso[2];
+      float ChPfIso[2];
       string cutName;
-    } loosePhID, mediumPhID;
+    } loosePhID, mediumPhID, preSelPhID;
 
     struct phIsoCuts{
       float chIso03[2];

@@ -232,7 +232,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   //mvaInits.discrSuffixName = "anglesOnly";
   //mvaInits.discrSuffixName = "newAnglesR9";
   //mvaInits.discrSuffixName = "01-29-14_v0905";
-  mvaInits.discrSuffixName = "02-06-14";
+  mvaInits.discrSuffixName = "02-09-14";
 
 
   mvaInits.mvaHiggsMassPoint[0] = 125;
@@ -825,22 +825,20 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       ////// Currently Using Cut-Based Photon ID, 2012
 
       dumper->PhotonDump(*thisPhoton); 
+      /*
       if (particleSelector->PassPhotonID(*thisPhoton, cuts->mediumPhID)) photonsID.push_back(*thisPhoton);
       if (particleSelector->PassPhotonID(*thisPhoton, cuts->mediumPhID) && particleSelector->PassPhotonIso(*thisPhoton, cuts->mediumPhIso, cuts->EAPho)){
         //standard selection photons
         photonsIDIso.push_back(*thisPhoton);
         if (params->engCor) photonsIDIsoUnCor.push_back(*clonePhoton);
       }
-      else if (particleSelector->PassPhotonID(*thisPhoton, cuts->loosePhID) && particleSelector->PassPhotonIso(*thisPhoton, cuts->mediumPhIso, cuts->EAPho)){
-        photonsLIDMIso.push_back(*thisPhoton);
+      */
+      if (particleSelector->PassPhotonID(*thisPhoton, cuts->preSelPhID)) photonsID.push_back(*thisPhoton);
+      if (particleSelector->PassPhotonID(*thisPhoton, cuts->preSelPhID) && particleSelector->PassPhotonMVA(*thisPhoton)){ 
+        //standard selection photons
+        photonsIDIso.push_back(*thisPhoton);
+        if (params->engCor) photonsIDIsoUnCor.push_back(*clonePhoton);
       }
-      else if (particleSelector->PassPhotonID(*thisPhoton, cuts->mediumPhID) && particleSelector->PassPhotonIso(*thisPhoton, cuts->loosePhIso, cuts->EAPho)){
-        photonsMIDLIso.push_back(*thisPhoton);
-      }
-      else if (particleSelector->PassPhotonID(*thisPhoton, cuts->loosePhID) && particleSelector->PassPhotonIso(*thisPhoton, cuts->loosePhIso, cuts->EAPho)){
-        photonsLIDLIso.push_back(*thisPhoton);
-      }
-      else photonsNoIDIso.push_back(*thisPhoton);
 
 
 
@@ -851,10 +849,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     //return kTRUE;
     sort(photonsID.begin(), photonsID.end(), P4SortCondition);
     sort(photonsIDIso.begin(), photonsIDIso.end(), P4SortCondition);
-    sort(photonsLIDMIso.begin(), photonsLIDMIso.end(), P4SortCondition);
-    sort(photonsMIDLIso.begin(), photonsMIDLIso.end(), P4SortCondition);
-    sort(photonsLIDLIso.begin(), photonsLIDLIso.end(), P4SortCondition);
-    sort(photonsNoIDIso.begin(), photonsNoIDIso.end(), P4SortCondition);
   }
 
   //////////
@@ -1105,56 +1099,15 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   bool goodPhoton, goodPhoton_LIDMIso, goodPhoton_MIDLIso, goodPhoton_LIDLIso, goodPhoton_NoIDIso;
   goodPhoton = goodPhoton_LIDMIso = goodPhoton_MIDLIso = goodPhoton_LIDLIso = goodPhoton_NoIDIso = false;
 
-  if (!params->doPhotonPurityStudy){
-    if (photonsIDIso.size() < 1) return kTRUE;
-    goodPhoton = particleSelector->FindGoodPhoton(photonsIDIso, GP4, lepton1, lepton2, GP4scEta, vetoPhotons);
-    if(!goodPhoton) return kTRUE;
+  if (photonsIDIso.size() < 1) return kTRUE;
+  goodPhoton = particleSelector->FindGoodPhoton(photonsIDIso, GP4, lepton1, lepton2, GP4scEta, vetoPhotons);
+  if(!goodPhoton) return kTRUE;
 
-    if (params->doScaleFactors){
-        eventWeight   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
-        if (params->suffix == "DYJets") eventWeight   *= weighter->PhotonFakeWeight(GP4.Eta(), GP4.Pt()); 
-    }
-    eventWeightPho   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
-  }else{
-
-    /////////////////////////
-    // photon purity study //
-    /////////////////////////
-
-
-    if (photonsIDIso.size() > 0){
-      goodPhoton = particleSelector->FindGoodPhoton(photonsIDIso, GP4, lepton1, lepton2, GP4scEta, vetoPhotons);
-    }
-    if (photonsLIDMIso.size() > 0){
-      goodPhoton_LIDMIso = particleSelector->FindGoodPhoton(photonsLIDMIso, GP4_LIDMIso, lepton1, lepton2, GP4scEta_LIDMIso, vetoPhotons);
-    }
-    if (photonsMIDLIso.size() > 0){
-      goodPhoton_MIDLIso = particleSelector->FindGoodPhoton(photonsMIDLIso, GP4_MIDLIso, lepton1, lepton2, GP4scEta_MIDLIso, vetoPhotons);
-    }
-    if (photonsLIDLIso.size() > 0){
-      goodPhoton_LIDLIso = particleSelector->FindGoodPhoton(photonsLIDLIso, GP4_LIDLIso, lepton1, lepton2, GP4scEta_LIDLIso, vetoPhotons);
-    }
-    if (photonsNoIDIso.size() > 0){
-      goodPhoton_NoIDIso = particleSelector->FindGoodPhoton(photonsNoIDIso, GP4_NoIDIso, lepton1, lepton2, GP4scEta_NoIDIso, vetoPhotons);
-    }
-
-    if (!goodPhoton && !goodPhoton_LIDMIso && !goodPhoton_MIDLIso && !goodPhoton_LIDLIso && !goodPhoton_NoIDIso) return kTRUE;
-    if (!goodPhoton){
-      if (goodPhoton_LIDMIso){
-        GP4 = GP4_LIDMIso;
-        GP4scEta = GP4scEta_LIDMIso;
-      }else if (goodPhoton_MIDLIso){
-        GP4 = GP4_MIDLIso;
-        GP4scEta = GP4scEta_MIDLIso;
-      }else if (goodPhoton_LIDLIso){
-        GP4 = GP4_LIDLIso;
-        GP4scEta = GP4scEta_LIDLIso;
-      }else{
-        GP4 = GP4_NoIDIso;
-        GP4scEta = GP4scEta_NoIDIso;
-      }
-    }
+  if (params->doScaleFactors){
+      eventWeight   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
+      if (params->suffix == "DYJets") eventWeight   *= weighter->PhotonFakeWeight(GP4.Eta(), GP4.Pt()); 
   }
+  eventWeightPho   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
 
 
   hm->fill1DHist(10,"h1_acceptanceByCut_"+params->suffix, "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");
@@ -1424,6 +1377,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   if (params->doAnglesMVA){
     float mvaVal = MVACalculator(mvaInits, tmvaReader);
+    /*
     if (params->selection == "mumuGamma"){
       if (catNum ==1){
         if (mvaVal <0.067) catNum = 6;
@@ -1446,7 +1400,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       }
     }
     //scaled shapes, tuned on 135, no window, trying multicats
-    /*
     if (params->selection == "mumuGamma"){
       if (catNum ==1){
         if (mvaVal <0.067) catNum = 6;
@@ -1871,13 +1824,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   /////////////////////////
 
   StandardPlots(lepton1,lepton2,GP4,eventWeight,"", "pT-Eta-Phi");
-  if (params->doPhotonPurityStudy){
-    if(goodPhoton) StandardPlots(lepton1,lepton2,GP4,eventWeight,"MIDMIso", "PhotonPurity");
-    if(goodPhoton_LIDMIso) StandardPlots(lepton1,lepton2,GP4_LIDMIso,eventWeight,"LIDMIso", "PhotonPurity");
-    if(goodPhoton_MIDLIso) StandardPlots(lepton1,lepton2,GP4_MIDLIso,eventWeight,"MIDLIso", "PhotonPurity");
-    if(goodPhoton_LIDLIso) StandardPlots(lepton1,lepton2,GP4_LIDLIso,eventWeight,"LIDLIso", "PhotonPurity");
-    if(goodPhoton_NoIDIso) StandardPlots(lepton1,lepton2,GP4_NoIDIso,eventWeight,"NoIDIso", "PhotonPurity");
-  }
 
   //////////////////////////////
   // Fill Vtx variable histos //

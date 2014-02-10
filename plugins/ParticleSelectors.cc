@@ -461,54 +461,89 @@ bool ParticleSelector::PassElectronIso(const TCElectron& el, const Cuts::elIsoCu
 }
 
 bool ParticleSelector::PassPhotonID(const TCPhoton& ph, const Cuts::phIDCuts& cutLevel){
-  float tmpEta;
   bool phoPass = false;
-  tmpEta = ph.SCEta();
-  if (fabs(tmpEta) > 2.5) return phoPass;
-  if (fabs(tmpEta) > 1.4442 && fabs(tmpEta) < 1.566) return phoPass;
-  if(
-      (fabs(tmpEta)  < 1.4442
-       && ph.ConversionVeto()       == cutLevel.PassedEleSafeVeto[0]
-       && ph.HadOverEm()               < cutLevel.HadOverEm[0]
-       && ph.SigmaIEtaIEta()           < cutLevel.sigmaIetaIeta[0]
-      ) ||
-      (fabs(tmpEta)  > 1.566
-       && ph.ConversionVeto()       == cutLevel.PassedEleSafeVeto[1]
-       && ph.HadOverEm()               < cutLevel.HadOverEm[1]
-       && ph.SigmaIEtaIEta()           < cutLevel.sigmaIetaIeta[1]
-      )
-    ) phoPass = true;
+  bool phoPass1 = false;
+  bool phoPass2 = false;
+  if (fabs(ph.SCEta()) > 2.5) return phoPass;
+  if (cutLevel.cutName == "preSelPhID"){
+    if(fabs(ph.SCEta()) < 1.479){
+      if(
+          ph.ConversionVeto()          == cutLevel.PassedEleSafeVeto[0]
+          && ph.SigmaIEtaIEta()        < cutLevel.sigmaIetaIeta[0]
+        ){
+        if(ph.R9() > 0.9){
+          if(ph.HadOverEm()            < cutLevel.HadOverEm[0]) phoPass1 = true;
+        }else{
+          if(ph.HadOverEm()            < cutLevel.HadOverEm[1]) phoPass1 = true;
+        }
+      }
+    }else{
+      if(
+          ph.ConversionVeto()          == cutLevel.PassedEleSafeVeto[1]
+          && ph.SigmaIEtaIEta()        < cutLevel.sigmaIetaIeta[1]
+          && ph.HadOverEm()            < cutLevel.HadOverEm[1]
+        ) phoPass1 = true;
+    }
+    if(ph.R9() > 0.9){
+      if(
+          ph.IdMap("HadIso_R03") - 0.005*ph.Pt()     < cutLevel.HcalIso[0]
+          && ph.IdMap("TrkIso_R03") - 0.002*ph.Pt()  < cutLevel.TrkIso[0]
+        //  && ph.IdMap("chIso_R02")                   < cutLevel.TrkIso[0]
+        ) phoPass2 = true;
+    }else{
+      if(
+          ph.IdMap("HadIso_R03") - 0.005*ph.Pt()     < cutLevel.HcalIso[1]
+          && ph.IdMap("TrkIso_R03") - 0.002*ph.Pt()  < cutLevel.TrkIso[1]
+      //    && ph.IdMap("chIso_R02")                   < cutLevel.TrkIso[0]
+        ) phoPass2 = true;
+    }
+
+    if(phoPass1 && phoPass2) phoPass = true;
+  }else{
+    if (fabs(ph.SCEta()) > 1.4442 && fabs(ph.SCEta()) < 1.566) return phoPass;
+    if(
+        (fabs(ph.SCEta())  < 1.4442
+         && ph.ConversionVeto()       == cutLevel.PassedEleSafeVeto[0]
+         && ph.HadOverEm()               < cutLevel.HadOverEm[0]
+         && ph.SigmaIEtaIEta()           < cutLevel.sigmaIetaIeta[0]
+        ) ||
+        (fabs(ph.SCEta())  > 1.566
+         && ph.ConversionVeto()       == cutLevel.PassedEleSafeVeto[1]
+         && ph.HadOverEm()               < cutLevel.HadOverEm[1]
+         && ph.SigmaIEtaIEta()           < cutLevel.sigmaIetaIeta[1]
+        )
+      ) phoPass = true;
+  }
   return phoPass;
 }
 
 bool ParticleSelector::PassPhotonIso(const TCPhoton& ph, const Cuts::phIsoCuts& cutLevel, float EAPho[7][3]){
-  float chEA,nhEA,phEA,chIsoCor,nhIsoCor,phIsoCor,tmpEta;
+  float chEA,nhEA,phEA,chIsoCor,nhIsoCor,phIsoCor;
   bool isoPass = false;
-  tmpEta = ph.SCEta();
 
-  if(fabs(tmpEta) > 2.5) return isoPass;
+  if(fabs(ph.SCEta()) > 2.5) return isoPass;
 
-  if (fabs(tmpEta) < 1.0){
+  if (fabs(ph.SCEta()) < 1.0){
     chEA = EAPho[0][0];
     nhEA = EAPho[0][1];
     phEA = EAPho[0][2];
-  }else if (fabs(tmpEta) < 1.479){
+  }else if (fabs(ph.SCEta()) < 1.479){
     chEA = EAPho[1][0];
     nhEA = EAPho[1][1];
     phEA = EAPho[1][2];
-  }else if (fabs(tmpEta) < 2.0){
+  }else if (fabs(ph.SCEta()) < 2.0){
     chEA = EAPho[2][0];
     nhEA = EAPho[2][1];
     phEA = EAPho[2][2];
-  }else if (fabs(tmpEta) < 2.2){
+  }else if (fabs(ph.SCEta()) < 2.2){
     chEA = EAPho[3][0];
     nhEA = EAPho[3][1];
     phEA = EAPho[3][2];
-  }else if (fabs(tmpEta) < 2.3){ 
+  }else if (fabs(ph.SCEta()) < 2.3){ 
     chEA = EAPho[4][0];
     nhEA = EAPho[4][1];
     phEA = EAPho[4][2];
-  }else if (fabs(tmpEta) < 2.4){
+  }else if (fabs(ph.SCEta()) < 2.4){
     chEA = EAPho[5][0];
     nhEA = EAPho[5][1];
     phEA = EAPho[5][2];
@@ -524,13 +559,13 @@ bool ParticleSelector::PassPhotonIso(const TCPhoton& ph, const Cuts::phIsoCuts& 
 
   if (cutLevel.cutName == "loosePhIso"){
     if (
-        (fabs(tmpEta) < 1.4442
+        (fabs(ph.SCEta()) < 1.4442
         //(fabs(ph.Eta())  < 1.566
          && max((double)chIsoCor,0.)          < cutLevel.chIso03[0]
          && max((double)nhIsoCor,0.)          < cutLevel.nhIso03[0] + 0.04*ph.Pt()
          && max((double)phIsoCor,0.)          < cutLevel.phIso03[0] + 0.005*ph.Pt() 
         ) ||
-        (fabs(tmpEta) > 1.566
+        (fabs(ph.SCEta()) > 1.566
         //(fabs(ph.Eta())  > 1.566
          && max((double)chIsoCor,0.)          < cutLevel.chIso03[1]
          && max((double)nhIsoCor,0.)          < cutLevel.nhIso03[1] + 0.04*ph.Pt() 
@@ -540,13 +575,13 @@ bool ParticleSelector::PassPhotonIso(const TCPhoton& ph, const Cuts::phIsoCuts& 
   } else {
     if (
         //(fabs(ph.Eta())  < 1.566
-        (fabs(tmpEta) < 1.4442
+        (fabs(ph.SCEta()) < 1.4442
          && max((double)chIsoCor,0.)          < cutLevel.chIso03[0]
          && max((double)nhIsoCor,0.)          < cutLevel.nhIso03[0] + 0.04*ph.Pt()
          && max((double)phIsoCor,0.)          < cutLevel.phIso03[0] + 0.005*ph.Pt() 
         ) ||
         //(fabs(ph.Eta())  > 1.566
-        (fabs(tmpEta) > 1.566
+        (fabs(ph.SCEta()) > 1.566
          && max((double)chIsoCor,0.)          < cutLevel.chIso03[1]
          && max((double)nhIsoCor,0.)          < cutLevel.nhIso03[1] + 0.04*ph.Pt() 
          && max((double)phIsoCor,0.)          < cutLevel.phIso03[1] + 0.005*ph.Pt() 
@@ -554,6 +589,99 @@ bool ParticleSelector::PassPhotonIso(const TCPhoton& ph, const Cuts::phIsoCuts& 
        ) isoPass = true;
   }
   return isoPass;
+}
+
+bool ParticleSelector::PassPhotonMVA(const TCPhoton& ph){
+  bool mvaPass = false;
+  /* Photon identification with the MVA. Returns the MVA evaluated value.
+   *
+   * i = index of a photon candidate to consider.
+   */
+
+  // classification variables
+  static Float_t phoEt_, phoEta_, phoPhi_, phoR9_;
+  static Float_t phoSigmaIEtaIEta_, phoSigmaIEtaIPhi_;
+  static Float_t phoS13_, phoS4_, phoS25_, phoSCEta_, phoSCRawE_;
+  static Float_t phoSCEtaWidth_, phoSCPhiWidth_, rho2012_;
+  static Float_t phoPFPhoIso_, phoPFChIso_, phoPFChIsoWorst_;
+  static Float_t phoESEnToRawE_, phoESEffSigmaRR_x_;
+
+  // MVA classifiers for 0=ECAL barrel and 1=ECAL endcaps
+  static TMVA::Reader* tmvaReader[2] = {NULL, NULL};
+
+  // 0=ECAL barrel or 1=ECAL endcaps
+  int iBE = (fabs(ph.SCEta()) < 1.479) ? 0 : 1;
+
+  // one-time MVA initialization
+  if (!tmvaReader[iBE]) {
+    tmvaReader[iBE] = new TMVA::Reader("!Color:Silent");
+
+    // add classification variables
+    tmvaReader[iBE]->AddVariable("phoPhi", &phoPhi_);
+    tmvaReader[iBE]->AddVariable("phoR9", &phoR9_);
+    tmvaReader[iBE]->AddVariable("phoSigmaIEtaIEta", &phoSigmaIEtaIEta_);
+    tmvaReader[iBE]->AddVariable("phoSigmaIEtaIPhi", &phoSigmaIEtaIPhi_);
+    tmvaReader[iBE]->AddVariable("s13", &phoS13_);
+    tmvaReader[iBE]->AddVariable("s4ratio", &phoS4_);
+    tmvaReader[iBE]->AddVariable("s25", &phoS25_);
+    tmvaReader[iBE]->AddVariable("phoSCEta", &phoSCEta_);
+    tmvaReader[iBE]->AddVariable("phoSCRawE", &phoSCRawE_);
+    tmvaReader[iBE]->AddVariable("phoSCEtaWidth", &phoSCEtaWidth_);
+    tmvaReader[iBE]->AddVariable("phoSCPhiWidth", &phoSCPhiWidth_);
+
+    if (iBE == 1) {
+      tmvaReader[iBE]->AddVariable("phoESEn/phoSCRawE", &phoESEnToRawE_);
+      tmvaReader[iBE]->AddVariable("phoESEffSigmaRR", &phoESEffSigmaRR_x_);
+    }
+
+    tmvaReader[iBE]->AddVariable("rho2012", &rho2012_);
+    tmvaReader[iBE]->AddVariable("phoPFPhoIso", &phoPFPhoIso_);
+    tmvaReader[iBE]->AddVariable("phoPFChIso", &phoPFChIso_);
+    tmvaReader[iBE]->AddVariable("phoPFChIsoWorst", &phoPFChIsoWorst_);
+
+    tmvaReader[iBE]->AddSpectator("phoEt", &phoEt_);
+    tmvaReader[iBE]->AddSpectator("phoEta", &phoEta_);
+
+    // weight files
+    if (iBE == 0)
+      tmvaReader[0]->BookMVA("BDT", "otherHistos/EB_BDT.weights.xml");
+    else
+      tmvaReader[1]->BookMVA("BDT", "otherHistos/EE_BDT.weights.xml");
+
+  } // one-time initialization
+
+  // set MVA variables
+  phoPhi_ = ph.Phi();
+  phoR9_ = ph.R9();
+  phoSigmaIEtaIEta_ = ph.SigmaIEtaIEta();
+  phoSigmaIEtaIPhi_ = ph.SigmaIEtaIPhi();
+  phoS4_ = ph.E2x2()/ph.E5x5();
+  phoS13_ = ph.E1x3()/ph.E5x5();
+  phoS25_ = ph.E2x5Max()/ph.E5x5();
+  phoSCEta_ = ph.SCEta();
+  phoSCRawE_ = ph.SCRawEnergy();
+  phoSCEtaWidth_ = ph.SCEtaWidth();
+  phoSCPhiWidth_ = ph.SCPhiWidth();
+  rho2012_ = _rhoFactor;
+  phoPFPhoIso_ = ph.PfIsoPhoton();
+  phoPFChIso_ = ph.PfIsoCharged();
+  phoESEnToRawE_ = ph.PreShowerOverRaw();
+  phoESEffSigmaRR_x_= ph.ESEffSigmaRR()[0];
+  phoEt_ = ph.Pt();
+  phoEta_ = ph.Eta();
+
+  // evaluate largest isolation value
+  /*
+  phoPFChIsoWorst_ = 0;
+  for (size_t k = 0; k < phoCiCPF4chgpfIso03[i].size(); ++k)
+    if (phoPFChIsoWorst_ < phoCiCPF4chgpfIso03[i][k])
+      phoPFChIsoWorst_ = phoCiCPF4chgpfIso03[i][k];
+  */
+  phoPFChIsoWorst_ = ph.PfIsoCharged();
+
+  float mvaVal = tmvaReader[iBE]->EvaluateMVA("BDT");
+  if (mvaVal > 0.1) mvaPass = true;
+  return mvaPass;
 }
 
 bool ParticleSelector::PassJetID(const TCJet& jet, int nVtx, const Cuts::jetIDCuts& cutLevel){
