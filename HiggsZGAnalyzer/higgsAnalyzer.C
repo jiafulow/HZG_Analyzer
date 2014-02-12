@@ -1377,6 +1377,28 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   if (params->doAnglesMVA){
     float mvaVal = MVACalculator(mvaInits, tmvaReader);
+    //with photon mva
+    if (params->selection == "mumuGamma"){
+      if (catNum ==1){
+        if (mvaVal < -0.13) catNum = 6;
+      }else if (catNum==2){
+        if (mvaVal < -0.49) catNum = 7; 
+      }else if (catNum==3){
+        if (mvaVal < -0.49) catNum = 8;
+      }else if (catNum==4){
+        if (mvaVal < -0.56) catNum = 9;
+      }
+    }else if (params->selection == "eeGamma"){
+      if (catNum ==1){
+        if (mvaVal < 0.0) catNum = 6;
+      }else if (catNum==2){
+        if (mvaVal < -0.44) catNum = 7;
+      }else if (catNum==3){
+        if (mvaVal < -0.36) catNum = 8;
+      }else if (catNum==4){
+        if (mvaVal < -0.56) catNum = 9;
+      }
+    }
     /*
     if (params->selection == "mumuGamma"){
       if (catNum ==1){

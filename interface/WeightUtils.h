@@ -66,6 +66,9 @@ class WeightUtils: public TObject {
         TFile * _inFileRD1to2012CTrue;
         TFile * _inFileRD1to2012DTrue;
 
+        TFile * _inFileRD1to2012ABCDMuMuTrue;
+        TFile * _inFileRD1to2012ABCDEETrue;
+
         TFile *_MuTrig2011;
 
         TFile *_kFactors;
@@ -97,6 +100,14 @@ class WeightUtils: public TObject {
         TH1F * h1_RD1to2012ABTrue;
         TH1F * h1_RD1to2012CTrue;
         TH1F * h1_RD1to2012DTrue;
+
+        TH1F * h1_RD1to2012ABMuMuTrue;
+        TH1F * h1_RD1to2012CMuMuTrue;
+        TH1F * h1_RD1to2012DMuMuTrue;
+
+        TH1F * h1_RD1to2012ABEETrue;
+        TH1F * h1_RD1to2012CEETrue;
+        TH1F * h1_RD1to2012DEETrue;
 
         TH1D * kfact120_0;
         TH1D * kfact125_0;

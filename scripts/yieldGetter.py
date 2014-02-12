@@ -60,7 +60,10 @@ def DoYield(fileName, secondName = None):
         if thisFile.Get('h1_threeBodyMassCAT'+str(i)+'_'+suffix):
           rawTotalCat.append(thisFile.Get('h1_threeBodyMassCAT'+str(i)+'_'+suffix).Integral())
           scaledTotalCat = rawTotalCat[i]*LumiXSScale(suffix, lep, '2012', thisFile)
+          dataHist = thisFile.Get('h1_threeBodyMassCAT'+str(i)+'_DATA')
+          dataSignalCat = dataHist.Integral(dataHist.FindBin(121),dataHist.FindBin(129))
           percentage = (rawTotalCat[i]/rawTotal)*100
+          signif = scaledTotalCat/sqrt(scaledTotalCat+dataSignalCat)
           if secondName:
             rawTotalCatSecond = secondFile.Get('h1_threeBodyMassCAT'+str(i)+'_'+suffix).Integral()
             percentageChange = (rawTotalCat[i]/rawTotalCatSecond)*100
@@ -68,7 +71,7 @@ def DoYield(fileName, secondName = None):
           if secondName:
             print '      ','CAT{0} rawTotal: {1:4.0f} scaledTotal: {2:7.2f} percent: {3:4.1f}% percentCh: {4:.1f}%'.format(i,rawTotalCat[i],scaledTotalCat,percentage,percentageChange)
           else:
-            print '      ','CAT{0} rawTotal: {1:4.0f} scaledTotal: {2:7.2f} percent: {3:.1f}%'.format(i,rawTotalCat[i],scaledTotalCat,percentage)
+            print '      ','CAT{0} rawTotal: {1:4.0f} scaledTotal: {2:7.2f} percent: {3:5.1f}% signif: {4:.3f}'.format(i,rawTotalCat[i],scaledTotalCat,percentage,signif)
       if catTotal == 9:
         for i in range(1,10):
           if i < 5:

@@ -23,6 +23,8 @@ WeightUtils::WeightUtils(const Parameters& params, bool isRealData, int runNumbe
   _inFileSomeTuneto2012ABCDTrue = new TFile("otherHistos/SomeTuneTo2012ABCD.root", "OPEN");
   _inFileRD1to2012ABCDTrue = new TFile("otherHistos/RD1to2012ABCDTrue.root", "OPEN");
   _inFileRD1to2012ABCDTrue_6_40 = new TFile("otherHistos/RD1to2012ABCDTrue_6-40.root", "OPEN");
+  _inFileRD1to2012ABCDMuMuTrue = new TFile("otherHistos/mcwei_muo.root", "OPEN");
+  _inFileRD1to2012ABCDEETrue = new TFile("otherHistos/mcwei_ele.root", "OPEN");
 
   _inFileRD1to2012ABTrue = new TFile("otherHistos/RD1to2012ABTrue.root", "OPEN");
   _inFileRD1to2012CTrue = new TFile("otherHistos/RD1to2012CTrue.root", "OPEN");
@@ -55,6 +57,14 @@ WeightUtils::WeightUtils(const Parameters& params, bool isRealData, int runNumbe
   h1_RD1to2012ABTrue     = (TH1F*)_inFileRD1to2012ABTrue->Get("pileupWeights");
   h1_RD1to2012CTrue     = (TH1F*)_inFileRD1to2012CTrue->Get("pileupWeights");
   h1_RD1to2012DTrue     = (TH1F*)_inFileRD1to2012DTrue->Get("pileupWeights");
+
+  h1_RD1to2012ABMuMuTrue         = (TH1F*)_inFileRD1to2012ABCDMuMuTrue->Get("mcwei_run194533");
+  h1_RD1to2012CMuMuTrue          = (TH1F*)_inFileRD1to2012ABCDMuMuTrue->Get("mcwei_run200519");
+  h1_RD1to2012DMuMuTrue          = (TH1F*)_inFileRD1to2012ABCDMuMuTrue->Get("mcwei_run206859");
+
+  h1_RD1to2012ABEETrue         = (TH1F*)_inFileRD1to2012ABCDEETrue->Get("mcwei_run194533");
+  h1_RD1to2012CEETrue          = (TH1F*)_inFileRD1to2012ABCDEETrue->Get("mcwei_run200519");
+  h1_RD1to2012DEETrue          = (TH1F*)_inFileRD1to2012ABCDEETrue->Get("mcwei_run206859");
 
   // higgs pt weights
   kfact120_0           = (TH1D*)_kFactors->Get("kfact120_0");
@@ -112,16 +122,25 @@ float WeightUtils::PUWeight(float nPU)
   }else{
     if (nPU < 100 && _params.period == "2011" ){
       _puWeight = h1_S6to2011obs->GetBinContent(h1_S6to2011obs->FindBin(nPU)); 
-    } else if (nPU < 40 && nPU > 4 && _params.period == "2012"){ 
-        if (_runNumber < 196531) _puWeight = h1_RD1to2012ABTrue->GetBinContent(h1_RD1to2012ABTrue->FindBin(nPU));
-        else if (_runNumber > 198022 && _runNumber < 203742) _puWeight = h1_RD1to2012CTrue->GetBinContent(h1_RD1to2012CTrue->FindBin(nPU));
-        else if (_runNumber > 203777 && _runNumber < 208686) _puWeight = h1_RD1to2012DTrue->GetBinContent(h1_RD1to2012DTrue->FindBin(nPU));
-        else _puWeight = 1;
-    } else if (nPU < 100 && _params.period == "2012" && (_params.suffix.find("S10"))){
+    } else if (nPU < 100 && _params.period == "2012" && (_params.suffix.find("S10")!=string::npos)){
       if (_params.abcd == "AB") _puWeight = h1_S10to2012ABTrue->GetBinContent(h1_S10to2012ABTrue->FindBin(nPU)); 
       else if (_params.abcd == "CD") _puWeight = h1_S10to2012CDTrue->GetBinContent(h1_S10to2012CDTrue->FindBin(nPU)); 
       else if (_params.abcd == "ABCD") _puWeight = h1_S10to2012ABCDTrue->GetBinContent(h1_S10to2012ABCDTrue->FindBin(nPU)); 
       //_puWeight = h1_S10to2012ABCDTrue_73500->GetBinContent(h1_S10to2012ABCDTrue_73500->FindBin(nPU));
+    } else if (_params.period == "2012"){ 
+      if (_params.selection == "mumuGamma"){
+        if (_runNumber < 196531) {_puWeight = h1_RD1to2012ABMuMuTrue->GetBinContent(h1_RD1to2012ABMuMuTrue->FindBin(nPU)); }
+        else if (_runNumber > 198022 && _runNumber < 203742){ _puWeight = h1_RD1to2012CMuMuTrue->GetBinContent(h1_RD1to2012CMuMuTrue->FindBin(nPU));}
+        else if (_runNumber > 203777 && _runNumber < 208686) {_puWeight = h1_RD1to2012DMuMuTrue->GetBinContent(h1_RD1to2012DMuMuTrue->FindBin(nPU));}
+        else _puWeight = 1;
+        if (_puWeight < 1e-6) _puWeight = 1;
+      }else if (_params.selection == "eeGamma"){
+        if (_runNumber < 196531) _puWeight = h1_RD1to2012ABEETrue->GetBinContent(h1_RD1to2012ABEETrue->FindBin(nPU));
+        else if (_runNumber > 198022 && _runNumber < 203742) _puWeight = h1_RD1to2012CEETrue->GetBinContent(h1_RD1to2012CEETrue->FindBin(nPU));
+        else if (_runNumber > 203777 && _runNumber < 208686) _puWeight = h1_RD1to2012DEETrue->GetBinContent(h1_RD1to2012DEETrue->FindBin(nPU));
+        else _puWeight = 1;
+        if (_puWeight < 1e-6) _puWeight = 1;
+      }
     } else{
       _puWeight = 1; 
     }
