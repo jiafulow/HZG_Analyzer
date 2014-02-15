@@ -488,13 +488,13 @@ bool ParticleSelector::PassPhotonID(const TCPhoton& ph, const Cuts::phIDCuts& cu
       if(
           ph.IdMap("HadIso_R03") - 0.005*ph.Pt()     < cutLevel.HcalIso[0]
           && ph.IdMap("TrkIso_R03") - 0.002*ph.Pt()  < cutLevel.TrkIso[0]
-        //  && ph.IdMap("chIso_R02")                   < cutLevel.TrkIso[0]
+          && ph.CiCPF4chgpfIso02()[0]                  < cutLevel.ChPfIso[0]
         ) phoPass2 = true;
     }else{
       if(
           ph.IdMap("HadIso_R03") - 0.005*ph.Pt()     < cutLevel.HcalIso[1]
           && ph.IdMap("TrkIso_R03") - 0.002*ph.Pt()  < cutLevel.TrkIso[1]
-      //    && ph.IdMap("chIso_R02")                   < cutLevel.TrkIso[0]
+          && ph.CiCPF4chgpfIso02()[0]                  < cutLevel.ChPfIso[1]
         ) phoPass2 = true;
     }
 
@@ -637,6 +637,7 @@ bool ParticleSelector::PassPhotonMVA(const TCPhoton& ph){
     tmvaReader[iBE]->AddVariable("rho2012", &rho2012_);
     tmvaReader[iBE]->AddVariable("phoPFPhoIso", &phoPFPhoIso_);
     tmvaReader[iBE]->AddVariable("phoPFChIso", &phoPFChIso_);
+
     tmvaReader[iBE]->AddVariable("phoPFChIsoWorst", &phoPFChIsoWorst_);
 
     tmvaReader[iBE]->AddSpectator("phoEt", &phoEt_);
@@ -671,13 +672,10 @@ bool ParticleSelector::PassPhotonMVA(const TCPhoton& ph){
   phoEta_ = ph.Eta();
 
   // evaluate largest isolation value
-  /*
   phoPFChIsoWorst_ = 0;
-  for (size_t k = 0; k < phoCiCPF4chgpfIso03[i].size(); ++k)
-    if (phoPFChIsoWorst_ < phoCiCPF4chgpfIso03[i][k])
-      phoPFChIsoWorst_ = phoCiCPF4chgpfIso03[i][k];
-  */
-  phoPFChIsoWorst_ = ph.PfIsoCharged();
+  for (size_t k = 0; k < ph.CiCPF4chgpfIso03().size(); ++k){
+    if (phoPFChIsoWorst_ < ph.CiCPF4chgpfIso03()[k]) phoPFChIsoWorst_ = ph.CiCPF4chgpfIso03()[k];
+  }
 
   float mvaVal = tmvaReader[iBE]->EvaluateMVA("BDT");
   if (mvaVal > 0.1) mvaPass = true;

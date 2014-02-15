@@ -811,6 +811,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
           if (testDr < 0.2){
             corrPhoPt = phoCorrector->GetCorrEtMC(thisPhoton->R9(), periodNum, thisPhoton->Pt(), thisPhoton->Eta(), goodGenPhoton.E());
             //cout<<"uncor pt: "<<thisPhoton->Pt()<<" cor pt: "<<corrPhoPt<<" gen pt: "<<vetoPhotons[vetoPos].Pt()<<endl;
+            if (fabs(thisPhoton->SCEta()) > 1.566666)hm->fill1DHist(goodGenPhoton.Pt()-thisPhoton->Pt(),"h1_stupidAndyPlot_"+params->suffix, "genPt-recoPt photon", 100, -10, 10,1);
             thisPhoton->SetPtEtaPhiM(corrPhoPt,thisPhoton->Eta(),thisPhoton->Phi(),0.0);
           }
           //else cout<<" no match, pt: "<<thisPhoton->Pt()<<endl;
@@ -1377,7 +1378,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   if (params->doAnglesMVA){
     float mvaVal = MVACalculator(mvaInits, tmvaReader);
-    //with photon mva
+    /*
+    //with photon mva (bad)
     if (params->selection == "mumuGamma"){
       if (catNum ==1){
         if (mvaVal < -0.13) catNum = 6;
@@ -1399,7 +1401,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         if (mvaVal < -0.56) catNum = 9;
       }
     }
-    /*
     if (params->selection == "mumuGamma"){
       if (catNum ==1){
         if (mvaVal <0.067) catNum = 6;
