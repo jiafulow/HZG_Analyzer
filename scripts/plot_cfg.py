@@ -52,21 +52,16 @@ def ROCPlotter():
     FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_11-29-13_plusPtTest.root")
     FileEl= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_11-29-13_plusPtTest.root")
   else:
-    #FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_11-12-13.root")
-    #FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_01-22-14_AndyWeight.root")
-    #FileEl= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_01-22-14_AndyWeight.root")
-    #FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_01-13-14.root")
-    #FileEl= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_01-13-14.root")
     #FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_02-04-14.root")
     #FileEl= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_02-04-14.root")
-    FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_02-09-14.root")
-    FileEl= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_02-09-14.root")
+    FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_02-18-14.root")
+    FileEl= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_02-18-14.root")
 
-  plotter = Plotter(FileMu, 'MVAPlots', 'ROC_MVA_02-09-14', '2012','mu','Signal2012ggM135')
+  plotter = Plotter(FileMu, 'MVAPlots', 'ROC_MVA_02-18-14', '2012','mu','Signal2012ggM135')
   for key in plotter.folderDict.keys():
     plotter.ROCcurves(plotter.folderDict[key])
     plotter.ROCcurves(plotter.folderDict[key],135)
-  plotterEl = Plotter(FileEl, 'MVAPlots', 'ROC_MVA_02-09-14', '2012','el','Signal2012ggM135')
+  plotterEl = Plotter(FileEl, 'MVAPlots', 'ROC_MVA_02-18-14', '2012','el','Signal2012ggM135')
   for key in plotterEl.folderDict.keys():
     plotterEl.ROCcurves(plotterEl.folderDict[key])
     plotterEl.ROCcurves(plotterEl.folderDict[key],135)
@@ -110,6 +105,31 @@ def RatioPlotter():
     for key in plotterMu.folderDict.keys():
       plotterMu.RatioPlot(key,['DATA','Signal'],['Data','Signal'],True)
 
+def DoAll():
+  if os.environ.get('AT_NWU'):
+    mainPath = '/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_'
+    suffix = '02-18-14'
+    headDir = 'Full_'+suffix
+    if not os.path.isdir(headDir):
+      os.mkdir('Full_'+suffix)
+    FileMu = TFile(mainPath+'MuMu2012ABCD_'+suffix+'.root','OPEN')
+    FileEl = TFile(mainPath+'EE2012ABCD_'+suffix+'.root','OPEN')
+    folders = ['ZGamma','CAT1','CAT2','CAT3','CAT4','pT-Eta-Phi','MVAPlots','Misc']
+    for folder in folders:
+      plotterEl = Plotter(FileEl, folder, headDir+'/'+folder+'_Ratio', '2012','el','Signal2012ggM125')
+      for key in plotterEl.folderDict.keys():
+        plotterEl.RatioPlot(key,['DATA','Signal'],['Data','Signal'],True)
+        plotterEl.directory = headDir+'/'+folder
+        plotterEl.DataBGComp(plotterEl.folderDict[key])
+        plotterEl.DataBGComp2DProj(plotterEl.folderDict[key])
+      plotterMu = Plotter(FileMu, folder, headDir+'/'+folder+'_Ratio', '2012','mu','Signal2012ggM125')
+      for key in plotterMu.folderDict.keys():
+        plotterMu.RatioPlot(key,['DATA','Signal'],['Data','Signal'],True)
+        plotterMu.directory = headDir+'/'+folder
+        plotterMu.DataBGComp(plotterMu.folderDict[key])
+        plotterMu.DataBGComp2DProj(plotterMu.folderDict[key])
+  else: print 'this is not set up for FNAL'
+
 
 
 if __name__=="__main__":
@@ -120,3 +140,5 @@ if __name__=="__main__":
     ROCPlotter()
   elif 'ratio' == sys.argv[1].lower():
     RatioPlotter()
+  elif 'all' == sys.argv[1].lower():
+    DoAll()

@@ -117,7 +117,9 @@ class Plotter:
           outList.append(hist.Clone())
           break
 
-    if len(outList) != 2: raise NameError('ChooseTwoHists gave wrong list length: {0}'.format(len(outList)))
+    if len(outList) != 2:
+      outList = None
+      return outList
 
     if norm:
       outList[0].Scale(1/outList[0].Integral())
@@ -159,7 +161,7 @@ class Plotter:
         if 'DATA' in hist.GetName():
           dataHist = hist.Clone()
           break
-    if not dataHist: raise NameError('No dataHist found in this list')
+    if not dataHist: return dataHist
     dataHist.SetLineColor(kBlack)
     dataHist.SetMarkerColor(kBlack)
     dataHist.SetMarkerStyle(20)
@@ -174,7 +176,7 @@ class Plotter:
         dataHistM = hist.Clone().ProjectionX('projM'+hist.GetName(),1,hist.GetNbinsY(),'[mycut]')
         dataHistD = hist.Clone().ProjectionY('projD'+hist.GetName(),1,hist.GetNbinsX(),'[mycut]')
         break
-    if not dataHistM: raise NameError('No dataHist found in this list')
+    if not dataHistM: return dataHist
     dataHistM.SetLineColor(kBlack)
     dataHistM.SetMarkerColor(kBlack)
     dataHistM.SetMarkerStyle(20)
@@ -732,6 +734,10 @@ class Plotter:
     pad1.Draw()
     pad2.Draw()
     pad1.cd()
+    if compHists == None:
+      print 'cannot find all the necessary histograms, skipping', key
+      return
+
     if type(compHists[0]) is TProfile:
       h1 = compHists[0].ProjectionX()
       h2 = compHists[1].ProjectionX()

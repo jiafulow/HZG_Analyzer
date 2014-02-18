@@ -232,7 +232,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   //mvaInits.discrSuffixName = "anglesOnly";
   //mvaInits.discrSuffixName = "newAnglesR9";
   //mvaInits.discrSuffixName = "01-29-14_v0905";
-  mvaInits.discrSuffixName = "02-09-14";
+  mvaInits.discrSuffixName = "02-18-14";
 
 
   mvaInits.mvaHiggsMassPoint[0] = 125;
@@ -1378,6 +1378,28 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   if (params->doAnglesMVA){
     float mvaVal = MVACalculator(mvaInits, tmvaReader);
+    //with photon mva (good)
+    if (params->selection == "mumuGamma"){
+      if (catNum ==1){
+        if (mvaVal < -0.13) catNum = 6;
+      }else if (catNum==2){
+        if (mvaVal < -0.47) catNum = 7; 
+      }else if (catNum==3){
+        if (mvaVal < -0.49) catNum = 8;
+      }else if (catNum==4){
+        if (mvaVal < -0.56) catNum = 9;
+      }
+    }else if (params->selection == "eeGamma"){
+      if (catNum ==1){
+        if (mvaVal < -0.044) catNum = 6;
+      }else if (catNum==2){
+        if (mvaVal < -0.42) catNum = 7;
+      }else if (catNum==3){
+        if (mvaVal < -0.36) catNum = 8;
+      }else if (catNum==4){
+        if (mvaVal < -0.53) catNum = 9;
+      }
+    }
     /*
     //with photon mva (bad)
     if (params->selection == "mumuGamma"){
