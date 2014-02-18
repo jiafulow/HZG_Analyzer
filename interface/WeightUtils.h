@@ -76,6 +76,8 @@ class WeightUtils: public TObject {
         TFile *_PhoMedWP2012;
         TFile *_PhoMedWPveto2012;
 
+        TFile *_PhoJan22RD1_2012;
+
         TFile *_EleMoriondWP2012;
         TFile *_EleLegacyWP2012;
 
@@ -122,6 +124,9 @@ class WeightUtils: public TObject {
 
         TH2F * h1_EleMoriondWP2012;
         TH2F * h1_EleLegacyWP2012;
+
+        TH1F * h1_PhoMedWPJan22RD1_2012;
+        TH1F * h1_PhoMedWPvetoJan22RD1_2012;
 
 
         //weights

@@ -37,6 +37,8 @@ WeightUtils::WeightUtils(const Parameters& params, bool isRealData, int runNumbe
   _EleMoriondWP2012    = new TFile("otherHistos/efficiency_results_EleHZGammaMoriond2013WPMixed_Moriond2013.root", "OPEN");
   _EleLegacyWP2012    = new TFile("otherHistos/CombinedMethod_ScaleFactors_RecoIdIsoSip.root", "OPEN");
 
+  _PhoJan22RD1_2012 = new TFile("otherHistos/Photon_ID_CSEV_SF_Jan22rereco_Full2012_RD1_MC_V01.root","OPEN");
+
 
   // PU weights
   h1_S6to2011          = (TH1F*)_inFileS6to2011->Get("pileupWeights");
@@ -81,6 +83,9 @@ WeightUtils::WeightUtils(const Parameters& params, bool isRealData, int runNumbe
   //photon histo
   h1_PhoMedWP2012 = (TH2F*)_PhoMedWP2012->Get("photonSF_MediumWP");
   h1_PhoMedWPveto2012 = (TH2F*)_PhoMedWPveto2012->Get("photonSF_MediumWP");
+
+  h1_PhoMedWPJan22RD1_2012     = (TH1F*)_PhoJan22RD1_2012->Get("PhotonIDSF_MediumWP_Jan22rereco_Full2012_RD1_MC_V01");
+  h1_PhoMedWPvetoJan22RD1_2012 = (TH1F*)_PhoJan22RD1_2012->Get("PhotonCSEVSF_MediumWP_Jan22rereco_Full2012_RD1_MC_V01");
 
   //electron histo
   h1_EleMoriondWP2012 = (TH2F*)_EleMoriondWP2012->Get("heff_electron_selection");
@@ -369,7 +374,8 @@ float WeightUtils::GammaSelectionWeight(TLorentzVector l1, float SCEta)
       phoSF = _gammaMedID2011[etaBin][ptBin]*_gammaMedVeto2011Endcap;
     }
   }else{
-    phoSF = h1_PhoMedWPveto2012->GetBinContent(h1_PhoMedWPveto2012->GetXaxis()->FindFixBin(l1.Pt()), h1_PhoMedWPveto2012->GetYaxis()->FindFixBin(fabs(SCEta)));
+    //phoSF = h1_PhoMedWPveto2012->GetBinContent(h1_PhoMedWPveto2012->GetXaxis()->FindFixBin(l1.Pt()), h1_PhoMedWPveto2012->GetYaxis()->FindFixBin(fabs(SCEta)));
+    phoSF = h1_PhoMedWPJan22RD1_2012->GetBinContent(h1_PhoMedWPJan22RD1_2012->FindFixBin(l1.Pt()))*h1_PhoMedWPvetoJan22RD1_2012->GetBinContent(h1_PhoMedWPvetoJan22RD1_2012->FindFixBin(l1.Pt()));
   }
   return phoSF;
 

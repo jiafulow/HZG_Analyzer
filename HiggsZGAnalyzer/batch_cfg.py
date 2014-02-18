@@ -49,28 +49,28 @@ if os.environ.get('AT_NWU') == None:
 
 else:
   if doMuMuGamma:
-    configs.append(b.JobConfig('ggHZG_M125', t3storage+'/V09_05_8TeV/MC/ggHZG_M125_RD1', 5, 'Signal2012ggM125 ABCD mumuGamma 2012','mumuGamma'))
-    configs.append(b.JobConfig('ggHZG_M135', t3storage+'/V09_05_8TeV/MC/ggHZG_M135_RD1', 5, 'Signal2012ggM135 ABCD mumuGamma 2012','mumuGamma'))
+    configs.append(b.JobConfig('ggHZG_M125', t3storage+'/nuTuples_v9.6_8TeV/MC/ggHZG_M125_RD1', 5, 'Signal2012ggM125 ABCD mumuGamma 2012','mumuGamma'))
+    configs.append(b.JobConfig('ggHZG_M135', t3storage+'/nuTuples_v9.6_8TeV/MC/ggHZG_M135_RD1', 5, 'Signal2012ggM135 ABCD mumuGamma 2012','mumuGamma'))
 
-    configs.append(b.JobConfig('Run2012A', t3storage+'/V09_05_8TeV/DoubleMu/Run2012A', 50, 'DATA ABCD mumuGamma 2012','mumuGamma'))
-    configs.append(b.JobConfig('Run2012B', t3storage+'/V09_05_8TeV/DoubleMu/Run2012B', 100, 'DATA ABCD mumuGamma 2012','mumuGamma'))
-    configs.append(b.JobConfig('Run2012C', t3storage+'/V09_05_8TeV/DoubleMu/Run2012C', 150, 'DATA ABCD mumuGamma 2012','mumuGamma'))
-    configs.append(b.JobConfig('Run2012D', t3storage+'/V09_05_8TeV/DoubleMu/Run2012D', 150, 'DATA ABCD mumuGamma 2012','mumuGamma'))
+    configs.append(b.JobConfig('Run2012A', t3storage+'/nuTuples_v9.6_8TeV/Data/DoubleMu_Run2012A', 50, 'DATA ABCD mumuGamma 2012','mumuGamma'))
+    configs.append(b.JobConfig('Run2012B', t3storage+'/nuTuples_v9.6_8TeV/Data/DoubleMu_Run2012B', 100, 'DATA ABCD mumuGamma 2012','mumuGamma'))
+    configs.append(b.JobConfig('Run2012C', t3storage+'/nuTuples_v9.6_8TeV/Data/DoubleMu_Run2012C', 150, 'DATA ABCD mumuGamma 2012','mumuGamma'))
+    configs.append(b.JobConfig('Run2012D', t3storage+'/nuTuples_v9.6_8TeV/Data/DoubleMu_Run2012D', 150, 'DATA ABCD mumuGamma 2012','mumuGamma'))
 
-    configs.append(b.JobConfig('ZGToLLG', t3storage+'/V09_05_8TeV/MC/ZGToLLG', 50, 'ZGToLLG ABCD mumuGamma 2012','mumuGamma'))
-    configs.append(b.JobConfig('DYJets', t3storage+'/V09_05_8TeV/MC/DYJetsToLL_M-50', 150, 'DYJets ABCD mumuGamma 2012','mumuGamma'))
+    configs.append(b.JobConfig('ZGToLLG', t3storage+'/nuTuples_v9.6_8TeV/MC/ZGToLLG_RD1', 50, 'ZGToLLG ABCD mumuGamma 2012','mumuGamma'))
+    configs.append(b.JobConfig('DYJets', t3storage+'/nuTuples_v9.6_8TeV/MC/DYJetsToLL_M-50_RD1', 150, 'DYJets ABCD mumuGamma 2012','mumuGamma'))
 
   if doEEGamma:
-    configs.append(b.JobConfig('ggHZG_M125', t3storage+'/V09_05_8TeV/MC/ggHZG_M125_RD1', 5, 'Signal2012ggM125 ABCD eeGamma 2012','eeGamma'))
-    configs.append(b.JobConfig('ggHZG_M135', t3storage+'/V09_05_8TeV/MC/ggHZG_M135_RD1', 5, 'Signal2012ggM135 ABCD eeGamma 2012','eeGamma'))
+    configs.append(b.JobConfig('ggHZG_M125', t3storage+'/nuTuples_v9.6_8TeV/MC/ggHZG_M125_RD1', 5, 'Signal2012ggM125 ABCD eeGamma 2012','eeGamma'))
+    configs.append(b.JobConfig('ggHZG_M135', t3storage+'/nuTuples_v9.6_8TeV/MC/ggHZG_M135_RD1', 5, 'Signal2012ggM135 ABCD eeGamma 2012','eeGamma'))
 
-    configs.append(b.JobConfig('Run2012A', t3storage+'/V09_05_8TeV/DoubleEl/Run2012A', 50, 'DATA ABCD eeGamma 2012','eeGamma'))
-    configs.append(b.JobConfig('Run2012B', t3storage+'/V09_05_8TeV/DoubleEl/Run2012B', 100, 'DATA ABCD eeGamma 2012','eeGamma'))
-    configs.append(b.JobConfig('Run2012C', t3storage+'/V09_05_8TeV/DoubleEl/Run2012C', 150, 'DATA ABCD eeGamma 2012','eeGamma'))
-    configs.append(b.JobConfig('Run2012D', t3storage+'/V09_05_8TeV/DoubleEl/Run2012D', 150, 'DATA ABCD eeGamma 2012','eeGamma'))
+    configs.append(b.JobConfig('Run2012A', t3storage+'/nuTuples_v9.6_8TeV/Data/DoubleElectron_Run2012A', 50, 'DATA ABCD eeGamma 2012','eeGamma'))
+    configs.append(b.JobConfig('Run2012B', t3storage+'/nuTuples_v9.6_8TeV/Data/DoubleElectron_Run2012B', 100, 'DATA ABCD eeGamma 2012','eeGamma'))
+    configs.append(b.JobConfig('Run2012C', t3storage+'/nuTuples_v9.6_8TeV/Data/DoubleElectron_Run2012C', 150, 'DATA ABCD eeGamma 2012','eeGamma'))
+    configs.append(b.JobConfig('Run2012D', t3storage+'/nuTuples_v9.6_8TeV/Data/DoubleElectron_Run2012D', 150, 'DATA ABCD eeGamma 2012','eeGamma'))
 
-    configs.append(b.JobConfig('ZGToLLG', t3storage+'/V09_05_8TeV/MC/ZGToLLG', 50, 'ZGToLLG ABCD eeGamma 2012','eeGamma'))
-    configs.append(b.JobConfig('DYJets', t3storage+'/V09_05_8TeV/MC/DYJetsToLL_M-50', 150, 'DYJets ABCD eeGamma 2012','eeGamma'))
+    configs.append(b.JobConfig('ZGToLLG', t3storage+'/nuTuples_v9.6_8TeV/MC/ZGToLLG_RD1', 50, 'ZGToLLG ABCD eeGamma 2012','eeGamma'))
+    configs.append(b.JobConfig('DYJets', t3storage+'/nuTuples_v9.6_8TeV/MC/DYJetsToLL_M-50_RD1', 150, 'DYJets ABCD eeGamma 2012','eeGamma'))
 
   batcher = b.BatchMaster(configs, outputPathNWU,'execBatch.sh')
 batcher.SubmitToLPC()

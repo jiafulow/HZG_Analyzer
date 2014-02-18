@@ -678,7 +678,7 @@ bool ParticleSelector::PassPhotonMVA(const TCPhoton& ph){
   }
 
   float mvaVal = tmvaReader[iBE]->EvaluateMVA("BDT");
-  if (mvaVal > 0.1) mvaPass = true;
+  if (mvaVal > 0.128) mvaPass = true;
   return mvaPass;
 }
 
