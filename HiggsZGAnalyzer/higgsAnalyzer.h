@@ -272,6 +272,10 @@ class higgsAnalyzer : public TSelector {
     virtual float   MEDiscriminator(TCPhysObject lepton1, TCPhysObject lepton2, TLorentzVector gamma);
     virtual void    LumiXSWeight(double *_LumiXSWeight);
     virtual void    PhotonR9Corrector(TCPhoton& ph);
+    virtual bool    GoodLeptonsCat(const TCMuon& m1, const TCMuon& m2);
+    virtual bool    GoodLeptonsCat(const TCElectron& e1, const TCElectron& e2);
+    virtual bool    GoodLeptonsCat(const TCPhysObject& m1, const TCPhysObject& m2);
+    virtual bool    GoodLeptonsCat(const float SCEta1, const float SCEta2);
 
 
     ///////////////////////

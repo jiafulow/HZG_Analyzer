@@ -5,6 +5,7 @@
 using namespace std;
 string  str(int i) {return static_cast<ostringstream*>( &(ostringstream() << i) )->str();}
 
+
 void higgsAnalyzer::Begin(TTree * tree)
 {
   /////////////////////////////
@@ -46,21 +47,21 @@ void higgsAnalyzer::Begin(TTree * tree)
   jobTree->GetEntry();
 
   // Initialize utilities and selectors here //
+  int jobNum = atoi(params->jobCount.c_str());
+  cout<<jobNum<<endl;
   cuts.reset(new Cuts());
   cuts->InitEA(params->period);
   weighter.reset(new WeightUtils(*params, isRealData, runNumber));
   triggerSelector.reset(new TriggerSelector(params->selection, params->period, *triggerNames));
-  rmcor2011.reset(new rochcor_2011(229));
-  rmcor2012.reset(new rochcor2012(229));
-  rEl.reset(new TRandom3(1234));
-  rMuRun.reset(new TRandom3(187));
+  rmcor2011.reset(new rochcor_2011(229+100*jobNum));
+  rmcor2012.reset(new rochcor2012(229+100*jobNum));
+  rEl.reset(new TRandom3(230+100*jobNum));
+  rMuRun.reset(new TRandom3(231+100*jobNum));
   phoCorrector.reset(new zgamma::PhosphorCorrectionFunctor("../plugins/PHOSPHOR_NUMBERS_EXPFIT_ERRORS.txt", true));
   Xcal2.reset(new TEvtProb);
   particleSelector.reset(new ParticleSelector(*params, *cuts, isRealData, runNumber, *rEl));
   dumper.reset(new Dumper(*params,*cuts,*particleSelector));
 
-
-  //genHZG = {0,0,0,0,0,0};
 
   // Random numbers! //
   rnGenerator.reset(new TRandom3);
@@ -557,10 +558,10 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
       if (particleSelector->PassElectronID(*thisElec, cuts->mvaPreElID, *recoMuons)) electronsID.push_back(*thisElec);			
       /// low pt
-      if (thisElec->Pt() < 20 && particleSelector->PassElectronID(*thisElec, cuts->mvaPreElID, *recoMuons) && thisElec->MvaID_Old() > -0.5 && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
+      if (thisElec->Pt() < 20 && particleSelector->PassElectronID(*thisElec, cuts->mvaPreElID, *recoMuons) && thisElec->MvaID_Old() > -0.9 && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
         passAll = true;
       /// high pt
-      }else if (thisElec->Pt() > 20 && particleSelector->PassElectronID(*thisElec, cuts->mvaPreElID, *recoMuons) && thisElec->MvaID_Old() > -0.90 && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
+      }else if (thisElec->Pt() > 20 && particleSelector->PassElectronID(*thisElec, cuts->mvaPreElID, *recoMuons) && thisElec->MvaID_Old() > -0.5 && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
         passAll = true;
       }
       //cout<<"MVA OLD: "<<thisElec->MvaID_Old()<<" MVA HZZ: "<<thisElec->MvaID()<<endl;
@@ -834,10 +835,22 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         if (params->engCor) photonsIDIsoUnCor.push_back(*clonePhoton);
       }
       */
+      bool goodLepPre = false;
       if (particleSelector->PassPhotonID(*thisPhoton, cuts->preSelPhID)) photonsID.push_back(*thisPhoton);
-      if (particleSelector->PassPhotonID(*thisPhoton, cuts->preSelPhID) && particleSelector->PassPhotonMVA(*thisPhoton)){ 
-        //standard selection photons
-        photonsIDIso.push_back(*thisPhoton);
+      if (params->selection == "mumuGamma"){
+        if (muonsIDIso.size() > 1){
+          goodLepPre = GoodLeptonsCat( muonsIDIso[0], muonsIDIso[1]);
+        }
+        if (particleSelector->PassPhotonID(*thisPhoton, cuts->preSelPhID)
+            && particleSelector->PassPhotonMVA(*thisPhoton, cuts->catPhMVAID, goodLepPre))
+          photonsIDIso.push_back(*thisPhoton);
+      }else{
+        if (electronsIDIso.size() > 1){
+          goodLepPre = GoodLeptonsCat( electronsIDIso[0], electronsIDIso[1]);
+        }
+        if (particleSelector->PassPhotonID(*thisPhoton, cuts->preSelPhID)
+            && particleSelector->PassPhotonMVA(*thisPhoton, cuts->catPhMVAID, goodLepPre)) photonsIDIso.push_back(*thisPhoton);
+
         if (params->engCor) photonsIDIsoUnCor.push_back(*clonePhoton);
       }
 
@@ -883,8 +896,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   //if (jetP4.size() > 0) deltaPhiJetMET= DeltaPhiJetMET(metP4, jetP4, eventWeight);
 
   TCPhysObject   lepton1;
-  int            lepton1int =-1;
   TCPhysObject   lepton2;
+  int            lepton1int =-1;
   int            lepton2int =-1;
   TLorentzVector uncorLepton1;
   TLorentzVector uncorLepton2;
@@ -1252,9 +1265,9 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   bool goodLep = false;
   if (params->selection == "mumuGamma"){
-    goodLep = (fabs(lepton1.Eta()) < 0.9 || fabs(lepton2.Eta()) < 0.9) && (fabs(lepton1.Eta()) < 2.1 && fabs(lepton2.Eta()) < 2.1);
-  }else if (params->selection == "eeGamma"){
-    goodLep = (fabs(SCetaEl1) < 1.4442 && fabs(SCetaEl2) < 1.4442);
+    goodLep = GoodLeptonsCat(lepton1, lepton2);
+  }else{
+    goodLep = GoodLeptonsCat(SCetaEl1, SCetaEl2);
   }
   // If lep1 or lep2 is in 0.9 and both are in 2.1 //
   if (isVBF){
@@ -1378,6 +1391,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   if (params->doAnglesMVA){
     float mvaVal = MVACalculator(mvaInits, tmvaReader);
+    /*
     //with photon mva (good)
     if (params->selection == "mumuGamma"){
       if (catNum ==1){
@@ -1400,7 +1414,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         if (mvaVal < -0.53) catNum = 9;
       }
     }
-    /*
     //with photon mva (bad)
     if (params->selection == "mumuGamma"){
       if (catNum ==1){
@@ -2612,7 +2625,28 @@ void higgsAnalyzer::PhotonR9Corrector(TCPhoton& ph){
   ph.SetR9(R9Cor);
 }
 
+bool higgsAnalyzer::GoodLeptonsCat(const TCMuon& m1, const TCMuon& m2){
+  bool _goodLep = false;
+  _goodLep = (fabs(m1.Eta()) < 0.9 || fabs(m2.Eta()) < 0.9) && (fabs(m1.Eta()) < 2.1 && fabs(m2.Eta()) < 2.1);
+  return _goodLep;
+}
 
+bool higgsAnalyzer::GoodLeptonsCat(const TCElectron& e1, const TCElectron& e2){
+  bool _goodLep = false;
+  _goodLep = (fabs(e1.SCEta()) < 1.4442 && fabs(e2.SCEta()) < 1.4442);
+  return _goodLep;
+}
 
+bool higgsAnalyzer::GoodLeptonsCat(const TCPhysObject& m1, const TCPhysObject& m2){
+  bool _goodLep = false;
+  _goodLep = (fabs(m1.Eta()) < 0.9 || fabs(m2.Eta()) < 0.9) && (fabs(m1.Eta()) < 2.1 && fabs(m2.Eta()) < 2.1);
+  return _goodLep;
+}
+
+bool higgsAnalyzer::GoodLeptonsCat(const float SCEta1, const float SCEta2){
+  bool _goodLep = false;
+  _goodLep = (fabs(SCEta1) < 1.4442 && fabs(SCEta2) < 1.4442);
+  return _goodLep;
+}
 
 
