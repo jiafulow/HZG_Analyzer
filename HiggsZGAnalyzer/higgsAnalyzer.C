@@ -215,6 +215,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   m_llgChain->Branch(("m_llgCAT5_"+params->suffix).c_str(), &m_llgCAT5, "m_llgCAT5/D");
   m_llgChain->Branch(("unBinnedWeight_"+params->suffix).c_str(), &unBinnedWeight, "unBinnedWeight/D");
   m_llgChain->Branch(("unBinnedLumiXS_"+params->suffix).c_str(), &unBinnedLumiXS, "unBinnedLumiXS/D");
+  m_llgChain->Branch(("unskimmedEventsTotal_"+params->suffix).c_str(), &unskimmedEventsTotal, "unskimmedEventsTotal/I");
 
   ///////////////////////
   // ZGAngles MVA init //
@@ -2001,7 +2002,7 @@ void higgsAnalyzer::Terminate()
   cout << "| GEN ACCEPTANCE Leptons:            |\t" << genAccept[0]                  << "\t|" << endl;
   cout << "| GEN ACCEPTANCE Total:              |\t" << genAccept[1]                  << "\t|" << endl;
 
-  hm->writeHists();
+  //hm->writeHists();
   trainingFile->Write();
   sampleFile->Write();
   histoFile->Write();

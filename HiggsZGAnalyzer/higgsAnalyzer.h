@@ -86,7 +86,7 @@ class higgsAnalyzer : public TSelector {
     auto_ptr<TFile> m_llgFile;
     auto_ptr<HistManager> hm;
 
-    float unskimmedEventsTotal;
+    int unskimmedEventsTotal;
     int fileCount;
 
     auto_ptr<TVector3> pvPosition;
