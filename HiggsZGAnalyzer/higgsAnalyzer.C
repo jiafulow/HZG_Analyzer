@@ -784,6 +784,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
       // Section for photon energy/momentum corrections.  NOTE: this will change the pt and thus ID/ISO of photon
       
+      /*
       if(params->engCor){
         //old R9 correction
         if (params->doR9Cor) PhotonR9Corrector(*thisPhoton);
@@ -823,6 +824,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         }
        
       }
+      */
 
 
       ////// Currently Using Cut-Based Photon ID, 2012
@@ -850,9 +852,10 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
           goodLepPre = GoodLeptonsCat( electronsIDIso[0], electronsIDIso[1]);
         }
         if (particleSelector->PassPhotonID(*thisPhoton, cuts->preSelPhID)
-            && particleSelector->PassPhotonMVA(*thisPhoton, cuts->catPhMVAID, goodLepPre)) photonsIDIso.push_back(*thisPhoton);
+            && particleSelector->PassPhotonMVA(*thisPhoton, cuts->catPhMVAID, goodLepPre))
+          photonsIDIso.push_back(*thisPhoton);
 
-        if (params->engCor) photonsIDIsoUnCor.push_back(*clonePhoton);
+        //if (params->engCor) photonsIDIsoUnCor.push_back(*clonePhoton);
       }
 
 
@@ -1119,7 +1122,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   if(!goodPhoton) return kTRUE;
 
   if (params->doScaleFactors){
-      eventWeight   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
+      //eventWeight   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
       if (params->suffix == "DYJets") eventWeight   *= weighter->PhotonFakeWeight(GP4.Eta(), GP4.Pt()); 
   }
   eventWeightPho   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
@@ -1392,7 +1395,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   if (params->doAnglesMVA){
     float mvaVal = MVACalculator(mvaInits, tmvaReader);
-    //with photon mva (good with )
+    /*
+    //with photon mva (good with seperation)
     if (params->selection == "mumuGamma"){
       if (catNum ==1){
         if (mvaVal < -0.13) catNum = 6;
@@ -1414,316 +1418,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         if (mvaVal < -0.51) catNum = 9;
       }
     }
-    /*
-    //with photon mva (good)
-    if (params->selection == "mumuGamma"){
-      if (catNum ==1){
-        if (mvaVal < -0.13) catNum = 6;
-      }else if (catNum==2){
-        if (mvaVal < -0.47) catNum = 7; 
-      }else if (catNum==3){
-        if (mvaVal < -0.49) catNum = 8;
-      }else if (catNum==4){
-        if (mvaVal < -0.56) catNum = 9;
-      }
-    }else if (params->selection == "eeGamma"){
-      if (catNum ==1){
-        if (mvaVal < -0.044) catNum = 6;
-      }else if (catNum==2){
-        if (mvaVal < -0.42) catNum = 7;
-      }else if (catNum==3){
-        if (mvaVal < -0.36) catNum = 8;
-      }else if (catNum==4){
-        if (mvaVal < -0.53) catNum = 9;
-      }
-    }
-    //with photon mva (bad)
-    if (params->selection == "mumuGamma"){
-      if (catNum ==1){
-        if (mvaVal < -0.13) catNum = 6;
-      }else if (catNum==2){
-        if (mvaVal < -0.49) catNum = 7; 
-      }else if (catNum==3){
-        if (mvaVal < -0.49) catNum = 8;
-      }else if (catNum==4){
-        if (mvaVal < -0.56) catNum = 9;
-      }
-    }else if (params->selection == "eeGamma"){
-      if (catNum ==1){
-        if (mvaVal < 0.0) catNum = 6;
-      }else if (catNum==2){
-        if (mvaVal < -0.44) catNum = 7;
-      }else if (catNum==3){
-        if (mvaVal < -0.36) catNum = 8;
-      }else if (catNum==4){
-        if (mvaVal < -0.56) catNum = 9;
-      }
-    }
-    if (params->selection == "mumuGamma"){
-      if (catNum ==1){
-        if (mvaVal <0.067) catNum = 6;
-      }else if (catNum==2){
-        if (mvaVal < -0.24) catNum = 7; 
-      }else if (catNum==3){
-        if (mvaVal < -0.29) catNum = 8;
-      }else if (catNum==4){
-        if (mvaVal < -0.64) catNum = 9;
-      }
-    }else if (params->selection == "eeGamma"){
-      if (catNum ==1){
-        if (mvaVal < 0.16) catNum = 6;
-      }else if (catNum==2){
-        if (mvaVal < -0.44) catNum = 7;
-      }else if (catNum==3){
-        if (mvaVal < -0.16) catNum = 8;
-      }else if (catNum==4){
-        if (mvaVal < -0.40) catNum = 9;
-      }
-    }
-    //scaled shapes, tuned on 135, no window, trying multicats
-    if (params->selection == "mumuGamma"){
-      if (catNum ==1){
-        if (mvaVal <0.067) catNum = 6;
-      }else if (catNum==2){
-        if (mvaVal < -0.22) catNum = 7; 
-      }else if (catNum==3){
-        if (mvaVal < -0.16) catNum = 8;
-      }else if (catNum==4){
-        if (mvaVal < -0.53) catNum = 9;
-      }
-    }else if (params->selection == "eeGamma"){
-      if (catNum ==1){
-        if (mvaVal < 0.11) catNum = 6;
-      }else if (catNum==2){
-        if (mvaVal < -0.33) catNum = 7;
-      }else if (catNum==3){
-        if (mvaVal < -0.13) catNum = 8;
-      }else if (catNum==4){
-        if (mvaVal < -0.38) catNum = 9;
-      }
-    }
-    if (params->selection == "mumuGamma"){
-      if (catNum ==1){
-        if (mvaVal <0.16) catNum = 6;
-      }else if (catNum==2){
-        if (mvaVal < -0.33) catNum = 7; 
-      }else if (catNum==3){
-        if (mvaVal < -0.13) catNum = 8;
-      }else if (catNum==4){
-        if (mvaVal < -0.53) catNum = 9;
-      }
-    }else if (params->selection == "eeGamma"){
-      if (catNum ==1){
-        if (mvaVal < 0.13) catNum = 6;
-      }else if (catNum==2){
-        if (mvaVal < -0.29) catNum = 7;
-      }else if (catNum==3){
-        if (mvaVal < -0.16) catNum = 8;
-      }else if (catNum==4){
-        if (mvaVal < -0.58) catNum = 9;
-      }
-    }
-    if (params->selection == "mumuGamma"){
-      if (catNum ==1){
-        if (mvaVal <0.16) return kTRUE;
-      }else if (catNum==2){
-        if (mvaVal < -0.33) return kTRUE;
-      }else if (catNum==3){
-        if (mvaVal < -0.13) return kTRUE;
-      }else if (catNum==4){
-        if (mvaVal < -0.53) return kTRUE;
-      }
-    }else if (params->selection == "eeGamma"){
-      if (catNum ==1){
-        if (mvaVal < 0.13) return kTRUE;
-      }else if (catNum==2){
-        if (mvaVal < -0.29) return kTRUE;
-      }else if (catNum==3){
-        if (mvaVal < -0.16) return kTRUE;
-      }else if (catNum==4){
-        if (mvaVal < -0.58) return kTRUE;
-      }
-    }
-    //MoreShapes
-    if (params->selection == "mumuGamma"){
-      if (catNum ==1){
-        if (mvaVal <0.2) return kTRUE;
-      }else if (catNum==2){
-        if (mvaVal < -0.067) return kTRUE;
-      }else if (catNum==3){
-        if (mvaVal < -0.022) return kTRUE;
-      }else if (catNum==4){
-        if (mvaVal < -0.36) return kTRUE;
-      }
-    }else if (params->selection == "eeGamma"){
-      if (catNum ==1){
-        if (mvaVal < 0.29) return kTRUE;
-      }else if (catNum==2){
-        if (mvaVal < -0.13) return kTRUE;
-      }else if (catNum==3){
-        if (mvaVal < -0.24) return kTRUE;
-      }else if (catNum==4){
-        if (mvaVal < -0.42) return kTRUE;
-      }
-    }
-    //nv9.5
-    if (params->selection == "mumuGamma"){
-      if (catNum ==1){
-        if (mvaVal <0.11) return kTRUE;
-      }else if (catNum==2){
-        if (mvaVal < -0.4) return kTRUE;
-      }else if (catNum==3){
-        if (mvaVal < -0.22) return kTRUE;
-      }else if (catNum==4){
-        if (mvaVal < -0.56) return kTRUE;
-      }
-    }else if (params->selection == "eeGamma"){
-      if (catNum ==1){
-        if (mvaVal < 0.067) return kTRUE;
-      }else if (catNum==2){
-        if (mvaVal < -0.44) return kTRUE;
-      }else if (catNum==3){
-        if (mvaVal < -0.31) return kTRUE;
-      }else if (catNum==4){
-        if (mvaVal < -0.4) return kTRUE;
-      }
-    }
+    */
 
-    //andy weight
-    if (params->selection == "mumuGamma"){
-      if (catNum ==1){
-        if (mvaVal <0.13) return kTRUE;
-      }else if (catNum==2){
-        if (mvaVal < -0.44) return kTRUE;
-      }else if (catNum==3){
-        if (mvaVal < -0.11) return kTRUE;
-      }else if (catNum==4){
-        if (mvaVal < -0.47) return kTRUE;
-      }
-    }else if (params->selection == "eeGamma"){
-      if (catNum ==1){
-        if (mvaVal < 0.0) return kTRUE;
-      }else if (catNum==2){
-        if (mvaVal < -0.29) return kTRUE;
-      }else if (catNum==3){
-        if (mvaVal < -0.18) return kTRUE;
-      }else if (catNum==4){
-        if (mvaVal < -0.47) return kTRUE;
-      }
-    }
-    //newest, no andy weight
-    if (params->selection == "mumuGamma"){
-      if (catNum ==1){
-        if (mvaVal <0.13) return kTRUE;
-      }else if (catNum==2){
-        if (mvaVal < -0.44) return kTRUE;
-      }else if (catNum==3){
-        if (mvaVal < -0.11) return kTRUE;
-      }else if (catNum==4){
-        if (mvaVal < -0.47) return kTRUE;
-      }
-    }else if (params->selection == "eeGamma"){
-      if (catNum ==1){
-        if (mvaVal < 0.0) return kTRUE;
-      }else if (catNum==2){
-        if (mvaVal < -0.29) return kTRUE;
-      }else if (catNum==3){
-        if (mvaVal < -0.18) return kTRUE;
-      }else if (catNum==4){
-        if (mvaVal < -0.42) return kTRUE;
-      }
-    }
-    // test version for photon pt, don't use it's shit
-    if (params->selection == "mumuGamma"){
-      if (catNum ==1){
-        if (mvaVal <0.29) return kTRUE;
-      }else if (catNum==2){
-        if (mvaVal < -0.18) return kTRUE;
-      }else if (catNum==3){
-        if (mvaVal < -0.089) return kTRUE;
-      }else if (catNum==4){
-        if (mvaVal < -0.33) return kTRUE;
-      }
-    }else if (params->selection == "eeGamma"){
-      if (catNum ==1){
-        if (mvaVal < -0.067) return kTRUE;
-      }else if (catNum==2){
-        if (mvaVal < -0.42) return kTRUE;
-      }else if (catNum==3){
-        if (mvaVal < -0.2) return kTRUE;
-      }else if (catNum==4){
-        if (mvaVal < -0.53) return kTRUE;
-      }
-    }
-     // newAnglesR9
-    if (params->selection == "mumuGamma"){
-      if (catNum ==1){
-        if (mvaVal <0.089) return kTRUE;
-      }else if (catNum==2){
-        if (mvaVal < -0.49) return kTRUE;
-      }else if (catNum==3){
-        if (mvaVal < -0.22) return kTRUE;
-      }else if (catNum==4){
-        if (mvaVal < -0.67) return kTRUE;
-      }
-    }else if (params->selection == "eeGamma"){
-      if (catNum ==1){
-        if (mvaVal < -0.067) return kTRUE;
-      }else if (catNum==2){
-        if (mvaVal < -0.42) return kTRUE;
-      }else if (catNum==3){
-        if (mvaVal < -0.2) return kTRUE;
-      }else if (catNum==4){
-        if (mvaVal < -0.53) return kTRUE;
-      }
-    }
-    */
-    /*
-    if (params->selection == "mumuGamma"){
-      if (catNum ==1){
-        if (mvaVal < -0.2) return kTRUE;
-      }else if (catNum==4){
-        if (mvaVal < -0.36) return kTRUE;
-      }else if (catNum==2){
-        if (mvaVal < -0.64) return kTRUE;
-      }else if (catNum==3){
-        if (mvaVal < -0.29) return kTRUE;
-      }
-    }else if (params->selection == "eeGamma"){
-      if (catNum ==1){
-        if (mvaVal < -0.11) return kTRUE;
-      }else if (catNum==4){
-        if (mvaVal < -0.42) return kTRUE;
-      }else if (catNum==2){
-        if (mvaVal < -0.67) return kTRUE;
-      }else if (catNum==3){
-        if (mvaVal < -0.36) return kTRUE;
-      }
-    }
-    */
-    /*
-    if (params->selection == "mumuGamma"){
-      if (catNum ==1){
-        if (mvaVal < -0.13) return kTRUE;
-      }else if (catNum==2){
-        if (mvaVal < -0.33) return kTRUE;
-      }else if (catNum==3){
-        if (mvaVal < -0.62) return kTRUE;
-      }else if (catNum==4){
-        if (mvaVal < -0.31) return kTRUE;
-      }
-    }else if (params->selection == "eeGamma"){
-      if (catNum ==1){
-        if (mvaVal < -0.11) return kTRUE;
-      }else if (catNum==2){
-        if (mvaVal < -0.42) return kTRUE;
-      }else if (catNum==3){
-        if (mvaVal < -0.67) return kTRUE;
-      }else if (catNum==4){
-        if (mvaVal < -0.36) return kTRUE;
-      }
-    }
-    */
     hm->fill2DHist((GP4+ZP4).M(),mvaVal,"h2_MassVsMVACAT"+str(catNum)+"_"+params->suffix,"Mass vs MVA output (BTDG); m_{ll#gamma}; MVA Disc", 90,100,190,90,-1,1,eventWeight,"MVAPlots");
     hm->fill2DHist((GP4+ZP4).M(),mvaVal,"h2_MassVsMVA_"+params->suffix,"Mass vs MVA output (BTDG); m_{ll#gamma}; MVA Disc", 90,100,190,90,-1,1,eventWeight,"MVAPlots");
   }
