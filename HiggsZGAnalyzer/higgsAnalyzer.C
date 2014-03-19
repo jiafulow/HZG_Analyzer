@@ -784,7 +784,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
       // Section for photon energy/momentum corrections.  NOTE: this will change the pt and thus ID/ISO of photon
       
-      /*
       if(params->engCor){
         //old R9 correction
         if (params->doR9Cor) PhotonR9Corrector(*thisPhoton);
@@ -824,20 +823,18 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         }
        
       }
-      */
 
 
       ////// Currently Using Cut-Based Photon ID, 2012
 
       dumper->PhotonDump(*thisPhoton); 
-      /*
       if (particleSelector->PassPhotonID(*thisPhoton, cuts->mediumPhID)) photonsID.push_back(*thisPhoton);
       if (particleSelector->PassPhotonID(*thisPhoton, cuts->mediumPhID) && particleSelector->PassPhotonIso(*thisPhoton, cuts->mediumPhIso, cuts->EAPho)){
         //standard selection photons
         photonsIDIso.push_back(*thisPhoton);
         if (params->engCor) photonsIDIsoUnCor.push_back(*clonePhoton);
       }
-      */
+      /*
       bool goodLepPre = false;
       if (particleSelector->PassPhotonID(*thisPhoton, cuts->preSelPhID)) photonsID.push_back(*thisPhoton);
       if (params->selection == "mumuGamma"){
@@ -857,6 +854,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
         //if (params->engCor) photonsIDIsoUnCor.push_back(*clonePhoton);
       }
+      */
 
 
 
@@ -1122,7 +1120,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   if(!goodPhoton) return kTRUE;
 
   if (params->doScaleFactors){
-      //eventWeight   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
+      eventWeight   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
       if (params->suffix == "DYJets") eventWeight   *= weighter->PhotonFakeWeight(GP4.Eta(), GP4.Pt()); 
   }
   eventWeightPho   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
