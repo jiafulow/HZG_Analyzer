@@ -45,7 +45,7 @@ def GenericPlotter(inFolder, outFolder):
     plotterEl.DataBGComp2DProj(plotterEl.folderDict[key])
     plotterEl.DataBGComp2DProj(plotterEl.folderDict[key],125)
 
-def ROCPlotter():
+def ROCPlotter(suffix = '03-11-14'):
   if os.environ.get('AT_NWU') == None:
     #FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_11-18-13_anglesOnly.root")
     #FileEl= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_11-18-13_anglesOnly.root")
@@ -54,15 +54,17 @@ def ROCPlotter():
   else:
     #FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_02-04-14.root")
     #FileEl= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_02-04-14.root")
-    FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_02-18-14.root")
-    FileEl= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_02-18-14.root")
+    FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_"+suffix+".root")
+    FileEl= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_"+suffix+".root")
 
-  plotter = Plotter(FileMu, 'MVAPlots', 'ROC_MVA_02-18-14', '2012','mu','Signal2012ggM135')
+  plotter = Plotter(FileMu, 'MVAPlots', 'ROC_MVA_'+suffix, '2012','mu','Signal2012ggM135')
   for key in plotter.folderDict.keys():
+    if 'CAT5' in key: continue
     plotter.ROCcurves(plotter.folderDict[key])
     plotter.ROCcurves(plotter.folderDict[key],135)
-  plotterEl = Plotter(FileEl, 'MVAPlots', 'ROC_MVA_02-18-14', '2012','el','Signal2012ggM135')
+  plotterEl = Plotter(FileEl, 'MVAPlots', 'ROC_MVA_'+suffix, '2012','el','Signal2012ggM135')
   for key in plotterEl.folderDict.keys():
+    if 'CAT5' in key: continue
     plotterEl.ROCcurves(plotterEl.folderDict[key])
     plotterEl.ROCcurves(plotterEl.folderDict[key],135)
 
@@ -76,8 +78,8 @@ def RatioPlotter():
     #FileMu2= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_01-21-14_v9_4.root")
     #FileEl1= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_01-13-14.root")
     #FileEl2= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_01-21-14_v9_4.root")
-    #FileEl1= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_01-22-14_AndyWeight.root")
-    #FileEl2= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_01-22-14.root")
+    FileEl1= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_01-22-14_AndyWeight.root")
+    FileEl2= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_03-11-14.root")
     #FileMu1= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_01-22-14_AndyWeight.root")
     #FileMu2= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_01-22-14.root")
     FileMu = TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_02-12-14_PUTest.root")
@@ -91,11 +93,12 @@ def RatioPlotter():
     #plotterMu.RatioPlot(key,['DATA','DATA'],['nv8.2','nv9.4'])
 
   #plotterEl = Plotter([FileEl1,FileEl2], 'pT-Eta-Phi', 'ntuple8v9', '2012','el','Signal2012ggM125NLOp8')
-  #plotterEl = Plotter([FileEl1,FileEl2], 'ZGamma', 'ntuple8v9', '2012','el','Signal2012ggM125NLOp8')
-  #for key in plotterEl.folderDict[0].keys():
-    #plotterEl.RatioPlot(key,['Signal2012ggM125NLOp8','Signal2012ggM125NLOp8'],['nv8.2','nv9.4'])
-    #plotterEl.RatioPlot(key,['DATA','DATA'],['nv8.2','nv9.4'])
+  plotterEl = Plotter([FileEl1,FileEl2], 'CAT1', 'noMVAvMVA', '2012','el','Signal2012ggM125')
+  for key in plotterEl.folderDict[0].keys():
+    plotterEl.RatioPlot(key,['Signal2012ggM125','Signal2012ggM125'],['noMVA','MVA'])
+    plotterEl.RatioPlot(key,['DATA','DATA'],['noMVA','MVA'])
 
+  '''
   folders = ['Vtx']
   for folder in folders:
     plotterEl = Plotter(FileEl, folder, 'NewPuRD1', '2012','el','Signal2012ggM125')
@@ -104,17 +107,18 @@ def RatioPlotter():
     plotterMu = Plotter(FileMu, folder, 'NewPuRD1', '2012','mu','Signal2012ggM125')
     for key in plotterMu.folderDict.keys():
       plotterMu.RatioPlot(key,['DATA','Signal'],['Data','Signal'],True)
+  '''
 
 def DoAll():
   if os.environ.get('AT_NWU'):
     mainPath = '/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_'
-    suffix = '02-18-14'
+    suffix = '03-11-14'
     headDir = 'Full_'+suffix
     if not os.path.isdir(headDir):
       os.mkdir('Full_'+suffix)
     FileMu = TFile(mainPath+'MuMu2012ABCD_'+suffix+'.root','OPEN')
     FileEl = TFile(mainPath+'EE2012ABCD_'+suffix+'.root','OPEN')
-    folders = ['ZGamma','CAT1','CAT2','CAT3','CAT4','pT-Eta-Phi','MVAPlots','Misc']
+    folders = ['ZGamma','CAT1','CAT2','CAT3','CAT4','CAT5','pT-Eta-Phi','MVAPlots','Misc']
     for folder in folders:
       plotterEl = Plotter(FileEl, folder, headDir+'/'+folder+'_Ratio', '2012','el','Signal2012ggM125')
       for key in plotterEl.folderDict.keys():
@@ -137,7 +141,8 @@ if __name__=="__main__":
   if 'plot' == sys.argv[1].lower():
     GenericPlotter(sys.argv[2], sys.argv[3])
   elif 'roc' == sys.argv[1].lower():
-    ROCPlotter()
+    if sys.argv[2] != '-b': ROCPlotter(sys.argv[2])
+    else: ROCPlotter()
   elif 'ratio' == sys.argv[1].lower():
     RatioPlotter()
   elif 'all' == sys.argv[1].lower():

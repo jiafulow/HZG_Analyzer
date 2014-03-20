@@ -49,7 +49,7 @@ class ParticleSelector {
     bool PassElectronIso(const TCElectron& el, const Cuts::elIsoCuts& cutLevel, float EAEle[7]);
     bool PassPhotonID(const TCPhoton& ph, const Cuts::phIDCuts& cutLevel);
     bool PassPhotonIso(const TCPhoton& ph, const Cuts::phIsoCuts& cutLevel, float EAPho[7][3]);
-    bool PassPhotonMVA(const TCPhoton& ph); 
+    bool PassPhotonMVA(const TCPhoton& ph, const Cuts::phMVACuts& cutLevel, const bool isGoodLeptons);
     bool PassJetID(const TCJet& jet, int nVtx, const Cuts::jetIDCuts& cutLevel);
     float   Zeppenfeld(const TLorentzVector& p, const TLorentzVector& pj1, const TLorentzVector& pj2);
 

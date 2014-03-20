@@ -224,6 +224,12 @@ Cuts::Cuts():
   preSelPhID.TrkIso[1] =                   4;
   preSelPhID.ChPfIso[1] =                  4;
 
+  catPhMVAID.cutName =                     "catPhMVAID";
+  catPhMVAID.mvaValCat1 =                  0.126;
+  catPhMVAID.mvaValCat2 =                  0.107;
+  catPhMVAID.mvaValCat3 =                  0.126;
+  catPhMVAID.mvaValCat4 =                  0.135;
+
   vbfJetID.cutName =                       "vbfJetID";
   vbfJetID.betaStarC[0] =                  0.2;
   vbfJetID.dR2Mean[0] =                    0.06;

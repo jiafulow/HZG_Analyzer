@@ -123,11 +123,20 @@ class Cuts{
       string cutName;
     } loosePhIso, mediumPhIso;
 
+    struct phMVACuts{
+      float mvaValCat1;
+      float mvaValCat2;
+      float mvaValCat3;
+      float mvaValCat4;
+      string cutName;
+    } catPhMVAID;
+
     struct jetIDCuts{
       float betaStarC[2];
       float dR2Mean[4];
       string cutName;
     } vbfJetID;
+
 
     ~Cuts();
     void InitEA(string);

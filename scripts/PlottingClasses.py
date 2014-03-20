@@ -144,7 +144,7 @@ class Plotter:
     else:
       outList[1].SetLineColor(kBlue)
     outList[1].SetLineWidth(2)
-    outList[1].Scale(1/outList[1].Integral())
+    #outList[1].Scale(1/outList[1].Integral())
     return outList
 
 
@@ -203,7 +203,9 @@ class Plotter:
         bgList = [hist.ProjectionY('proj'+hist.GetName()) for hist in histList if (hist.GetName().find('DATA') == -1 and hist.GetName().find('Signal') == -1)]
     else:
       bgList = [hist.Clone() for hist in histList if (hist.GetName().find('DATA') == -1 and hist.GetName().find('Signal') == -1)]
-    if len(bgList) == 0: raise NameError('No BG hists found in this list')
+    if len(bgList) == 0:
+      bgList = None
+      return bgList
     bgList = sorted(bgList, key=lambda hist:hist.GetName()[-1], reverse=True)
     return bgList
 
@@ -236,7 +238,7 @@ class Plotter:
         if self.sigName in hist.GetName():
           signalHist= hist.Clone()
           break
-    if not signalHist: raise NameError('No signalHist found in this list')
+    if not signalHist: return signalHist
     signalHist.SetLineColor(kRed)
     signalHist.SetLineWidth(2)
     signalHist.SetFillStyle(0)
@@ -390,6 +392,8 @@ class Plotter:
       bgYield = bgStack.Integral(bin, bgStack.GetNbinsX())
       sigYield = signalHist.Integral(bin, signalHist.GetNbinsX())
       rocCurve.Fill(bgYield/bgStack.Integral(), sigYield/signalHist.Integral())
+
+
       if bin == 1:
         initialSignif = sigYield/sqrt(sigYield+bgYield)
       if sigYield+bgYield > 0:
@@ -480,6 +484,10 @@ class Plotter:
     dataHist = self.GetDataHist(histList)
     bgList = self.GetBGHists(histList)
     signalHist = self.GetSignalHist(histList)
+
+    if None in [dataHist,bgList,signalHist]:
+      print 'Missing data, signal, or bg in', histList[0].GetName().split('_')[1], 'skipping'
+      return
 
     if not os.path.isdir(self.directory):
       os.mkdir(self.directory)
@@ -707,6 +715,10 @@ class Plotter:
 
         compHists = self.ChooseTwoHists(chooseNames,histList1,histList2,norm = norm)
 
+    if compHists == None:
+      print 'Cannot find all the necessary histograms for ratio, skipping', key
+      return
+
     if not os.path.isdir(self.directory):
       os.mkdir(self.directory)
 
@@ -734,9 +746,6 @@ class Plotter:
     pad1.Draw()
     pad2.Draw()
     pad1.cd()
-    if compHists == None:
-      print 'cannot find all the necessary histograms, skipping', key
-      return
 
     if type(compHists[0]) is TProfile:
       h1 = compHists[0].ProjectionX()
@@ -755,7 +764,7 @@ class Plotter:
         else:
           plot.Draw('hist')
       else:
-        if chooseNames[1] == 'DATA' and chooseNames[2] != 'DATA':
+        if chooseNames[1] == 'DATA' and chooseNames[0] != 'DATA':
           plot.Draw('pesame')
         else:
           plot.Draw('histsame')

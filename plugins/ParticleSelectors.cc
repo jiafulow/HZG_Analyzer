@@ -591,7 +591,7 @@ bool ParticleSelector::PassPhotonIso(const TCPhoton& ph, const Cuts::phIsoCuts& 
   return isoPass;
 }
 
-bool ParticleSelector::PassPhotonMVA(const TCPhoton& ph){
+bool ParticleSelector::PassPhotonMVA(const TCPhoton& ph, const Cuts::phMVACuts& cutLevel, const bool isGoodLeptons){
   bool mvaPass = false;
   /* Photon identification with the MVA. Returns the MVA evaluated value.
    *
@@ -677,8 +677,32 @@ bool ParticleSelector::PassPhotonMVA(const TCPhoton& ph){
     if (phoPFChIsoWorst_ < ph.CiCPF4chgpfIso03()[k]) phoPFChIsoWorst_ = ph.CiCPF4chgpfIso03()[k];
   }
 
+  //find the most likely cat (cats are not assigned till further particle correction and selection,
+  //but this will work as a temporary stand-in
+  int catNum = 0;
+
+  if (isGoodLeptons && (fabs(ph.SCEta()) < 1.4442) ){
+    if (ph.R9()>= 0.94){
+      catNum = 1;
+    }else{
+      catNum = 2;
+    }
+  } else if ( fabs(ph.SCEta()) < 1.4442){
+    catNum = 3;
+  } else {
+    catNum = 4;
+  }
+
   float mvaVal = tmvaReader[iBE]->EvaluateMVA("BDT");
-  if (mvaVal > 0.128) mvaPass = true;
+  if (catNum == 1){
+    if (mvaVal > cutLevel.mvaValCat1) mvaPass = true;
+  }else if (catNum == 2){
+    if (mvaVal > cutLevel.mvaValCat2) mvaPass = true;
+  }else if (catNum == 3){
+    if (mvaVal > cutLevel.mvaValCat3) mvaPass = true;
+  }else{
+    if (mvaVal > cutLevel.mvaValCat4) mvaPass = true;
+  }
   return mvaPass;
 }
 
@@ -713,5 +737,4 @@ float ParticleSelector::Zeppenfeld(const TLorentzVector& p, const TLorentzVector
   float zep = p.Eta()-(pj1.Eta()+pj2.Eta())/2.;
   return zep;
 }
-
 

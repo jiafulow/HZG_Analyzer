@@ -17,6 +17,12 @@ set dataName=$3
 set selection=$4
 set period=$5
 set count='local'
+if ($#argv == 6) then
+  set analyzer="$6+"
+else
+  set analyzer='higgsAnalyzer.C+'
+endif
+
 
 cat > run.C << +EOF
 
@@ -90,7 +96,7 @@ cat > run.C << +EOF
     TStopwatch timer;
     timer.Start();
 
-    fChain->Process("higgsAnalyzer.C+", args.c_str());
+    fChain->Process("$analyzer", args.c_str());
 
     cout << "\n\nDone!" << endl;
     cout << "CPU Time : " << timer.CpuTime() << endl;
