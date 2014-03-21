@@ -488,7 +488,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
 
   vector<TVector3> goodVertices;
-  vector<TCPrimaryVtx> pvVect;
   int nTracks = 0;
   for (int i = 0; i < primaryVtx->GetSize(); ++i) {
     TCPrimaryVtx* pVtx = (TCPrimaryVtx*) primaryVtx->At(i);

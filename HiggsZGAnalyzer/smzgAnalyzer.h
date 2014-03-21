@@ -147,11 +147,64 @@ class smzgAnalyzer : public TSelector {
     TBranch        *b_hltPrescale;   //!
     TBranch        *b_NoiseFilters;   //!
 
-    smzgAnalyzer(TTree * /*tree*/ =0) : fChain(0) { }
+    // Defs that are user created, not templated
+
+    // For file and event counting
+    int fileCount;
+    int unskimmedEventsTotal;
+    int unskimmedEvents;
+    TFile *file0;
+    TH1F * h1_numOfEvents;
+    TTree *thisTree;
+
+    //Params and Cuts:
+    auto_ptr<Parameters> params;
+    auto_ptr<Cuts> cuts;
+
+    auto_ptr<TFile> liteFile;
+    auto_ptr<TTree> hzgTree;
+
+    auto_ptr<TVector3> pvPosition;
+
+    // Random number generator
+    auto_ptr<TRandom3> rnGenerator;
+    auto_ptr<TRandom3> rEl;
+    auto_ptr<TRandom3> rMuRun;
+
+    // Selectors
+    //GenParticleSelector genParticleSelector;
+    auto_ptr<TriggerSelector> triggerSelector;
+    auto_ptr<ParticleSelector> particleSelector;
+    ParticleSelector::genHZGParticles genHZG;
+
+    // Utilities
+    auto_ptr<WeightUtils> weighter;
+    auto_ptr<rochcor_2011> rmcor2011;
+    auto_ptr<rochcor2012> rmcor2012;
+    auto_ptr<zgamma::PhosphorCorrectionFunctor> phoCorrector;
+
+    //ElectronMVA selection
+    auto_ptr<TMVA::Reader> myTMVAReader;
+
+    //the lite branches
+    TLorentzVector muonPos;
+    TLorentzVector muonNeg;
+    TLorentzVector photon;
+
+    // Default functions
+
+    smzgAnalyzer(TTree * /*tree*/ =0) :
+      fChain(0),
+      fileCount(0),
+      unskimmedEventsTotal(0),
+      unskimmedEvents(0),
+      file0(0),
+      h1_numOfEvents(0),
+      thisTree(0) { }
     virtual ~smzgAnalyzer() { }
     virtual Int_t   Version() const { return 2; }
     virtual void    Begin(TTree *tree);
-    virtual void    SlaveBegin(TTree *tree);
+    virtual void    SlaveBegin(TTree *tree) {}
     virtual void    Init(TTree *tree);
     virtual Bool_t  Notify();
     virtual Bool_t  Process(Long64_t entry);
@@ -160,8 +213,14 @@ class smzgAnalyzer : public TSelector {
     virtual void    SetObject(TObject *obj) { fObject = obj; }
     virtual void    SetInputList(TList *input) { fInput = input; }
     virtual TList  *GetOutputList() const { return fOutput; }
-    virtual void    SlaveTerminate();
+    virtual void    SlaveTerminate() {}
     virtual void    Terminate();
+
+    //Custom Functions
+
+    static bool   P4SortCondition(const TLorentzVector& p1, const TLorentzVector& p2) {return (p1.Pt() > p2.Pt());} 
+    virtual void  PhotonR9Corrector(TCPhoton& ph);
+
 
     ClassDef(smzgAnalyzer,0);
 };
@@ -192,6 +251,7 @@ void smzgAnalyzer::Init(TTree *tree)
   beamSpot = 0;
   // Set branch addresses and branch pointers
   if (!tree) return;
+  thisTree = tree;
   fChain = tree;
   fChain->SetMakeClass(1);
 
