@@ -162,7 +162,7 @@ class smzgAnalyzer : public TSelector {
     auto_ptr<Cuts> cuts;
 
     auto_ptr<TFile> liteFile;
-    auto_ptr<TTree> hzgTree;
+    auto_ptr<TTree> zgTree;
 
     auto_ptr<TVector3> pvPosition;
 

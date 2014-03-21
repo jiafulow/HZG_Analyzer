@@ -1,41 +1,4 @@
-#!/bin/sh
-. /etc/bashrc
-export OSG_APP=/software/tier3/osg
-export SCRAM_ARCH=slc5_amd64_gcc462
-source /software/tier3/osg/cmsset_default.sh
-scramv1 project CMSSW_5_3_11_patch6
-cd CMSSW_5_3_11_patch6/src
-cmsenv
-cd ${_CONDOR_SCRATCH_DIR}
-#cd /scratch/condor
-#### Leave this blank #######
 
-#############################
-count=$1
-dataName=$2
-
-suffix=$3
-abcd=$4
-selection=$5
-period=$6
-if [$#argv == 7]
-then
-  analyzer="$7.C+"
-else
-  analyzer='higgsAnalyzer.C+'
-fi
-
-
-#cp -v /tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/stageball.tar.gz .
-tar -zxf stageball.tar.gz
-mkdir -v higgsDir
-mv -v higgsAnalyzer* higgsDir/.
-mv -v input.txt higgsDir/.
-mv -v otherHistos higgsDir/.
-cd higgsDir
-
-cat > run.C << +EOF
-    
   #include <iostream>
   #include <fstream>
   #include <string>
@@ -73,50 +36,44 @@ cat > run.C << +EOF
     gROOT->LoadMacro("AnalysisParameters.cc+");
     gROOT->LoadMacro("ParticleSelectors.cc+");
     gROOT->LoadMacro("Dumper.cc+");
-    cout<<"loading fortran"<<endl;
     gSystem->Load("libgfortran.so");
     gSystem->Load("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/hzgammaME/MCFM-6.6/obj/libmcfm_6p6.so");
     gSystem->Load("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/hzgammaME/libME.so");
-    cout<<"fortran and ME loaded"<<endl;
 
     TChain* fChain = new TChain("ntupleProducer/eventTree");
 
-    ifstream sourceFiles("input.txt");
+    ifstream sourceFiles("sourceFiles/ggM125_NWU_Sync.txt");
     string myLine;
+    int  count = 0;
+    cout<<"Adding files from ggM125_NWU_Sync to chain..."<<endl;
+
     while (sourceFiles >> myLine) {
       if (count == 0 && myLine.find("dcache")==string::npos){
-        float rhoFactor;
-		    TBranch        *b_rhoFactor;   //!
-        TFile fixFile(myLine.c_str(),"open");
-        TTree *fixTree = (TTree*)fixFile.Get("ntupleProducer/eventTree");
-        fixTree->SetBranchAddress("rhoFactor",&rhoFactor,&b_rhoFactor);
-        for(int i =0; i<fixTree->GetEntries();i++){
-          fixTree->GetEntry(i);
-        }
-        delete fixTree;
-      }
-
-      fChain->Add(myLine.c_str());      
+      float rhoFactor;
+      TBranch        *b_rhoFactor;   //!
+      TFile fixFile(myLine.c_str(),"open");
+      TTree *fixTree = (TTree*)fixFile.Get("ntupleProducer/eventTree");
+      fixTree->SetBranchAddress("rhoFactor",&rhoFactor,&b_rhoFactor);
+      for(int i =0; i<fixTree->GetEntries();i++){
+      fixTree->GetEntry(i);
     }
+    delete fixTree;
+
+    }
+    fChain->Add(myLine.c_str());      
+    ++count;
+    }
+    cout<<count<<" files added!"<<endl;
     sourceFiles.close();
 
     TStopwatch timer;
     timer.Start();
 
-    fChain->Process("$analyzer",args.c_str());
+    fChain->Process("smzgAnalyzer.C+", args.c_str());
+
+    cout << "\n\nDone!" << endl;
+    cout << "CPU Time : " << timer.CpuTime() << endl;
+    cout << "RealTime : " << timer.RealTime() << endl;
+    cout << "\n";
   }
-                                          
-+EOF
 
-root -l -b -q 'run.C("'$suffix' '$abcd' '$selection' '$period' '$dataName' '$count'")'
-
-mv *.root ../.
-rm higgsAnalyzer*
-rm ../input.txt 
-rm run.C
-rm ../process.DAT
-rm ../input.DAT
-rm ../stageball.tar.gz
-rm ../garbage.txt
-rm ../br.sm1
-rm ../br.sm2

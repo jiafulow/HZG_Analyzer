@@ -78,11 +78,11 @@ void smzgAnalyzer::Begin(TTree * tree)
 
   liteFile.reset(new TFile(("liteFile_"+params->dataname+"_"+params->selection+"_"+params->jobCount+".root").c_str(), "RECREATE"));
   liteFile->cd();
-  hzgTree.reset(new TTree(("hzTree_"+params->suffix).c_str(),"three body mass values"));
+  zgTree.reset(new TTree(("zgTree_"+params->suffix).c_str(),"three body mass values"));
 
-  hzgTree->Branch("muonPos",&muonPos);
-  hzgTree->Branch("muonNeg",&muonNeg);
-  hzgTree->Branch("photon",&photon);
+  zgTree->Branch("muonPos",&muonPos);
+  zgTree->Branch("muonNeg",&muonNeg);
+  zgTree->Branch("photon",&photon);
 }
 
 
@@ -313,7 +313,7 @@ Bool_t smzgAnalyzer::Process(Long64_t entry)
   photon = GP4;
 
   
-  hzgTree->Fill();
+  zgTree->Fill();
 
 
 
