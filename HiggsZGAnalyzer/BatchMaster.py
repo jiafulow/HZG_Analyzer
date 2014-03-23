@@ -93,6 +93,7 @@ class BatchMaster():
         checkDict[cfg._selection].append(cfg._dataName)
 
       check_txt = open('.checkfile.txt','w')
+      check_txt.write('{0}\n'.format(self._configList[0]._args.split()[-1]))
       for sel in checkDict.keys():
         check_txt.write('{0}'.format(sel))
         for data in checkDict[sel]:

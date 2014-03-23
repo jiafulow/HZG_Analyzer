@@ -11,10 +11,10 @@ from ROOT import *
 #gROOT.SetBatch()
 
 # Grab the file of interest
-myFile = TFile('../HiggsZGAnalyzer/localHistos/liteFile_ggM125_NWU_v0906_mumuGamma_local.root')
+myFile = TFile('../HiggsZGAnalyzer/liteFiles/liteFile_MuMu2012ABCD_03-23-14.root')
 
 # Grab the tree in this file (there could be more than one, but in this file there is only one tree)
-myTree = myFile.Get('zgTree_Signal2012ggM125')
+myTree = myFile.Get('zgTree_DATA')
 
 # Define an empty histogram.  TH1F means a 1D histogram for floats.  The syntax is:
 # TH1F(name, title;x;y, nBins, lowBin, highBin)

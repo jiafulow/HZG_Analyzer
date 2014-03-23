@@ -18,18 +18,18 @@ suffix=$3
 abcd=$4
 selection=$5
 period=$6
-if [$#argv == 7]
+if [ -z $7 ]
 then
-  analyzer="$7.C+"
+  analyzer='higgsAnalyzer'
 else
-  analyzer='higgsAnalyzer.C+'
+  analyzer="$7"
 fi
 
 
 #cp -v /tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/stageball.tar.gz .
 tar -zxf stageball.tar.gz
 mkdir -v higgsDir
-mv -v higgsAnalyzer* higgsDir/.
+mv -v $analyzer* higgsDir/.
 mv -v input.txt higgsDir/.
 mv -v otherHistos higgsDir/.
 cd higgsDir
@@ -103,7 +103,7 @@ cat > run.C << +EOF
     TStopwatch timer;
     timer.Start();
 
-    fChain->Process("$analyzer",args.c_str());
+    fChain->Process("$analyzer.C+",args.c_str());
   }
                                           
 +EOF
@@ -111,7 +111,7 @@ cat > run.C << +EOF
 root -l -b -q 'run.C("'$suffix' '$abcd' '$selection' '$period' '$dataName' '$count'")'
 
 mv *.root ../.
-rm higgsAnalyzer*
+rm $analyzer*
 rm ../input.txt 
 rm run.C
 rm ../process.DAT

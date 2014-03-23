@@ -7,6 +7,9 @@ def checkFiles():
     print 'where is the .checkfile.txt?! you fucked something up, I aint checkin shit. fuck you.'
     return
   infile = open(os.getenv('CMSSW_BASE')+'/src/HZG_Analyzer/HiggsZGAnalyzer/.checkfile.txt','r')
+  print
+  analyzer = infile.readline()
+  print analyzer
   for line in infile:
     selectionList = line.split()
     for dataType in selectionList[1:]:
@@ -23,9 +26,14 @@ def checkFiles():
       num2 = int(resOut.rsplit(" ")[0])
       print
       print selectionList[0], dataType
-      print ' ',num1/4,num2/3
-      if num1/4 == num2/3: print '  ALL JOBS FINISHED'
-      else: print "  SOME JOBS HAVEN'T FUCKING FINISHED GODDAMNIT!"
+      if 'smzg' in analyzer:
+        print ' ',num1,num2/3
+        if num1 == num2/3: print '  ALL JOBS FINISHED'
+        else: print "  SOME JOBS HAVEN'T FUCKING FINISHED GODDAMNIT!"
+      else:
+        print ' ',num1/4,num2/3
+        if num1/4 == num2/3: print '  ALL JOBS FINISHED'
+        else: print "  SOME JOBS HAVEN'T FUCKING FINISHED GODDAMNIT!"
 
 
 
