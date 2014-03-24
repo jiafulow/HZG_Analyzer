@@ -47,20 +47,22 @@ def DoYield(fileName, secondName = None):
       if dataType == 'Data': suffix = 'DATA'
       elif dataType == 'Signal': suffix = 'Signal2012gg'+signal
       print '    ',suffix
-      rawTotal = thisFile.Get('h1_InvariantMass_'+suffix).Integral()
+      rawTotal = thisFile.GetDirectory('ZGamma').Get('h1_InvariantMass_'+suffix).Integral()
       scaledTotal = rawTotal*LumiXSScale(suffix, lep, '2012', thisFile)
       print '      ','rawTotal: {0:.0f} scaledTotal: {1:.2f}'.format(rawTotal,scaledTotal)
 # count number of cats
       catTotal = 0
       for i in range(1,10):
-        if thisFile.Get('h1_threeBodyMassCAT'+str(i)+'_'+suffix): catTotal +=1
+        if thisFile.GetDirectory('CAT'+str(i)):
+          if thisFile.GetDirectory('CAT'+str(i)).Get('h1_threeBodyMassCAT'+str(i)+'_'+suffix):
+            catTotal +=1
 # do the cats
       rawTotalCat = [-9999]
-      for i in range(1,10):
-        if thisFile.Get('h1_threeBodyMassCAT'+str(i)+'_'+suffix):
-          rawTotalCat.append(thisFile.Get('h1_threeBodyMassCAT'+str(i)+'_'+suffix).Integral())
+      for i in range(1,catTotal+1):
+        if thisFile.GetDirectory('CAT'+str(i)).Get('h1_threeBodyMassCAT'+str(i)+'_'+suffix):
+          rawTotalCat.append(thisFile.GetDirectory('CAT'+str(i)).Get('h1_threeBodyMassCAT'+str(i)+'_'+suffix).Integral())
           scaledTotalCat = rawTotalCat[i]*LumiXSScale(suffix, lep, '2012', thisFile)
-          dataHist = thisFile.Get('h1_threeBodyMassCAT'+str(i)+'_DATA')
+          dataHist = thisFile.GetDirectory('CAT'+str(i)).Get('h1_threeBodyMassCAT'+str(i)+'_DATA')
           dataSignalCat = dataHist.Integral(dataHist.FindBin(121),dataHist.FindBin(129))
           percentage = (rawTotalCat[i]/rawTotal)*100
           signif = scaledTotalCat/sqrt(scaledTotalCat+dataSignalCat)
