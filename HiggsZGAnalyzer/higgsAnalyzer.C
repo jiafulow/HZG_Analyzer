@@ -865,6 +865,22 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     sort(photonsID.begin(), photonsID.end(), P4SortCondition);
     sort(photonsIDIso.begin(), photonsIDIso.end(), P4SortCondition);
   }
+    if (electronsID.size() >0 && photonsID.size() > 0){
+      for (Int_t i = 0; i < electronsID.size(); i++) {
+        hm->fill1DHist(electronsID[i].PfIsoPhoton()/electronsID[i].Pt(),"h1_elePfPhoIsoOelePt_"+params->suffix, "ID'd electron pf photon iso/ electron pt; pt ratio; N_{evts}", 40, 0, 2, 1,"Misc");
+        for (Int_t j = 0; j < photonsID.size(); j++) {
+          if (electronsID[i].DeltaR(photonsID[j])<0.4 ){
+            hm->fill1DHist(electronsID[i].PfIsoPhoton()/photonsID[j].Pt(),"h1_elePfPhoIsoOphoPt_"+params->suffix, "ID'd electron pf photon iso/ photon pt; pt ratio; N_{evts}", 40, 0, 2, 1,"Misc");
+          }
+        }
+      }
+      for (Int_t i = 0; i < photonsID.size(); i++) {
+        hm->fill1DHist(photonsID[i].PfIsoPhoton()/photonsID[i].Pt(),"h1_phoPfPhoIsoOphoPt_"+params->suffix, "ID'd photon pf photon iso/ photon pt; pt ratio; N_{evts}", 40, 0, 2, 1,"Misc");
+      }
+    }
+
+
+
 
   //////////
   // Jets //
