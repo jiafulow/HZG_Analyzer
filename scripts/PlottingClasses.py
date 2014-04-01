@@ -147,6 +147,83 @@ class Plotter:
     #outList[1].Scale(1/outList[1].Integral())
     return outList
 
+  def ChooseNHists(self,chooseNames,histList, histList2, histList3, norm = True):
+    outList = []
+    for hist in histList: print hist.GetName()
+    if chooseNames[0].lower() == 'bg' or chooseNames[0].lower() == 'background':
+      bgList = self.GetBGHists(histList)
+      bgHist = bgList[0].Clone()
+      bgHist.Reset()
+      for hist in bgList:
+        label = hist.GetName().split('_')[-1]
+        scale = self.LumiXSScale(label)
+        hist.Scale(scale)
+        bgHist.Add(hist)
+      outList.append(bgHist)
+    else:
+      for hist in histList:
+        if chooseNames[0] in hist.GetName():
+          outList.append(hist.Clone())
+          break
+
+    if chooseNames[1].lower() == 'bg' or chooseNames[1].lower() == 'background':
+      bgList = self.GetBGHists(histList2)
+      bgHist = bgList[0].Clone()
+      bgHist.Reset()
+      for hist in bgList:
+        label = hist.GetName().split('_')[-1]
+        scale = self.LumiXSScale(label)
+        hist.Scale(scale)
+        bgHist.Add(hist)
+      outList.append(bgHist)
+    else:
+      for hist in histList2:
+        if chooseNames[1] in hist.GetName():
+          outList.append(hist.Clone())
+          break
+
+    if chooseNames[2].lower() == 'bg' or chooseNames[2].lower() == 'background':
+      bgList = self.GetBGHists(histList3)
+      bgHist = bgList[0].Clone()
+      bgHist.Reset()
+      for hist in bgList:
+        label = hist.GetName().split('_')[-1]
+        scale = self.LumiXSScale(label)
+        hist.Scale(scale)
+        bgHist.Add(hist)
+      outList.append(bgHist)
+    else:
+      for hist in histList3:
+        if chooseNames[2] in hist.GetName():
+          outList.append(hist.Clone())
+          break
+
+    if len(outList) != 3:
+      outList = None
+      return outList
+
+    if norm:
+      outList[0].Scale(1/outList[0].Integral())
+      outList[1].Scale(1/outList[1].Integral())
+      outList[2].Scale(1/outList[2].Integral())
+
+    ymax = max(map(lambda x:x.GetMaximum(),outList))*1.1
+    ymin = 0
+    outList[0].SetMaximum(ymax)
+    outList[0].SetMinimum(ymin)
+    outList[0].SetLineColor(kBlue)
+    outList[0].SetLineWidth(2)
+    outList[0].GetYaxis().SetTitleOffset(0.82)
+    outList[0].GetYaxis().SetTitleSize(0.06)
+    outList[0].GetYaxis().CenterTitle()
+    outList[0].GetXaxis().SetTitleSize(0.05)
+
+    outList[1].SetLineColor(kRed)
+    outList[1].SetLineWidth(2)
+
+    outList[2].SetLineColor(kBlack)
+    outList[2].SetLineWidth(2)
+    return outList
 
   def GetDataHist(self,histList,sigWindow = False):
     dataHist = None
@@ -802,6 +879,55 @@ class Plotter:
     zero.Draw()
     if chooseNames[0] == chooseNames[1]: ratioNames = chooseNames[0]
     else: ratioNames = chooseNames[0]+chooseNames[1]
+    self.can.SaveAs(self.directory+'/'+self.lepton+self.lepton+'_'+compHists[0].GetName().split('_')[1]+
+            '_'+ratioNames+'.pdf')
+    self.can.IsA().Destructor(self.can)
+
+  def MultiPlots(self, key, chooseNames, legendNames, norm = False):
+    '''Get N plots, normalize them, plot them'''
+    if type(self.thisFile) != list:
+      print 'must have lists of files'
+    else:
+      histList1 = self.folderDict[0][key]
+      histList2 = self.folderDict[1][key]
+      histList3 = self.folderDict[2][key]
+      if len(histList1) == 0: raise NameError('histList1 is empty')
+      if len(histList2) == 0: raise NameError('histList2 is empty')
+      if len(histList3) == 0: raise NameError('histList2 is empty')
+      gStyle.SetOptStat(0)
+      if histList1[0].GetName().split('_')[0] == 'h2':
+        print 'skipping ratio plot for', histList1[0].GetName()
+        return
+      if histList2[0].GetName().split('_')[0] == 'h2':
+        print 'skipping ratio plot for', histList2[0].GetName()
+        return
+      if histList3[0].GetName().split('_')[0] == 'h2':
+        print 'skipping ratio plot for', histList2[0].GetName()
+        retuN
+      compHists = self.ChooseNHists(chooseNames,histList1,histList2,histList3,norm = norm)
+
+    if compHists == None:
+      print 'Cannot find all the necessary histograms for ratio, skipping', key
+      return
+
+    if not os.path.isdir(self.directory):
+      os.mkdir(self.directory)
+
+    TH1.SetDefaultSumw2(kTRUE)
+    TProfile.SetDefaultSumw2(kTRUE)
+
+    self.can= TCanvas('multiCan','canvas',800,600)
+    self.can.cd()
+    leg = self.MakeLegend(0.8,0.73,0.95,0.90)
+    for i,plot in enumerate(compHists):
+      if i ==0:
+        plot.Draw('hist')
+      else:
+        plot.Draw('histsame')
+      leg.AddEntry(plot,legendNames[i],'l')
+    leg.Draw()
+
+    ratioNames = chooseNames[0]+chooseNames[1]+chooseNames[2]
     self.can.SaveAs(self.directory+'/'+self.lepton+self.lepton+'_'+compHists[0].GetName().split('_')[1]+
             '_'+ratioNames+'.pdf')
     self.can.IsA().Destructor(self.can)

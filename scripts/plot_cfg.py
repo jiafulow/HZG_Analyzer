@@ -112,13 +112,13 @@ def RatioPlotter():
 def DoAll():
   if os.environ.get('AT_NWU'):
     mainPath = '/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_'
-    suffix = '03-11-14'
+    suffix = '03-19-14_Proper'
     headDir = 'Full_'+suffix
     if not os.path.isdir(headDir):
       os.mkdir('Full_'+suffix)
     FileMu = TFile(mainPath+'MuMu2012ABCD_'+suffix+'.root','OPEN')
     FileEl = TFile(mainPath+'EE2012ABCD_'+suffix+'.root','OPEN')
-    folders = ['ZGamma','CAT1','CAT2','CAT3','CAT4','CAT5','pT-Eta-Phi','MVAPlots','Misc']
+    folders = ['ZGamma','CAT1','CAT2','CAT3','CAT4','CAT5','pT-Eta-Phi','MVAPlots','Misc','ZGAngles_RECO']
     for folder in folders:
       plotterEl = Plotter(FileEl, folder, headDir+'/'+folder+'_Ratio', '2012','el','Signal2012ggM125')
       for key in plotterEl.folderDict.keys():
@@ -126,14 +126,33 @@ def DoAll():
         plotterEl.directory = headDir+'/'+folder
         plotterEl.DataBGComp(plotterEl.folderDict[key])
         plotterEl.DataBGComp2DProj(plotterEl.folderDict[key])
-      plotterMu = Plotter(FileMu, folder, headDir+'/'+folder+'_Ratio', '2012','mu','Signal2012ggM125')
-      for key in plotterMu.folderDict.keys():
-        plotterMu.RatioPlot(key,['DATA','Signal'],['Data','Signal'],True)
-        plotterMu.directory = headDir+'/'+folder
-        plotterMu.DataBGComp(plotterMu.folderDict[key])
-        plotterMu.DataBGComp2DProj(plotterMu.folderDict[key])
+      #plotterMu = Plotter(FileMu, folder, headDir+'/'+folder+'_Ratio', '2012','mu','Signal2012ggM125')
+      #for key in plotterMu.folderDict.keys():
+        #plotterMu.RatioPlot(key,['DATA','Signal'],['Data','Signal'],True)
+        #plotterMu.directory = headDir+'/'+folder
+        #plotterMu.DataBGComp(plotterMu.folderDict[key])
+        #plotterMu.DataBGComp2DProj(plotterMu.folderDict[key])
   else: print 'this is not set up for FNAL'
 
+def DoMulti():
+  if os.environ.get('AT_NWU'):
+    mainPath = '/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_'
+    suffix1 = '03-19-14_Proper'
+    suffix2 = '03-31-14_PhoMVA'
+    suffix3 = '03-31-14_PhoKinMVA'
+    headDir = '_'.join(['Multi',suffix1,suffix2,suffix3])
+    if not os.path.isdir(headDir):
+      os.mkdir(headDir)
+    FileMu1 = TFile(mainPath+'MuMu2012ABCD_'+suffix1+'.root','OPEN')
+    FileMu2 = TFile(mainPath+'MuMu2012ABCD_'+suffix2+'.root','OPEN')
+    FileMu3 = TFile(mainPath+'MuMu2012ABCD_'+suffix3+'.root','OPEN')
+    #FileEl = TFile(mainPath+'EE2012ABCD_'+suffix+'.root','OPEN')
+    folders = ['ZGamma','CAT1','CAT2','CAT3','CAT4','CAT5','pT-Eta-Phi','ZGAngles_RECO']
+    for folder in folders:
+      plotterMu = Plotter([FileMu1,FileMu2,FileMu3], folder, headDir+'/'+folder, '2012','mu','Signal2012ggM125')
+      for key in plotterMu.folderDict[0].keys():
+        plotterMu.MultiPlots(key,['Signal','Signal','Signal'],['Nominal','PhoMVA','BothMVA'],False)
+  else: print 'this is not set up for FNAL'
 
 
 if __name__=="__main__":
@@ -147,3 +166,5 @@ if __name__=="__main__":
     RatioPlotter()
   elif 'all' == sys.argv[1].lower():
     DoAll()
+  elif 'multi' == sys.argv[1].lower():
+    DoMulti()

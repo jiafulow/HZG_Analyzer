@@ -827,13 +827,14 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       ////// Currently Using Cut-Based Photon ID, 2012
 
       dumper->PhotonDump(*thisPhoton); 
+      /*
       if (particleSelector->PassPhotonID(*thisPhoton, cuts->mediumPhID)) photonsID.push_back(*thisPhoton);
       if (particleSelector->PassPhotonID(*thisPhoton, cuts->mediumPhID) && particleSelector->PassPhotonIso(*thisPhoton, cuts->mediumPhIso, cuts->EAPho)){
         //standard selection photons
         photonsIDIso.push_back(*thisPhoton);
         if (params->engCor) photonsIDIsoUnCor.push_back(*clonePhoton);
       }
-      /*
+      */
       bool goodLepPre = false;
       if (particleSelector->PassPhotonID(*thisPhoton, cuts->preSelPhID)) photonsID.push_back(*thisPhoton);
       if (params->selection == "mumuGamma"){
@@ -853,7 +854,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
         //if (params->engCor) photonsIDIsoUnCor.push_back(*clonePhoton);
       }
-      */
 
 
 
@@ -1408,8 +1408,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   if (params->doAnglesMVA){
     float mvaVal = MVACalculator(mvaInits, tmvaReader);
-    /*
     //with photon mva (good with seperation)
+    /*
     if (params->selection == "mumuGamma"){
       if (catNum ==1){
         if (mvaVal < -0.13) catNum = 6;
