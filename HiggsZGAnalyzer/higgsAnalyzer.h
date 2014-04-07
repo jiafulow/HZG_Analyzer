@@ -335,6 +335,8 @@ class higgsAnalyzer : public TSelector {
       float _SCPSEOPt;
     } mvaVars; 
 
+    virtual void    MVAPlots(mvaVarStruct _mvaVars, float eventWeight, string tag, string folder);
+
     TMVA::Reader*   MVAInitializer();
     float MVACalculator (mvaInitStruct inits, TMVA::Reader* _tmvaReader);
 

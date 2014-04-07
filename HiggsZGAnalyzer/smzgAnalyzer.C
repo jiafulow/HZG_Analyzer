@@ -285,11 +285,10 @@ Bool_t smzgAnalyzer::Process(Long64_t entry)
   int            lepton1int =-1;
   int            lepton2int =-1;
   TLorentzVector ZP4; 
+  TLorentzVector HP4; 
 
-  bool goodZ = particleSelector->FindGoodZMuon(muonsIDIso,lepton1,lepton2,ZP4,lepton1int,lepton2int);
+  bool goodZ = particleSelector->FindGoodZMuon(muonsIDIso,lepton1,lepton2,ZP4,lepton1int,lepton2int,0.0);
   if (!goodZ) return kTRUE;
-
-  if (ZP4.M() < 50) return kTRUE;
 
 
   // good photon
@@ -299,6 +298,9 @@ Bool_t smzgAnalyzer::Process(Long64_t entry)
   if (photonsIDIso.size() < 1) return kTRUE;
   bool goodPhoton = particleSelector->FindGoodPhoton(photonsIDIso, GP4, lepton1, lepton2, GP4scEta, vetoPhotons);
   if(!goodPhoton) return kTRUE;
+
+  HP4 = ZP4+GP4;
+  if (HP4.M() < 50) return kTRUE;
 
 
   // put them in the branch

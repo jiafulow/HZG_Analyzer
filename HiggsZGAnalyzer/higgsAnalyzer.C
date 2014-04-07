@@ -1437,6 +1437,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     hm->fill2DHist((GP4+ZP4).M(),mvaVal,"h2_MassVsMVA_"+params->suffix,"Mass vs MVA output (BTDG); m_{ll#gamma}; MVA Disc", 90,100,190,90,-1,1,eventWeight,"MVAPlots");
   }
 
+  MVAPlots(mvaVars,eventWeight,"CAT"+str(catNum)+"", "CAT"+str(catNum)+"");
 
   hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsME_"+params->suffix,"Mass vs ME; m_{ll#gamma}; ME Disc", 90,100,190,90,0,0.2,eventWeight,"MEPlots");
   hm->fill1DHist(MEdisc,"h1_ME_"+params->suffix,"ME Disc;ME Disc;Entries", 45,0,0.2,eventWeight,"MEPlots");
@@ -1817,6 +1818,21 @@ void higgsAnalyzer::StandardPlots(TLorentzVector p1, TLorentzVector p2, TLorentz
     if ((triggerStatus & iHLT) == iHLT) hm->fill1DHist(i+1,"h1_triggerStatus"+tag+"_"+params->suffix, "Triggers (no weight)", 64, 0.5, 64.5,1,"Misc");  
   } 
 }
+
+void higgsAnalyzer::MVAPlots(mvaVarStruct _mvaVars, float eventWeight, string tag, string folder)
+{
+  hm->fill1DHist(_mvaVars._smallTheta,"h1_smallTheta"+tag+"_"+params->suffix, "smallTheta;;N_{evts}", 30, 0., 1., eventWeight,folder);     
+  hm->fill1DHist(_mvaVars._bigTheta,"h1_bigTheta"+tag+"_"+params->suffix, "bigTheta;;N_{evts}", 30, 0., 1., eventWeight,folder);     
+  hm->fill1DHist(_mvaVars._comPhi,"h1_comPhi"+tag+"_"+params->suffix, "comPhi;;N_{evts}", 30, -3.2, 3.2, eventWeight,folder);     
+  hm->fill1DHist(_mvaVars._threeBodyPtOM,"h1_threeBodyPtOM"+tag+"_"+params->suffix, "threeBodyPtOM;;N_{evts}", 30, 0., 1., eventWeight,folder);     
+  hm->fill1DHist(_mvaVars._R9,"h1_R9"+tag+"_"+params->suffix, "R9;;N_{evts}", 30, 0., 1.1, eventWeight,folder);     
+  hm->fill1DHist(_mvaVars._sieip,"h1_sieip"+tag+"_"+params->suffix, "sieip;;N_{evts}", 30, -1., 1., eventWeight,folder);     
+  hm->fill1DHist(_mvaVars._sipip,"h1_sipip"+tag+"_"+params->suffix, "sipip;;N_{evts}", 30, 0., 0.007, eventWeight,folder);     
+  hm->fill1DHist(_mvaVars._SCRawEOPt,"h1_SCRawEOPt"+tag+"_"+params->suffix, "SCRawEOPt;;N_{evts}", 30, 0.9, 7., eventWeight,folder);     
+  hm->fill1DHist(_mvaVars._SCPSEOPt,"h1_SCPSEOPt"+tag+"_"+params->suffix, "SCPSEOPt;;N_{evts}", 30, 0., 0.8, eventWeight,folder);     
+  hm->fill1DHist(_mvaVars._e2x2O5x5,"h1_e2x2O5x5"+tag+"_"+params->suffix, "e2x2O5x5;;N_{evts}", 30, 0., 2., eventWeight,folder);     
+}
+
 
 void higgsAnalyzer::AnglePlots(ZGAngles &zga,float eventWeight, string folder, string tag)
 {

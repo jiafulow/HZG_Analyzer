@@ -902,7 +902,7 @@ class Plotter:
         print 'skipping ratio plot for', histList2[0].GetName()
         return
       if histList3[0].GetName().split('_')[0] == 'h2':
-        print 'skipping ratio plot for', histList2[0].GetName()
+        print 'skipping ratio plot for', histList3[0].GetName()
         retuN
       compHists = self.ChooseNHists(chooseNames,histList1,histList2,histList3,norm = norm)
 
