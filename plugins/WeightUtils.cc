@@ -566,12 +566,15 @@ float WeightUtils::MuonTriggerWeight(TLorentzVector l1, TLorentzVector l2)
 
 }
 
-float WeightUtils::ElectronTriggerWeight(TLorentzVector l1, TLorentzVector l2) 
+float WeightUtils::ElectronTriggerWeight(TLorentzVector l1, TLorentzVector l2, bool approx) 
 {
+  if (_isRealData) return 1.0;
 
  ///////////////////
  // Scale Factors //
  ///////////////////
+ 
+ //old S10 stuff
  
  float  _HLTEl17El8_8Leg2012[3][6] = {  
     //10<pt<15  15<pt<20  20<pt<30  30<pt<40  40<pt<50  50<pt
@@ -600,6 +603,19 @@ float WeightUtils::ElectronTriggerWeight(TLorentzVector l1, TLorentzVector l2)
     {0.9953,    0.9973,   0.9971,   0.9979}, // |eta| < 1.4442, leading 
     {0.9860,    1.0014,   0.9999,   1.0017}  // |eta| > 1.566, leading 
   };
+
+  //new RD1 stuff
+
+  float _HLTEl17El18_BothLegs[5][6] = {
+    //10<pt<15  15<pt<20  20<pt<30  30<pt<40  40<pt<50  50<pt
+    {1.005,     1.007,    1.003,    1.002,    1.000,    0.999}, // |eta| < 0.08
+    {1.005,     0.999,    0.998,    0.998,    0.997,    0.997}, // 0.80 < |eta| < 1.44
+    {0.984,     0.999,    1.003,    1.002,    0.999,    0.998}, // 1.44 < |eta| < 1.57
+    {1.006,     0.999,    1.002,    1.001,    1.000,    1.000}, // 1.57 < |eta| < 2.00
+    {0.995,     0.995,    1.005,    1.006,    1.003,    1.003}  // 2.00 < |eta| < 2.50
+  };
+    
+
 
  //////////////////
  // Efficiencies //
@@ -654,85 +670,111 @@ float WeightUtils::ElectronTriggerWeight(TLorentzVector l1, TLorentzVector l2)
     {0.977215,    0.986849,   0.992508,   0.993102}  // |eta| > 1.566, leading 
   };
 
- 
-  float elTrigSF1 = 1.0;
-  float elTrigSF2 = 1.0;
+  if (_params.suffix.find("S10") != string::npos){
+    //using old scalefactors
 
-  float elTrigDataA8 = 1.0;
-  float elTrigDataA17 = 1.0;
-  float elTrigDataB8 = 1.0;
-  float elTrigDataB17 = 1.0;
+    float elTrigSF1 = 1.0;
+    float elTrigSF2 = 1.0;
 
-  float elTrigMCA8 = 1.0;
-  float elTrigMCA17 = 1.0;
-  float elTrigMCB8 = 1.0;
-  float elTrigMCB17 = 1.0;
+    float elTrigDataA8 = 1.0;
+    float elTrigDataA17 = 1.0;
+    float elTrigDataB8 = 1.0;
+    float elTrigDataB17 = 1.0;
 
-  if (_isRealData) return 1.0;
+    float elTrigMCA8 = 1.0;
+    float elTrigMCA17 = 1.0;
+    float elTrigMCB8 = 1.0;
+    float elTrigMCB17 = 1.0;
 
-  int ptBin1 = 0;
-  int etaBin1 = 0;
-  int ptBin2 = 0;
-  int etaBin2 = 0;
-  float binningPt1[] = {20., 30., 40., 50., 9999.};
-  float binningPt2[] = {10., 15., 20., 30., 40., 50., 9999.};
-  if (fabs(l1.Eta()) < 1.4442) {
-    etaBin1 = 0;
-  }else if (fabs(l1.Eta()) < 1.566){
-    etaBin1 = 1;
-  }else{
-    etaBin1 = 2;
-  }
 
-  for (int i = 0; i < 4; ++i) {
-    if (l1.Pt() > binningPt1[i] && l1.Pt() <= binningPt1[i+1]) {
-      ptBin1 = i;
-      break;
+    int ptBin1 = 0;
+    int etaBin1 = 0;
+    int ptBin2 = 0;
+    int etaBin2 = 0;
+    float binningPt1[] = {20., 30., 40., 50., 9999.};
+    float binningPt2[] = {10., 15., 20., 30., 40., 50., 9999.};
+    if (fabs(l1.Eta()) < 1.4442) {
+      etaBin1 = 0;
+    }else if (fabs(l1.Eta()) < 1.566){
+      etaBin1 = 1;
+    }else{
+      etaBin1 = 2;
     }
-  }
 
-  if (fabs(l2.Eta()) < 1.4442) {
-    etaBin2 = 0;
-  }else if (fabs(l2.Eta()) < 1.566){
-    etaBin2 = 1;
-  }else{
-    etaBin2 = 2;
-  }
-
-  for (int i = 0; i < 6; ++i) {
-    if (l2.Pt() > binningPt2[i] && l2.Pt() <= binningPt2[i+1]) {
-      ptBin2 = i;
-      break;
+    for (int i = 0; i < 4; ++i) {
+      if (l1.Pt() > binningPt1[i] && l1.Pt() <= binningPt1[i+1]) {
+        ptBin1 = i;
+        break;
+      }
     }
-  }
 
-  if (_params.period.find("2011") != string::npos){
-    elTrigSF1 = _HLTEl17El8_17Leg2011[etaBin1][ptBin1];
-    elTrigSF2 = _HLTEl17El8_8Leg2011[etaBin2][ptBin2];
-    //elTrigDataA17 = _DataEff_HLTEl17El8_17Leg2011[etaBin1][ptBin1];
-    //elTrigDataB17 = _DataEff_HLTEl17El8_17Leg2011[etaBin2][ptBin2-2];
-    //elTrigDataA8 = _DataEff_HLTEl17El8_8Leg2011[etaBin1][ptBin1+2];
-    //elTrigDataB8 = _DataEff_HLTEl17El8_8Leg2011[etaBin2][ptBin2];
-    //elTrigMCA17 = _MCEff_HLTEl17El8_17Leg2011[etaBin1][ptBin1];
-    //elTrigMCB17 = _MCEff_HLTEl17El8_17Leg2011[etaBin2][ptBin2-2];
-    //elTrigMCA8 = _MCEff_HLTEl17El8_8Leg2011[etaBin1][ptBin1+2];
-    //elTrigMCB8 = _MCEff_HLTEl17El8_8Leg2011[etaBin2][ptBin2];
+    if (fabs(l2.Eta()) < 1.4442) {
+      etaBin2 = 0;
+    }else if (fabs(l2.Eta()) < 1.566){
+      etaBin2 = 1;
+    }else{
+      etaBin2 = 2;
+    }
+
+    for (int i = 0; i < 6; ++i) {
+      if (l2.Pt() > binningPt2[i] && l2.Pt() <= binningPt2[i+1]) {
+        ptBin2 = i;
+        break;
+      }
+    }
+
+    if (_params.period.find("2011") != string::npos){
+      elTrigSF1 = _HLTEl17El8_17Leg2011[etaBin1][ptBin1];
+      elTrigSF2 = _HLTEl17El8_8Leg2011[etaBin2][ptBin2];
+      elTrigDataA17 = _DataEff_HLTEl17El8_17Leg2011[etaBin1][ptBin1];
+      elTrigDataB17 = _DataEff_HLTEl17El8_17Leg2011[etaBin2][ptBin2-2];
+      elTrigDataA8 = _DataEff_HLTEl17El8_8Leg2011[etaBin1][ptBin1+2];
+      elTrigDataB8 = _DataEff_HLTEl17El8_8Leg2011[etaBin2][ptBin2];
+      elTrigMCA17 = _MCEff_HLTEl17El8_17Leg2011[etaBin1][ptBin1];
+      elTrigMCB17 = _MCEff_HLTEl17El8_17Leg2011[etaBin2][ptBin2-2];
+      elTrigMCA8 = _MCEff_HLTEl17El8_8Leg2011[etaBin1][ptBin1+2];
+      elTrigMCB8 = _MCEff_HLTEl17El8_8Leg2011[etaBin2][ptBin2];
+    }else{
+      elTrigSF1 = _HLTEl17El8_17Leg2012[etaBin1][ptBin1];
+      elTrigSF2 = _HLTEl17El8_8Leg2012[etaBin2][ptBin2];
+      elTrigDataA17 = _DataEff_HLTEl17El8_17Leg2012[etaBin1][ptBin1];
+      elTrigDataB17 = _DataEff_HLTEl17El8_17Leg2012[etaBin2][ptBin2-2];
+      elTrigDataA8 = _DataEff_HLTEl17El8_8Leg2012[etaBin1][ptBin1+2];
+      elTrigDataB8 = _DataEff_HLTEl17El8_8Leg2012[etaBin2][ptBin2];
+      elTrigMCA17 = _MCEff_HLTEl17El8_17Leg2012[etaBin1][ptBin1];
+      elTrigMCB17 = _MCEff_HLTEl17El8_17Leg2012[etaBin2][ptBin2-2];
+      elTrigMCA8 = _MCEff_HLTEl17El8_8Leg2012[etaBin1][ptBin1+2];
+      elTrigMCB8 = _MCEff_HLTEl17El8_8Leg2012[etaBin2][ptBin2];
+    }
+
+    if (approx){
+      return elTrigSF1*elTrigSF2;
+    }else{
+      return (elTrigDataA8*elTrigDataB17 + elTrigDataA17*elTrigDataB8 - elTrigDataA17*elTrigDataB17)/
+        (elTrigMCA8*elTrigMCB17 + elTrigMCA17*elTrigMCB8 - elTrigMCA17*elTrigMCB17);
+    }
   }else{
-    elTrigSF1 = _HLTEl17El8_17Leg2012[etaBin1][ptBin1];
-    elTrigSF2 = _HLTEl17El8_8Leg2012[etaBin2][ptBin2];
-    //elTrigDataA17 = _DataEff_HLTEl17El8_17Leg2012[etaBin1][ptBin1];
-    //elTrigDataB17 = _DataEff_HLTEl17El8_17Leg2012[etaBin2][ptBin2-2];
-    //elTrigDataA8 = _DataEff_HLTEl17El8_8Leg2012[etaBin1][ptBin1+2];
-    //elTrigDataB8 = _DataEff_HLTEl17El8_8Leg2012[etaBin2][ptBin2];
-    //elTrigMCA17 = _MCEff_HLTEl17El8_17Leg2012[etaBin1][ptBin1];
-    //elTrigMCB17 = _MCEff_HLTEl17El8_17Leg2012[etaBin2][ptBin2-2];
-    //elTrigMCA8 = _MCEff_HLTEl17El8_8Leg2012[etaBin1][ptBin1+2];
-    //elTrigMCB8 = _MCEff_HLTEl17El8_8Leg2012[etaBin2][ptBin2];
-  }
+    // use new SFs
+    float binningPt[] = {10., 15., 20., 30., 40., 50., 9999.};
+    float binningEta[] = {0., 0.8, 1.44, 1.57, 2.0, 2.5}; 
+    int ptBin1 = -99;
+    int etabin1 = -99;
+    int ptBin2 = -99;
+    int etabin2 = -99;
+    float elTrigSF1 = elTrigSF2 = 1.0;
+    for (int i = 0; i < 6; ++i){
+      if (l1.Pt() > binningPt[i] && l1.Pt() < binningPt[i+1]) ptBin1 = i;
+    }
+    for (int i = 0; i < 6; ++i){
+      if (l2.Pt() > binningPt[i] && l2.Pt() < binningPt[i+1]) ptBin2 = i;
+    }
+    for (int i = 0; i < 5; ++i){
+      if (fabs(l1.Eta()) > binningEta[i] && fabs(l1.Eta()) < binningEta[i+1]) etaBin1 = i;
+    }
+    for (int i = 0; i < 5; ++i){
+      if (fabs(l2.Eta()) > binningEta[i] && fabs(l2.Eta()) < binningEta[i+1]) etaBin2 = i;
+    }
 
-  //return (elTrigDataA8*elTrigDataB17 + elTrigDataA17*elTrigDataB8 - elTrigDataA17*elTrigDataB17)/
-  //       (elTrigMCA8*elTrigMCB17 + elTrigMCA17*elTrigMCB8 - elTrigMCA17*elTrigMCB17);
-  return elTrigSF1*elTrigSF2;
 }
 
 

@@ -182,6 +182,33 @@ bool ParticleSelector::FindGoodZMuon(const vector<TCMuon>& muonList, TCPhysObjec
   }
   return goodZ;
 }
+
+bool ParticleSelector::FindGoodZMuon(const vector<TCMuon>& muonList1, const vector<TCMuon>& muonList2, TCPhysObject& lepton1, TCPhysObject& lepton2, TLorentzVector& ZP4, int& int1, int& int2, float diLepMass){
+  // for finding 1 iso and 1 non iso muon
+  TLorentzVector tmpZ;
+  bool goodZ = false;
+  float ZmassDiff=99999;
+  for(unsigned int i =0; i<muonList1.size(); i++){
+    if (muonList1[i].Pt() > _cuts.leadMuPt){
+      for(unsigned int j =0; j<muonList2.size(); j++){
+        if (muonList2[j].Pt() > _cuts.trailMuPt && muonList2[j].Charge() != muonList1[i].Charge()){
+          goodZ = true;
+          tmpZ = (muonList1[i]+muonList2[j]);
+          if(fabs(diLepMass-tmpZ.M()) < ZmassDiff){
+            ZP4 = (muonList1[i]+muonList2[j]);
+            lepton1 = muonList1[i];
+            lepton2 = muonList2[j];
+            int1 = i;
+            int2 = j;
+            ZmassDiff = fabs(diLepMass-tmpZ.M());
+          }
+        }
+      }
+    }
+  }
+  return goodZ;
+}
+
 bool ParticleSelector::FindGoodPhoton(const vector<TCPhoton>& photonList, TCPhoton& gamma, const TCPhysObject& lepton1, const TCPhysObject& lepton2, float& scEta, const vector<TCGenParticle>& vetoPhotons){
   bool goodPhoton = false;
   for (UInt_t i = 0; i<photonList.size(); i++){

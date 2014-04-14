@@ -267,13 +267,14 @@ Bool_t smzgAnalyzer::Process(Long64_t entry)
   // 2 good muons
   
 
-  if (muonsIDIso.size() < 2) return kTRUE;
+  if (muonsID.size() < 2) return kTRUE;
+  if (muonsIDIso.size() < 1) return kTRUE;
   bool firstMu = false;
   bool bothMus = false;
-  for (UInt_t i = 0; i<muonsIDIso.size(); i++){
-    if (!firstMu && (muonsIDIso[i].Pt() >cuts->trailMuPt)){
+  for (UInt_t i = 0; i<muonsID.size(); i++){
+    if (!firstMu && (muonsID[i].Pt() >cuts->trailMuPt)){
       firstMu = true;
-    }else if (firstMu && (muonsIDIso[i].Pt() >cuts->trailMuPt)){
+    }else if (firstMu && (muonsID[i].Pt() >cuts->trailMuPt)){
       bothMus = true;
       break;
     }

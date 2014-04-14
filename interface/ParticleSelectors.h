@@ -25,6 +25,7 @@ class ParticleSelector {
     bool FindGoodZElectron(const vector<TCElectron>& electronList, TCPhysObject& lepton1, TCPhysObject& lepton2, TLorentzVector& ZP4, float& eta1, float& eta2, int& int1, int& int2); 
     bool FindGoodZMuon(const vector<TCMuon>& muonList, TCPhysObject& lepton1, TCPhysObject& lepton2, TLorentzVector& ZP4, int& int1, int& int2); 
     bool FindGoodZMuon(const vector<TCMuon>& muonList, TCPhysObject& lepton1, TCPhysObject& lepton2, TLorentzVector& ZP4, int& int1, int& int2, float diLepMass); 
+    bool FindGoodZMuon(const vector<TCMuon>& muonList1, const vector<TCMuon>& muonList2, TCPhysObject& lepton1, TCPhysObject& lepton2, TLorentzVector& ZP4, int& int1, int& int2, float diLepMass); 
     bool FindGoodZElectron(vector<TCElectron>& electronList, const vector<TCElectron>& uncorElectronList, TCPhysObject& lepton1, TCPhysObject& lepton2, TLorentzVector& uncorLepton1, TLorentzVector& uncorLepton2, TLorentzVector& ZP4, float& eta1, float& eta2, int& int1, int& int2); 
     bool FindGoodZMuon(const vector<TCMuon>& muonList, const vector<TCMuon>& uncorMuonList, TCPhysObject& lepton1, TCPhysObject& lepton2, TLorentzVector& uncorLepton1, TLorentzVector& uncorLepton2, TLorentzVector& ZP4, int& int1, int& int2); 
     bool FindGoodDiJets(const vector<TCJet>& jetList, const TCPhysObject& lepton1, const TCPhysObject& lepton2, const TLorentzVector& gamma, TCJet& jet1, TCJet& jet2); 

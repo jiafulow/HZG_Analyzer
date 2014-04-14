@@ -34,7 +34,7 @@ class WeightUtils: public TObject {
         float GammaSelectionWeight(TLorentzVector l1, float SCEta);
         float HqtWeight(TLorentzVector l1);
 
-        float ElectronTriggerWeight(TLorentzVector l1, TLorentzVector l2);
+        float ElectronTriggerWeight(TLorentzVector l1, TLorentzVector l2, bool approx);
         float MuonTriggerWeight(TLorentzVector l1, TLorentzVector l2);
         float PhotonFakeWeight(float eta, float pt);
 

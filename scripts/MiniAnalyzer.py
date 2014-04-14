@@ -11,7 +11,7 @@ from ROOT import *
 #gROOT.SetBatch()
 
 # Grab the file of interest
-myFile = TFile('../HiggsZGAnalyzer/liteFiles/liteFile_MuMu2012ABCD_04-6-14_llg.root')
+myFile = TFile('../HiggsZGAnalyzer/liteFiles/liteFile_MuMu2012ABCD_04-7-14_llg.root')
 
 # Grab the tree in this file (there could be more than one, but in this file there is only one tree)
 myTree = myFile.Get('zgTree_DATA')
