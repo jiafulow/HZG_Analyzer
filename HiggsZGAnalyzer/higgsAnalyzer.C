@@ -1036,7 +1036,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     if (!goodZ) return kTRUE;
     if (!isRealData){ 
       if (params->doScaleFactors){
-        eventWeight   *= weighter->ElectronTriggerWeight(lepton1, lepton2);
+        eventWeight   *= weighter->ElectronTriggerWeight(lepton1, lepton2, true);
         if (params->period.find("2011") != string::npos){
           eventWeight   *= getEfficiencyWeight( &lepton1, CorrectionType::CENTRAL, atoi(params->period.c_str()));
           eventWeight   *= getEfficiencyWeight( &lepton2, CorrectionType::CENTRAL, atoi(params->period.c_str()));
@@ -1045,7 +1045,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
           eventWeight   *= weighter->ElectronSelectionWeight(lepton2);
         }
       }
-      eventWeightTrig   *= weighter->ElectronTriggerWeight(lepton1, lepton2);
+      eventWeightTrig   *= weighter->ElectronTriggerWeight(lepton1, lepton2, true);
       if (params->period.find("2011") != string::npos){
         eventWeightLep   *= getEfficiencyWeight( &lepton1, CorrectionType::CENTRAL, atoi(params->period.c_str()));
         eventWeightLep   *= getEfficiencyWeight( &lepton2, CorrectionType::CENTRAL, atoi(params->period.c_str()));
