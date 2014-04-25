@@ -24,6 +24,9 @@ def fastHadd():
     elif selectionList[0] == 'eeGamma':
       leptonA = 'EE'
       leptonB = 'eeGamma'
+    elif selectionList[0] == 'mueGamma':
+      leptonA = 'MuE'
+      leptonB = 'mueGamma'
     tag = sys.argv[1]
 
     if 'smzg' in analyzer:

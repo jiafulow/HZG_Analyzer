@@ -11,24 +11,9 @@ setTDRStyle()
 
 def GenericPlotter(inFolder, outFolder):
   if os.environ.get('AT_NWU') == None:
-    #FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_11-20-13_anglesOnly.root")
     FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_ME_2Dv5.root")
-    #FileEl= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_11-20-13_anglesOnly.root")
-    #FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_11-18-13_anglesOnly.root")
     #FileEl= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_11-18-13_anglesOnly.root")
   else:
-    #FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_01-22-14.root")
-    #FileEl= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_01-22-14.root")
-    #FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_01-22-14_AndyWeightCut.root")
-    #FileEl= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_01-22-14_AndyWeightCut.root")
-
-    #FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_01-24-14_ME.root")
-
-    #FileEl= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_01-22-14_OldMVA.root")
-    #FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_01-13-14.root")
-    #FileEl= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_01-13-14.root")
-    #FileMu = TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_12-4-13_newAnglesR9.root")
-    #FileEl = TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_12-4-13_newAnglesR9.root")
     FileMu = TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_02-01-14_Cut.root")
     FileEl = TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_02-01-14_Cut.root")
 
@@ -143,27 +128,27 @@ def DoAll():
 def DoMulti():
   if os.environ.get('AT_NWU'):
     mainPath = '/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_'
-    suffix1 = '03-19-14_Proper'
-    suffix2 = '03-31-14_PhoMVA'
-    suffix3 = '03-31-14_PhoKinMVA'
-    headDir = '_'.join(['Multi',suffix1,suffix2,suffix3])
+    suffix1 = suffix2 = suffix3 = suffix4 = '04-16-14'
+    headDir = '_'.join(['Multi',suffix1,suffix2,suffix3,suffix4])
     if not os.path.isdir(headDir):
       os.mkdir(headDir)
     FileMu1 = TFile(mainPath+'MuMu2012ABCD_'+suffix1+'.root','OPEN')
     FileMu2 = TFile(mainPath+'MuMu2012ABCD_'+suffix2+'.root','OPEN')
     FileMu3 = TFile(mainPath+'MuMu2012ABCD_'+suffix3+'.root','OPEN')
-    FileEl1 = TFile(mainPath+'EE2012ABCD_'+suffix1+'.root','OPEN')
-    FileEl2 = TFile(mainPath+'EE2012ABCD_'+suffix2+'.root','OPEN')
-    FileEl3 = TFile(mainPath+'EE2012ABCD_'+suffix3+'.root','OPEN')
+    FileMu4 = TFile(mainPath+'MuMu2012ABCD_'+suffix4+'.root','OPEN')
+    files = [FileMu1,FileMu2,FileMu3,FileMu4]
+    #FileEl1 = TFile(mainPath+'EE2012ABCD_'+suffix1+'.root','OPEN')
+    #FileEl2 = TFile(mainPath+'EE2012ABCD_'+suffix2+'.root','OPEN')
+    #FileEl3 = TFile(mainPath+'EE2012ABCD_'+suffix3+'.root','OPEN')
     #FileEl = TFile(mainPath+'EE2012ABCD_'+suffix+'.root','OPEN')
-    folders = ['ZGamma','CAT1','CAT2','CAT3','CAT4','CAT5','pT-Eta-Phi','ZGAngles_RECO']
-    for folder in folders:
-      plotterMu = Plotter([FileMu1,FileMu2,FileMu3], folder, headDir+'/'+folder, '2012','mu','Signal2012ggM125')
-      for key in plotterMu.folderDict[0].keys():
-        plotterMu.MultiPlots(key,['Signal','Signal','Signal'],['Nominal','PhoMVA','BothMVA'],True)
-      plotterEl = Plotter([FileEl1,FileEl2,FileEl3], folder, headDir+'/'+folder, '2012','el','Signal2012ggM125')
-      for key in plotterEl.folderDict[0].keys():
-        plotterEl.MultiPlots(key,['Signal','Signal','Signal'],['Nominal','PhoMVA','BothMVA'],True)
+    #folders = ['ZGamma','CAT1','CAT2','CAT3','CAT4','CAT5','pT-Eta-Phi','ZGAngles_RECO']
+    folders = ['CAT1','CAT2','CAT3','CAT4']
+
+    plotterMu = Plotter(files, folders, headDir, '2012','mu','Signal2012ggM125')
+    #for key in plotterMu.folderDict[0].keys():
+      #print key
+    keys = ['photonPt']*4
+    plotterMu.MultiPlots([a+b for a,b in zip(keys,folders)],['DATA','DATA','DATA','DATA'],folders,True)
   else: print 'this is not set up for FNAL'
 
 

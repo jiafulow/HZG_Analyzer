@@ -497,6 +497,7 @@ bool ParticleSelector::PassElectronID(const TCElectron& el, const Cuts::elIDCuts
 
 bool ParticleSelector::PassElectronIso(const TCElectron& el, const Cuts::elIsoCuts& cutLevel, float EAEle[7]){
   float thisEA = 0;
+  /*
   if (fabs(el.Eta())     <  1.0) thisEA = EAEle[0];
   else if (fabs(el.Eta())     <  1.5) thisEA = EAEle[1];
   else if (fabs(el.Eta())     <  2.0) thisEA = EAEle[2];
@@ -504,6 +505,9 @@ bool ParticleSelector::PassElectronIso(const TCElectron& el, const Cuts::elIsoCu
   else if (fabs(el.Eta())     <  2.3) thisEA = EAEle[4];
   else if (fabs(el.Eta())     <  2.4) thisEA = EAEle[5];
   else if (fabs(el.Eta())     >  2.4) thisEA = EAEle[6];
+  */
+
+  thisEA = el.EffArea();
 
   float combIso = (el.PfIsoCharged()
     + max(0.,(double)el.PfIsoNeutral() + el.PfIsoPhoton() - _rhoFactor*thisEA));

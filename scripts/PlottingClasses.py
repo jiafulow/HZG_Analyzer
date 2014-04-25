@@ -7,6 +7,7 @@ import numpy as np
 
 #color dictionary
 colorDict = {'DYJets':kGreen+1,'ZGToLLG':kBlue}
+colorList = [kBlack,kRed,kBlue,kGreen+1,kMagenta+1,kOrange]
 
 # class for multi-layered nested dictionaries, pretty cool
 class AutoVivification(dict):
@@ -35,24 +36,24 @@ class Plotter:
   def FolderDump(self):
     '''Input file and folder name, output default dictionary of histogram lists. the key name is the distribution, the lists are all the samples for the given distribution'''
     if type(self.thisFile) != list:
-        folderDict = defaultdict(list)
-        lok = self.thisFile.GetDirectory(self.folder).GetListOfKeys()
+      folderDict = defaultdict(list)
+      lok = self.thisFile.GetDirectory(self.folder).GetListOfKeys()
+      for i in range(0, lok.GetEntries()):
+        name = lok.At(i).GetName()
+        key = name.split('_')[1]
+        folderDict[key].append(self.thisFile.GetDirectory(self.folder).Get(name))
+      self.folderDict = folderDict
+    else:
+      if type(self.folder) != list: raise RuntimeError('folder must be list if files are list')
+      folderDict = []
+      for a,aFile in enumerate(self.thisFile):
+        lok = aFile.GetDirectory(self.folder[a]).GetListOfKeys()
+        folderDict.append(defaultdict(list))
         for i in range(0, lok.GetEntries()):
           name = lok.At(i).GetName()
           key = name.split('_')[1]
-          folderDict[key].append(self.thisFile.GetDirectory(self.folder).Get(name))
-        self.folderDict = folderDict
-    else:
-        folderDict = []
-        for aFile in self.thisFile:
-            lok = aFile.GetDirectory(self.folder).GetListOfKeys()
-            folderDict.append(defaultdict(list))
-            for i in range(0, lok.GetEntries()):
-              name = lok.At(i).GetName()
-              key = name.split('_')[1]
-              folderDict[-1][key].append(aFile.GetDirectory(self.folder).Get(name))
-        self.folderDict = folderDict
-
+          folderDict[-1][key].append(aFile.GetDirectory(self.folder[a]).Get(name))
+      self.folderDict = folderDict
 
   def LumiXSScale(self,name):
     '''Outputs scale for MC with respect to lumi and XS'''
@@ -147,82 +148,51 @@ class Plotter:
     #outList[1].Scale(1/outList[1].Integral())
     return outList
 
-  def ChooseNHists(self,chooseNames,histList, histList2, histList3, norm = True):
+  def ChooseNHists(self,chooseNames,histListN, norm = False):
     outList = []
-    for hist in histList: print hist.GetName()
-    if chooseNames[0].lower() == 'bg' or chooseNames[0].lower() == 'background':
-      bgList = self.GetBGHists(histList)
-      bgHist = bgList[0].Clone()
-      bgHist.Reset()
-      for hist in bgList:
-        label = hist.GetName().split('_')[-1]
-        scale = self.LumiXSScale(label)
-        hist.Scale(scale)
-        bgHist.Add(hist)
-      outList.append(bgHist)
-    else:
-      for hist in histList:
-        if chooseNames[0] in hist.GetName():
-          outList.append(hist.Clone())
-          break
+    for i, histList in enumerate(histListN):
+      for hist in histList: print hist.GetName()
+      if chooseNames[i].lower() == 'bg' or chooseNames[i].lower() == 'background':
+        bgList = self.GetBGHists(histList)
+        bgHist = bgList[0].Clone()
+        bgHist.Reset()
+        for hist in bgList:
+          label = hist.GetName().split('_')[-1]
+          scale = self.LumiXSScale(label)
+          hist.Scale(scale)
+          bgHist.Add(hist)
+        outList.append(bgHist)
+      else:
+        for hist in histList:
+          if chooseNames[i] in hist.GetName():
+            outList.append(hist.Clone())
+            break
 
-    if chooseNames[1].lower() == 'bg' or chooseNames[1].lower() == 'background':
-      bgList = self.GetBGHists(histList2)
-      bgHist = bgList[0].Clone()
-      bgHist.Reset()
-      for hist in bgList:
-        label = hist.GetName().split('_')[-1]
-        scale = self.LumiXSScale(label)
-        hist.Scale(scale)
-        bgHist.Add(hist)
-      outList.append(bgHist)
-    else:
-      for hist in histList2:
-        if chooseNames[1] in hist.GetName():
-          outList.append(hist.Clone())
-          break
-
-    if chooseNames[2].lower() == 'bg' or chooseNames[2].lower() == 'background':
-      bgList = self.GetBGHists(histList3)
-      bgHist = bgList[0].Clone()
-      bgHist.Reset()
-      for hist in bgList:
-        label = hist.GetName().split('_')[-1]
-        scale = self.LumiXSScale(label)
-        hist.Scale(scale)
-        bgHist.Add(hist)
-      outList.append(bgHist)
-    else:
-      for hist in histList3:
-        if chooseNames[2] in hist.GetName():
-          outList.append(hist.Clone())
-          break
-
-    if len(outList) != 3:
+    if len(outList) != len(histListN):
       outList = None
       return outList
 
     if norm:
-      outList[0].Scale(1/outList[0].Integral())
-      outList[1].Scale(1/outList[1].Integral())
-      outList[2].Scale(1/outList[2].Integral())
+      for hist in outList:
+        hist.Scale(1/hist.Integral())
 
     ymax = max(map(lambda x:x.GetMaximum(),outList))*1.1
     ymin = 0
     outList[0].SetMaximum(ymax)
     outList[0].SetMinimum(ymin)
-    outList[0].SetLineColor(kBlue)
+    outList[0].SetLineColor(colorList[0])
+    outList[0].SetMarkerColor(colorList[0])
     outList[0].SetLineWidth(2)
     outList[0].GetYaxis().SetTitleOffset(0.82)
     outList[0].GetYaxis().SetTitleSize(0.06)
     outList[0].GetYaxis().CenterTitle()
     outList[0].GetXaxis().SetTitleSize(0.05)
 
-    outList[1].SetLineColor(kRed)
-    outList[1].SetLineWidth(2)
+    for i,hist in enumerate(outList[1:]):
+      hist.SetLineColor(colorList[i])
+      hist.SetMarkerColor(colorList[i])
+      hist.SetLineWidth(2)
 
-    outList[2].SetLineColor(kBlack)
-    outList[2].SetLineWidth(2)
     return outList
 
   def GetDataHist(self,histList,sigWindow = False):
@@ -883,31 +853,23 @@ class Plotter:
             '_'+ratioNames+'.pdf')
     self.can.IsA().Destructor(self.can)
 
-  def MultiPlots(self, key, chooseNames, legendNames, norm = False):
-    '''Get N plots, normalize them, plot them'''
+  def MultiPlots(self, keys, chooseNames, legendNames, norm = False):
+    '''Get N plots, plot them'''
     if type(self.thisFile) != list:
       print 'must have lists of files'
     else:
-      histList1 = self.folderDict[0][key]
-      histList2 = self.folderDict[1][key]
-      histList3 = self.folderDict[2][key]
-      if len(histList1) == 0: raise NameError('histList1 is empty')
-      if len(histList2) == 0: raise NameError('histList2 is empty')
-      if len(histList3) == 0: raise NameError('histList2 is empty')
+      histListN = []
+      for i in range(len(self.folderDict)):
+        histListN.append(self.folderDict[i][keys[i]])
+        if len(histListN[-1]) == 0: raise NameError('histList{0} is empty, {1}'.format(i,keys[i]))
+        if histListN[-1][0].GetName().split('_')[0] == 'h2':
+          print 'skipping ratio plot for', histListN[-1][0].GetName()
+          return
       gStyle.SetOptStat(0)
-      if histList1[0].GetName().split('_')[0] == 'h2':
-        print 'skipping ratio plot for', histList1[0].GetName()
-        return
-      if histList2[0].GetName().split('_')[0] == 'h2':
-        print 'skipping ratio plot for', histList2[0].GetName()
-        return
-      if histList3[0].GetName().split('_')[0] == 'h2':
-        print 'skipping ratio plot for', histList3[0].GetName()
-        retuN
-      compHists = self.ChooseNHists(chooseNames,histList1,histList2,histList3,norm = norm)
+      compHists = self.ChooseNHists(chooseNames,histListN,norm = norm)
 
     if compHists == None:
-      print 'Cannot find all the necessary histograms for ratio, skipping', key
+      print 'Cannot find all the necessary histograms for ratio, skipping', keys
       return
 
     if not os.path.isdir(self.directory):
@@ -927,7 +889,7 @@ class Plotter:
       leg.AddEntry(plot,legendNames[i],'l')
     leg.Draw()
 
-    ratioNames = chooseNames[0]+chooseNames[1]+chooseNames[2]
+    ratioNames = ''.join(chooseNames)
     self.can.SaveAs(self.directory+'/'+self.lepton+self.lepton+'_'+compHists[0].GetName().split('_')[1]+
             '_'+ratioNames+'.pdf')
     self.can.IsA().Destructor(self.can)

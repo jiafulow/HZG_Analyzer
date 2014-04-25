@@ -72,14 +72,19 @@ void TriggerSelector::TriggerDefaults()
       _triggers.push_back("HLT_Mu17_Mu8_v");
       //_triggers.push_back("HLT_Mu17_TkMu8_v");
     }
-  }else{
+  }else if (_type == "eeGamma"){
     if(_dataPeriod.find("2011") != string::npos){
       _triggers.push_back("HLT_Ele17_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_Ele8_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_v"); 
       _triggers.push_back("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v");
     }else{
       _triggers.push_back("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v");
     }
+  }else if (_type == "mueGamma"){
+    _triggers.push_back("HLT_Mu22_Photon22_CaloIdL_v");
+  }else{
+    cout<<"no triggers will be selected! i bet you didn't want this!"<<endl;
   }
+
 
 
 }

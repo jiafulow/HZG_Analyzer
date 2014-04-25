@@ -21,10 +21,6 @@ bool TCMuon::IsTRK() const {
    return _isTRK;
 }
 
-bool TCMuon::IsPF() const {
-  return _isPF;
-}
-
 bool TCMuon::IsSoft() const {
   return _isSoft;
 }
@@ -131,9 +127,6 @@ void TCMuon::SetIsGLB(bool t){
 
 void TCMuon::SetIsTRK(bool t){
    _isTRK = t;
-}
-void TCMuon::SetIsPF(bool t){
-  _isPF = t;
 }
 
 void TCMuon::SetIsSoft(bool t){

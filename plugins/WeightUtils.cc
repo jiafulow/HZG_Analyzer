@@ -36,6 +36,7 @@ WeightUtils::WeightUtils(const Parameters& params, bool isRealData, int runNumbe
   _PhoMedWPveto2012    = new TFile("otherHistos/PhotonSF_MediumWP_includingVetoCut_Full2012.root", "OPEN");
   _EleMoriondWP2012    = new TFile("otherHistos/efficiency_results_EleHZGammaMoriond2013WPMixed_Moriond2013.root", "OPEN");
   _EleLegacyWP2012    = new TFile("otherHistos/CombinedMethod_ScaleFactors_RecoIdIsoSip.root", "OPEN");
+  _EleTightMVAWP= new TFile("otherHistos/electrons_scale_factors.root", "OPEN");
 
   _PhoJan22RD1_2012 = new TFile("otherHistos/Photon_ID_CSEV_SF_Jan22rereco_Full2012_RD1_MC_V01.root","OPEN");
 
@@ -90,6 +91,7 @@ WeightUtils::WeightUtils(const Parameters& params, bool isRealData, int runNumbe
   //electron histo
   h1_EleMoriondWP2012 = (TH2F*)_EleMoriondWP2012->Get("heff_electron_selection");
   h1_EleLegacyWP2012 = (TH2F*)_EleLegacyWP2012->Get("h_electronScaleFactor_RecoIdIsoSip");
+  h1_EleTightMVAWP = (TH2F*)_EleTightMVAWP->Get("electronsDATAMCratio_FO_ID");
 
   
 }
@@ -400,16 +402,31 @@ float WeightUtils::ElectronSelectionWeight(TLorentzVector l1){
   */
   
 
-  xBin = h1_EleLegacyWP2012->GetXaxis()->FindFixBin(l1.Pt());
-  if (xBin>7) xBin=7;
-  yBin = h1_EleLegacyWP2012->GetYaxis()->FindFixBin(l1.Eta());
-  if (yBin>10) yBin=10;
+  if (_params.suffix.find("Old") != string::npos){
+    xBin = h1_EleLegacyWP2012->GetXaxis()->FindFixBin(l1.Pt());
+    if (xBin>7) xBin=7;
+    yBin = h1_EleLegacyWP2012->GetYaxis()->FindFixBin(l1.Eta());
+    if (yBin>10) yBin=10;
 
-  if (_params.period.find("2012") != string::npos){
-    eleSF = h1_EleLegacyWP2012->GetBinContent(xBin,yBin);
+    if (_params.period.find("2012") != string::npos){
+      eleSF = h1_EleLegacyWP2012->GetBinContent(xBin,yBin);
+    }else{
+      eleSF = 1;
+    }
   }else{
-    eleSF = 1;
+    xBin = h1_EleTightMVAWP->GetYaxis()->FindFixBin(l1.Pt());
+    if (xBin>4) xBin=4;
+    yBin = h1_EleTightMVAWP->GetXaxis()->FindFixBin(l1.Eta());
+    if (yBin>5) yBin=5;
+
+    if (_params.period.find("2012") != string::npos){
+      eleSF = h1_EleTightMVAWP->GetBinContent(xBin+1,yBin+1);
+    }else{
+      eleSF = 1;
+    }
   }
+
+  
   return eleSF;
 }
 
@@ -756,12 +773,13 @@ float WeightUtils::ElectronTriggerWeight(TLorentzVector l1, TLorentzVector l2, b
   }else{
     // use new SFs
     float binningPt[] = {10., 15., 20., 30., 40., 50., 9999.};
-    float binningEta[] = {0., 0.8, 1.44, 1.57, 2.0, 2.5}; 
+    float binningEta[] = {0., 0.8, 1.44, 1.57, 2.0, 9999.}; 
     int ptBin1 = -99;
-    int etabin1 = -99;
+    int etaBin1 = -99;
     int ptBin2 = -99;
-    int etabin2 = -99;
-    float elTrigSF1 = elTrigSF2 = 1.0;
+    int etaBin2 = -99;
+    float elTrigSF1 = 1.0;
+    float elTrigSF2 = 1.0;
     for (int i = 0; i < 6; ++i){
       if (l1.Pt() > binningPt[i] && l1.Pt() < binningPt[i+1]) ptBin1 = i;
     }
@@ -774,6 +792,14 @@ float WeightUtils::ElectronTriggerWeight(TLorentzVector l1, TLorentzVector l2, b
     for (int i = 0; i < 5; ++i){
       if (fabs(l2.Eta()) > binningEta[i] && fabs(l2.Eta()) < binningEta[i+1]) etaBin2 = i;
     }
+
+    if (approx){
+      return _HLTEl17El18_BothLegs[etaBin1][ptBin1]*_HLTEl17El18_BothLegs[etaBin2][ptBin2];
+    }else{
+      cout<<"electron trigger weight calculation is approx only"<<endl;
+      return 1.0;
+    }
+  }
 
 }
 
