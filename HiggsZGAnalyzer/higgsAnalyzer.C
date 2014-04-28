@@ -234,7 +234,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   //mvaInits.discrSuffixName = "anglesOnly";
   //mvaInits.discrSuffixName = "newAnglesR9";
   //mvaInits.discrSuffixName = "01-29-14_v0905";
-  mvaInits.discrSuffixName = "03-11-14";
+  mvaInits.discrSuffixName = "04-28-14_PhoMVA";
 
 
   mvaInits.mvaHiggsMassPoint[0] = 125;
@@ -1406,38 +1406,39 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   mvaVars._SCRawEOPt = SCRawE/GP4.Pt();
   mvaVars._SCPSEOPt = SCPSE/GP4.Pt();
 
+  float mvaVal = -99;
   if (params->doAnglesMVA){
-    float mvaVal = MVACalculator(mvaInits, tmvaReader);
+    mvaVal = MVACalculator(mvaInits, tmvaReader);
     //with photon mva (good with seperation)
-    /*
+    
     if (params->selection == "mumuGamma"){
       if (catNum ==1){
-        if (mvaVal < -0.13) catNum = 6;
+        if (mvaVal < -0.27) catNum = 6;
       }else if (catNum==2){
-        if (mvaVal < -0.42) catNum = 7; 
+        if (mvaVal < -0.2) catNum = 7; 
       }else if (catNum==3){
-        if (mvaVal < -0.4) catNum = 8;
+        if (mvaVal < -0.38) catNum = 8;
       }else if (catNum==4){
-        if (mvaVal < -0.58) catNum = 9;
+        if (mvaVal < -0.56) catNum = 9;
       }
     }else if (params->selection == "eeGamma"){
       if (catNum ==1){
-        if (mvaVal < -0.11) catNum = 6;
+        if (mvaVal < -0.18) catNum = 6;
       }else if (catNum==2){
-        if (mvaVal < -0.33) catNum = 7;
+        if (mvaVal < -0.31) catNum = 7;
       }else if (catNum==3){
         if (mvaVal < -0.29) catNum = 8;
       }else if (catNum==4){
         if (mvaVal < -0.51) catNum = 9;
       }
     }
-    */
+   
 
     hm->fill2DHist((GP4+ZP4).M(),mvaVal,"h2_MassVsMVACAT"+str(catNum)+"_"+params->suffix,"Mass vs MVA output (BTDG); m_{ll#gamma}; MVA Disc", 90,100,190,90,-1,1,eventWeight,"MVAPlots");
     hm->fill2DHist((GP4+ZP4).M(),mvaVal,"h2_MassVsMVA_"+params->suffix,"Mass vs MVA output (BTDG); m_{ll#gamma}; MVA Disc", 90,100,190,90,-1,1,eventWeight,"MVAPlots");
   }
 
-  MVAPlots(mvaVars,eventWeight,"CAT"+str(catNum)+"", "CAT"+str(catNum)+"");
+  MVAPlots(mvaVars,mvaVal,eventWeight,"CAT"+str(catNum)+"", "CAT"+str(catNum)+"");
 
   hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsME_"+params->suffix,"Mass vs ME; m_{ll#gamma}; ME Disc", 90,100,190,90,0,0.2,eventWeight,"MEPlots");
   hm->fill1DHist(MEdisc,"h1_ME_"+params->suffix,"ME Disc;ME Disc;Entries", 45,0,0.2,eventWeight,"MEPlots");
@@ -1819,7 +1820,7 @@ void higgsAnalyzer::StandardPlots(TLorentzVector p1, TLorentzVector p2, TLorentz
   } 
 }
 
-void higgsAnalyzer::MVAPlots(mvaVarStruct _mvaVars, float eventWeight, string tag, string folder)
+void higgsAnalyzer::MVAPlots(mvaVarStruct _mvaVars, float _mvaVal, float eventWeight, string tag, string folder)
 {
   hm->fill1DHist(_mvaVars._smallTheta,"h1_smallTheta"+tag+"_"+params->suffix, "smallTheta;;N_{evts}", 30, 0., 1., eventWeight,folder);     
   hm->fill1DHist(_mvaVars._bigTheta,"h1_bigTheta"+tag+"_"+params->suffix, "bigTheta;;N_{evts}", 30, 0., 1., eventWeight,folder);     
@@ -1831,6 +1832,7 @@ void higgsAnalyzer::MVAPlots(mvaVarStruct _mvaVars, float eventWeight, string ta
   hm->fill1DHist(_mvaVars._SCRawEOPt,"h1_SCRawEOPt"+tag+"_"+params->suffix, "SCRawEOPt;;N_{evts}", 30, 0.9, 7., eventWeight,folder);     
   hm->fill1DHist(_mvaVars._SCPSEOPt,"h1_SCPSEOPt"+tag+"_"+params->suffix, "SCPSEOPt;;N_{evts}", 30, 0., 0.8, eventWeight,folder);     
   hm->fill1DHist(_mvaVars._e2x2O5x5,"h1_e2x2O5x5"+tag+"_"+params->suffix, "e2x2O5x5;;N_{evts}", 30, 0., 2., eventWeight,folder);     
+  hm->fill1DHist(_mvaVal,"h1_mvaVal"+tag+"_"+params->suffix, "mvaVal;;N_{evts}", 30, -1., 1., eventWeight,folder);     
 }
 
 
@@ -2193,16 +2195,16 @@ TMVA::Reader* higgsAnalyzer::MVAInitializer(){
   tmvaReader->AddVariable("GEta", &(mvaVars._GEta));
   tmvaReader->AddVariable("l1Eta", &(mvaVars._l1Eta));
   tmvaReader->AddVariable("l2Eta", &(mvaVars._l2Eta));
-  tmvaReader->AddVariable("R9var", &(mvaVars._R9));
-  tmvaReader->AddVariable("sieip", &(mvaVars._sieip));
-  tmvaReader->AddVariable("sipip", &(mvaVars._sipip));
+  //tmvaReader->AddVariable("R9var", &(mvaVars._R9));
+  //tmvaReader->AddVariable("sieip", &(mvaVars._sieip));
+  //tmvaReader->AddVariable("sipip", &(mvaVars._sipip));
   //tmvaReader->AddVariable("SCRawE", &(mvaVars._SCRawE));
   //tmvaReader->AddVariable("SCPSE", &(mvaVars._SCPSE));
   //tmvaReader->AddVariable("e5x5", &(mvaVars._e5x5));
   //tmvaReader->AddVariable("e2x2", &(mvaVars._e2x2));
-  tmvaReader->AddVariable("SCRawEOPt", &(mvaVars._SCRawEOPt));
-  tmvaReader->AddVariable("SCPSEOPt", &(mvaVars._SCPSEOPt));
-  tmvaReader->AddVariable("e2x2O5x5", &(mvaVars._e2x2O5x5));
+  //tmvaReader->AddVariable("SCRawEOPt", &(mvaVars._SCRawEOPt));
+  //tmvaReader->AddVariable("SCPSEOPt", &(mvaVars._SCPSEOPt));
+  //tmvaReader->AddVariable("e2x2O5x5", &(mvaVars._e2x2O5x5));
   //tmvaReader->AddVariable("ZEta", &(mvaVars._ZEta));
   //tmvaReader->AddVariable("threeBodyEta", &(mvaVars._threeBodyEta));
   //tmvaReader->AddVariable("GPtOHPt", &(mvaVars._GPtOHPt));

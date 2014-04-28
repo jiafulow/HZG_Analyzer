@@ -63,6 +63,11 @@ void smzgAnalyzer::Begin(TTree * tree)
   // Initialize utilities and selectors here //
   int jobNum = atoi(params->jobCount.c_str());
   cuts.reset(new Cuts());
+
+  cuts->gPt = 25;
+  cuts->leadMuPt = 23;
+  cuts->trailMuPt = 4;
+
   cuts->InitEA(params->period);
   weighter.reset(new WeightUtils(*params, isRealData, runNumber));
   triggerSelector.reset(new TriggerSelector(params->selection, params->period, *triggerNames));
