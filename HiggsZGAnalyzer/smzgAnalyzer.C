@@ -183,22 +183,16 @@ Bool_t smzgAnalyzer::Process(Long64_t entry)
     }
 
 
-    // tight muon id
+    // daliz muon id
 
-    if (particleSelector->PassMuonID(*thisMuon, cuts->tightMuID)){
+    if (particleSelector->PassMuonID(*thisMuon, cuts->dalitzMuID)){
       muonsID.push_back(*thisMuon);
     }
 
-    //tight ID and Iso
+    //dalitz ID and Iso
 
-    if (params->doLooseMuIso){
-      if (particleSelector->PassMuonID(*thisMuon, cuts->tightMuID) && particleSelector->PassMuonIso(*thisMuon, cuts->looseMuIso)){
-        muonsIDIso.push_back(*thisMuon);
-      }
-    }else{
-      if (particleSelector->PassMuonID(*thisMuon, cuts->tightMuID) && particleSelector->PassMuonIso(*thisMuon, cuts->tightMuIso)){
-        muonsIDIso.push_back(*thisMuon);
-      }
+    if (particleSelector->PassMuonID(*thisMuon, cuts->dalitzMuID) && particleSelector->PassMuonIso(*thisMuon, cuts->looseMuIso)){
+      muonsIDIso.push_back(*thisMuon);
     }
 
   }
@@ -293,7 +287,7 @@ Bool_t smzgAnalyzer::Process(Long64_t entry)
   TLorentzVector ZP4; 
   TLorentzVector HP4; 
 
-  bool goodZ = particleSelector->FindGoodZMuon(muonsIDIso,lepton1,lepton2,ZP4,lepton1int,lepton2int,0.0);
+  bool goodZ = particleSelector->FindGoodZMuon(muonsIDIso,muonsID,lepton1,lepton2,ZP4,lepton1int,lepton2int,0.0);
   if (!goodZ) return kTRUE;
 
 

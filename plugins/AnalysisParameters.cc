@@ -153,6 +153,7 @@ Cuts::Cuts():
   tightMuID.cutName =                     "tightMuID";
   tightMuID.IsPF =                        1;
   tightMuID.IsGLB =                       1;
+  tightMuID.IsTRK =                       1;
   tightMuID.NormalizedChi2 =              10;
   tightMuID.NumberOfValidMuonHits =       0;
   tightMuID.NumberOfMatchedStations =     1;
@@ -160,6 +161,18 @@ Cuts::Cuts():
   tightMuID.TrackLayersWithMeasurement =  5;
   tightMuID.dxy =                         0.2;
   tightMuID.dz =                          0.5;
+
+  dalitzMuID.cutName =                     "dalitzMuID";
+  dalitzMuID.IsPF =                        1;
+  dalitzMuID.IsGLB =                       1;
+  dalitzMuID.IsTRK =                       1;
+  dalitzMuID.NormalizedChi2 =              9999;
+  dalitzMuID.NumberOfValidMuonHits =       -1;
+  dalitzMuID.NumberOfMatchedStations =     0;
+  dalitzMuID.NumberOfValidPixelHits =      -1;
+  dalitzMuID.TrackLayersWithMeasurement =  -1;
+  dalitzMuID.dxy =                         0.2;
+  dalitzMuID.dz =                          0.5;
   
   tightMuIso.cutName =                    "tightMuIso";
   tightMuIso.chIso04 =                    99999;

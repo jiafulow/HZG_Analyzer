@@ -387,20 +387,31 @@ void ParticleSelector::CleanUpGen(genHZGParticles& _genHZG){
 bool ParticleSelector::PassMuonID(const TCMuon& mu, const Cuts::muIDCuts& cutLevel){
 
   bool muPass = false;
-
-  if (_parameters.suffix.find("2011") != string::npos){
-    if (
-        fabs(mu.Eta()) < 2.4
-        && mu.IsGLB()                         == cutLevel.IsGLB
-        && mu.NormalizedChi2()                < cutLevel.NormalizedChi2
-        && mu.NumberOfValidMuonHits()         > cutLevel.NumberOfValidMuonHits
-        && mu.NumberOfMatchedStations()       > cutLevel.NumberOfMatchedStations
-        && mu.NumberOfValidPixelHits()        > cutLevel.NumberOfValidPixelHits
-        && mu.TrackLayersWithMeasurement()    > cutLevel.TrackLayersWithMeasurement
-        && fabs(mu.Dxy(&_pv))           < cutLevel.dxy
-        && fabs(mu.Dz(&_pv))            < cutLevel.dz
-       ) muPass = true;
-  }else{
+  if (cutLevel.cutName == "tightMuID"){
+    if (_parameters.suffix.find("2011") != string::npos){
+      if (
+          fabs(mu.Eta()) < 2.4
+          && mu.IsGLB()                         == cutLevel.IsGLB
+          && mu.NormalizedChi2()                < cutLevel.NormalizedChi2
+          && mu.NumberOfValidMuonHits()         > cutLevel.NumberOfValidMuonHits
+          && mu.NumberOfMatchedStations()       > cutLevel.NumberOfMatchedStations
+          && mu.NumberOfValidPixelHits()        > cutLevel.NumberOfValidPixelHits
+          && mu.TrackLayersWithMeasurement()    > cutLevel.TrackLayersWithMeasurement
+          && fabs(mu.Dxy(&_pv))           < cutLevel.dxy
+          && fabs(mu.Dz(&_pv))            < cutLevel.dz
+         ) muPass = true;
+    }else{
+      if (
+          fabs(mu.Eta()) < 2.4
+          && mu.IsPF()                          == cutLevel.IsPF
+          && ((mu.IsTRK()                        == cutLevel.IsTRK
+              && mu.NumberOfMatchedStations()       > cutLevel.NumberOfMatchedStations)
+            || mu.IsGLB()                         == cutLevel.IsGLB)
+          && fabs(mu.Dxy(&_pv))           < cutLevel.dxy
+          && fabs(mu.Dz(&_pv))            < cutLevel.dz
+         ) muPass = true;
+    }
+  }else if (cutLevel.cutName == "dalitzMuID"){
     if (
         fabs(mu.Eta()) < 2.4
         && mu.IsPF()                          == cutLevel.IsPF
@@ -413,6 +424,7 @@ bool ParticleSelector::PassMuonID(const TCMuon& mu, const Cuts::muIDCuts& cutLev
         && fabs(mu.Dxy(&_pv))           < cutLevel.dxy
         && fabs(mu.Dz(&_pv))            < cutLevel.dz
        ) muPass = true;
+
   }
   return muPass;
 }

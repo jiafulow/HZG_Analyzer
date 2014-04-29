@@ -11,7 +11,7 @@ from ROOT import *
 #gROOT.SetBatch()
 
 # Grab the file of interest
-myFile = TFile('../HiggsZGAnalyzer/liteFiles/liteFile_MuMu2012ABCD_04-7-14_llg.root')
+myFile = TFile('../HiggsZGAnalyzer/liteFiles/liteFile_MuE2012ABCD_04-28-14_llg.root')
 
 # Grab the tree in this file (there could be more than one, but in this file there is only one tree)
 myTree = myFile.Get('zgTree_DATA')
@@ -51,7 +51,7 @@ for event in myTree:
 canvas = TCanvas('can','canvas',800,600)
 canvas.cd()
 
-# Lets look at what we made!
+print 'Lets look at what we made!'
 llMass.Draw()
 raw_input("Hit 'Enter' to continue")
 
@@ -60,12 +60,13 @@ canvas.SaveAs('dileptonMass.pdf')
 # Save as a root file if we want to edit the plot later
 #canvas.SaveAs('dileptonMass.root')
 
-# Look at the same plot, zoomed in
+print 'Look at the same plot, zoomed in'
 llMass.GetXaxis().SetRangeUser(0,15)
 llMass.Draw()
 canvas.Update()
 raw_input("Hit 'Enter' to continue")
 
+print 'Lets looks at the three body mass for j/psi events'
 threeBodyMass.Draw()
 canvas.Update()
 raw_input("Hit 'Enter' to continue")

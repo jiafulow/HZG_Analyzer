@@ -51,7 +51,7 @@ class Parameters{
 class Cuts{
   public:
     Cuts();
-    const float leadJetPt, trailJetPt, leadMuPt, trailMuPt, leadElePt, trailElePt, gPtOverMass, gPt,
+    float leadJetPt, trailJetPt, leadMuPt, trailMuPt, leadElePt, trailElePt, gPtOverMass, gPt,
       zMassLow, zMassHigh, metLow, metHigh, zgMassLow, zgMassHigh, mzPmzg, dR, ME, dRJet, dEtaJet, zepp, mjj, dPhiJet ;
     float EAMu[6]; 
     float EAEle[7]; 
@@ -60,6 +60,7 @@ class Cuts{
     struct muIDCuts{
       float IsPF;
       float IsGLB;
+      float IsTRK;
       float NormalizedChi2;
       float NumberOfValidMuonHits;
       float NumberOfMatchedStations;
@@ -68,7 +69,7 @@ class Cuts{
       float dxy;
       float dz;
       string cutName;
-    } tightMuID;
+    } tightMuID, dalitzMuID;
 
     struct muIsoCuts{
       float chIso04;
