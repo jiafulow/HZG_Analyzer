@@ -178,6 +178,7 @@ else:
     configs.append(b.JobConfig('Run2012B', t3storage+'/nuTuples_v9.7_8TeV/Data/MuEG_Run2012B', 100, 'DATA ABCD mueGamma 2012 {0}'.format(analyzer),'mueGamma'))
     configs.append(b.JobConfig('Run2012C', t3storage+'/nuTuples_v9.7_8TeV/Data/MuEG_Run2012C', 150, 'DATA ABCD mueGamma 2012 {0}'.format(analyzer),'mueGamma'))
     configs.append(b.JobConfig('Run2012D', t3storage+'/nuTuples_v9.7_8TeV/Data/MuEG_Run2012D', 150, 'DATA ABCD mueGamma 2012 {0}'.format(analyzer),'mueGamma'))
+    configs.append(b.JobConfig('ZtoJPsiGamma', t3storage+'/nuTuples_v9.7_8TeV/MC/ZtoJPsiGamma', 10, 'ZtoJPsiGamma ABCD mueGamma 2012 {0}'.format(analyzer),'mueGamma'))
 
   batcher = b.BatchMaster(configs, outputPathNWU,'execBatch.sh')
 batcher.SubmitToLPC()

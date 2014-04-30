@@ -14,7 +14,8 @@ from ROOT import *
 myFile = TFile('../HiggsZGAnalyzer/liteFiles/liteFile_MuE2012ABCD_04-28-14_llg.root')
 
 # Grab the tree in this file (there could be more than one, but in this file there is only one tree)
-myTree = myFile.Get('zgTree_DATA')
+#myTree = myFile.Get('zgTree_DATA')
+myTree = myFile.Get('zgTree_ZtoJPsiGamma')
 
 # Define an empty histogram.  TH1F means a 1D histogram for floats.  The syntax is:
 # TH1F(name, title;x;y, nBins, lowBin, highBin)
