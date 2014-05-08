@@ -17,33 +17,35 @@ class Parameters{
     string  dataname;
     string  jobCount;
 
-    const bool VBFcuts;                 
-    const bool DYGammaVeto;            
-    const bool customPhotoID;         
-    const bool spikeVeto;            
+    bool VBFcuts;                 
+    bool DYGammaVeto;            
+    bool customPhotoID;         
+    bool spikeVeto;            
 
-    const bool R9switch;            
+    bool R9switch;            
 
-    const bool doEleMVA;           
+    bool doEleMVA;           
 
-    const bool doLooseMuIso;      
-    const bool doAnglesMVA;      
+    bool doLooseMuIso;      
+    bool doAnglesMVA;      
 
-    const bool doPhotonPurityStudy;     
+    bool doPhotonPurityStudy;     
+    bool doPhoMVA;
+    
 
     ///// debugging dumps /////
-    const bool dumps;                  
-    const bool dataDumps;             
-    const int EVENTNUMBER;           
+    bool dumps;                  
+    bool dataDumps;             
+    int EVENTNUMBER;           
 
     //// energy corrections ////
-    const bool engCor;              
-    const bool doR9Cor;            
-    const bool doEleReg;          
+    bool engCor;              
+    bool doR9Cor;            
+    bool doEleReg;          
 
     //// Scale Factors ////
-    const bool doScaleFactors;          
-    const bool doLumiXS;
+    bool doScaleFactors;          
+    bool doLumiXS;
 
     Parameters();
 };

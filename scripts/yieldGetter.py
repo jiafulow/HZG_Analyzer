@@ -3,6 +3,7 @@ from ROOT import *
 import numpy as np
 import sys
 from PlottingClasses import AutoVivification
+from xsWeighter import LumiXSWeighter
 
 def LumiXSScale(name,lepton,year,thisFile):
   '''Outputs scale for MC with respect to lumi and XS'''
@@ -48,7 +49,22 @@ def DoYield(fileName, secondName = None):
       elif dataType == 'Signal': suffix = 'Signal2012gg'+signal
       print '    ',suffix
       rawTotal = thisFile.GetDirectory('ZGamma').Get('h1_InvariantMass_'+suffix).Integral()
-      scaledTotal = rawTotal*LumiXSScale(suffix, lep, '2012', thisFile)
+
+      initEvents = thisFile.GetDirectory('Misc').Get('h1_acceptanceByCut_'+name).Integral(1,1)
+      if 'gg' in name: sig = 'ggH'
+      elif 'vbh' in name: sig = 'qqH'
+      elif 'wh' in name: sig = 'WH'
+      elif 'zh' in name: sig = 'ZH'
+      elif 'tth' in name: sig = 'ttH'
+      elif 'DYJets' in name: sig = 'DYJets'
+      elif 'ZGToLLG' in name: sig = 'ZGToLLG'
+
+      if 'Signal' in name:
+        sig = name[10:].partition('M')[0]
+        mass = name[10:].partition('M')[-1][0:3]
+
+      #scaledTotal = rawTotal*LumiXSScale(suffix, lep, '2012', thisFile)
+      scaledTotal = LumiXSWeighter('2012',lep,sig,mass,nEvt)
       print '      ','rawTotal: {0:.0f} scaledTotal: {1:.2f}'.format(rawTotal,scaledTotal)
 # count number of cats
       catTotal = 0

@@ -30,6 +30,10 @@ void higgsAnalyzer::Begin(TTree * tree)
   params->dataname       = dataname;
   params->jobCount       = count;
 
+  // change any params from default
+  //params->doPhoMVA       = false; //FOR PROPER
+  //params->doAnglesMVA    = false; //FOR PROPER
+
 
   for (int i =0; i<100; i++){
     nEvents[i] = 0;
@@ -51,6 +55,10 @@ void higgsAnalyzer::Begin(TTree * tree)
   cout<<jobNum<<endl;
   cuts.reset(new Cuts());
   cuts->InitEA(params->period);
+  
+  // Change any cuts from non-default values
+
+
   weighter.reset(new WeightUtils(*params, isRealData, runNumber));
   triggerSelector.reset(new TriggerSelector(params->selection, params->period, *triggerNames));
   rmcor2011.reset(new rochcor_2011(229+100*jobNum));
@@ -234,13 +242,13 @@ void higgsAnalyzer::Begin(TTree * tree)
   //mvaInits.discrSuffixName = "anglesOnly";
   //mvaInits.discrSuffixName = "newAnglesR9";
   //mvaInits.discrSuffixName = "01-29-14_v0905";
-  mvaInits.discrSuffixName = "04-28-14_PhoMVA";
+  mvaInits.discrSuffixName = "05-07-14_PhoMVA";
 
 
   mvaInits.mvaHiggsMassPoint[0] = 125;
 
   mvaInits.bdtCut[0] = -0.1;
-  if (params->doAnglesMVA) tmvaReader = MVAInitializer();
+  tmvaReader = MVAInitializer();
 }
 
 
@@ -812,7 +820,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
           if (testDr < 0.2){
             corrPhoPt = phoCorrector->GetCorrEtMC(thisPhoton->R9(), periodNum, thisPhoton->Pt(), thisPhoton->Eta(), goodGenPhoton.E());
             //cout<<"uncor pt: "<<thisPhoton->Pt()<<" cor pt: "<<corrPhoPt<<" gen pt: "<<vetoPhotons[vetoPos].Pt()<<endl;
-            if (fabs(thisPhoton->SCEta()) > 1.566666)hm->fill1DHist(goodGenPhoton.Pt()-thisPhoton->Pt(),"h1_stupidAndyPlot_"+params->suffix, "genPt-recoPt photon", 100, -10, 10,1);
             thisPhoton->SetPtEtaPhiM(corrPhoPt,thisPhoton->Eta(),thisPhoton->Phi(),0.0);
           }
           //else cout<<" no match, pt: "<<thisPhoton->Pt()<<endl;
@@ -827,32 +834,33 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       ////// Currently Using Cut-Based Photon ID, 2012
 
       dumper->PhotonDump(*thisPhoton); 
-      /*
-      if (particleSelector->PassPhotonID(*thisPhoton, cuts->mediumPhID)) photonsID.push_back(*thisPhoton);
-      if (particleSelector->PassPhotonID(*thisPhoton, cuts->mediumPhID) && particleSelector->PassPhotonIso(*thisPhoton, cuts->mediumPhIso, cuts->EAPho)){
-        //standard selection photons
-        photonsIDIso.push_back(*thisPhoton);
-        if (params->engCor) photonsIDIsoUnCor.push_back(*clonePhoton);
-      }
-      */
-      bool goodLepPre = false;
-      if (particleSelector->PassPhotonID(*thisPhoton, cuts->preSelPhID)) photonsID.push_back(*thisPhoton);
-      if (params->selection == "mumuGamma"){
-        if (muonsIDIso.size() > 1){
-          goodLepPre = GoodLeptonsCat( muonsIDIso[0], muonsIDIso[1]);
-        }
-        if (particleSelector->PassPhotonID(*thisPhoton, cuts->preSelPhID)
-            && particleSelector->PassPhotonMVA(*thisPhoton, cuts->catPhMVAID, goodLepPre))
+      if(!params->doPhoMVA){
+        if (particleSelector->PassPhotonID(*thisPhoton, cuts->mediumPhID)) photonsID.push_back(*thisPhoton);
+        if (particleSelector->PassPhotonID(*thisPhoton, cuts->mediumPhID) && particleSelector->PassPhotonIso(*thisPhoton, cuts->mediumPhIso, cuts->EAPho)){
+          //standard selection photons
           photonsIDIso.push_back(*thisPhoton);
+          if (params->engCor) photonsIDIsoUnCor.push_back(*clonePhoton);
+        }
       }else{
-        if (electronsIDIso.size() > 1){
-          goodLepPre = GoodLeptonsCat( electronsIDIso[0], electronsIDIso[1]);
-        }
-        if (particleSelector->PassPhotonID(*thisPhoton, cuts->preSelPhID)
-            && particleSelector->PassPhotonMVA(*thisPhoton, cuts->catPhMVAID, goodLepPre))
-          photonsIDIso.push_back(*thisPhoton);
+        bool goodLepPre = false;
+        if (particleSelector->PassPhotonID(*thisPhoton, cuts->preSelPhID)) photonsID.push_back(*thisPhoton);
+        if (params->selection == "mumuGamma"){
+          if (muonsIDIso.size() > 1){
+            goodLepPre = GoodLeptonsCat( muonsIDIso[0], muonsIDIso[1]);
+          }
+          if (particleSelector->PassPhotonID(*thisPhoton, cuts->preSelPhID)
+              && particleSelector->PassPhotonMVA(*thisPhoton, cuts->catPhMVAID, goodLepPre))
+            photonsIDIso.push_back(*thisPhoton);
+        }else{
+          if (electronsIDIso.size() > 1){
+            goodLepPre = GoodLeptonsCat( electronsIDIso[0], electronsIDIso[1]);
+          }
+          if (particleSelector->PassPhotonID(*thisPhoton, cuts->preSelPhID)
+              && particleSelector->PassPhotonMVA(*thisPhoton, cuts->catPhMVAID, goodLepPre))
+            photonsIDIso.push_back(*thisPhoton);
 
-        //if (params->engCor) photonsIDIsoUnCor.push_back(*clonePhoton);
+          //if (params->engCor) photonsIDIsoUnCor.push_back(*clonePhoton);
+        }
       }
 
 
@@ -1058,7 +1066,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     //cout<<eventWeight<<endl;
   }else{
     if (params->engCor) goodZ = particleSelector->FindGoodZMuon(muonsIDIso,muonsIDIsoUnCor,lepton1,lepton2,uncorLepton1,uncorLepton2,ZP4,lepton1int,lepton2int);
-    else goodZ = particleSelector->FindGoodZMuon(muonsIDIso,lepton1,lepton2,ZP4,lepton1int,lepton2int);
+    else goodZ = particleSelector->FindGoodZMuon(muonsIDIso,lepton1,lepton2,ZP4,lepton1int,lepton2int, 91.1876);
     if (eventNumber == params->EVENTNUMBER) cout<<"goodZ?: "<<goodZ<<endl;
     if (!goodZ) return kTRUE;
     if (eventNumber == params->EVENTNUMBER) cout<<"goodZ?: "<<goodZ<<endl;
@@ -1407,10 +1415,12 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   mvaVars._SCPSEOPt = SCPSE/GP4.Pt();
 
   float mvaVal = -99;
-  if (params->doAnglesMVA){
-    mvaVal = MVACalculator(mvaInits, tmvaReader);
-    //with photon mva (good with seperation)
+  mvaVal = MVACalculator(mvaInits, tmvaReader);
+  hm->fill2DHist((GP4+ZP4).M(),mvaVal,"h2_MassVsMVACAT"+str(catNum)+"_"+params->suffix,"Mass vs MVA output (BTDG); m_{ll#gamma}; MVA Disc", 90,100,190,90,-1,1,eventWeight,"MVAPlots");
+  hm->fill2DHist((GP4+ZP4).M(),mvaVal,"h2_MassVsMVA_"+params->suffix,"Mass vs MVA output (BTDG); m_{ll#gamma}; MVA Disc", 90,100,190,90,-1,1,eventWeight,"MVAPlots");
     
+  if (params->doAnglesMVA){
+    //with photon mva (good with seperation)
     if (params->selection == "mumuGamma"){
       if (catNum ==1){
         if (mvaVal < -0.27) catNum = 6;
@@ -1434,8 +1444,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     }
    
 
-    hm->fill2DHist((GP4+ZP4).M(),mvaVal,"h2_MassVsMVACAT"+str(catNum)+"_"+params->suffix,"Mass vs MVA output (BTDG); m_{ll#gamma}; MVA Disc", 90,100,190,90,-1,1,eventWeight,"MVAPlots");
-    hm->fill2DHist((GP4+ZP4).M(),mvaVal,"h2_MassVsMVA_"+params->suffix,"Mass vs MVA output (BTDG); m_{ll#gamma}; MVA Disc", 90,100,190,90,-1,1,eventWeight,"MVAPlots");
   }
 
   MVAPlots(mvaVars,mvaVal,eventWeight,"CAT"+str(catNum)+"", "CAT"+str(catNum)+"");
@@ -1550,7 +1558,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     }
 
 
-    hm->fill1DHist((ZP4+GP4).M(),"h1_InvariantMassReco1GevCAT"+str(catNum)+"FULLRANGE_"+params->suffix,"Invariant Mass (H->Z#gamma);Mass (GeV);Entries",90,90,190,eventWeight);
     StandardPlots(lepton1,lepton2,GP4,eventWeight,"CAT"+str(catNum)+"", "CAT"+str(catNum)+"");
     hm->fill1DHist(GP4.R9(), "h1_R9CAT"+str(catNum)+"_"+params->suffix,"R9;R9;Entries",100,0,1,eventWeight);
     hm->fill2DHist(lepton1.Eta(),lepton2.Eta(),"h2_dilepEtaCAT"+str(catNum)+"_"+params->suffix,"Dilepton Eta CAT"+str(catNum)+"; Eta (leading); Eta (trailing)", 50,-2.5,2.5,50,-2.5,2.5,eventWeight,"CAT"+str(catNum)+"");
@@ -1574,7 +1581,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
 
 
-    hm->fill1DHist(GP4.R9(), "h1_R9Full_"+params->suffix,"R9;R9;Entries",100,0,1,eventWeight);
     hm->fill1DHist(lepton1.DeltaR(GP4),"h1_DeltaRLeading_"+params->suffix,"DeltaR leading lepton vs photon;#Delta R;Entries",16,0,4,eventWeight,"ZGamma");
     hm->fill1DHist(lepton2.DeltaR(GP4),"h1_DeltaRTrailing_"+params->suffix,"DeltaR trailing lepton vs photon;#Delta R;Entries",16,0,4,eventWeight,"ZGamma");
     hm->fill1DHist(ZP4.DeltaR(GP4),"h1_DeltaRZG_"+params->suffix,"DeltaR diLepton vs photon;#Delta R;Entries",16,0,4,eventWeight,"ZGamma");

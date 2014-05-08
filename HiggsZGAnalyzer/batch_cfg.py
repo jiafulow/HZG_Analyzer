@@ -9,14 +9,14 @@ t3storage   = '/tthome/bpollack/storage/'
 outputPathFNAL  = '/uscms/home/bpollack/nobackup/BatchOutput'
 outputPathNWU  = '/tthome/bpollack/BatchOutput'
 
-#analyzer = 'higgsAnalyzer'
-analyzer = 'smzgAnalyzer'
+analyzer = 'higgsAnalyzer'
+#analyzer = 'smzgAnalyzer'
 
 os.system('tar -zcvf stageball.tar.gz {0}* ../src  otherHistos ../plugins ../interface ../mva/testWeights ../txtFiles ../input.DAT ../process.DAT ../Pdfdata ../br.sm*'.format(analyzer))
 
-doMuMuGamma =False
-doEEGamma = False
-doMuEGamma = True
+doMuMuGamma = True
+doEEGamma =   True
+doMuEGamma =  False
 configs = []
 
 #different pathnames and executables for NWU or FNAL

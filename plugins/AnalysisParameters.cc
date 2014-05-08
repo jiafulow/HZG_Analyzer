@@ -20,6 +20,7 @@ Parameters::Parameters():
   doLooseMuIso(true),
   doAnglesMVA(true),
   doPhotonPurityStudy(false),
+  doPhoMVA(true),
 
   dumps(false),
   dataDumps(false),

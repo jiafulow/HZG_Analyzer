@@ -190,8 +190,8 @@ class Plotter:
     outList[0].GetXaxis().SetTitleSize(0.05)
 
     for i,hist in enumerate(outList[1:]):
-      hist.SetLineColor(colorList[i])
-      hist.SetMarkerColor(colorList[i])
+      hist.SetLineColor(colorList[i+1])
+      hist.SetMarkerColor(colorList[i+1])
       hist.SetLineWidth(2)
 
     return outList

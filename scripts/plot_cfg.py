@@ -30,7 +30,7 @@ def GenericPlotter(inFolder, outFolder):
     plotterEl.DataBGComp2DProj(plotterEl.folderDict[key])
     plotterEl.DataBGComp2DProj(plotterEl.folderDict[key],125)
 
-def ROCPlotter(suffix = '04-28-14_PhoMVA'):
+def ROCPlotter(suffix = '05-07-14_PhoMVA'):
   if os.environ.get('AT_NWU') == None:
     #FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_11-18-13_anglesOnly.root")
     #FileEl= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_11-18-13_anglesOnly.root")
@@ -128,7 +128,7 @@ def DoAll():
 def DoMulti():
   if os.environ.get('AT_NWU'):
     mainPath = '/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_'
-    suffix1 = suffix2 = suffix3 = suffix4 = '04-16-14'
+    suffix1 = suffix2 = suffix3 = suffix4 = '04-28-14_PhoMVA'
     headDir = '_'.join(['Multi',suffix1,suffix2,suffix3,suffix4])
     if not os.path.isdir(headDir):
       os.mkdir(headDir)
@@ -147,7 +147,7 @@ def DoMulti():
     plotterMu = Plotter(files, folders, headDir, '2012','mu','Signal2012ggM125')
     #for key in plotterMu.folderDict[0].keys():
       #print key
-    keys = ['photonPt']*4
+    keys = ['mvaVal']*4
     plotterMu.MultiPlots([a+b for a,b in zip(keys,folders)],['DATA','DATA','DATA','DATA'],folders,True)
   else: print 'this is not set up for FNAL'
 

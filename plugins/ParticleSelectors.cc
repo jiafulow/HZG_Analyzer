@@ -404,9 +404,12 @@ bool ParticleSelector::PassMuonID(const TCMuon& mu, const Cuts::muIDCuts& cutLev
       if (
           fabs(mu.Eta()) < 2.4
           && mu.IsPF()                          == cutLevel.IsPF
-          && ((mu.IsTRK()                        == cutLevel.IsTRK
-              && mu.NumberOfMatchedStations()       > cutLevel.NumberOfMatchedStations)
-            || mu.IsGLB()                         == cutLevel.IsGLB)
+          && mu.IsGLB()                         == cutLevel.IsGLB
+          && mu.NormalizedChi2()                < cutLevel.NormalizedChi2
+          && mu.NumberOfValidMuonHits()         > cutLevel.NumberOfValidMuonHits
+          && mu.NumberOfMatchedStations()       > cutLevel.NumberOfMatchedStations
+          && mu.NumberOfValidPixelHits()        > cutLevel.NumberOfValidPixelHits
+          && mu.TrackLayersWithMeasurement()    > cutLevel.TrackLayersWithMeasurement
           && fabs(mu.Dxy(&_pv))           < cutLevel.dxy
           && fabs(mu.Dz(&_pv))            < cutLevel.dz
          ) muPass = true;
@@ -415,12 +418,9 @@ bool ParticleSelector::PassMuonID(const TCMuon& mu, const Cuts::muIDCuts& cutLev
     if (
         fabs(mu.Eta()) < 2.4
         && mu.IsPF()                          == cutLevel.IsPF
-        && mu.IsGLB()                         == cutLevel.IsGLB
-        && mu.NormalizedChi2()                < cutLevel.NormalizedChi2
-        && mu.NumberOfValidMuonHits()         > cutLevel.NumberOfValidMuonHits
-        && mu.NumberOfMatchedStations()       > cutLevel.NumberOfMatchedStations
-        && mu.NumberOfValidPixelHits()        > cutLevel.NumberOfValidPixelHits
-        && mu.TrackLayersWithMeasurement()    > cutLevel.TrackLayersWithMeasurement
+        && ((mu.IsTRK()                        == cutLevel.IsTRK
+            && mu.NumberOfMatchedStations()       > cutLevel.NumberOfMatchedStations)
+          || mu.IsGLB()                         == cutLevel.IsGLB)
         && fabs(mu.Dxy(&_pv))           < cutLevel.dxy
         && fabs(mu.Dz(&_pv))            < cutLevel.dz
        ) muPass = true;
