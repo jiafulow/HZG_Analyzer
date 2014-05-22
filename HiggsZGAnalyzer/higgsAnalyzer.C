@@ -1123,6 +1123,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   }
 
 
+
   ////////////////////////////
   //**ZGamma** Gamma Energy //
   ////////////////////////////
@@ -1380,7 +1381,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   e2x2            = GP4.E2x2();
   e2x2O5x5        = GP4.E2x2()/GP4.E5x5();
   scaleFactor     = eventWeight;
-  if (params->suffix.find("ggM125") != string::npos) scaleFactor *= 19.672/(unskimmedEventsTotal/(19.52*0.00154*0.10098*1000));
+  if (params->suffix.find("ggM123") != string::npos) scaleFactor *= 19.672/(unskimmedEventsTotal/(19.52*0.00154*0.10098*1000));
   if (params->suffix == "DYJets") scaleFactor *= 19.672/(unskimmedEventsTotal/(3503.71*1000));
   if (params->suffix == "ZGToLLG") scaleFactor *= 19.672/(unskimmedEventsTotal/(156.2*1000)); 
   //if (params->suffix == "ZGEE") scaleFactor *= 4.98/7.11;

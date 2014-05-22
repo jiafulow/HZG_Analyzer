@@ -32,16 +32,10 @@ class Dumper{
     void  CloseDumps();
     
   private:
-    ofstream muDump1;
-    ofstream elDump2;
-    ofstream elDumpMVA;
-    ofstream phDump1;
-    ofstream phDump2;
-
-    ofstream muDumpFinal;
-    ofstream elDumpFinal;
-
-    ofstream dataDump;
+    ofstream lepDump1;
+    ofstream lepDump2;
+    ofstream phoDump1;
+    ofstream phoDump2;
 
     ofstream finalDump;
 

@@ -64,9 +64,16 @@ void smzgAnalyzer::Begin(TTree * tree)
   int jobNum = atoi(params->jobCount.c_str());
   cuts.reset(new Cuts());
 
-  cuts->gPt = 25;
-  cuts->leadMuPt = 23;
-  cuts->trailMuPt = 4;
+  if (params->period.find("2012") != string::npos){
+    cuts->gPt = 25;
+    cuts->leadMuPt = 23;
+    cuts->trailMuPt = 4;
+  }else{
+    cuts->gPt = 25;
+    cuts->leadMuPt = 4;
+    cuts->trailMuPt = 4;
+  }
+
 
   cuts->InitEA(params->period);
   weighter.reset(new WeightUtils(*params, isRealData, runNumber));
@@ -104,7 +111,8 @@ Bool_t smzgAnalyzer::Process(Long64_t entry)
   } 
 
   bool triggerPass   = triggerSelector->SelectTrigger(triggerStatus, hltPrescale);
-  if (!triggerPass) return kTRUE;
+  if (params->period.find("2012") != string::npos) if (!triggerPass) return kTRUE;
+
 
   // vertex
 

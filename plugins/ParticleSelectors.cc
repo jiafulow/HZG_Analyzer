@@ -308,7 +308,8 @@ void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, vecto
     else if (abs(thisGen->GetPDGId()) == 22){
       //////////// DYJets Gamma Veto ////////////
       if (_parameters.DYGammaVeto && (_parameters.suffix.find("DYJets") != string::npos)){
-        if ((*thisGen).Mother() && (abs((*thisGen).Mother()->GetPDGId()) <= 22)){
+        //if ((*thisGen).Mother() && (abs((*thisGen).Mother()->GetPDGId()) <= 22)){
+        if ((abs((*thisGen).MotherId()) <= 22)){
           vetoPhotons.push_back(*thisGen);
         }else{
           genPhotons.push_back(*thisGen);

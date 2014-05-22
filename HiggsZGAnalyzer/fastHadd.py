@@ -12,12 +12,17 @@ def fastHadd():
     print 'where is the .checkfile.txt?! you fucked something up, I aint hadding shit. fuck you, do it yourself.'
     return
 
-  year = '2012ABCD'
   infile = open('.checkfile.txt','r')
   analyzer = infile.readline()
 
   for line in infile:
     selectionList = line.split()
+
+    if '2011' in selectionList[1]:
+      year = '2011AB'
+    else:
+      year = '2012ABCD'
+
     if selectionList[0] == 'mumuGamma':
       leptonA = 'MuMu'
       leptonB = 'mumuGamma'

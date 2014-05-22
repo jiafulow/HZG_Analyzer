@@ -34,106 +34,21 @@ void Dumper::InitDumps(){
   if (_parameters.dumps){
     if (_parameters.selection == "mumuGamma") muonDump = true;
     if (_parameters.selection == "eeGamma") electronDump= true;
-  }
 
-  char buffer[512];
-  if (electronDump){
-    sprintf(buffer, "dumps/electronDump2_%s.txt",_parameters.suffix.c_str());
-    elDump2.open(buffer);
-    if (!elDump2.good()) cout << "ERROR: can't open file for writing." << endl;
-    elDump2<<"run"             <<" "<<"event"       <<" "<<"pt"
-      <<" "<<"eta"             <<" "<<"dEtaIn"      <<" "<<"dPhiIn"
-      <<" "<<"sigmaIetaIeta"   <<" "<<"HoE"         <<" "<<"ooemoop"
-      <<" "<<"conPass"         <<" "<<"mHits"       <<" "<<"d0"
-      <<" "<<"dz"              <<" "<<"chIso"       <<" "<<"nhIso"
-      <<" "<<"phIso"           <<" "<<"combIso"     <<" "<<"rho"
-      <<" "<<"EA"              <<" "<<"passID"      <<" "<<"passIso"
-      <<endl<<endl;
-    sprintf(buffer, "dumps/photonDump1El_%s.txt",_parameters.suffix.c_str());
-    phDump1.open(buffer);
-    if (!phDump1.good()) cout << "ERROR: can't open file for writing." << endl;
-    sprintf(buffer, "dumps/photonDump2El_%s.txt",_parameters.suffix.c_str());
-    phDump2.open(buffer);
-    if (!phDump2.good()) cout << "ERROR: can't open file for writing." << endl;
-
-    sprintf(buffer, "dumps/electronDumpFinal_%s_NEW.txt",_parameters.suffix.c_str());
-    elDumpFinal.open(buffer);
-    if (!elDumpFinal.good()) cout << "ERROR: can't open file for writing." << endl;
-    elDumpFinal<<"run"             <<" "<<"event"       <<" "<<"pt"
-      <<" "<<"eta"             <<" "<<"dEtaIn"      <<" "<<"dPhiIn"
-      <<" "<<"sigmaIetaIeta"   <<" "<<"HoE"         <<" "<<"ooemoop"
-      <<" "<<"conPass"         <<" "<<"mHits"       <<" "<<"d0"
-      <<" "<<"dz"              <<" "<<"chIso"       <<" "<<"nhIso"
-      <<" "<<"phIso"           <<" "<<"combIso"     <<" "<<"rho"
-      <<" "<<"EA"              <<" "<<"passID"      <<" "<<"passIso"
-      <<endl<<endl;
-
-    if(_parameters.doEleMVA){
-      sprintf(buffer, "dumps/electronDumpMVA_%s.txt",_parameters.suffix.c_str());
-      elDumpMVA.open(buffer);
-      if (!elDumpMVA.good()) cout << "ERROR: can't open file for writing." << endl;
-    }
-  }
-  if (muonDump){
-    sprintf(buffer, "dumps/muonDump1_%s.txt",_parameters.suffix.c_str());
-    muDump1.open(buffer);
-    if (!muDump1.good()) cout << "ERROR: can't open file for writing." << endl;
-    muDump1<<"run"       <<" "<<"event"       <<" "<<"pt"
-      <<" "<<"eta"       <<" "<<"isGlobal"    <<" "<<"isPf"
-      <<" "<<"rChi2"     <<" "<<"nHits"       <<" "<<"nMatch"
-      <<" "<<"d0"        <<" "<<"dz"          <<" "<<"nPixel"
-      <<" "<<"nLayer"    <<" "<<"chIso"       <<" "<<"nhIso"
-      <<" "<<"phIso"     <<" "<<"combIso"     <<" "<<"dB"
-      <<" "<<"passID"    <<" "<<"passIso"
-      <<endl<<endl;
-    sprintf(buffer, "dumps/photonDump1Mu_%s.txt",_parameters.suffix.c_str());
-    phDump1.open(buffer);
-    if (!phDump1.good()) cout << "ERROR: can't open file for writing." << endl;
-    sprintf(buffer, "dumps/photonDump2Mu_%s.txt",_parameters.suffix.c_str());
-    phDump2.open(buffer);
-    if (!phDump2.good()) cout << "ERROR: can't open file for writing." << endl;
-
-    sprintf(buffer, "dumps/muonDumpFinal_%s.txt",_parameters.suffix.c_str());
-    muDumpFinal.open(buffer);
-    if (!muDumpFinal.good()) cout << "ERROR: can't open file for writing." << endl;
-    muDumpFinal<<"run"       <<" "<<"event"       <<" "<<"pt"
-      <<" "<<"eta"       <<" "<<"isGlobal"    <<" "<<"isPf"
-      <<" "<<"rChi2"     <<" "<<"nHits"       <<" "<<"nMatch"
-      <<" "<<"d0"        <<" "<<"dz"          <<" "<<"nPixel"
-      <<" "<<"nLayer"    <<" "<<"chIso"       <<" "<<"nhIso"
-      <<" "<<"phIso"     <<" "<<"combIso"     <<" "<<"dB"
-      <<" "<<"passID"    <<" "<<"passIso"
-      <<endl<<endl;
-  }
-
-  if (_parameters.dumps){
-    phDump1<<"run"             <<" "<<"event"       <<" "<<"pt"
-      <<" "<<"eta"              <<" "<<"CSElVeto"    <<" "<<"HoE"
-      <<" "<<"sigmaIetaIeta"    <<" "<<"chIso"       <<" "<<"nhIso"
-      <<" "<<"phIso"            <<" "<<"rho"         <<" "<<"chEA"
-      <<" "<<"nhEA"             <<" "<<"phEA"        <<" "<<"passID"
-      <<" "<<"passIso"
-      <<endl<<endl;
-
-    phDump2<<"run"             <<" "<<"event"       <<" "<<"pt"
-      <<" "<<"eta"              <<" "<<"CSElVeto"    <<" "<<"HoE"
-      <<" "<<"sigmaIetaIeta"    <<" "<<"chIso"       <<" "<<"nhIso"
-      <<" "<<"phIso"            <<" "<<"rho"         <<" "<<"chEA"
-      <<" "<<"nhEA"             <<" "<<"phEA"        <<" "<<"passID"
-      <<" "<<"passIso"          <<" "<<"dr1"         <<" "<<"dr2"
-      <<" "<<"pt/Mllg"
-      <<endl<<endl;
-
-    sprintf(buffer, "dumps/finalDump_%s_%s_%s.txt",_parameters.selection.c_str(),_parameters.period.c_str(),_parameters.suffix.c_str());
+    char buffer[512];
+    sprintf(buffer, "dumps/%s_%s_lepDump1.txt",_parameters.selection.c_str(),_parameters.suffix.c_str());
+    lepDump1.open(buffer);
+    sprintf(buffer, "dumps/%s_%s_lepDump2.txt",_parameters.selection.c_str(),_parameters.suffix.c_str());
+    lepDump2.open(buffer);
+    sprintf(buffer, "dumps/%s_%s_phoDump1.txt",_parameters.selection.c_str(),_parameters.suffix.c_str());
+    phoDump1.open(buffer);
+    sprintf(buffer, "dumps/%s_%s_phoDump2.txt",_parameters.selection.c_str(),_parameters.suffix.c_str());
+    phoDump2.open(buffer);
+    sprintf(buffer, "dumps/%s_%s_finalDump.txt",_parameters.selection.c_str(),_parameters.suffix.c_str());
     finalDump.open(buffer);
   }
-
-  if (_parameters.dataDumps && _parameters.suffix == "DATA"){
-    sprintf(buffer, "dumps/dataDump_%s_%s.txt",_parameters.dataname.c_str(),_parameters.jobCount.c_str());
-    dataDump.open(buffer);
-    if (!dataDump.good()) cout << "ERROR: can't open file for writing." << endl;
-  }
 }
+
 
 void Dumper::ElectronDump(const TCElectron& el, const TClonesArray& recoMuons, bool final)
 {

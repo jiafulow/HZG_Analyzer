@@ -1,5 +1,5 @@
 #ifndef _TCPHOTON_H
-#define _TCPHOTON_H
+#define	_TCPHOTON_H
 
 #include <memory>
 #include "TObject.h"
@@ -76,6 +76,9 @@ private:
     void SetCiCPF4chgpfIso02(vector<float>);
     void SetCiCPF4chgpfIso03(vector<float>);
     void SetCiCPF4chgpfIso04(vector<float>);
+
+    // print method
+    virtual ostream& TCprint(ostream& out) const;
 
     ClassDef(TCPhoton, 1);
 };
