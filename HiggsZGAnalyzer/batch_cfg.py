@@ -12,7 +12,7 @@ outputPathNWU  = '/tthome/bpollack/BatchOutput'
 analyzer = 'higgsAnalyzer'
 #analyzer = 'smzgAnalyzer'
 
-os.system('tar -zcvf stageball.tar.gz {0}* ../src  otherHistos ../plugins ../interface ../mva/testWeights ../txtFiles ../input.DAT ../process.DAT ../Pdfdata ../br.sm*'.format(analyzer))
+os.system('tar -zcvf stageball.tar.gz {0}* ../src  otherHistos ../plugins ../interface ../mva/testWeights* ../txtFiles ../input.DAT ../process.DAT ../Pdfdata ../br.sm*'.format(analyzer))
 
 doMuMuGamma = True
 doEEGamma =   True

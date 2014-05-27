@@ -32,7 +32,7 @@ void higgsAnalyzer::Begin(TTree * tree)
 
   // change any params from default
   //params->doPhoMVA       = false; //FOR PROPER
-  //params->doAnglesMVA    = false; //FOR PROPER
+  params->doAnglesMVA    = false; //FOR PROPER
 
 
   for (int i =0; i<100; i++){
@@ -101,7 +101,8 @@ void higgsAnalyzer::Begin(TTree * tree)
   histoFile->mkdir("ZGamma", "ZGamma");
   histoFile->mkdir("pT-Eta-Phi", "pT-Eta-Phi");
   histoFile->mkdir("Vtx", "Vtx");
-  histoFile->mkdir("PreSel", "PreSel");
+  histoFile->mkdir("PreSelDiLep", "PreSelDiLep");
+  histoFile->mkdir("PreSelThreeBody", "PreSelThreeBody");
   histoFile->mkdir("PhotonIsoDR04", "PhotonIsoDR04");
   histoFile->mkdir("MuonIso", "MuonIso");
   histoFile->mkdir("GenLvl", "GenLvl");
@@ -230,7 +231,11 @@ void higgsAnalyzer::Begin(TTree * tree)
   ///////////////////////
 
   // TMVA weights directory
-  mvaInits.weightsDir = "../mva/testWeights/";
+  if(params->doAltMVA){
+    mvaInits.weightsDir = "../mva/testWeights2/";
+  }else{
+    mvaInits.weightsDir = "../mva/testWeights/";
+  }
 
   // here we will use only BDTG... but will keep the structure 
   mvaInits.discrMethodName[0] = "MLPBNN";
@@ -242,10 +247,10 @@ void higgsAnalyzer::Begin(TTree * tree)
   //mvaInits.discrSuffixName = "anglesOnly";
   //mvaInits.discrSuffixName = "newAnglesR9";
   //mvaInits.discrSuffixName = "01-29-14_v0905";
-  mvaInits.discrSuffixName = "05-07-14_PhoMVA";
+  mvaInits.discrSuffixName = "05-24-14_PhoMVA";
 
 
-  mvaInits.mvaHiggsMassPoint[0] = 125;
+  mvaInits.mvaHiggsMassPoint[0] = 123;
 
   mvaInits.bdtCut[0] = -0.1;
   tmvaReader = MVAInitializer();
@@ -562,7 +567,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     if(params->doEleMVA){
       bool passAll = false;
 
-      //dumper->MVADumper(*thisElec, myMVATrig.get()); 
 
       if (particleSelector->PassElectronID(*thisElec, cuts->mvaPreElID, *recoMuons)) electronsID.push_back(*thisElec);			
       /// low pt
@@ -572,46 +576,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       }else if (thisElec->Pt() > 20 && particleSelector->PassElectronID(*thisElec, cuts->mvaPreElID, *recoMuons) && thisElec->MvaID_Old() > -0.5 && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
         passAll = true;
       }
-      //cout<<"MVA OLD: "<<thisElec->MvaID_Old()<<" MVA HZZ: "<<thisElec->MvaID()<<endl;
-      /*
-      if (thisElec->Pt() > 5 && thisElec->ConversionMissHits() <=1) electronsID.push_back(*thisElec);			
-      /// inner barrel, low pt
-      if (thisElec->Pt() > 5 && thisElec->Pt() < 10){
-          if (fabs(thisElec->SCEta()) < 0.8
-                  && thisElec->MvaID() > 0.47
-                  && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
-              passAll = true;
-      /// outer barrel, low pt
-          }else if(fabs(thisElec->SCEta()) > 0.8 && fabs(thisElec->SCEta()) < 1.479
-                  && thisElec->MvaID() > 0.004
-                  && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
-              passAll = true;
-      /// endcap, low pt
-          }else if(fabs(thisElec->SCEta()) > 1.479
-                  && thisElec->MvaID() > 0.295
-                  && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
-              passAll = true;
-          }
-      }else if (thisElec->Pt() > 10){
-      /// inner barrel, high pt
-          if (fabs(thisElec->SCEta()) < 0.8
-                  && thisElec->MvaID() > -0.34
-                  && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
-              passAll = true;
-      /// outer barrel, high pt
-          }else if(fabs(thisElec->SCEta()) > 0.8 && fabs(thisElec->SCEta()) < 1.479
-                  && thisElec->MvaID() > -0.65
-                  && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
-              passAll = true;
-      /// endcap, high pt
-          }else if(fabs(thisElec->SCEta()) > 1.479
-                  && thisElec->MvaID() > 0.6
-                  && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
-              passAll = true;
-          }
-
-      }
-      */
 
       if (passAll){
         cloneElectron = thisElec;
@@ -644,7 +608,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
             thisElec->SetPtEtaPhiM(newPt,thisElec->Eta(),thisElec->Phi(),0.000511);
         }
       }
-      dumper->ElectronDump(*thisElec, *recoMuons, false);
+      dumper->ElectronDump(*thisElec, *recoMuons, 1);
       if (particleSelector->PassElectronID(*thisElec, cuts->looseElID, *recoMuons)) electronsID.push_back(*thisElec);			
       if (particleSelector->PassElectronID(*thisElec, cuts->looseElID, *recoMuons) && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
         electronsIDIso.push_back(*thisElec);			
@@ -728,7 +692,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
     // tight muon id
 
-    dumper->MuonDump(*thisMuon, false);
+    dumper->MuonDump(*thisMuon, 1);
 
     if (particleSelector->PassMuonID(*thisMuon, cuts->tightMuID)){
       muonsID.push_back(*thisMuon);
@@ -833,7 +797,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
       ////// Currently Using Cut-Based Photon ID, 2012
 
-      dumper->PhotonDump(*thisPhoton); 
+      dumper->PhotonDump(*thisPhoton, 1); 
       if(!params->doPhoMVA){
         if (particleSelector->PassPhotonID(*thisPhoton, cuts->mediumPhID)) photonsID.push_back(*thisPhoton);
         if (particleSelector->PassPhotonID(*thisPhoton, cuts->mediumPhID) && particleSelector->PassPhotonIso(*thisPhoton, cuts->mediumPhIso, cuts->EAPho)){
@@ -1087,22 +1051,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   hm->fill1DHist(8,"h1_acceptanceByCutRaw_"+params->suffix, "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
   ++nEvents[7];
 
-  //////////////////////////////////////////////////////////////
-  // lepton, gamma, Z plots directly after diLepton selection //
-  //////////////////////////////////////////////////////////////
-
-
-
-  if (photonsIDIso.size()>0 && ZP4.M() > cuts->zMassLow ){
-    StandardPlots(lepton1,lepton2,photonsIDIso[0],eventWeight,"PreSel", "PreSel");
-  }else if (ZP4.M() > cuts->zMassLow){
-    TLorentzVector noPhoton;
-    noPhoton.SetPtEtaPhiE(0.00001,0,0,0.00001);
-    StandardPlots(lepton1,lepton2,noPhoton,eventWeight,"PreSel", "PreSel");
-  }
-
-  if (ZP4.M() > cuts->zMassLow) hm->fill1DHist(primaryVtx->GetSize(),"h1_pvMultPreSel_"+params->suffix, "Multiplicity of PVs;N_{PV};N_{evts}", 25, 0.5, 25.5, eventWeight,"PreSel");
-
 
   ////////////
   // Z mass //
@@ -1113,16 +1061,19 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   hm->fill1DHist(9,"h1_acceptanceByCut_"+params->suffix, "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");
   hm->fill1DHist(9,"h1_acceptanceByCutRaw_"+params->suffix, "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
   ++nEvents[8];
-  hm->fill1DHist(ZP4.M(),"h1_diLeptonMassPreSel_"+params->suffix, "M_{ll}; M_{ll};N_{evts}", 40, 70., 110.,eventWeight,"PreSel");
 
 
   if (params->dumps){
     for (unsigned int i = 0; i < photonsIDIso.size(); ++i) {
-      dumper->PhotonDump2(photonsIDIso[i], lepton1, lepton2);
+      dumper->PhotonDump(photonsIDIso[i], 2);
     }
   }
 
+  ///////////////////////////////////////////////////////
+  // lepton, Z plots directly after diLepton selection //
+  ///////////////////////////////////////////////////////
 
+  StandardPlots(lepton1,lepton2,eventWeight,"PreSelDiLep", "PreSelDiLep");
 
   ////////////////////////////
   //**ZGamma** Gamma Energy //
@@ -1145,7 +1096,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   if (params->doScaleFactors){
       eventWeight   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
-      if (params->suffix == "DYJets") eventWeight   *= weighter->PhotonFakeWeight(GP4.Eta(), GP4.Pt()); 
+      //if (params->suffix == "DYJets") eventWeight   *= weighter->PhotonFakeWeight(GP4.Eta(), GP4.Pt()); 
   }
   eventWeightPho   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
 
@@ -1153,6 +1104,12 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   hm->fill1DHist(10,"h1_acceptanceByCut_"+params->suffix, "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");
   hm->fill1DHist(10,"h1_acceptanceByCutRaw_"+params->suffix, "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
   ++nEvents[9];
+
+  //////////////////////////////////////////////////////////////////////
+  // lepton, photon, Z, 3body plots directly after diLepton selection //
+  //////////////////////////////////////////////////////////////////////
+
+  StandardPlots(lepton1,lepton2,GP4,eventWeight,"PreSelThreeBody", "PreSelThreeBody");
 
   ///////////////////////////////
   //**ZGamma** Photon DR Stuff //
@@ -1163,7 +1120,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     // Make an FSR plot for 1337 normalization of the ZGToMuMuG set
 
     if (ZP4.M() > cuts->zMassLow && (GP4.DeltaR(lepton1)<cuts->dR || GP4.DeltaR(lepton2)<cuts->dR)){
-      hm->fill1DHist(ZP4.M(),"h1_diLeptonMassPreSelFSR_"+params->suffix, "M_{ll}; M_{ll};N_{evts}", 30, 50., 80.,eventWeight,"PreSel");
+      hm->fill1DHist(ZP4.M(),"h1_diLeptonMassPreSelFSR_"+params->suffix, "M_{ll}; M_{ll};N_{evts}", 30, 50., 80.,eventWeight,"PreSelThreeBody");
     }
 
   }
@@ -1528,12 +1485,12 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
     if (params->dumps){
       if (params->selection == "mumuGamma"){
-        dumper->MuonDump(muonsIDIso[lepton1int],true);
-        dumper->MuonDump(muonsIDIso[lepton2int],true);
+        dumper->MuonDump(muonsIDIso[lepton1int],2);
+        dumper->MuonDump(muonsIDIso[lepton2int],2);
 
       } else if (params->selection == "eeGamma"){
-        dumper->ElectronDump(electronsIDIso[lepton1int],*recoMuons,true);
-        dumper->ElectronDump(electronsIDIso[lepton2int],*recoMuons,true);
+        dumper->ElectronDump(electronsIDIso[lepton1int],*recoMuons,2);
+        dumper->ElectronDump(electronsIDIso[lepton2int],*recoMuons,2);
       }
     }
 
@@ -1568,14 +1525,16 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     hm->fill1DHist(59+catNum,"h1_acceptanceByCutRaw_"+params->suffix, "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
     ++nEvents[60+catNum];
 
-      
-
-    if (params->dataDumps && isRealData){
-      dumper->DataDumper(lepton1, lepton2, GP4, GP4.R9(), GP4scEta, SCetaEl1,SCetaEl2);
-    }
-
     if (params->dumps){
-      dumper->FinalDumper(lepton1, lepton2, GP4, catNum);
+      if (params->selection == "mumuGamma"){
+        dumper->MuonDump(muonsIDIso[lepton1int],3);
+        dumper->MuonDump(muonsIDIso[lepton2int],3);
+
+      } else if (params->selection == "eeGamma"){
+        dumper->ElectronDump(electronsIDIso[lepton1int],*recoMuons,3);
+        dumper->ElectronDump(electronsIDIso[lepton2int],*recoMuons,3);
+      }
+      dumper->PhotonDump(GP4,3);
     }
 
     unBinnedWeight = eventWeight;
@@ -1818,6 +1777,31 @@ void higgsAnalyzer::StandardPlots(TLorentzVector p1, TLorentzVector p2, TLorentz
   hm->fill1DHist(threeBody.Phi(),"h1_threeBodyPhi"+tag+"_"+params->suffix, "#phi 3body;#phi;N_{evts}", 18, -TMath::Pi(), TMath::Pi(), eventWeight,folder);    
   hm->fill1DHist(threeBody.M(),"h1_threeBodyMass"+tag+"_"+params->suffix, "M_{3body};M (GeV);N_{evts}", 50, 100, 200, eventWeight,folder);    
 
+
+  hm->fill1DHist(primaryVtx->GetSize(),"h1_pvMultCopy"+tag+"_"+params->suffix, "Multiplicity of PVs;N_{PV};N_{evts}", 25, 0.5, 25.5, eventWeight, folder);
+  for(int i = 0; i < 64; ++i) {
+    unsigned long iHLT = 0x0; 
+    iHLT = 0x01 << i;  
+    if ((triggerStatus & iHLT) == iHLT) hm->fill1DHist(i+1,"h1_triggerStatus"+tag+"_"+params->suffix, "Triggers (no weight)", 64, 0.5, 64.5,1,"Misc");  
+  } 
+}
+
+void higgsAnalyzer::StandardPlots(TLorentzVector p1, TLorentzVector p2, float eventWeight,string tag, string folder)
+{
+  TLorentzVector diLep = p1+p2;
+
+  hm->fill1DHist(p1.Pt(),"h1_leadLeptonStdPt"+tag+"_"+params->suffix, "p_{T} leading lepton;p_{T};N_{evts}", 28, 0., 140., eventWeight,folder);     
+  hm->fill1DHist(p1.Eta(),"h1_leadLeptonStdEta"+tag+"_"+params->suffix, "#eta leading lepton;#eta;N_{evts}", 20, -2.5, 2.5, eventWeight,folder);    
+  hm->fill1DHist(p1.Phi(),"h1_leadLeptonStdPhi"+tag+"_"+params->suffix, "#phi leading lepton;#phi;N_{evts}", 20, -TMath::Pi(), TMath::Pi(), eventWeight,folder);    
+
+  hm->fill1DHist(p2.Pt(),"h1_trailingLeptonStdPt"+tag+"_"+params->suffix, "p_{T} trailing lepton;p_{T};N_{evts}", 20, 0., 100., eventWeight,folder); 
+  hm->fill1DHist(p2.Eta(),"h1_trailingLeptonStdEta"+tag+"_"+params->suffix, "#eta trailing lepton;#eta;N_{evts}", 20, -2.5, 2.5, eventWeight,folder);
+  hm->fill1DHist(p2.Phi(),"h1_trailingLeptonStdPhi"+tag+"_"+params->suffix, "#phi trailing lepton;#phi;N_{evts}", 20, -TMath::Pi(), TMath::Pi(), eventWeight,folder);
+
+  hm->fill1DHist(diLep.Pt(),"h1_diLepPt"+tag+"_"+params->suffix, "p_{T} Z;p_{T};N_{evts}", 20, 0., 100., eventWeight,folder);     
+  hm->fill1DHist(diLep.Eta(),"h1_diLepEta"+tag+"_"+params->suffix, "#eta Z;#eta;N_{evts}", 18, -2.5, 2.5, eventWeight,folder);    
+  hm->fill1DHist(diLep.Phi(),"h1_diLepPhi"+tag+"_"+params->suffix, "#phi Z;#phi;N_{evts}", 18, -TMath::Pi(), TMath::Pi(), eventWeight,folder);    
+  hm->fill1DHist(diLep.M(),"h1_diLepMass"+tag+"_"+params->suffix, "M_{Z};M (GeV);N_{evts}", 25, 66, 116, eventWeight,folder);    
 
   hm->fill1DHist(primaryVtx->GetSize(),"h1_pvMultCopy"+tag+"_"+params->suffix, "Multiplicity of PVs;N_{PV};N_{evts}", 25, 0.5, 25.5, eventWeight, folder);
   for(int i = 0; i < 64; ++i) {
@@ -2190,18 +2174,37 @@ TMVA::Reader* higgsAnalyzer::MVAInitializer(){
   tmvaReader = new TMVA::Reader("!Color:!Silent");
 
   //add  variables... some are exclusive to particular sample/jet multi discriminator
+  //
+  if(params->doAltMVA){
+    tmvaReader->AddVariable("comPhi", &(mvaVars._comPhi));
+    tmvaReader->AddVariable("threeBodyPtOM", &(mvaVars._threeBodyPtOM));
+    tmvaReader->AddVariable("l2Eta", &(mvaVars._l2Eta));
+    tmvaReader->AddVariable("GEta", &(mvaVars._GEta));
+    tmvaReader->AddVariable("bigTheta", &(mvaVars._bigTheta));
+    tmvaReader->AddVariable("smallTheta", &(mvaVars._smallTheta));
+    tmvaReader->AddVariable("l1Eta", &(mvaVars._l1Eta));
+  }else{
+    if (params->selection =="mumuGamma"){
+      tmvaReader->AddVariable("smallTheta", &(mvaVars._smallTheta));
+      tmvaReader->AddVariable("bigTheta", &(mvaVars._bigTheta));
+      tmvaReader->AddVariable("threeBodyPtOM", &(mvaVars._threeBodyPtOM));
+      tmvaReader->AddVariable("l1Eta", &(mvaVars._l1Eta));
+      tmvaReader->AddVariable("l2Eta", &(mvaVars._l2Eta));
+    }else if (params->selection=="eeGamma"){
+      tmvaReader->AddVariable("threeBodyPtOM", &(mvaVars._threeBodyPtOM));
+      tmvaReader->AddVariable("l2Eta", &(mvaVars._l2Eta));
+      tmvaReader->AddVariable("GEta", &(mvaVars._GEta));
+      tmvaReader->AddVariable("bigTheta", &(mvaVars._bigTheta));
+      tmvaReader->AddVariable("smallTheta", &(mvaVars._smallTheta));
+      tmvaReader->AddVariable("l1Eta", &(mvaVars._l1Eta));
+    }
+  }
   
   //tmvaReader->AddVariable("medisc", &(mvaVars._medisc));
-  tmvaReader->AddVariable("smallTheta", &(mvaVars._smallTheta));
-  tmvaReader->AddVariable("bigTheta", &(mvaVars._bigTheta));
-  tmvaReader->AddVariable("comPhi", &(mvaVars._comPhi));
+  //tmvaReader->AddVariable("comPhi", &(mvaVars._comPhi));
   //tmvaReader->AddVariable("GPtOM", &(mvaVars._GPtOM));
   //tmvaReader->AddVariable("diffZGvectorOM", &(mvaVars._diffZGvectorOM));
-  tmvaReader->AddVariable("threeBodyPtOM", &(mvaVars._threeBodyPtOM));
   //tmvaReader->AddVariable("ZPtOM", &(mvaVars._ZPtOM));
-  tmvaReader->AddVariable("GEta", &(mvaVars._GEta));
-  tmvaReader->AddVariable("l1Eta", &(mvaVars._l1Eta));
-  tmvaReader->AddVariable("l2Eta", &(mvaVars._l2Eta));
   //tmvaReader->AddVariable("R9var", &(mvaVars._R9));
   //tmvaReader->AddVariable("sieip", &(mvaVars._sieip));
   //tmvaReader->AddVariable("sipip", &(mvaVars._sipip));
@@ -2230,7 +2233,7 @@ TMVA::Reader* higgsAnalyzer::MVAInitializer(){
     TString label = TString::Format("%s_%s_%s_ggM%i_%s", mvaInits.discrMethodName[discr].Data(), mvaInits.discrSelection.Data(), mvaInits.discrSampleName.Data(),
         mvaInits.mvaHiggsMassPoint[mh], mvaInits.discrSuffixName.Data());
 
-    TString weightFile = TString::Format("%sdiscr_%s_%s_ggM%i_%s___%s.weights.xml",
+    TString weightFile = TString::Format("%sdiscr_%s_%s_ggM%i_%s__%s.weights.xml",
         mvaInits.weightsDir.Data(), mvaInits.discrSelection.Data(), mvaInits.discrSampleName.Data(), mvaInits.mvaHiggsMassPoint[mh], mvaInits.discrSuffixName.Data(), mvaInits.discrMethodName[discr].Data());
 
     tmvaReader->BookMVA(label.Data(), weightFile.Data());
