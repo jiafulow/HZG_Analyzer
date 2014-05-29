@@ -31,8 +31,11 @@ void higgsAnalyzer::Begin(TTree * tree)
   params->jobCount       = count;
 
   // change any params from default
-  params->doPhoMVA       = false; //FOR PROPER
+  //params->doPhoMVA       = false; //FOR PROPER
   params->doAnglesMVA    = false; //FOR PROPER
+
+  //params->doSync         = true;
+  //params->dumps          = true;
 
 
   for (int i =0; i<100; i++){
@@ -256,6 +259,9 @@ void higgsAnalyzer::Begin(TTree * tree)
 
   mvaInits.bdtCut[0] = -0.1;
   tmvaReader = MVAInitializer();
+
+  if (params->doSync) cout<<"WARNING: Sync Mode"<<endl;
+
 }
 
 
@@ -264,6 +270,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 {
 
   GetEntry(entry,1);
+  // skip event if event number investigator is being used 
+  if(params->EVENTNUMBER != -999 && params->EVENTNUMBER != eventNumber) return kTRUE;
   if(eventNumber == params->EVENTNUMBER) cout<<params->EVENTNUMBER<<endl;
 
   // 2011 bad electron run veto
@@ -659,10 +667,17 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     //for (int i = 0; i < pfMuons->GetSize(); ++ i)
   {
     TCMuon* thisMuon = (TCMuon*) recoMuons->At(i);    
+    if (eventNumber == params->EVENTNUMBER){
+      cout<< "muon uncor: " << TCPhysObject(*thisMuon) << endl;
+    }
 
     // Section for muon energy/momentum corrections.  NOTE: this will change the pt and thus ID/ISO of muon
 
-    if(params->engCor){
+    if(params->engCor && !params->doSync){
+      if (eventNumber == params->EVENTNUMBER){
+        rmcor2012.reset(new rochcor2012(666));
+        cout<< "resetting rochcor seed to 666"<<endl;
+      }
       tmpMuCor = *thisMuon;
       if ( params->period.find("2011") != string::npos ){
         if (isRealData){
@@ -699,6 +714,9 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     // tight muon id
 
     dumper->MuonDump(*thisMuon, 1);
+    if (eventNumber == params->EVENTNUMBER){
+      cout<< "muon cor: " << TCPhysObject(*thisMuon) << endl;
+    }
 
     if (particleSelector->PassMuonID(*thisMuon, cuts->tightMuID)){
       muonsID.push_back(*thisMuon);
@@ -709,12 +727,14 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     if (params->doLooseMuIso){
       if (particleSelector->PassMuonID(*thisMuon, cuts->tightMuID) && particleSelector->PassMuonIso(*thisMuon, cuts->looseMuIso)){
         muonsIDIso.push_back(*thisMuon);
-        if (params->engCor) muonsIDIsoUnCor.push_back(*cloneMuon);
+        if (cloneMuon){
+          muonsIDIsoUnCor.push_back(*cloneMuon);
+        }
       }
     }else{
       if (particleSelector->PassMuonID(*thisMuon, cuts->tightMuID) && particleSelector->PassMuonIso(*thisMuon, cuts->tightMuIso)){
         muonsIDIso.push_back(*thisMuon);
-        if (params->engCor) muonsIDIsoUnCor.push_back(*cloneMuon);
+        if (cloneMuon) muonsIDIsoUnCor.push_back(*cloneMuon);
       }
     }
 
@@ -1035,7 +1055,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     }
     //cout<<eventWeight<<endl;
   }else{
-    if (params->engCor) goodZ = particleSelector->FindGoodZMuon(muonsIDIso,muonsIDIsoUnCor,lepton1,lepton2,uncorLepton1,uncorLepton2,ZP4,lepton1int,lepton2int);
+    if (params->engCor && !params->doSync) goodZ = particleSelector->FindGoodZMuon(muonsIDIso,muonsIDIsoUnCor,lepton1,lepton2,uncorLepton1,uncorLepton2,ZP4,lepton1int,lepton2int);
     else goodZ = particleSelector->FindGoodZMuon(muonsIDIso,lepton1,lepton2,ZP4,lepton1int,lepton2int, 91.1876);
     if (eventNumber == params->EVENTNUMBER) cout<<"goodZ?: "<<goodZ<<endl;
     if (!goodZ) return kTRUE;
