@@ -277,6 +277,11 @@ class higgsAnalyzer : public TSelector {
     virtual bool    GoodLeptonsCat(const TCElectron& e1, const TCElectron& e2);
     virtual bool    GoodLeptonsCat(const TCPhysObject& m1, const TCPhysObject& m2);
     virtual bool    GoodLeptonsCat(const float SCEta1, const float SCEta2);
+    bool            SpikeVeto(const TCPhoton& ph);
+    
+    void            UniversalEnergyCorrector(TCPhoton& ph, vector<TCGenParticle>& _genPhotons);
+    void            UniversalEnergyCorrector(TCMuon& mu); 
+    void            UniversalEnergyCorrector(TCElectron& el); 
 
 
     ///////////////////////
