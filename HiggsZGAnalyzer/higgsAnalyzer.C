@@ -34,8 +34,8 @@ void higgsAnalyzer::Begin(TTree * tree)
   //params->doPhoMVA       = false; //FOR PROPER
   params->doAnglesMVA    = false; //FOR PROPER
 
-  //params->doSync         = true;
-  //params->dumps          = true;
+  params->doSync         = true;
+  params->dumps          = true;
 
 
   for (int i =0; i<100; i++){
@@ -619,98 +619,36 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   vector<TCMuon> muonsID;
   vector<TCMuon> muonsIDIso;
   vector<TCMuon> muonsIDIsoUnCor;
-  TLorentzVector tmpMuCor;
-  TCMuon* cloneMuon(0);
-
-  /*
-
-
-     float EAMu[6] = {     //combined rel ISO, 2012 Data, 1.0 GeV
-     0.340, //         eta < 1.0
-     0.310, // 1.0   < eta < 1.5
-     0.315, // 1.5   < eta < 2.0
-     0.415, // 2.0   < eta < 2.2
-     0.658, // 2.2   < eta < 2.3
-     0.405, // 2.3   < eta < 2.4
-     };
-     */
-
-
 
   for (int i = 0; i < recoMuons->GetSize(); ++ i)
-    //for (int i = 0; i < pfMuons->GetSize(); ++ i)
   {
     TCMuon* thisMuon = (TCMuon*) recoMuons->At(i);    
+
     if (eventNumber == params->EVENTNUMBER){
       cout<< "muon uncor: " << TCPhysObject(*thisMuon) << endl;
     }
 
-    // Section for muon energy/momentum corrections.  NOTE: this will change the pt and thus ID/ISO of muon
+    bool passID = false;
+    bool passIso = false;
 
-    if(params->engCor && !params->doSync){
-      if (eventNumber == params->EVENTNUMBER){
-        rmcor2012.reset(new rochcor2012(666));
-        cout<< "resetting rochcor seed to 666"<<endl;
-      }
-      tmpMuCor = *thisMuon;
-      if ( params->period.find("2011") != string::npos ){
-        if (isRealData){
-          if ( params->period.find("A") != string::npos ){
-            rmcor2011->momcor_data(tmpMuCor,thisMuon->Charge(),0,0);
-          }else{
-            rmcor2011->momcor_data(tmpMuCor,thisMuon->Charge(),0,1);
-          }
-        }
-        if (!isRealData){
-          if (rMuRun->Rndm() < 0.458){
-            rmcor2011->momcor_mc(tmpMuCor,thisMuon->Charge(),0,0);
-          }else{
-            rmcor2011->momcor_mc(tmpMuCor,thisMuon->Charge(),0,1);
-          }
-        }
-      }else{
-        float ptErrMu = 1.0;
-        if (isRealData){
-          if (params->abcd.find("D") != string::npos ){
-            rmcor2012->momcor_data(tmpMuCor,thisMuon->Charge(),1,ptErrMu);
-          }else{
-            rmcor2012->momcor_data(tmpMuCor,thisMuon->Charge(),0,ptErrMu);
-          }
-        }
-         
-        if (!isRealData) rmcor2012->momcor_mc(tmpMuCor,thisMuon->Charge(),0,ptErrMu);
-      }
-      cloneMuon = thisMuon;
-      thisMuon->SetPtEtaPhiM(tmpMuCor.Pt(), tmpMuCor.Eta(), tmpMuCor.Phi(), tmpMuCor.M());
+    if (particleSelector->PassMuonID(*thisMuon, cuts->tightMuID)) passID = true;
+
+    if (params->doLooseMuIso){
+      if (particleSelector->PassMuonIso(*thisMuon, cuts->looseMuIso)) passIso = true;
+    }else{
+      if (particleSelector->PassMuonIso(*thisMuon, cuts->tightMuIso)) passIso = true;
     }
+    
+    if (params->engCor && !params->doSync) UniversalEnergyCorrector(*thisMuon);
 
+    if (passID) muonsID.push_back(*thisMuon);
+    if (passID && passIso) muonsIDIso.push_back(*thisMuon);
 
-    // tight muon id
-
-    dumper->MuonDump(*thisMuon, 1);
     if (eventNumber == params->EVENTNUMBER){
       cout<< "muon cor: " << TCPhysObject(*thisMuon) << endl;
     }
 
-    if (particleSelector->PassMuonID(*thisMuon, cuts->tightMuID)){
-      muonsID.push_back(*thisMuon);
-    }
-
-    //tight ID and Iso
-
-    if (params->doLooseMuIso){
-      if (particleSelector->PassMuonID(*thisMuon, cuts->tightMuID) && particleSelector->PassMuonIso(*thisMuon, cuts->looseMuIso)){
-        muonsIDIso.push_back(*thisMuon);
-        if (cloneMuon){
-          muonsIDIsoUnCor.push_back(*cloneMuon);
-        }
-      }
-    }else{
-      if (particleSelector->PassMuonID(*thisMuon, cuts->tightMuID) && particleSelector->PassMuonIso(*thisMuon, cuts->tightMuIso)){
-        muonsIDIso.push_back(*thisMuon);
-        if (cloneMuon) muonsIDIsoUnCor.push_back(*cloneMuon);
-      }
-    }
+    dumper->MuonDump(*thisMuon, 1);
 
   }
 
@@ -747,7 +685,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
       ////// Currently Using Cut-Based Photon ID, 2012
 
-      dumper->PhotonDump(*thisPhoton, 1); 
       // non MVA selection
       bool passID = false;
       bool passIso = false;
@@ -771,10 +708,13 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         if (particleSelector->PassPhotonMVA(*thisPhoton, cuts->catPhMVAID, goodLepPre)) passIso = true;
       }
 
-      if (params->engCor) UniversalEnergyCorrector(*thisPhoton, genPhotons);
+      // energy correction after ID and ISO
+      if (params->engCor && !params->doSync) UniversalEnergyCorrector(*thisPhoton, genPhotons);
 
-      photonsID.push_back(*thisPhoton);
-      photonsIDIso.push_back(*thisPhoton);
+      if (passID) photonsID.push_back(*thisPhoton);
+      if (passID && passIso) photonsIDIso.push_back(*thisPhoton);
+
+      dumper->PhotonDump(*thisPhoton, 1); 
 
     }
     //cout<<"debug0"<<endl;
@@ -948,8 +888,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   float SCetaEl2 = -99999;
   if(params->selection == "eeGamma"){
     if (eventNumber == params->EVENTNUMBER) cout<<goodZ<<endl;
-    if (params->engCor || params->doEleReg) goodZ = particleSelector->FindGoodZElectron(electronsIDIso,electronsIDIsoUnCor,lepton1,lepton2,uncorLepton1,uncorLepton2,ZP4,SCetaEl1,SCetaEl2,lepton1int,lepton2int);
-    else goodZ = particleSelector->FindGoodZElectron(electronsIDIso,lepton1,lepton2,ZP4,SCetaEl1,SCetaEl2,lepton1int,lepton2int);
+    goodZ = particleSelector->FindGoodZElectron(electronsIDIso,lepton1,lepton2,ZP4,SCetaEl1,SCetaEl2,lepton1int,lepton2int);
     if (eventNumber == params->EVENTNUMBER) cout<<"el num: "<<electronsIDIso.size()<<" goodZ: "<<goodZ<<endl;
     if (!goodZ) return kTRUE;
     if (!isRealData){ 
@@ -975,8 +914,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     }
     //cout<<eventWeight<<endl;
   }else{
-    if (params->engCor && !params->doSync) goodZ = particleSelector->FindGoodZMuon(muonsIDIso,muonsIDIsoUnCor,lepton1,lepton2,uncorLepton1,uncorLepton2,ZP4,lepton1int,lepton2int);
-    else goodZ = particleSelector->FindGoodZMuon(muonsIDIso,lepton1,lepton2,ZP4,lepton1int,lepton2int, 91.1876);
+    goodZ = particleSelector->FindGoodZMuon(muonsIDIso,lepton1,lepton2,ZP4,lepton1int,lepton2int, 91.1876);
     if (eventNumber == params->EVENTNUMBER) cout<<"goodZ?: "<<goodZ<<endl;
     if (!goodZ) return kTRUE;
     if (eventNumber == params->EVENTNUMBER) cout<<"goodZ?: "<<goodZ<<endl;
@@ -2383,44 +2321,72 @@ bool higgsAnalyzer::SpikeVeto(const TCPhoton& ph){
 void higgsAnalyzer::UniversalEnergyCorrector(TCPhoton& ph, vector<TCGenParticle>& _genPhotons){
   // Section for photon energy/momentum corrections.  NOTE: this will change the pt and thus ID/ISO of photon
 
-  if(params->engCor){
-    //old R9 correction
-    if (params->doR9Cor) PhotonR9Corrector(ph);
+  //old R9 correction
+  if (params->doR9Cor) PhotonR9Corrector(ph);
 
-    float corrPhoPt = -1;
-    int periodNum   = -1;
-    if (params->period.find("2011") != string::npos) periodNum = 2011;
-    if (params->period.find("2012") != string::npos) periodNum = 2012;
-    if(!isRealData && ph.Pt()>10.){
-      TCGenParticle goodGenPhoton;
-      float testDr = 9999;
-      int vetoPos = -1;
-      //cout<<"veto photon size: "<<_genPhotons.size()<<endl;
-      for (UInt_t j = 0; j<_genPhotons.size(); j++){
-        //if (_genPhotons[j].Mother() && fabs(_genPhotons[j].Mother()->GetPDGId()) == 22) cout<<"mother: "<<_genPhotons[j].Mother()->GetPDGId()<<endl;
-        if(_genPhotons[j].Mother() && (fabs(_genPhotons[j].Mother()->GetPDGId()) == 25 || fabs(_genPhotons[j].Mother()->GetPDGId()) == 22) && _genPhotons[j].GetStatus()==1){
-          if(ph.DeltaR(_genPhotons[j])<testDr){
-            goodGenPhoton = _genPhotons[j];
-            testDr = ph.DeltaR(_genPhotons[j]);
-            vetoPos = j;
-            //cout<<"testdr: "<<testDr<<endl;
-          }
+  float corrPhoPt = -1;
+  int periodNum   = -1;
+  if (params->period.find("2011") != string::npos) periodNum = 2011;
+  if (params->period.find("2012") != string::npos) periodNum = 2012;
+  if(!isRealData && ph.Pt()>10.){
+    TCGenParticle goodGenPhoton;
+    float testDr = 9999;
+    int vetoPos = -1;
+    //cout<<"veto photon size: "<<_genPhotons.size()<<endl;
+    for (UInt_t j = 0; j<_genPhotons.size(); j++){
+      //if (_genPhotons[j].Mother() && fabs(_genPhotons[j].Mother()->GetPDGId()) == 22) cout<<"mother: "<<_genPhotons[j].Mother()->GetPDGId()<<endl;
+      if(_genPhotons[j].Mother() && (fabs(_genPhotons[j].Mother()->GetPDGId()) == 25 || fabs(_genPhotons[j].Mother()->GetPDGId()) == 22) && _genPhotons[j].GetStatus()==1){
+        if(ph.DeltaR(_genPhotons[j])<testDr){
+          goodGenPhoton = _genPhotons[j];
+          testDr = ph.DeltaR(_genPhotons[j]);
+          vetoPos = j;
+          //cout<<"testdr: "<<testDr<<endl;
         }
       }
-      if (testDr < 0.2){
-        corrPhoPt = phoCorrector->GetCorrEtMC(ph.R9(), periodNum, ph.Pt(), ph.Eta(), goodGenPhoton.E());
-        //cout<<"uncor pt: "<<ph.Pt()<<" cor pt: "<<corrPhoPt<<" gen pt: "<<_genPhotons[vetoPos].Pt()<<endl;
-        ph.SetPtEtaPhiM(corrPhoPt,ph.Eta(),ph.Phi(),0.0);
-      }
-
-    }else if (isRealData && ph.Pt()>10.){
-      corrPhoPt = phoCorrector->GetCorrEtData(ph.R9(), periodNum, ph.Pt(), ph.Eta());
+    }
+    if (testDr < 0.2){
+      corrPhoPt = phoCorrector->GetCorrEtMC(ph.R9(), periodNum, ph.Pt(), ph.Eta(), goodGenPhoton.E());
+      //cout<<"uncor pt: "<<ph.Pt()<<" cor pt: "<<corrPhoPt<<" gen pt: "<<_genPhotons[vetoPos].Pt()<<endl;
       ph.SetPtEtaPhiM(corrPhoPt,ph.Eta(),ph.Phi(),0.0);
     }
 
+  }else if (isRealData && ph.Pt()>10.){
+    corrPhoPt = phoCorrector->GetCorrEtData(ph.R9(), periodNum, ph.Pt(), ph.Eta());
+    ph.SetPtEtaPhiM(corrPhoPt,ph.Eta(),ph.Phi(),0.0);
   }
 }
 
-void higgsAnalyzer::UniversalEnergyCorrector(TCMuon& mu){}
+void higgsAnalyzer::UniversalEnergyCorrector(TCMuon& mu){
+
+  // Section for muon energy/momentum corrections.  NOTE: this will change the pt and thus ID/ISO of muon
+
+  if (eventNumber == params->EVENTNUMBER){
+    rmcor2012.reset(new rochcor2012(666));
+    cout<< "resetting rochcor seed to 666"<<endl;
+  }
+  TLorentzVector tmpMuCor(mu);
+  if ( params->period.find("2011") != string::npos ){
+    if (isRealData){
+      if ( params->period.find("A") != string::npos ){
+        rmcor2011->momcor_data(tmpMuCor,mu.Charge(),0,0);
+      }else{
+        rmcor2011->momcor_data(tmpMuCor,mu.Charge(),0,1);
+      }
+    }
+    if (!isRealData){
+      if (rMuRun->Rndm() < 0.458){
+        rmcor2011->momcor_mc(tmpMuCor,mu.Charge(),0,0);
+      }else{
+        rmcor2011->momcor_mc(tmpMuCor,mu.Charge(),0,1);
+      }
+    }
+  }else{
+    float ptErrMu = 1.0;
+    if (isRealData) rmcor2012->momcor_data(tmpMuCor,mu.Charge(),0,ptErrMu);
+    if (!isRealData) rmcor2012->momcor_mc(tmpMuCor,mu.Charge(),0,ptErrMu);
+  }
+  mu.SetPtEtaPhiM(tmpMuCor.Pt(), tmpMuCor.Eta(), tmpMuCor.Phi(), tmpMuCor.M());
+}
+
 void higgsAnalyzer::UniversalEnergyCorrector(TCElectron& el){}
 
