@@ -34,8 +34,8 @@ void higgsAnalyzer::Begin(TTree * tree)
   //params->doPhoMVA       = false; //FOR PROPER
   params->doAnglesMVA    = false; //FOR PROPER
 
-  //params->doSync         = true;
-  //params->dumps          = true;
+  params->doSync         = true;
+  params->dumps          = true;
 
 
   for (int i =0; i<100; i++){
@@ -779,6 +779,39 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         if (spikeDR < 0.05) continue;
       }
 
+
+      ////// Currently Using Cut-Based Photon ID, 2012
+
+      dumper->PhotonDump(*thisPhoton, 1); 
+      if(!params->doPhoMVA){
+        if (particleSelector->PassPhotonID(*thisPhoton, cuts->mediumPhID)) photonsID.push_back(*thisPhoton);
+        if (particleSelector->PassPhotonID(*thisPhoton, cuts->mediumPhID) && particleSelector->PassPhotonIso(*thisPhoton, cuts->mediumPhIso, cuts->EAPho)){
+          //standard selection photons
+          photonsIDIso.push_back(*thisPhoton);
+          if (params->engCor) photonsIDIsoUnCor.push_back(*clonePhoton);
+        }
+      }else{
+        bool goodLepPre = false;
+        if (particleSelector->PassPhotonID(*thisPhoton, cuts->preSelPhID)) photonsID.push_back(*thisPhoton);
+        if (params->selection == "mumuGamma"){
+          if (muonsIDIso.size() > 1){
+            goodLepPre = GoodLeptonsCat( muonsIDIso[0], muonsIDIso[1]);
+          }
+          if (particleSelector->PassPhotonID(*thisPhoton, cuts->preSelPhID)
+              && particleSelector->PassPhotonMVA(*thisPhoton, cuts->catPhMVAID, goodLepPre))
+            photonsIDIso.push_back(*thisPhoton);
+        }else{
+          if (electronsIDIso.size() > 1){
+            goodLepPre = GoodLeptonsCat( electronsIDIso[0], electronsIDIso[1]);
+          }
+          if (particleSelector->PassPhotonID(*thisPhoton, cuts->preSelPhID)
+              && particleSelector->PassPhotonMVA(*thisPhoton, cuts->catPhMVAID, goodLepPre))
+            photonsIDIso.push_back(*thisPhoton);
+
+          //if (params->engCor) photonsIDIsoUnCor.push_back(*clonePhoton);
+        }
+      }
+
       // Section for photon energy/momentum corrections.  NOTE: this will change the pt and thus ID/ISO of photon
       
       if(params->engCor){
@@ -818,39 +851,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
           thisPhoton->SetPtEtaPhiM(corrPhoPt,thisPhoton->Eta(),thisPhoton->Phi(),0.0);
         }
        
-      }
-
-
-      ////// Currently Using Cut-Based Photon ID, 2012
-
-      dumper->PhotonDump(*thisPhoton, 1); 
-      if(!params->doPhoMVA){
-        if (particleSelector->PassPhotonID(*thisPhoton, cuts->mediumPhID)) photonsID.push_back(*thisPhoton);
-        if (particleSelector->PassPhotonID(*thisPhoton, cuts->mediumPhID) && particleSelector->PassPhotonIso(*thisPhoton, cuts->mediumPhIso, cuts->EAPho)){
-          //standard selection photons
-          photonsIDIso.push_back(*thisPhoton);
-          if (params->engCor) photonsIDIsoUnCor.push_back(*clonePhoton);
-        }
-      }else{
-        bool goodLepPre = false;
-        if (particleSelector->PassPhotonID(*thisPhoton, cuts->preSelPhID)) photonsID.push_back(*thisPhoton);
-        if (params->selection == "mumuGamma"){
-          if (muonsIDIso.size() > 1){
-            goodLepPre = GoodLeptonsCat( muonsIDIso[0], muonsIDIso[1]);
-          }
-          if (particleSelector->PassPhotonID(*thisPhoton, cuts->preSelPhID)
-              && particleSelector->PassPhotonMVA(*thisPhoton, cuts->catPhMVAID, goodLepPre))
-            photonsIDIso.push_back(*thisPhoton);
-        }else{
-          if (electronsIDIso.size() > 1){
-            goodLepPre = GoodLeptonsCat( electronsIDIso[0], electronsIDIso[1]);
-          }
-          if (particleSelector->PassPhotonID(*thisPhoton, cuts->preSelPhID)
-              && particleSelector->PassPhotonMVA(*thisPhoton, cuts->catPhMVAID, goodLepPre))
-            photonsIDIso.push_back(*thisPhoton);
-
-          //if (params->engCor) photonsIDIsoUnCor.push_back(*clonePhoton);
-        }
       }
 
 

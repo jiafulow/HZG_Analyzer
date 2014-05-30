@@ -106,7 +106,7 @@ else:
       configs.append(b.JobConfig('tthHZG_M155', t3storage+'/nuTuples_v9.8_8TeV/MC/tthHZG_M155_RD1', 5, 'Signal2012tthM155 ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
       configs.append(b.JobConfig('tthHZG_M160', t3storage+'/nuTuples_v9.8_8TeV/MC/tthHZG_M160_RD1', 5, 'Signal2012tthM160 ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
 
-      configs.append(b.JobConfig('Run2012A', t3storage+'/nuTuples_v9.8_8TeV/Data/DoubleMu_Run2012A', 50, 'DATA ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
+      configs.append(b.JobConfig('Run2012A', t3storage+'/nuTuples_v9.8_8TeV/Data/DoubleMu_Run2012A_v2', 50, 'DATA ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
       configs.append(b.JobConfig('Run2012B', t3storage+'/nuTuples_v9.8_8TeV/Data/DoubleMu_Run2012B', 100, 'DATA ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
       configs.append(b.JobConfig('Run2012C', t3storage+'/nuTuples_v9.8_8TeV/Data/DoubleMu_Run2012C', 150, 'DATA ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
       configs.append(b.JobConfig('Run2012D', t3storage+'/nuTuples_v9.8_8TeV/Data/DoubleMu_Run2012D', 150, 'DATA ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
