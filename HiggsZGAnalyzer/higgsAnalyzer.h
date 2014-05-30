@@ -47,7 +47,6 @@
 #include "../interface/TCPhoton.h"
 #include "../interface/TCGenJet.h"
 #include "../interface/TCPrimaryVtx.h"
-#include "../interface/TCTriggerObject.h"
 #include "../interface/TCGenParticle.h"
 #include "../interface/HistManager.h"
 #include "../interface/TriggerSelector.h"
@@ -217,7 +216,6 @@ class higgsAnalyzer : public TSelector {
 		TBranch        *b_recoElectrons;  //!
 		TBranch        *b_recoPhotons;    //!
 		TBranch        *b_primaryVtx;   //!
-		TBranch        *b_triggerObjects;   //!
 		TBranch        *b_runNumber;   //!
 		TBranch        *b_eventNumber;   //!
 		TBranch        *b_lumiSection;   //!
@@ -395,7 +393,6 @@ void higgsAnalyzer::Init(TTree *tree)
 	fChain->SetBranchAddress("genJets", &genJets, &b_genJets);
 	fChain->SetBranchAddress("genParticles", &genParticles, &b_genParticles);
 	fChain->SetBranchAddress("primaryVtx", &primaryVtx, &b_primaryVtx);
-	fChain->SetBranchAddress("triggerObjects", &triggerObjects, &b_triggerObjects);
 
 	fChain->SetBranchAddress("isRealData", &isRealData, &b_isRealData);
   fChain->SetBranchAddress("runNumber", &runNumber, &b_runNumber);

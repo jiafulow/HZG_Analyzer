@@ -34,8 +34,8 @@ void higgsAnalyzer::Begin(TTree * tree)
   //params->doPhoMVA       = false; //FOR PROPER
   params->doAnglesMVA    = false; //FOR PROPER
 
-  params->doSync         = true;
-  params->dumps          = true;
+  //params->doSync         = true;
+  //params->dumps          = true;
 
 
   for (int i =0; i<100; i++){
@@ -457,17 +457,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   //cout<<"triggerStatus: "<<triggerStatus<<" hltPrescale: "<<hltPrescale<<" triggerPass: "<<triggerPass<<endl;
   //int  eventPrescale = triggerSelector->GetEventPrescale();
   //cout<<eventPrescale<<endl;
-/*
-  cout<<"new trig event"<<endl;
-  for (int i = 0; i <  triggerObjects->GetSize(); ++i) {
-    TCTriggerObject* thisTrigObj = (TCTriggerObject*) triggerObjects->At(i);    
-    cout<<" HLT: "<<thisTrigObj->GetHLTName()<<endl;
-    cout<<" module: "<<thisTrigObj->GetModuleName()<<endl;
-    cout<<" id: "<<thisTrigObj->GetId()<<endl;
-    thisTrigObj->Print();
-    cout<<endl;
-  }
-*/
+
   if (!triggerPass) return kTRUE;
   hm->fill1DHist(3,"h1_acceptanceByCut_"+params->suffix, "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
   hm->fill1DHist(3,"h1_acceptanceByCutRaw_"+params->suffix, "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
@@ -533,78 +523,42 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   vector<TLorentzVector> extraLeptons;
   vector<TCElectron> electronsID;
   vector<TCElectron> electronsIDIso;
-  vector<TCElectron> electronsIDIsoUnCor;
-  TCElectron * cloneElectron(0);
-  //int eleCount = 0;
-
 
   for (int i = 0; i <  recoElectrons->GetSize(); ++i) {
     TCElectron* thisElec = (TCElectron*) recoElectrons->At(i);    
 
-
-
-    // Section for electron energy/momentum corrections.  NOTE: this will change the pt and thus ID/ISO of electron
+    bool passID = false;
+    bool passIso = false;
 
     thisElec->SetPtEtaPhiM(thisElec->Pt(),thisElec->Eta(),thisElec->Phi(),0.000511);
-    
 
-    // loose cuts on electron for diLepton requirements
-
+    if (params->EVENTNUMBER == eventNumber) cout<<"regE: "<<thisElec->IdMap("EnergyRegression")<<" regE-p: "<<thisElec->RegressionMomCombP4().E()<<endl;
     
 
     if(params->doEleMVA){
-      bool passAll = false;
 
-
-      if (particleSelector->PassElectronID(*thisElec, cuts->mvaPreElID, *recoMuons)) electronsID.push_back(*thisElec);			
       /// low pt
-      if (thisElec->Pt() < 20 && particleSelector->PassElectronID(*thisElec, cuts->mvaPreElID, *recoMuons) && thisElec->MvaID_Old() > -0.9 && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
-        passAll = true;
+      if (thisElec->Pt() < 20 && particleSelector->PassElectronID(*thisElec, cuts->mvaPreElID, *recoMuons) && thisElec->MvaID_Old() > -0.9){
+        passID = true; 
       /// high pt
-      }else if (thisElec->Pt() > 20 && particleSelector->PassElectronID(*thisElec, cuts->mvaPreElID, *recoMuons) && thisElec->MvaID_Old() > -0.5 && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
-        passAll = true;
+      }else if (thisElec->Pt() > 20 && particleSelector->PassElectronID(*thisElec, cuts->mvaPreElID, *recoMuons) && thisElec->MvaID_Old() > -0.5){
+        passID = true; 
       }
-
-      if (passAll){
-        cloneElectron = thisElec;
-        electronsIDIso.push_back(*thisElec);			
-        if (params->EVENTNUMBER == eventNumber) cout<<"regE: "<<thisElec->IdMap("EnergyRegression")<<" regE-p: "<<thisElec->RegressionMomCombP4().E()<<endl;
-        if (params->engCor || params->doEleReg) electronsIDIsoUnCor.push_back(*cloneElectron);
-      }
+      if (particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)) passIso = true;
                                                                   
 
     }else{
-        /* old style
-      if(params->engCor){
-        float energyElCor;
-        if ( params->period.find("2011") != string::npos ){
-          energyElCor = correctedElectronEnergy( thisElec->E(), thisElec->SCEta(), thisElec->R9(), runNumber, 0, "2011", !isRealData, rEl.get() );
-        }else{
-          energyElCor = correctedElectronEnergy( thisElec->E(), thisElec->SCEta(), thisElec->R9(), runNumber, 0, "HCP2012", !isRealData, rEl.get() );
-        }
-        float newPt = sqrt((pow(energyElCor,2)-pow(0.000511,2))/pow(cosh(thisElec->Eta()),2));
-        cloneElectron = thisElec;
-        thisElec->SetPtEtaPhiM(newPt,thisElec->Eta(),thisElec->Phi(),0.000511);
-      }
-      */
-      if(params->engCor){
-        float energyElCor;
-        if ( params->period.find("2011") != string::npos ){
-          energyElCor = correctedElectronEnergy( thisElec->E(), thisElec->SCEta(), thisElec->R9(), runNumber, 0, "2011", !isRealData, rEl.get() );
-            float newPt = sqrt((pow(energyElCor,2)-pow(0.000511,2))/pow(cosh(thisElec->Eta()),2));
-            cloneElectron = thisElec;
-            thisElec->SetPtEtaPhiM(newPt,thisElec->Eta(),thisElec->Phi(),0.000511);
-        }
-      }
-      if (particleSelector->PassElectronID(*thisElec, cuts->looseElID, *recoMuons)) electronsID.push_back(*thisElec);			
-      if (particleSelector->PassElectronID(*thisElec, cuts->looseElID, *recoMuons) && particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)){
-        electronsIDIso.push_back(*thisElec);			
-        if (params->engCor) electronsIDIsoUnCor.push_back(*cloneElectron);
-      }
+      if (particleSelector->PassElectronID(*thisElec, cuts->looseElID, *recoMuons)) passID = true;
+      if (particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)) passIso = true; 
     } 
+    
+    // eng cor
+
+
     dumper->ElectronDump(*thisElec, *recoMuons, 1);
 
-    // 3rd lepton veto
+    if(passID) electronsID.push_back(*thisElec);
+    if(passID&&passIso) electronsIDIso.push_back(*thisElec);
 
   }
 
@@ -618,7 +572,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   vector<TCMuon> muonsID;
   vector<TCMuon> muonsIDIso;
-  vector<TCMuon> muonsIDIsoUnCor;
 
   for (int i = 0; i < recoMuons->GetSize(); ++ i)
   {
@@ -710,6 +663,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
       // energy correction after ID and ISO
       if (params->engCor && !params->doSync) UniversalEnergyCorrector(*thisPhoton, genPhotons);
+      //if (params->engCor) UniversalEnergyCorrector(*thisPhoton, genPhotons);
 
       if (passID) photonsID.push_back(*thisPhoton);
       if (passID && passIso) photonsIDIso.push_back(*thisPhoton);
