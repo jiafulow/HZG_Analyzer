@@ -6,7 +6,7 @@ Significant updates are intended for readability, speed improvements, and workfl
 
 Notes:
 ------
-  * No more visable runtime errors.  Will update instructions shortly.
+  * No more visible runtime errors.  Will update instructions shortly.
 
 From Yanyan (compiling MCFM for MEM):
 ------------------------------------

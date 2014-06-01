@@ -92,7 +92,6 @@ class higgsAnalyzer : public TSelector {
 
     // Random number generator
     auto_ptr<TRandom3> rnGenerator;
-    auto_ptr<TRandom3> rEl;
     auto_ptr<TRandom3> rMuRun;
 
     // Selectors

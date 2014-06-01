@@ -18,7 +18,7 @@
 
 class ParticleSelector {
   public:
-    ParticleSelector(const Parameters& parameters, const Cuts& cuts, bool isRealData, int runNumber, const TRandom3& rEl);
+    ParticleSelector(const Parameters& parameters, const Cuts& cuts, bool isRealData, int runNumber);
     void SetPv(const TVector3&);
     void SetRho(float);
     void SetEventNumber(int);
@@ -26,8 +26,6 @@ class ParticleSelector {
     bool FindGoodZMuon(const vector<TCMuon>& muonList, TCPhysObject& lepton1, TCPhysObject& lepton2, TLorentzVector& ZP4, int& int1, int& int2); 
     bool FindGoodZMuon(const vector<TCMuon>& muonList, TCPhysObject& lepton1, TCPhysObject& lepton2, TLorentzVector& ZP4, int& int1, int& int2, float diLepMass); 
     bool FindGoodZMuon(const vector<TCMuon>& muonList1, const vector<TCMuon>& muonList2, TCPhysObject& lepton1, TCPhysObject& lepton2, TLorentzVector& ZP4, int& int1, int& int2, float diLepMass); 
-    bool FindGoodZElectron(vector<TCElectron>& electronList, const vector<TCElectron>& uncorElectronList, TCPhysObject& lepton1, TCPhysObject& lepton2, TLorentzVector& uncorLepton1, TLorentzVector& uncorLepton2, TLorentzVector& ZP4, float& eta1, float& eta2, int& int1, int& int2); 
-    bool FindGoodZMuon(const vector<TCMuon>& muonList, const vector<TCMuon>& uncorMuonList, TCPhysObject& lepton1, TCPhysObject& lepton2, TLorentzVector& uncorLepton1, TLorentzVector& uncorLepton2, TLorentzVector& ZP4, int& int1, int& int2); 
     bool FindGoodDiJets(const vector<TCJet>& jetList, const TCPhysObject& lepton1, const TCPhysObject& lepton2, const TLorentzVector& gamma, TCJet& jet1, TCJet& jet2); 
     bool FindGoodPhoton(const vector<TCPhoton>& photonList, TCPhoton& gamma, const TCPhysObject& lepton1, const TCPhysObject& lepton2, float& scEta, const vector<TCGenParticle>& vetoPhotons);
 
@@ -42,7 +40,7 @@ class ParticleSelector {
       TCGenParticle* lm;
     }genHZG;
 
-    void FindGenParticles(const TClonesArray& genParticles, vector<TCGenParticle>& vetoPhotons, genHZGParticles& _genHZG);
+    void FindGenParticles(const TClonesArray& genParticles, vector<TCGenParticle>& vetoPhotons, genHZGParticles& _genHZG,bool vetoDY);
     void CleanUpGen(genHZGParticles& _genHZG);
 
     bool PassMuonID(const TCMuon& mu, const Cuts::muIDCuts& cutLevel);
@@ -60,7 +58,6 @@ class ParticleSelector {
     Cuts _cuts;
     bool _isRealData;
     int _runNumber;
-    TRandom3 _rEl;
     TVector3 _pv;
     float _rhoFactor;
     int _evtnum;

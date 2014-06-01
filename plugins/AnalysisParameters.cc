@@ -3,6 +3,7 @@
 using namespace std;
 
 Parameters::Parameters():
+  // defaults, do not change
   selection("lol"),
   period("lol"),
   JC_LVL(0),
@@ -19,18 +20,21 @@ Parameters::Parameters():
   doEleMVA(true),
   doLooseMuIso(true),
   doAnglesMVA(true),
+  doAltMVA(false),
   doPhotonPurityStudy(false),
   doPhoMVA(true),
 
   dumps(false),
   dataDumps(false),
   EVENTNUMBER(-999),
+  doSync(false),
 
   engCor(true),
   doR9Cor(true),
   doEleReg(true),
   doScaleFactors(true),
   doLumiXS(false)
+
 {}
 
 

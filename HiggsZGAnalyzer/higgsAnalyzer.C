@@ -66,11 +66,10 @@ void higgsAnalyzer::Begin(TTree * tree)
   triggerSelector.reset(new TriggerSelector(params->selection, params->period, *triggerNames));
   rmcor2011.reset(new rochcor_2011(229+100*jobNum));
   rmcor2012.reset(new rochcor2012(229+100*jobNum));
-  rEl.reset(new TRandom3(230+100*jobNum));
   rMuRun.reset(new TRandom3(231+100*jobNum));
   phoCorrector.reset(new zgamma::PhosphorCorrectionFunctor("../plugins/PHOSPHOR_NUMBERS_EXPFIT_ERRORS.txt", true));
   Xcal2.reset(new TEvtProb);
-  particleSelector.reset(new ParticleSelector(*params, *cuts, isRealData, runNumber, *rEl));
+  particleSelector.reset(new ParticleSelector(*params, *cuts, isRealData, runNumber));
   dumper.reset(new Dumper(*params,*cuts,*particleSelector));
 
 
@@ -553,6 +552,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     } 
     
     // eng cor
+
+    if(params->engCor && !params->doSync) UniversalEnergyCorrector(*thisElec);
 
 
     dumper->ElectronDump(*thisElec, *recoMuons, 1);
@@ -2342,5 +2343,11 @@ void higgsAnalyzer::UniversalEnergyCorrector(TCMuon& mu){
   mu.SetPtEtaPhiM(tmpMuCor.Pt(), tmpMuCor.Eta(), tmpMuCor.Phi(), tmpMuCor.M());
 }
 
-void higgsAnalyzer::UniversalEnergyCorrector(TCElectron& el){}
+void higgsAnalyzer::UniversalEnergyCorrector(TCElectron& el){
+  if (params->period.find("2012") != string::npos){
+    if (el.RegressionMomCombP4().E() != 0){
+      el.SetPtEtaPhiE(el.RegressionMomCombP4().E()/cosh(el.RegressionMomCombP4().Eta()),el.RegressionMomCombP4().Eta(),el.RegressionMomCombP4().Phi(),el.RegressionMomCombP4().E());
+    }
+  }
+}
 

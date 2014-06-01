@@ -15,7 +15,7 @@ analyzer = 'higgsAnalyzer'
 os.system('tar -zcvf stageball.tar.gz {0}* ../src  otherHistos ../plugins ../interface ../mva/testWeights* ../txtFiles ../input.DAT ../process.DAT ../Pdfdata ../br.sm*'.format(analyzer))
 
 doMuMuGamma = True
-doEEGamma =   True
+doEEGamma =   False
 doMuEGamma =  False
 do7Tev = False
 configs = []

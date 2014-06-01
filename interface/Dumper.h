@@ -21,14 +21,9 @@ class Dumper{
     void  SetEvent(int);
     void  SetLumi(int);
     void  SetPv(const TVector3&);
-    void  ElectronDump(const TCElectron& el, const TClonesArray& recoMuons, bool final);
-    void  MVADumper(const TCElectron& ele, EGammaMvaEleEstimator* mvaMaker);
-    void  MuonDump(const TCMuon& mu, bool final);
-    void  PhotonDump(const TCPhoton& ph);
-    void  PhotonDump2(const TCPhoton& ph, const TLorentzVector& lepton1, const TLorentzVector& lepton2);
-    void  DataDumper(const TLorentzVector& lepton1, const TLorentzVector& lepton2, const TLorentzVector& gamma, float R9, float SCEta, float eta1, float eta2);
-    void  DataDumper(const TLorentzVector& lepton1, const TLorentzVector& lepton2, const TLorentzVector& gamma, const TLorentzVector& uncorLepton1, const TLorentzVector& uncorLepton2, const TLorentzVector& uncorGamma, float R9, float SCEta, float eta1, float eta2);
-    void  FinalDumper(const TLorentzVector& lepton1, const TLorentzVector& lepton2, const TLorentzVector& gamma, int catNum);
+    void  ElectronDump(const TCElectron& el, const TClonesArray& recoMuons, int dnum);
+    void  MuonDump(const TCMuon& mu, int dnum);
+    void  PhotonDump(const TCPhoton& ph, int dnum);
     void  CloseDumps();
     
   private:
@@ -36,7 +31,6 @@ class Dumper{
     ofstream lepDump2;
     ofstream phoDump1;
     ofstream phoDump2;
-
     ofstream finalDump;
 
     bool electronDump;

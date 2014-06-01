@@ -28,15 +28,17 @@ class Parameters{
 
     bool doLooseMuIso;      
     bool doAnglesMVA;      
+    bool doAltMVA;      
 
     bool doPhotonPurityStudy;     
     bool doPhoMVA;
     
 
-    ///// debugging dumps /////
+    ///// debugging /////
     bool dumps;                  
     bool dataDumps;             
     int EVENTNUMBER;           
+    bool doSync;
 
     //// energy corrections ////
     bool engCor;              
