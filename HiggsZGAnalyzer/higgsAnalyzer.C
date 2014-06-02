@@ -336,7 +336,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
 
     if(genHZG.lp && genHZG.lm && genHZG.g){
-      if(genHZG.lp->Pt() > 8 && genHZG.lm->Pt() > 8){
+      if(genHZG.lp->Pt() > 0 && genHZG.lm->Pt() > 0){
         if (genHZG.lp->Pt() > genHZG.lm->Pt()){
           StandardPlots(*genHZG.lp,*genHZG.lm,*genHZG.g,1,"PreGen", "PreGen");
         }else{
@@ -1253,6 +1253,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   }
 
   MVAPlots(mvaVars,mvaVal,eventWeight,"CAT"+str(catNum)+"", "CAT"+str(catNum)+"");
+  MVAPlots(mvaVars,mvaVal,eventWeight, "", "MVAPlots");
 
   hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsME_"+params->suffix,"Mass vs ME; m_{ll#gamma}; ME Disc", 90,100,190,90,0,0.2,eventWeight,"MEPlots");
   hm->fill1DHist(MEdisc,"h1_ME_"+params->suffix,"ME Disc;ME Disc;Entries", 45,0,0.2,eventWeight,"MEPlots");
