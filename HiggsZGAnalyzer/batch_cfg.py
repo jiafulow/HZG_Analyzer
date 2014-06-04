@@ -56,7 +56,7 @@ else:
   if doMuMuGamma:
     if not do7Tev:
       #configs.append(b.JobConfig('ggHZG_M120', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M120_RD1', 5, 'Signal2012ggM120 ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
-      #configs.append(b.JobConfig('ggHZG_M123', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M123_RD1', 5, 'Signal2012ggM123 ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
+      configs.append(b.JobConfig('ggHZG_M123', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M123_RD1', 5, 'Signal2012ggM123 ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
       configs.append(b.JobConfig('ggHZG_M125', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M125_RD1', 5, 'Signal2012ggM125 ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
       #configs.append(b.JobConfig('ggHZG_M130', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M130_RD1', 5, 'Signal2012ggM130 ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
       #configs.append(b.JobConfig('ggHZG_M135', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M135_RD1', 5, 'Signal2012ggM135 ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))

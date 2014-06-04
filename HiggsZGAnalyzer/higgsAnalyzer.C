@@ -37,6 +37,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   //params->doSync         = true;
   //params->dumps          = true;
 
+  params->doAltMVA         = true; //FOR MVA OPT TEST
 
   for (int i =0; i<100; i++){
     nEvents[i] = 0;
@@ -319,8 +320,9 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   //genHZG = {0,0,0,0,0,0};
   if(!isRealData){
     ///////// load all the relevent particles into a struct /////////
-    particleSelector->FindGenParticles(*genParticles, genPhotons, genHZG, vetoDY);
+    particleSelector->FindGenParticles(*genParticles, *recoPhotons, genPhotons, genHZG, vetoDY);
     if (params->DYGammaVeto){
+      cout<<"veto: "<<vetoDY<<endl;
       if (vetoDY) return kTRUE;
     }
 
@@ -931,7 +933,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   if (params->doScaleFactors){
       eventWeight   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
-      //if (params->suffix == "DYJets") eventWeight   *= weighter->PhotonFakeWeight(GP4.Eta(), GP4.Pt()); 
+      if (params->suffix == "DYJets") eventWeight   *= weighter->PhotonFakeWeight(GP4.Eta(), GP4.Pt()); 
   }
   eventWeightPho   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
 
@@ -2023,11 +2025,12 @@ TMVA::Reader* higgsAnalyzer::MVAInitializer(){
     tmvaReader->AddVariable("l1Eta", &(mvaVars._l1Eta));
   }else{
     if (params->selection =="mumuGamma"){
-      tmvaReader->AddVariable("smallTheta", &(mvaVars._smallTheta));
-      tmvaReader->AddVariable("bigTheta", &(mvaVars._bigTheta));
+      tmvaReader->AddVariable("comPhi", &(mvaVars._comPhi));
       tmvaReader->AddVariable("threeBodyPtOM", &(mvaVars._threeBodyPtOM));
-      tmvaReader->AddVariable("l1Eta", &(mvaVars._l1Eta));
       tmvaReader->AddVariable("l2Eta", &(mvaVars._l2Eta));
+      tmvaReader->AddVariable("GEta", &(mvaVars._GEta));
+      tmvaReader->AddVariable("bigTheta", &(mvaVars._bigTheta));
+      tmvaReader->AddVariable("l1Eta", &(mvaVars._l1Eta));
     }else if (params->selection=="eeGamma"){
       tmvaReader->AddVariable("threeBodyPtOM", &(mvaVars._threeBodyPtOM));
       tmvaReader->AddVariable("l2Eta", &(mvaVars._l2Eta));

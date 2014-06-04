@@ -47,11 +47,11 @@ def ROCPlotter(suffix = '05-07-14_PhoMVA'):
     if 'CAT5' in key: continue
     plotter.ROCcurves(plotter.folderDict[key])
     plotter.ROCcurves(plotter.folderDict[key],123)
-  plotterEl = Plotter(FileEl, 'MVAPlots', 'ROC_MVA_'+suffix, '2012','el','Signal2012ggM123')
-  for key in plotterEl.folderDict.keys():
-    if 'CAT5' in key: continue
-    plotterEl.ROCcurves(plotterEl.folderDict[key])
-    plotterEl.ROCcurves(plotterEl.folderDict[key],123)
+  #plotterEl = Plotter(FileEl, 'MVAPlots', 'ROC_MVA_'+suffix, '2012','el','Signal2012ggM123')
+  #for key in plotterEl.folderDict.keys():
+    #if 'CAT5' in key: continue
+    #plotterEl.ROCcurves(plotterEl.folderDict[key])
+    #plotterEl.ROCcurves(plotterEl.folderDict[key],123)
 
 def RatioPlotter():
   if os.environ.get('AT_NWU') == None:
@@ -103,7 +103,7 @@ def RatioPlotter():
 def DoAll():
   if os.environ.get('AT_NWU'):
     mainPath = '/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_'
-    suffix = '06-2-14_PhoMVAZGAngles'
+    suffix = '06-3-14_PhoMVAVetoFix'
     headDir = 'Full_'+suffix
     if not os.path.isdir(headDir):
       os.mkdir(headDir)

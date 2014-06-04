@@ -173,7 +173,7 @@ bool ParticleSelector::FindGoodDiJets(const vector<TCJet>& jetList, const TCPhys
   return goodDiJets;
 }
 
-void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, vector<TCGenParticle>& _genPhotons, genHZGParticles& _genHZG, bool vetoDY){
+void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, const TClonesArray& _recoPhotons, vector<TCGenParticle>& _genPhotons, genHZGParticles& _genHZG, bool vetoDY){
   vector<TCGenParticle> genElectrons;
   vector<TCGenParticle> genMuons;
   vector<TCGenParticle> genZs;
@@ -187,6 +187,7 @@ void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, vecto
 
   for (int i = 0; i < genParticles.GetSize(); ++i) {
     TCGenParticle* thisGen = (TCGenParticle*) genParticles.At(i);    
+    cout<<*thisGen<<endl;
   //  cout<<thisGen->GetPDGId()<<endl;
     if (abs(thisGen->GetPDGId()) == 11){
       genElectrons.push_back(*thisGen);
@@ -200,13 +201,16 @@ void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, vecto
       //////////// DYJets Gamma Veto ////////////
       if (_parameters.DYGammaVeto && (_parameters.suffix.find("DYJets") != string::npos)){
         //if ((*thisGen).Mother() && (abs((*thisGen).Mother()->GetPDGId()) <= 22)){
-        if ((abs((*thisGen).MotherId()) <= 22)){
-          vetoDY = true;
-          return;
-          //vetoPhotons.push_back(*thisGen);
-        }else{
-          genPhotons.push_back(*thisGen);
+        if ((abs((*thisGen).MotherId()) < 22)){
+          for (int j = 0; j<_recoPhotons.GetSize(); i++){
+            TCPhoton* recoPho = (TCPhoton*) _recoPhotons.At(i);    
+            if (recoPho->DeltaR(*thisGen) < 0.2 && fabs(recoPho->Pt() - thisGen->Pt()) < 10){ 
+              vetoDY = true;
+              return;
+            }
+          }
         }
+        genPhotons.push_back(*thisGen);
       }else{
         genPhotons.push_back(*thisGen);
       }
