@@ -130,6 +130,7 @@ bool ParticleSelector::FindGoodZMuon(const vector<TCMuon>& muonList1, const vect
 bool ParticleSelector::FindGoodPhoton(const vector<TCPhoton>& photonList, TCPhoton& gamma, const TCPhysObject& lepton1, const TCPhysObject& lepton2, float& scEta, const vector<TCGenParticle>& vetoPhotons){
   bool goodPhoton = false;
   for (UInt_t i = 0; i<photonList.size(); i++){
+
     //////////// DYJets Gamma Veto ////////////
     if (!_parameters.doPhotonPurityStudy && _parameters.DYGammaVeto && _parameters.suffix.find("DYJets") != string::npos){
       bool doVeto = false;
@@ -145,8 +146,21 @@ bool ParticleSelector::FindGoodPhoton(const vector<TCPhoton>& photonList, TCPhot
 
     gamma = photonList[i];    // define GP4
     scEta = photonList[i].SCEta();
+
+    if (_parameters.EVENTNUMBER == _evtnum){
+      cout<<"FindGoodPhoton exe"<<endl;
+      cout<<"PHOTON: "<<TCPhysObject(gamma)<<endl;
+      cout<<"pass dr1: :"<<(gamma.DeltaR(lepton1)<_cuts.dR)<<endl;
+      cout<<"pass dr2: :"<<(gamma.DeltaR(lepton2)<_cuts.dR)<<endl;
+      cout<<"pass scaled pt: :"<<(gamma.Pt()/(gamma+lepton1+lepton2).M() > _cuts.gPtOverMass)<<endl;
+      cout<<"pass straight pt: :"<<(gamma.Pt() > _cuts.gPt)<<endl;
+    }
+
     if ((gamma.DeltaR(lepton1)<_cuts.dR || gamma.DeltaR(lepton2)<_cuts.dR)) continue;
-    if (gamma.Pt()/(gamma+lepton1+lepton2).M() > _cuts.gPtOverMass && gamma.Pt() > _cuts.gPt) goodPhoton = true;
+    if (gamma.Pt()/(gamma+lepton1+lepton2).M() > _cuts.gPtOverMass && gamma.Pt() > _cuts.gPt){
+      goodPhoton = true;
+      break;
+    }
   }
   return goodPhoton;
 }
@@ -187,7 +201,6 @@ void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, const
 
   for (int i = 0; i < genParticles.GetSize(); ++i) {
     TCGenParticle* thisGen = (TCGenParticle*) genParticles.At(i);    
-    cout<<*thisGen<<endl;
   //  cout<<thisGen->GetPDGId()<<endl;
     if (abs(thisGen->GetPDGId()) == 11){
       genElectrons.push_back(*thisGen);

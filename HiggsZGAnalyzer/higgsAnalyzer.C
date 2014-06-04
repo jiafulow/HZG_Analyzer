@@ -31,13 +31,14 @@ void higgsAnalyzer::Begin(TTree * tree)
   params->jobCount       = count;
 
   // change any params from default
-  //params->doPhoMVA       = false; //FOR PROPER
+  params->doPhoMVA       = false; //FOR PROPER
   params->doAnglesMVA    = false; //FOR PROPER
 
-  //params->doSync         = true;
-  //params->dumps          = true;
+  params->doSync         = true;
+  params->dumps          = true;
+  //params->EVENTNUMBER    = 2987;
 
-  params->doAltMVA         = true; //FOR MVA OPT TEST
+  //params->doAltMVA         = true; //FOR MVA OPT TEST
 
   for (int i =0; i<100; i++){
     nEvents[i] = 0;
@@ -304,6 +305,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   unBinnedWeight = unBinnedLumiXS = 1;
 
   particleSelector->SetRho(rhoFactor);
+  particleSelector->SetEventNumber(eventNumber);
   dumper->SetRho(rhoFactor);
   dumper->SetRun(runNumber);
   dumper->SetEvent(eventNumber);
@@ -322,7 +324,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     ///////// load all the relevent particles into a struct /////////
     particleSelector->FindGenParticles(*genParticles, *recoPhotons, genPhotons, genHZG, vetoDY);
     if (params->DYGammaVeto){
-      cout<<"veto: "<<vetoDY<<endl;
       if (vetoDY) return kTRUE;
     }
 
@@ -2221,9 +2222,9 @@ void higgsAnalyzer::PhotonR9Corrector(TCPhoton& ph){
         }
       } else if (params->period == "2012"){
         if (fabs(ph.SCEta()) < 1.479){
-          R9Cor = ph.R9()*1.00139 + 0.000740;
+          R9Cor = 0.000740 + ph.R9()*1.00139; 
         }else{
-          R9Cor = ph.R9()*1.00016- 0.000399;
+          R9Cor = -0.000399 + ph.R9()*1.00016;
         }
       }
     }
