@@ -34,17 +34,24 @@ void Dumper::InitDumps(){
   if (_parameters.dumps){
     if (_parameters.selection == "mumuGamma") muonDump = true;
     if (_parameters.selection == "eeGamma") electronDump= true;
+    
+    string subtag;
+    if (_parameters.doPhoMVA){
+      subtag = "PhoMVA";
+    }else{
+      subtag = "Proper";
+    }
 
     char buffer[512];
-    sprintf(buffer, "dumps/%s_%s_lepDump1.txt",_parameters.selection.c_str(),_parameters.suffix.c_str());
+    sprintf(buffer, "dumps/%s_%s_%s_lepDump1.txt",_parameters.selection.c_str(),_parameters.suffix.c_str(),subtag.c_str());
     lepDump1.open(buffer);
-    sprintf(buffer, "dumps/%s_%s_lepDump2.txt",_parameters.selection.c_str(),_parameters.suffix.c_str());
+    sprintf(buffer, "dumps/%s_%s_%s_lepDump2.txt",_parameters.selection.c_str(),_parameters.suffix.c_str(),subtag.c_str());
     lepDump2.open(buffer);
-    sprintf(buffer, "dumps/%s_%s_phoDump1.txt",_parameters.selection.c_str(),_parameters.suffix.c_str());
+    sprintf(buffer, "dumps/%s_%s_%s_phoDump1.txt",_parameters.selection.c_str(),_parameters.suffix.c_str(),subtag.c_str());
     phoDump1.open(buffer);
-    sprintf(buffer, "dumps/%s_%s_phoDump2.txt",_parameters.selection.c_str(),_parameters.suffix.c_str());
+    sprintf(buffer, "dumps/%s_%s_%s_phoDump2.txt",_parameters.selection.c_str(),_parameters.suffix.c_str(),subtag.c_str());
     phoDump2.open(buffer);
-    sprintf(buffer, "dumps/%s_%s_finalDump.txt",_parameters.selection.c_str(),_parameters.suffix.c_str());
+    sprintf(buffer, "dumps/%s_%s_%s_finalDump.txt",_parameters.selection.c_str(),_parameters.suffix.c_str(),subtag.c_str());
     finalDump.open(buffer);
   }
 }

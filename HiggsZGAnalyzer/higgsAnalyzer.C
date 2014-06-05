@@ -31,7 +31,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   params->jobCount       = count;
 
   // change any params from default
-  params->doPhoMVA       = false; //FOR PROPER
+  //params->doPhoMVA       = false; //FOR PROPER
   params->doAnglesMVA    = false; //FOR PROPER
 
   params->doSync         = true;
@@ -639,12 +639,16 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
         if(veto) continue;
       }
 
+      ////// R9 Correction ///////
+
+      if (params->doR9Cor) PhotonR9Corrector(*thisPhoton);
 
       ////// Currently Using Cut-Based Photon ID, 2012
 
-      // non MVA selection
       bool passID = false;
       bool passIso = false;
+
+      // non MVA selection
       if(!params->doPhoMVA){
         if (particleSelector->PassPhotonID(*thisPhoton, cuts->mediumPhID)) passID = true;
         if (particleSelector->PassPhotonIso(*thisPhoton, cuts->mediumPhIso, cuts->EAPho)) passIso = true;
@@ -2281,8 +2285,6 @@ bool higgsAnalyzer::SpikeVeto(const TCPhoton& ph){
 void higgsAnalyzer::UniversalEnergyCorrector(TCPhoton& ph, vector<TCGenParticle>& _genPhotons){
   // Section for photon energy/momentum corrections.  NOTE: this will change the pt and thus ID/ISO of photon
 
-  //old R9 correction
-  if (params->doR9Cor) PhotonR9Corrector(ph);
 
   float corrPhoPt = -1;
   int periodNum   = -1;

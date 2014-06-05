@@ -1,1 +1,1 @@
-/tthome/bpollack/storage/nuTuples_v9.6_8TeV/MC/ggHZG_M125_RD1/nuTuple_14_1_LmJ.root
+/tthome/share/noobs/nuTuples_v9.6_8TeV/MC/ggHZG_M125_RD1/nuTuple_14_1_LmJ.root
