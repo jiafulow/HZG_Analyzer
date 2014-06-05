@@ -445,6 +445,7 @@ bool ParticleSelector::PassPhotonID(const TCPhoton& ph, const Cuts::phIDCuts& cu
   bool phoPass2 = false;
   if (fabs(ph.SCEta()) > 2.5) return phoPass;
   if (cutLevel.cutName == "preSelPhID"){
+    if(fabs(ph.SCEta()) > 1.4442 && fabs(ph.SCEta()) < 1.566) return phoPass;
     if(fabs(ph.SCEta()) < 1.479){
       if(
           ph.ConversionVeto()          == cutLevel.PassedEleSafeVeto[0]
