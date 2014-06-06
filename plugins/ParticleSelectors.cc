@@ -131,6 +131,7 @@ bool ParticleSelector::FindGoodPhoton(const vector<TCPhoton>& photonList, TCPhot
   bool goodPhoton = false;
   for (UInt_t i = 0; i<photonList.size(); i++){
 
+    /*
     //////////// DYJets Gamma Veto ////////////
     if (!_parameters.doPhotonPurityStudy && _parameters.DYGammaVeto && _parameters.suffix.find("DYJets") != string::npos){
       bool doVeto = false;
@@ -142,6 +143,7 @@ bool ParticleSelector::FindGoodPhoton(const vector<TCPhoton>& photonList, TCPhot
       }
       if (doVeto) continue;
     }
+    */
 
 
     gamma = photonList[i];    // define GP4
@@ -211,12 +213,12 @@ void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, const
     }else if (abs(thisGen->GetPDGId()) == 23) genZs.push_back(*thisGen);
     else if (abs(thisGen->GetPDGId()) == 24) genWs.push_back(*thisGen);
     else if (abs(thisGen->GetPDGId()) == 22){
+      //cout<<*thisGen<<endl;
       //////////// DYJets Gamma Veto ////////////
       if (_parameters.DYGammaVeto && (_parameters.suffix.find("DYJets") != string::npos)){
-        //if ((*thisGen).Mother() && (abs((*thisGen).Mother()->GetPDGId()) <= 22)){
-        if ((abs((*thisGen).MotherId()) < 22)){
-          for (int j = 0; j<_recoPhotons.GetSize(); i++){
-            TCPhoton* recoPho = (TCPhoton*) _recoPhotons.At(i);    
+        if ((abs((*thisGen).MotherId()) < 22) && _recoPhotons.GetSize()>0 ){
+          for (int j = 0; j<_recoPhotons.GetSize(); j++){
+            TCPhoton* recoPho = (TCPhoton*) _recoPhotons.At(j);    
             if (recoPho->DeltaR(*thisGen) < 0.2 && fabs(recoPho->Pt() - thisGen->Pt()) < 10){ 
               vetoDY = true;
               return;
@@ -420,15 +422,6 @@ bool ParticleSelector::PassElectronID(const TCElectron& el, const Cuts::elIDCuts
 
 bool ParticleSelector::PassElectronIso(const TCElectron& el, const Cuts::elIsoCuts& cutLevel, float EAEle[7]){
   float thisEA = 0;
-  /*
-  if (fabs(el.Eta())     <  1.0) thisEA = EAEle[0];
-  else if (fabs(el.Eta())     <  1.5) thisEA = EAEle[1];
-  else if (fabs(el.Eta())     <  2.0) thisEA = EAEle[2];
-  else if (fabs(el.Eta())     <  2.2) thisEA = EAEle[3];
-  else if (fabs(el.Eta())     <  2.3) thisEA = EAEle[4];
-  else if (fabs(el.Eta())     <  2.4) thisEA = EAEle[5];
-  else if (fabs(el.Eta())     >  2.4) thisEA = EAEle[6];
-  */
 
   thisEA = el.EffArea();
 

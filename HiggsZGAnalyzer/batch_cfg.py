@@ -4,7 +4,7 @@ import os
 
 EOS         = '/eos/uscms/store/user/bpollack'
 dCache      = '/pnfs/cms/WAX/11/store/user/bpollack'
-t3storage   = '/tthome/bpollack/storage/'
+t3storage   = '/tthome/share/noobs/'
 
 outputPathFNAL  = '/uscms/home/bpollack/nobackup/BatchOutput'
 outputPathNWU  = '/tthome/bpollack/BatchOutput'
