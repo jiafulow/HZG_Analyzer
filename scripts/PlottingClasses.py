@@ -6,7 +6,7 @@ from collections import defaultdict
 import numpy as np
 
 #color dictionary
-colorDict = {'DYJets':kGreen+1,'ZGToLLG':kBlue}
+colorDict = {'DYJets':kGreen+1,'ZGToLLG':kBlue,'DYToMuMu':kOrange}
 colorList = [kBlack,kRed,kBlue,kGreen+1,kMagenta+1,kOrange]
 
 # class for multi-layered nested dictionaries, pretty cool
@@ -68,6 +68,7 @@ class Plotter:
     scaleDict = AutoVivification()
 
     scaleDict['2012']['DYJets'] = 3503.71*1000
+    scaleDict['2012']['DYToMuMu'] = 1966.7*1000
     scaleDict['2012']['ZGToLLG'] = 156.2*1000
     scaleDict['2012']['gg']['123'] = 20.15*0.00136*0.10098*1000
     scaleDict['2012']['gg']['125'] = 19.52*0.00154*0.10098*1000
@@ -830,12 +831,12 @@ class Plotter:
     ratio.GetYaxis().SetTitleOffset(0.38)
     ratio.GetYaxis().SetLabelSize(0.09)
     ratio.GetYaxis().SetNdivisions(506)
-    ratio.SetMinimum(0.5)
-    #print 'max', ratio.GetMaximum()
-    #print 'min', ratio.GetMinimum()
+    ratio.SetMinimum(max(0.5,ratio.GetBinContent(ratio.GetMinimumBin())*0.9))
+    ratio.SetMaximum(min(1.5,ratio.GetBinContent(ratio.GetMaximumBin())*1.1))
+    #print 'max', ratio.GetBinContent(ratio.GetMaximumBin())
+    #print 'min', ratio.GetBinContent(ratio.GetMinimumBin())
     #ratio.SetMinimum(max(ratio.GetMinimum()*0.7,0.5))
     #ratio.SetMaximum(min(ratio.GetMaximum()*1.3,2))
-    ratio.SetMaximum(2)
     ratio.Draw()
     line = TLine(ratio.GetBinLowEdge(1),1.00,ratio.GetBinLowEdge(ratio.GetNbinsX()+ 1),1.00)
     line.SetLineColor(kRed)

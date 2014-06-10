@@ -103,14 +103,14 @@ def RatioPlotter():
 def DoAll():
   if os.environ.get('AT_NWU'):
     mainPath = '/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_'
-    suffix = '06-6-14_PhoMVAVetoFix'
+    suffix = '06-9-14_PhoMVADYMuMuInverseVeto'
     headDir = 'Full_'+suffix
     if not os.path.isdir(headDir):
       os.mkdir(headDir)
     FileMu = TFile(mainPath+'MuMu2012ABCD_'+suffix+'.root','OPEN')
     #FileEl = TFile(mainPath+'EE2012ABCD_'+suffix+'.root','OPEN')
-    folders = ['ZGAngles', 'ZGAngles_RECO','MVAPlots','pT-Eta-Phi']
-    #folders = ['PreSelDiLep','PreSelThreeBody','PreSelDiLepNoW','PreSelThreeBodyNoW']
+    folders = ['ZGAngles', 'ZGAngles_RECO','MVAPlots','pT-Eta-Phi','PreSelDiLep','PreSelThreeBody','PreSelDiLepNoW','PreSelThreeBodyNoW']
+    #folders = ['PreSelDiLep']
     #folders = ['ZGamma','CAT1','CAT2','CAT3','CAT4','CAT5','CAT6','CAT7','CAT8','CAT9','pT-Eta-Phi','MVAPlots','Misc','ZGAngles_RECO','PreSel']
     for folder in folders:
      # plotterEl = Plotter(FileEl, folder, headDir+'/'+folder, '2012','el','Signal2012ggM125')
@@ -122,10 +122,12 @@ def DoAll():
      #   plotterEl.DataBGComp2DProj(plotterEl.folderDict[key])
       plotterMu = Plotter(FileMu, folder, headDir+'/'+folder, '2012','mu','Signal2012ggM125')
       for key in plotterMu.folderDict.keys():
-        plotterMu.RatioPlot(key,['Signal','BG'],['Signal','BG'],True)
-        plotterMu.RatioPlot(key,['DATA','BG'],['DATA','BG'],True)
-        plotterMu.RatioPlot(key,['Signal','ZGToLLG'],['Signal','ZGToLLG'],True)
-        plotterMu.RatioPlot(key,['Signal','DYJets'],['Signal','DYJets'],True)
+        #plotterMu.RatioPlot(key,['Signal','BG'],['Signal','BG'],True)
+        #plotterMu.RatioPlot(key,['DATA','BG'],['DATA','BG'],True)
+        #plotterMu.RatioPlot(key,['DATA','BG'],['DATA','BG'],False)
+        plotterMu.RatioPlot(key,['DYToMuMu','ZGToLLG'],['DYToMuMu','ZGToLLG'],False)
+        #plotterMu.RatioPlot(key,['Signal','ZGToLLG'],['Signal','ZGToLLG'],True)
+        #plotterMu.RatioPlot(key,['Signal','DYJets'],['Signal','DYJets'],True)
         #plotterMu.RatioPlot(key,['DATA','BG'],['Data','BG'],False)
         plotterMu.directory = headDir+'/'+folder
         plotterMu.DataBGComp(plotterMu.folderDict[key])

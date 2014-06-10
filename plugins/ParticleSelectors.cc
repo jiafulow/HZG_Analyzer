@@ -127,24 +127,9 @@ bool ParticleSelector::FindGoodZMuon(const vector<TCMuon>& muonList1, const vect
   return goodZ;
 }
 
-bool ParticleSelector::FindGoodPhoton(const vector<TCPhoton>& photonList, TCPhoton& gamma, const TCPhysObject& lepton1, const TCPhysObject& lepton2, float& scEta, const vector<TCGenParticle>& vetoPhotons){
+bool ParticleSelector::FindGoodPhoton(const vector<TCPhoton>& photonList, TCPhoton& gamma, const TCPhysObject& lepton1, const TCPhysObject& lepton2, float& scEta){
   bool goodPhoton = false;
   for (UInt_t i = 0; i<photonList.size(); i++){
-
-    /*
-    //////////// DYJets Gamma Veto ////////////
-    if (!_parameters.doPhotonPurityStudy && _parameters.DYGammaVeto && _parameters.suffix.find("DYJets") != string::npos){
-      bool doVeto = false;
-      for (UInt_t j = 0; j<vetoPhotons.size(); j++){
-        if(photonList[i].DeltaR(vetoPhotons[j]) < 0.2){
-          doVeto = true;
-          break;
-        }
-      }
-      if (doVeto) continue;
-    }
-    */
-
 
     gamma = photonList[i];    // define GP4
     scEta = photonList[i].SCEta();
@@ -189,7 +174,7 @@ bool ParticleSelector::FindGoodDiJets(const vector<TCJet>& jetList, const TCPhys
   return goodDiJets;
 }
 
-void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, const TClonesArray& _recoPhotons, vector<TCGenParticle>& _genPhotons, genHZGParticles& _genHZG, bool vetoDY){
+void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, const TClonesArray& _recoPhotons, vector<TCGenParticle>& _genPhotons, genHZGParticles& _genHZG, bool& vetoDY){
   vector<TCGenParticle> genElectrons;
   vector<TCGenParticle> genMuons;
   vector<TCGenParticle> genZs;
@@ -213,9 +198,16 @@ void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, const
     }else if (abs(thisGen->GetPDGId()) == 23) genZs.push_back(*thisGen);
     else if (abs(thisGen->GetPDGId()) == 24) genWs.push_back(*thisGen);
     else if (abs(thisGen->GetPDGId()) == 22){
-      //cout<<*thisGen<<endl;
+
+      //if (abs(thisGen->MotherId()) == 111)cout<<*thisGen<<endl;
       //////////// DYJets Gamma Veto ////////////
-      if (_parameters.DYGammaVeto && (_parameters.suffix.find("DYJets") != string::npos)){
+      if (_parameters.DYGammaVeto && (_parameters.suffix.find("DY") != string::npos)){
+        /*
+        if (abs((*thisGen).MotherId()) <= 22){
+          vetoDY = true;
+          return;
+        }
+        */
         if ((abs((*thisGen).MotherId()) < 22) && _recoPhotons.GetSize()>0 ){
           for (int j = 0; j<_recoPhotons.GetSize(); j++){
             TCPhoton* recoPho = (TCPhoton*) _recoPhotons.At(j);    

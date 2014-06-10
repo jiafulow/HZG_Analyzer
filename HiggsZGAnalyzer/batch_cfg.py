@@ -112,7 +112,8 @@ else:
       configs.append(b.JobConfig('Run2012D', t3storage+'/nuTuples_v9.8_8TeV/Data/DoubleMu_Run2012D', 150, 'DATA ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
 
       configs.append(b.JobConfig('ZGToLLG', t3storage+'/nuTuples_v9.8_8TeV/MC/ZGToLLG_RD1', 50, 'ZGToLLG ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
-      configs.append(b.JobConfig('DYJets', t3storage+'/nuTuples_v9.8_8TeV/MC/DYJetsToLL_M-50_RD1', 150, 'DYJets ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
+      #configs.append(b.JobConfig('DYJets', t3storage+'/nuTuples_v9.8_8TeV/MC/DYJetsToLL_M-50_RD1', 150, 'DYJets ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
+      configs.append(b.JobConfig('DYToMuMu', t3storage+'/nuTuples_v9.8_8TeV/MC/DYToMuMu_M-20_RD1', 200, 'DYToMuMu ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
     else:
       configs.append(b.JobConfig('Run2011A', t3storage+'/nuTuples_v9.8_7TeV/Data/DoubleMu_Run2011A', 100, 'DATA AB mumuGamma 2011 {0}'.format(analyzer),'mumuGamma'))
       configs.append(b.JobConfig('Run2011B', t3storage+'/nuTuples_v9.8_7TeV/Data/DoubleMu_Run2011B', 100, 'DATA AB mumuGamma 2011 {0}'.format(analyzer),'mumuGamma'))

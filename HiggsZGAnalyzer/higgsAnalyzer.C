@@ -35,10 +35,12 @@ void higgsAnalyzer::Begin(TTree * tree)
   params->doAnglesMVA    = false; //FOR PROPER or No KinMVA
 
   //params->doSync         = true;
-  params->dumps          = true;
+  //params->dumps          = true;
   //params->EVENTNUMBER    = 2987;
 
   //params->doAltMVA         = true; //FOR MVA OPT TEST
+  //params->DYGammaVeto      = false;
+  //params->doLooseMuIso     = false;
 
   for (int i =0; i<100; i++){
     nEvents[i] = 0;
@@ -323,7 +325,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   if(!isRealData){
     ///////// load all the relevent particles into a struct /////////
     particleSelector->FindGenParticles(*genParticles, *recoPhotons, genPhotons, genHZG, vetoDY);
-    if (params->DYGammaVeto){
+    if (params->DYGammaVeto && (params->suffix.find("DY") != string::npos)){
       if (vetoDY) return kTRUE;
     }
 
@@ -952,7 +954,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   goodPhoton = goodPhoton_LIDMIso = goodPhoton_MIDLIso = goodPhoton_LIDLIso = goodPhoton_NoIDIso = false;
 
   if (photonsIDIso.size() < 1) return kTRUE;
-  goodPhoton = particleSelector->FindGoodPhoton(photonsIDIso, GP4, lepton1, lepton2, GP4scEta, genPhotons);
+  goodPhoton = particleSelector->FindGoodPhoton(photonsIDIso, GP4, lepton1, lepton2, GP4scEta);
   if(!goodPhoton) return kTRUE;
 
   if (params->doScaleFactors){
@@ -1217,6 +1219,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   scaleFactor     = eventWeight;
   if (params->suffix.find("ggM123") != string::npos) scaleFactor *= 19.672/(unskimmedEventsTotal/(19.52*0.00154*0.10098*1000));
   if (params->suffix == "DYJets") scaleFactor *= 19.672/(unskimmedEventsTotal/(3503.71*1000));
+  if (params->suffix == "DYToMuMu") scaleFactor *= 19.672/(unskimmedEventsTotal/(1966.7*1000));
   if (params->suffix == "ZGToLLG") scaleFactor *= 19.672/(unskimmedEventsTotal/(156.2*1000)); 
   //if (params->suffix == "ZGEE") scaleFactor *= 4.98/7.11;
   //if (params->suffix == "ZZJets") scaleFactor *= 4.98/6175;
