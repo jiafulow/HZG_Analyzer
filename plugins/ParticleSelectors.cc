@@ -174,7 +174,7 @@ bool ParticleSelector::FindGoodDiJets(const vector<TCJet>& jetList, const TCPhys
   return goodDiJets;
 }
 
-void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, const TClonesArray& _recoPhotons, vector<TCGenParticle>& _genPhotons, genHZGParticles& _genHZG, bool& vetoDY){
+void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, const TClonesArray& _recoPhotons, vector<TCGenParticle>& _genPhotons, vector<TCGenParticle>& _genMuons, genHZGParticles& _genHZG, bool& vetoDY){
   vector<TCGenParticle> genElectrons;
   vector<TCGenParticle> genMuons;
   vector<TCGenParticle> genZs;
@@ -197,32 +197,8 @@ void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, const
       if (thisGen->Mother() && abs(thisGen->Mother()->GetPDGId())==23) isMuMuGamma = true;
     }else if (abs(thisGen->GetPDGId()) == 23) genZs.push_back(*thisGen);
     else if (abs(thisGen->GetPDGId()) == 24) genWs.push_back(*thisGen);
-    else if (abs(thisGen->GetPDGId()) == 22){
-
-      //if (abs(thisGen->MotherId()) == 111)cout<<*thisGen<<endl;
-      //////////// DYJets Gamma Veto ////////////
-      if (_parameters.DYGammaVeto && (_parameters.suffix.find("DY") != string::npos)){
-        /*
-        if (abs((*thisGen).MotherId()) <= 22){
-          vetoDY = true;
-          return;
-        }
-        */
-        if ((abs((*thisGen).MotherId()) < 22) && _recoPhotons.GetSize()>0 ){
-          for (int j = 0; j<_recoPhotons.GetSize(); j++){
-            TCPhoton* recoPho = (TCPhoton*) _recoPhotons.At(j);    
-            if (recoPho->DeltaR(*thisGen) < 0.2 && fabs(recoPho->Pt() - thisGen->Pt()) < 10){ 
-              vetoDY = true;
-              return;
-            }
-          }
-        }
-        genPhotons.push_back(*thisGen);
-      }else{
-        genPhotons.push_back(*thisGen);
-      }
-
-    }else if (abs(thisGen->GetPDGId()) == 25) genHs.push_back(*thisGen);
+    else if (abs(thisGen->GetPDGId()) == 22) genPhotons.push_back(*thisGen);
+    else if (abs(thisGen->GetPDGId()) == 25) genHs.push_back(*thisGen);
   }
   ///////// sort gen particles by PT ///////////
 
@@ -233,10 +209,44 @@ void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, const
   sort(genPhotons.begin(), genPhotons.end(), P4SortCondition);
   sort(genHs.begin(), genHs.end(), P4SortCondition);
   _genPhotons = genPhotons;
+  _genMuons = genMuons;
+
 
 
   if (isMuMuGamma && (_parameters.selection == "mumuGamma")) genLeptons = genMuons;
   else if (isEEGamma && (_parameters.selection == "eeGamma")) genLeptons = genElectrons;
+
+  //////////// DYJets Gamma Veto ////////////
+  if (_parameters.DYGammaVeto && (_parameters.suffix.find("DY") != string::npos && genPhotons.size() > 0)){
+    vector<TCGenParticle>::iterator phoIt;
+    vector<TCGenParticle>::iterator lepIt;
+    for (phoIt = genPhotons.begin(); phoIt<genPhotons.end(); phoIt++){
+      if (abs((*phoIt).MotherId()) < 22 && (*phoIt).Pt() > 6){
+        if(genLeptons.size() < 1){
+          vetoDY = true;
+          return;
+        }else{
+          for (lepIt = genLeptons.begin(); lepIt<genLeptons.end(); lepIt++){
+            if((*lepIt).DeltaR(*phoIt) > 0.3){
+              vetoDY = true;
+              return;
+            }
+          }
+        }
+      }
+    }
+  }
+    /*
+    if ((abs((*thisGen).MotherId()) < 22) && _recoPhotons.GetSize()>0 ){
+      for (int j = 0; j<_recoPhotons.GetSize(); j++){
+        TCPhoton* recoPho = (TCPhoton*) _recoPhotons.At(j);    
+        if (recoPho->DeltaR(*thisGen) < 0.2 && fabs(recoPho->Pt() - thisGen->Pt()) < 10){ 
+          vetoDY = true;
+          return;
+        }
+      }
+    }
+    */
   
   if (_genHZG.lp){
     cout<<"well here's your fucking problem"<<endl;

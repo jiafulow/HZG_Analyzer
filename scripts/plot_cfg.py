@@ -103,7 +103,7 @@ def RatioPlotter():
 def DoAll():
   if os.environ.get('AT_NWU'):
     mainPath = '/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_'
-    suffix = '06-9-14_PhoMVADYMuMuInverseVeto'
+    suffix = '06-10-14_ZGToLLGTest2'
     headDir = 'Full_'+suffix
     if not os.path.isdir(headDir):
       os.mkdir(headDir)
@@ -124,11 +124,10 @@ def DoAll():
       for key in plotterMu.folderDict.keys():
         #plotterMu.RatioPlot(key,['Signal','BG'],['Signal','BG'],True)
         #plotterMu.RatioPlot(key,['DATA','BG'],['DATA','BG'],True)
-        #plotterMu.RatioPlot(key,['DATA','BG'],['DATA','BG'],False)
-        plotterMu.RatioPlot(key,['DYToMuMu','ZGToLLG'],['DYToMuMu','ZGToLLG'],False)
+        plotterMu.RatioPlot(key,['DATA','BG'],['DATA','BG'],False)
+        #plotterMu.RatioPlot(key,['DYToMuMu','ZGToLLG'],['DYToMuMu','ZGToLLG'],False)
         #plotterMu.RatioPlot(key,['Signal','ZGToLLG'],['Signal','ZGToLLG'],True)
         #plotterMu.RatioPlot(key,['Signal','DYJets'],['Signal','DYJets'],True)
-        #plotterMu.RatioPlot(key,['DATA','BG'],['Data','BG'],False)
         plotterMu.directory = headDir+'/'+folder
         plotterMu.DataBGComp(plotterMu.folderDict[key])
         plotterMu.DataBGComp2DProj(plotterMu.folderDict[key])

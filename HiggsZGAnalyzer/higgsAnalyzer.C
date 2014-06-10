@@ -32,11 +32,11 @@ void higgsAnalyzer::Begin(TTree * tree)
 
   // change any params from default
 
-  params->doPhoMVA       = false; //FOR PROPER
+  //params->doPhoMVA       = false; //FOR PROPER
   params->doAnglesMVA    = false; //FOR PROPER or No KinMVA
 
-  params->doSync         = true;
-  params->dumps          = true;
+  //params->doSync         = true;
+  //params->dumps          = true;
   //params->EVENTNUMBER    = 2987;
 
   //params->doAltMVA         = true; //FOR MVA OPT TEST
@@ -320,15 +320,25 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   
 
   vector<TCGenParticle> genPhotons;
+  vector<TCGenParticle> genMuons;
   particleSelector->CleanUpGen(genHZG);
   bool vetoDY = false;
   //genHZG = {0,0,0,0,0,0};
   if(!isRealData){
     ///////// load all the relevent particles into a struct /////////
-    particleSelector->FindGenParticles(*genParticles, *recoPhotons, genPhotons, genHZG, vetoDY);
+    particleSelector->FindGenParticles(*genParticles, *recoPhotons, genPhotons, genMuons, genHZG, vetoDY);
     if (params->DYGammaVeto && (params->suffix.find("DY") != string::npos)){
       if (vetoDY) return kTRUE;
     }
+
+    if (genPhotons.size() > 0 && genMuons.size() > 1 && abs(genPhotons[0].MotherId())<30 && genPhotons[0].GetStatus() == 1){
+      hm->fill1DHist(genPhotons[0].Pt(),"h1_genPhotonPt_"+params->suffix, "pT_{#gamma}; pT_{#gamma};N_{evts}", 100, 0., 100., 1,"GenPlots");
+      hm->fill1DHist(genMuons[0].Pt(),"h1_genLeptonPt_"+params->suffix, "pT_{l}; pT_{l};N_{evts}", 100, 0., 100., 1,"GenPlots");
+      hm->fill1DHist(genMuons[1].Pt(),"h1_genLeptonPt_"+params->suffix, "pT_{l}; pT_{l};N_{evts}", 100, 0., 100., 1,"GenPlots");
+      hm->fill1DHist(genPhotons[0].DeltaR(genMuons[0]),"h1_genPhotonLeptonDr_"+params->suffix, "dR(#gamma,l); dR(#gamma,l);N_{evts}", 300, 0., 3., 1,"GenPlots");
+      hm->fill1DHist(genPhotons[0].DeltaR(genMuons[1]),"h1_genPhotonLeptonDr_"+params->suffix, "dR(#gamma,l); dR(#gamma,l);N_{evts}", 300, 0., 3., 1,"GenPlots");
+    }
+
 
     ///////// whzh decomposition /////////////////
 
@@ -343,6 +353,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
     if(genHZG.lp && genHZG.lm && genHZG.g){
       if(genHZG.lp->Pt() > 0 && genHZG.lm->Pt() > 0){
+
         if (genHZG.lp->Pt() > genHZG.lm->Pt()){
           StandardPlots(*genHZG.lp,*genHZG.lm,*genHZG.g,1,"PreGen", "PreGen");
         }else{
@@ -1667,6 +1678,7 @@ void higgsAnalyzer::StandardPlots(TLorentzVector p1, TLorentzVector p2, float ev
   hm->fill1DHist(diLep.Eta(),"h1_diLepEta"+tag+"_"+params->suffix, "#eta Z;#eta;N_{evts}", 18, -2.5, 2.5, eventWeight,folder);    
   hm->fill1DHist(diLep.Phi(),"h1_diLepPhi"+tag+"_"+params->suffix, "#phi Z;#phi;N_{evts}", 18, -TMath::Pi(), TMath::Pi(), eventWeight,folder);    
   hm->fill1DHist(diLep.M(),"h1_diLepMass"+tag+"_"+params->suffix, "M_{Z};M (GeV);N_{evts}", 50, 66, 116, eventWeight,folder);    
+  hm->fill1DHist(diLep.M(),"h1_diLepMassLow"+tag+"_"+params->suffix, "M_{Z};M (GeV);N_{evts}", 116, 0, 116, eventWeight,folder);    
 
   hm->fill1DHist(primaryVtx->GetSize(),"h1_pvMultCopy"+tag+"_"+params->suffix, "Multiplicity of PVs;N_{PV};N_{evts}", 25, 0.5, 25.5, eventWeight, folder);
   for(int i = 0; i < 64; ++i) {
