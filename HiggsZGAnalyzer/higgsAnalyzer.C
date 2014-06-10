@@ -31,11 +31,12 @@ void higgsAnalyzer::Begin(TTree * tree)
   params->jobCount       = count;
 
   // change any params from default
-  //params->doPhoMVA       = false; //FOR PROPER
+
+  params->doPhoMVA       = false; //FOR PROPER
   params->doAnglesMVA    = false; //FOR PROPER or No KinMVA
 
-  //params->doSync         = true;
-  //params->dumps          = true;
+  params->doSync         = true;
+  params->dumps          = true;
   //params->EVENTNUMBER    = 2987;
 
   //params->doAltMVA         = true; //FOR MVA OPT TEST
@@ -558,7 +559,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     
     // eng cor
 
-    //if(params->engCor && !params->doSync) UniversalEnergyCorrector(*thisElec);
+    if(params->engCor && !params->doSync) UniversalEnergyCorrector(*thisElec);
 
 
     dumper->ElectronDump(*thisElec, *recoMuons, 1);
@@ -598,7 +599,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       if (particleSelector->PassMuonIso(*thisMuon, cuts->tightMuIso)) passIso = true;
     }
     
-    //if (params->engCor && !params->doSync) UniversalEnergyCorrector(*thisMuon);
+    if (params->engCor && !params->doSync) UniversalEnergyCorrector(*thisMuon);
 
     if (passID) muonsID.push_back(*thisMuon);
     if (passID && passIso) muonsIDIso.push_back(*thisMuon);
@@ -672,7 +673,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       }
 
       // energy correction after ID and ISO
-      //if (params->engCor && !params->doSync) UniversalEnergyCorrector(*thisPhoton, genPhotons);
+      if (params->engCor && !params->doSync) UniversalEnergyCorrector(*thisPhoton, genPhotons);
 
       if (passID) photonsID.push_back(*thisPhoton);
       if (passID && passIso) photonsIDIso.push_back(*thisPhoton);
@@ -687,15 +688,15 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   }
 
   if (electronsID.size() >0 && photonsID.size() > 0){
-    for (Int_t i = 0; i < electronsID.size(); i++) {
+    for (UInt_t i = 0; i < electronsID.size(); i++) {
       hm->fill1DHist(electronsID[i].PfIsoPhoton()/electronsID[i].Pt(),"h1_elePfPhoIsoOelePt_"+params->suffix, "ID'd electron pf photon iso/ electron pt; pt ratio; N_{evts}", 40, 0, 2, 1,"Misc");
-      for (Int_t j = 0; j < photonsID.size(); j++) {
+      for (UInt_t j = 0; j < photonsID.size(); j++) {
         if (electronsID[i].DeltaR(photonsID[j])<0.4 ){
           hm->fill1DHist(electronsID[i].PfIsoPhoton()/photonsID[j].Pt(),"h1_elePfPhoIsoOphoPt_"+params->suffix, "ID'd electron pf photon iso/ photon pt; pt ratio; N_{evts}", 40, 0, 2, 1,"Misc");
         }
       }
     }
-    for (Int_t i = 0; i < photonsID.size(); i++) {
+    for (UInt_t i = 0; i < photonsID.size(); i++) {
       hm->fill1DHist(photonsID[i].PfIsoPhoton()/photonsID[i].Pt(),"h1_phoPfPhoIsoOphoPt_"+params->suffix, "ID'd photon pf photon iso/ photon pt; pt ratio; N_{evts}", 40, 0, 2, 1,"Misc");
     }
   }
@@ -902,6 +903,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   // new place for energy corrections:
 
+  /*
   if(params->engCor && !params->doSync){
     if (params->selection == "eeGamma"){
       UniversalEnergyCorrector(electronsIDIso[lepton1int]);
@@ -917,6 +919,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       ZP4 = lepton1+lepton2;
     }
   }
+  */
 
 
   ////////////
@@ -943,15 +946,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   ////////////////////////////
 
 
-  TCPhoton GP4_LIDMIso;
-  TCPhoton GP4_MIDLIso;
-  TCPhoton GP4_LIDLIso;
-  TCPhoton GP4_NoIDIso;
-
-  float GP4scEta_LIDMIso, GP4scEta_MIDLIso, GP4scEta_LIDLIso, GP4scEta_NoIDIso;
-  GP4scEta_LIDMIso = GP4scEta_MIDLIso = GP4scEta_LIDLIso = GP4scEta_NoIDIso = -999;
-  bool goodPhoton, goodPhoton_LIDMIso, goodPhoton_MIDLIso, goodPhoton_LIDLIso, goodPhoton_NoIDIso;
-  goodPhoton = goodPhoton_LIDMIso = goodPhoton_MIDLIso = goodPhoton_LIDLIso = goodPhoton_NoIDIso = false;
+  bool goodPhoton = false; 
 
   if (photonsIDIso.size() < 1) return kTRUE;
   goodPhoton = particleSelector->FindGoodPhoton(photonsIDIso, GP4, lepton1, lepton2, GP4scEta);
@@ -964,7 +959,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   eventWeightPho   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
 
   // new place for energy corrections:
-  if (params->engCor && !params->doSync) UniversalEnergyCorrector(GP4, genPhotons);
+  //if (params->engCor && !params->doSync) UniversalEnergyCorrector(GP4, genPhotons);
 
 
   hm->fill1DHist(10,"h1_acceptanceByCut_"+params->suffix, "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");
@@ -2126,10 +2121,6 @@ float higgsAnalyzer::MVACalculator (mvaInitStruct inits, TMVA::Reader* _tmvaRead
 
   // get the MVA discriminators for the considered methods
 
-  //             [higgs mass points]
-  Bool_t passBdtCut[1] = {kFALSE};
-  Bool_t passAllBdtCuts[1] = {kTRUE};
-
 
   //                    [mva method][higgs mass point]
   Float_t tmvaValue[3] = {-999};
@@ -2318,7 +2309,6 @@ void higgsAnalyzer::UniversalEnergyCorrector(TCPhoton& ph, vector<TCGenParticle>
   if(!isRealData && ph.Pt()>10.){
     TCGenParticle goodGenPhoton;
     float testDr = 9999;
-    int vetoPos = -1;
     //cout<<"veto photon size: "<<_genPhotons.size()<<endl;
     for (UInt_t j = 0; j<_genPhotons.size(); j++){
       //if (_genPhotons[j].Mother() && fabs(_genPhotons[j].Mother()->GetPDGId()) == 22) cout<<"mother: "<<_genPhotons[j].Mother()->GetPDGId()<<endl;
@@ -2326,14 +2316,12 @@ void higgsAnalyzer::UniversalEnergyCorrector(TCPhoton& ph, vector<TCGenParticle>
         if(ph.DeltaR(_genPhotons[j])<testDr){
           goodGenPhoton = _genPhotons[j];
           testDr = ph.DeltaR(_genPhotons[j]);
-          vetoPos = j;
           //cout<<"testdr: "<<testDr<<endl;
         }
       }
     }
     if (testDr < 0.2){
       corrPhoPt = phoCorrector->GetCorrEtMC(ph.R9(), periodNum, ph.Pt(), ph.Eta(), goodGenPhoton.E());
-      //cout<<"uncor pt: "<<ph.Pt()<<" cor pt: "<<corrPhoPt<<" gen pt: "<<_genPhotons[vetoPos].Pt()<<endl;
       ph.SetPtEtaPhiM(corrPhoPt,ph.Eta(),ph.Phi(),0.0);
     }
 

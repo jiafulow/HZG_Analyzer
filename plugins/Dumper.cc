@@ -41,17 +41,24 @@ void Dumper::InitDumps(){
     }else{
       subtag = "Proper";
     }
+    string cortag;
+    if (_parameters.engCor && !_parameters.doSync){
+      cortag= "EngCor";
+    }else{
+      cortag = "NoEngCor";
+    }
+
 
     char buffer[512];
-    sprintf(buffer, "dumps/%s_%s_%s_lepDump1.txt",_parameters.selection.c_str(),_parameters.suffix.c_str(),subtag.c_str());
+    sprintf(buffer, "dumps/%s_%s_%s_%s_lepDump1.txt",_parameters.selection.c_str(),_parameters.suffix.c_str(),subtag.c_str(),cortag.c_str());
     lepDump1.open(buffer);
-    sprintf(buffer, "dumps/%s_%s_%s_lepDump2.txt",_parameters.selection.c_str(),_parameters.suffix.c_str(),subtag.c_str());
+    sprintf(buffer, "dumps/%s_%s_%s_%s_lepDump2.txt",_parameters.selection.c_str(),_parameters.suffix.c_str(),subtag.c_str(),cortag.c_str());
     lepDump2.open(buffer);
-    sprintf(buffer, "dumps/%s_%s_%s_phoDump1.txt",_parameters.selection.c_str(),_parameters.suffix.c_str(),subtag.c_str());
+    sprintf(buffer, "dumps/%s_%s_%s_%s_phoDump1.txt",_parameters.selection.c_str(),_parameters.suffix.c_str(),subtag.c_str(),cortag.c_str());
     phoDump1.open(buffer);
-    sprintf(buffer, "dumps/%s_%s_%s_phoDump2.txt",_parameters.selection.c_str(),_parameters.suffix.c_str(),subtag.c_str());
+    sprintf(buffer, "dumps/%s_%s_%s_%s_phoDump2.txt",_parameters.selection.c_str(),_parameters.suffix.c_str(),subtag.c_str(),cortag.c_str());
     phoDump2.open(buffer);
-    sprintf(buffer, "dumps/%s_%s_%s_finalDump.txt",_parameters.selection.c_str(),_parameters.suffix.c_str(),subtag.c_str());
+    sprintf(buffer, "dumps/%s_%s_%s_%s_finalDump.txt",_parameters.selection.c_str(),_parameters.suffix.c_str(),subtag.c_str(),cortag.c_str());
     finalDump.open(buffer);
   }
 }

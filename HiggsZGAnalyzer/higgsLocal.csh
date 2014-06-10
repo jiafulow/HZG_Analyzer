@@ -35,6 +35,13 @@ cat > run.C << +EOF
   using namespace std;
 
   void run(string args="") {
+    string libMake = gSystem->GetMakeSharedLib();
+    const string delWarn("-Wshadow");
+    int pos1 = libMake.find(delWarn);
+    libMake= libMake.substr(0, pos1) + libMake.substr(pos1+delWarn.size()+1); 
+    gSystem->SetMakeSharedLib(libMake.c_str());
+
+    //cout<<gSystem->GetMakeSharedLib()<<endl;
 
     gROOT->SetMacroPath(".:../src/:../interface/:../plugins/");
     gROOT->LoadMacro("TCPhysObject.cc+");
