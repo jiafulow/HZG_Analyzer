@@ -222,16 +222,11 @@ void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, const
     vector<TCGenParticle>::iterator lepIt;
     for (phoIt = genPhotons.begin(); phoIt<genPhotons.end(); phoIt++){
       if (abs((*phoIt).MotherId()) < 22 && (*phoIt).Pt() > 6){
-        if(genLeptons.size() < 1){
-          vetoDY = true;
-          return;
-        }else{
-          for (lepIt = genLeptons.begin(); lepIt<genLeptons.end(); lepIt++){
-            if((*lepIt).DeltaR(*phoIt) > 0.3){
+        if((*phoIt).Mother()){
+            if((*phoIt).DeltaR(*(*phoIt).Mother()) > 0.3){
               vetoDY = true;
               return;
             }
-          }
         }
       }
     }

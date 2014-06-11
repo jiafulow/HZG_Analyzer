@@ -103,7 +103,7 @@ def RatioPlotter():
 def DoAll():
   if os.environ.get('AT_NWU'):
     mainPath = '/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_'
-    suffix = '06-10-14_ZGToLLGTest2'
+    suffix = '06-11-14_ZGToLLGTest3'
     headDir = 'Full_'+suffix
     if not os.path.isdir(headDir):
       os.mkdir(headDir)
