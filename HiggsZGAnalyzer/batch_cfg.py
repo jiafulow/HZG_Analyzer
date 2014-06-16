@@ -9,14 +9,14 @@ t3storage   = '/tthome/share/noobs/'
 outputPathFNAL  = '/uscms/home/bpollack/nobackup/BatchOutput'
 outputPathNWU  = '/tthome/bpollack/BatchOutput'
 
-analyzer = 'higgsAnalyzer'
-#analyzer = 'smzgAnalyzer'
+#analyzer = 'higgsAnalyzer'
+analyzer = 'smzgAnalyzer'
 
 os.system('tar -zcvf stageball.tar.gz {0}* ../src  otherHistos ../plugins ../interface ../mva/testWeights* ../txtFiles ../input.DAT ../process.DAT ../Pdfdata ../br.sm*'.format(analyzer))
 
-doMuMuGamma = True
+doMuMuGamma = False
 doEEGamma =   False
-doMuEGamma =  False
+doMuEGamma =  True
 do7Tev = False
 configs = []
 
@@ -56,8 +56,8 @@ else:
   if doMuMuGamma:
     if not do7Tev:
       #configs.append(b.JobConfig('ggHZG_M120', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M120_RD1', 5, 'Signal2012ggM120 ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
-      configs.append(b.JobConfig('ggHZG_M123', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M123_RD1', 5, 'Signal2012ggM123 ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
-      configs.append(b.JobConfig('ggHZG_M125', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M125_RD1', 5, 'Signal2012ggM125 ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
+      #configs.append(b.JobConfig('ggHZG_M123', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M123_RD1', 5, 'Signal2012ggM123 ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
+      #configs.append(b.JobConfig('ggHZG_M125', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M125_RD1', 5, 'Signal2012ggM125 ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
       #configs.append(b.JobConfig('ggHZG_M130', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M130_RD1', 5, 'Signal2012ggM130 ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
       #configs.append(b.JobConfig('ggHZG_M135', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M135_RD1', 5, 'Signal2012ggM135 ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
       #configs.append(b.JobConfig('ggHZG_M140', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M140_RD1', 5, 'Signal2012ggM140 ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
@@ -112,8 +112,8 @@ else:
       configs.append(b.JobConfig('Run2012D', t3storage+'/nuTuples_v9.8_8TeV/Data/DoubleMu_Run2012D', 150, 'DATA ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
 
       configs.append(b.JobConfig('ZGToLLG', t3storage+'/nuTuples_v9.8_8TeV/MC/ZGToLLG_RD1', 50, 'ZGToLLG ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
-      #configs.append(b.JobConfig('DYJets', t3storage+'/nuTuples_v9.8_8TeV/MC/DYJetsToLL_M-50_RD1', 150, 'DYJets ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
-      configs.append(b.JobConfig('DYToMuMu', t3storage+'/nuTuples_v9.8_8TeV/MC/DYToMuMu_M-20_RD1', 200, 'DYToMuMu ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
+      configs.append(b.JobConfig('DYJets', t3storage+'/nuTuples_v9.8_8TeV/MC/DYJetsToLL_M-50_RD1', 150, 'DYJets ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
+      #configs.append(b.JobConfig('DYToMuMu', t3storage+'/nuTuples_v9.8_8TeV/MC/DYToMuMu_M-20_RD1', 200, 'DYToMuMu ABCD mumuGamma 2012 {0}'.format(analyzer),'mumuGamma'))
     else:
       configs.append(b.JobConfig('Run2011A', t3storage+'/nuTuples_v9.8_7TeV/Data/DoubleMu_Run2011A', 100, 'DATA AB mumuGamma 2011 {0}'.format(analyzer),'mumuGamma'))
       configs.append(b.JobConfig('Run2011B', t3storage+'/nuTuples_v9.8_7TeV/Data/DoubleMu_Run2011B', 100, 'DATA AB mumuGamma 2011 {0}'.format(analyzer),'mumuGamma'))
@@ -184,7 +184,7 @@ else:
     configs.append(b.JobConfig('Run2012B', t3storage+'/nuTuples_v9.8_8TeV/Data/MuEG_Run2012B', 100, 'DATA ABCD mueGamma 2012 {0}'.format(analyzer),'mueGamma'))
     configs.append(b.JobConfig('Run2012C', t3storage+'/nuTuples_v9.8_8TeV/Data/MuEG_Run2012C', 150, 'DATA ABCD mueGamma 2012 {0}'.format(analyzer),'mueGamma'))
     configs.append(b.JobConfig('Run2012D', t3storage+'/nuTuples_v9.8_8TeV/Data/MuEG_Run2012D', 150, 'DATA ABCD mueGamma 2012 {0}'.format(analyzer),'mueGamma'))
-    configs.append(b.JobConfig('ZtoJPsiGamma', t3storage+'/nuTuples_v9.8_8TeV/MC/ZtoJPsiGamma', 10, 'ZtoJPsiGamma ABCD mueGamma 2012 {0}'.format(analyzer),'mueGamma'))
+    configs.append(b.JobConfig('ZtoJPsiGamma','/tthome/bpollack/storage/nuTuples_v9.7_8TeV/MC/ZtoJPsiGamma', 10, 'ZtoJPsiGamma ABCD mueGamma 2012 {0}'.format(analyzer),'mueGamma'))
 
   batcher = b.BatchMaster(configs, outputPathNWU,'execBatch.sh')
 batcher.SubmitToLPC()

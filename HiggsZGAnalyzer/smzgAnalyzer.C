@@ -83,7 +83,7 @@ void smzgAnalyzer::Begin(TTree * tree)
   rEl.reset(new TRandom3(230+100*jobNum));
   rMuRun.reset(new TRandom3(231+100*jobNum));
   phoCorrector.reset(new zgamma::PhosphorCorrectionFunctor("../plugins/PHOSPHOR_NUMBERS_EXPFIT_ERRORS.txt", true));
-  particleSelector.reset(new ParticleSelector(*params, *cuts, isRealData, runNumber, *rEl));
+  particleSelector.reset(new ParticleSelector(*params, *cuts, isRealData, runNumber));
 
   // Random numbers! //
   rnGenerator.reset(new TRandom3);
@@ -139,10 +139,12 @@ Bool_t smzgAnalyzer::Process(Long64_t entry)
 
   // gen
 
-  vector<TCGenParticle> vetoPhotons;
+  vector<TCGenParticle> genPhotons;
+  vector<TCGenParticle> genMuons;
+  bool vetoDY = false;
   particleSelector->CleanUpGen(genHZG);
   //genHZG = {0,0,0,0,0,0};
-  if(!isRealData) particleSelector->FindGenParticles(*genParticles, vetoPhotons, genHZG);
+  if(!isRealData) particleSelector->FindGenParticles(*genParticles, *recoPhotons, genPhotons, genMuons, genHZG, vetoDY);
 
   // muons
 
@@ -233,11 +235,11 @@ Bool_t smzgAnalyzer::Process(Long64_t entry)
         TCGenParticle goodGenPhoton;
         float testDr = 9999;
         int vetoPos = -1;
-        for (UInt_t j = 0; j<vetoPhotons.size(); j++){
-          if(vetoPhotons[j].Mother() && (fabs(vetoPhotons[j].Mother()->GetPDGId()) == 25 || fabs(vetoPhotons[j].Mother()->GetPDGId()) == 22) && vetoPhotons[j].GetStatus()==1){
-            if(thisPhoton->DeltaR(vetoPhotons[j])<testDr){
-              goodGenPhoton = vetoPhotons[j];
-              testDr = thisPhoton->DeltaR(vetoPhotons[j]);
+        for (UInt_t j = 0; j<genPhotons.size(); j++){
+          if(genPhotons[j].Mother() && (fabs(genPhotons[j].Mother()->GetPDGId()) == 25 || fabs(genPhotons[j].Mother()->GetPDGId()) == 22) && genPhotons[j].GetStatus()==1){
+            if(thisPhoton->DeltaR(genPhotons[j])<testDr){
+              goodGenPhoton = genPhotons[j];
+              testDr = thisPhoton->DeltaR(genPhotons[j]);
               vetoPos = j;
             }
           }
@@ -304,7 +306,7 @@ Bool_t smzgAnalyzer::Process(Long64_t entry)
   TCPhoton GP4;
   float GP4scEta = -9999;
   if (photonsIDIso.size() < 1) return kTRUE;
-  bool goodPhoton = particleSelector->FindGoodPhoton(photonsIDIso, GP4, lepton1, lepton2, GP4scEta, vetoPhotons);
+  bool goodPhoton = particleSelector->FindGoodPhoton(photonsIDIso, GP4, lepton1, lepton2, GP4scEta);
   if(!goodPhoton) return kTRUE;
 
   HP4 = ZP4+GP4;
