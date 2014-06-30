@@ -890,17 +890,20 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     }
     //cout<<eventWeight<<endl;
   }else{
-    goodZ = particleSelector->FindGoodZMuon(muonsIDIso,lepton1,lepton2,ZP4,lepton1int,lepton2int, 91.1876);
+    //goodZ = particleSelector->FindGoodZMuon(muonsIDIso,lepton1,lepton2,ZP4,lepton1int,lepton2int, 91.1876);
+    goodZ = particleSelector->FindGoodZMuon(muonsIDIso,lepton1,lepton2,ZP4,lepton1int,lepton2int, 10);
     if (eventNumber == params->EVENTNUMBER) cout<<"goodZ?: "<<goodZ<<endl;
     if (!goodZ) return kTRUE;
     if (eventNumber == params->EVENTNUMBER) cout<<"goodZ?: "<<goodZ<<endl;
     if (!isRealData){ 
       if (params->doScaleFactors){
-        eventWeight   *= weighter->MuonTriggerWeight(lepton1, lepton2);
+        //eventWeight   *= weighter->MuonTriggerWeight(lepton1, lepton2);
+        eventWeight   *= weighter->MuonTriggerWeightV2(lepton1, lepton2);
         eventWeight   *= weighter->MuonSelectionWeight(lepton1);
         eventWeight   *= weighter->MuonSelectionWeight(lepton2);
       }
-      eventWeightTrig   *= weighter->MuonTriggerWeight(lepton1, lepton2);
+      //eventWeightTrig   *= weighter->MuonTriggerWeight(lepton1, lepton2);
+      eventWeightTrig   *= weighter->MuonTriggerWeightV2(lepton1, lepton2);
       eventWeightLep   *= weighter->MuonSelectionWeight(lepton1);
       eventWeightLep   *= weighter->MuonSelectionWeight(lepton2);
     }
@@ -1678,7 +1681,7 @@ void higgsAnalyzer::StandardPlots(TLorentzVector p1, TLorentzVector p2, float ev
   hm->fill1DHist(diLep.Eta(),"h1_diLepEta"+tag+"_"+params->suffix, "#eta Z;#eta;N_{evts}", 18, -2.5, 2.5, eventWeight,folder);    
   hm->fill1DHist(diLep.Phi(),"h1_diLepPhi"+tag+"_"+params->suffix, "#phi Z;#phi;N_{evts}", 18, -TMath::Pi(), TMath::Pi(), eventWeight,folder);    
   hm->fill1DHist(diLep.M(),"h1_diLepMass"+tag+"_"+params->suffix, "M_{Z};M (GeV);N_{evts}", 50, 66, 116, eventWeight,folder);    
-  hm->fill1DHist(diLep.M(),"h1_diLepMassLow"+tag+"_"+params->suffix, "M_{Z};M (GeV);N_{evts}", 116, 0, 116, eventWeight,folder);    
+  hm->fill1DHist(diLep.M(),"h1_diLepMassLow"+tag+"_"+params->suffix, "M_{Z};M (GeV);N_{evts}", 66, 0, 66, eventWeight,folder);    
 
   hm->fill1DHist(primaryVtx->GetSize(),"h1_pvMultCopy"+tag+"_"+params->suffix, "Multiplicity of PVs;N_{PV};N_{evts}", 25, 0.5, 25.5, eventWeight, folder);
   for(int i = 0; i < 64; ++i) {

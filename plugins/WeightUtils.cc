@@ -41,6 +41,11 @@ WeightUtils::WeightUtils(const Parameters& params, bool isRealData, int runNumbe
   _PhoJan22RD1_2012 = new TFile("otherHistos/Photon_ID_CSEV_SF_Jan22rereco_Full2012_RD1_MC_V01.root","OPEN");
 
 
+  _inFileMuonID2012 = new TFile("otherHistos/MuonEfficiencies_Run2012ReReco_53X.root","OPEN");
+  _inFileMuonISO2012 = new TFile("otherHistos/MuonEfficiencies_ISO_Run_2012ReReco_53X.root","OPEN");
+  _inFileMuonTrig2012 = new TFile("otherHistos/MuHLTEfficiencies_Run_2012ABCD_53X_DR03-2.root","OPEN");
+
+
   // PU weights
   h1_S6to2011          = (TH1F*)_inFileS6to2011->Get("pileupWeights");
   h1_S6to2012          = (TH1F*)_inFileS6to2012->Get("pileupWeights");
@@ -93,6 +98,24 @@ WeightUtils::WeightUtils(const Parameters& params, bool isRealData, int runNumbe
   h1_EleLegacyWP2012 = (TH2F*)_EleLegacyWP2012->Get("h_electronScaleFactor_RecoIdIsoSip");
   h1_EleTightMVAWP = (TH2F*)_EleTightMVAWP->Get("electronsDATAMCratio_FO_ID");
 
+  //muon histos/graphs
+  ge_MuonID2012_Tight[0] = (TGraphErrors*)_inFileMuonID2012->Get("DATA_over_MC_Tight_pt_abseta<0.9");
+  ge_MuonID2012_Tight[1] = (TGraphErrors*)_inFileMuonID2012->Get("DATA_over_MC_Tight_pt_abseta0.9-1.2");
+  ge_MuonID2012_Tight[2] = (TGraphErrors*)_inFileMuonID2012->Get("DATA_over_MC_Tight_pt_abseta1.2-2.1");
+  ge_MuonID2012_Tight[3] = (TGraphErrors*)_inFileMuonID2012->Get("DATA_over_MC_Tight_pt_abseta2.1-2.4");
+
+  ge_MuonISO2012_Tight[0] = (TGraphErrors*)_inFileMuonISO2012->Get("DATA_over_MC_combRelIsoPF04dBeta<012_Tight_pt_abseta<0.9");
+  ge_MuonISO2012_Tight[1] = (TGraphErrors*)_inFileMuonISO2012->Get("DATA_over_MC_combRelIsoPF04dBeta<012_Tight_pt_abseta0.9-1.2");
+  ge_MuonISO2012_Tight[2] = (TGraphErrors*)_inFileMuonISO2012->Get("DATA_over_MC_combRelIsoPF04dBeta<012_Tight_pt_abseta1.2-2.1");
+  ge_MuonISO2012_Tight[3] = (TGraphErrors*)_inFileMuonISO2012->Get("DATA_over_MC_combRelIsoPF04dBeta<012_Tight_pt_abseta2.1-2.4");
+
+  ge_MuonISO2012_Loose[0] = (TGraphErrors*)_inFileMuonISO2012->Get("DATA_over_MC_combRelIsoPF04dBeta<02_Tight_pt_abseta<0.9");
+  ge_MuonISO2012_Loose[1] = (TGraphErrors*)_inFileMuonISO2012->Get("DATA_over_MC_combRelIsoPF04dBeta<02_Tight_pt_abseta0.9-1.2");
+  ge_MuonISO2012_Loose[2] = (TGraphErrors*)_inFileMuonISO2012->Get("DATA_over_MC_combRelIsoPF04dBeta<02_Tight_pt_abseta1.2-2.1");
+  ge_MuonISO2012_Loose[3] = (TGraphErrors*)_inFileMuonISO2012->Get("DATA_over_MC_combRelIsoPF04dBeta<02_Tight_pt_abseta2.1-2.4");
+
+  h2_MuonTrig2012[0] = (TH2F*)_inFileMuonTrig2012->Get("DATA_over_MC_Mu17Mu8_Tight_Mu1_10To20_&_Mu2_20ToInfty_with_STAT_uncrt");
+  h2_MuonTrig2012[1] = (TH2F*)_inFileMuonTrig2012->Get("DATA_over_MC_Mu17Mu8_Tight_Mu1_20ToInfty_&_Mu2_20ToInfty_with_STAT_uncrt");
   
 }
 
@@ -195,6 +218,7 @@ float WeightUtils::HqtWeight(TLorentzVector l1)
 
 float WeightUtils::MuonSelectionWeight(TLorentzVector l1) 
 {
+  bool oldStyle = false;
 
   float _muonID2012[15][16] = {
     { 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, },
@@ -303,7 +327,7 @@ float WeightUtils::MuonSelectionWeight(TLorentzVector l1)
   }
 
   for (int i = 0; i<5; i++){
-    if (l1.Eta() > binningEta_v2[i] && l1.Eta() < binningEta_v2[i+1]){
+    if (fabs(l1.Eta()) > binningEta_v2[i] && fabs(l1.Eta()) < binningEta_v2[i+1]){
       etaBin_v2 = i;
       break;
     }
@@ -317,17 +341,27 @@ float WeightUtils::MuonSelectionWeight(TLorentzVector l1)
 
   if (_params.period.find("2011") != string::npos){
     muSF = _muonID2011[ptBin][etaBin]*_muonISO2011[ptBin][etaBin];
-  }else{
+  }else if(oldStyle){
     //modified for 2012 rereco
-    //muSF = _muonID2012[ptBin][etaBin]*_muonISO2012[ptBin][etaBin];
     if (ptBin_v2 == -99 || etaBin_v2 == -99){
       muSF = _muonISO2012[ptBin][etaBin];
     }else{
       muSF = _muonID2012_2012ReReco[etaBin_v2][ptBin_v2]*_muonISO2012[ptBin][etaBin];
     }
+
+  }else{
+    if (l1.Pt() < 200.){
+      if(_params.doLooseMuIso){
+        muSF = ge_MuonID2012_Tight[etaBin_v2]->Eval(l1.Pt())*ge_MuonISO2012_Loose[etaBin_v2]->Eval(l1.Pt());
+      }else{
+        muSF = ge_MuonID2012_Tight[etaBin_v2]->Eval(l1.Pt())*ge_MuonISO2012_Tight[etaBin_v2]->Eval(l1.Pt());
+      }
+    }else{
+      muSF = 1;
+    }
+
   }
 
-      
   return muSF;
 
 }
@@ -582,6 +616,27 @@ float WeightUtils::MuonTriggerWeight(TLorentzVector l1, TLorentzVector l2)
 
 
 }
+
+float WeightUtils::MuonTriggerWeightV2(TLorentzVector l1, TLorentzVector l2)
+{
+  if (_isRealData) return 1.0;
+  float muSF = 1.0;
+
+  if (l2.Pt() < 20){
+    muSF = h2_MuonTrig2012[0]->GetBinContent(h2_MuonTrig2012[0]->FindBin(fabs(l2.Eta()),fabs(l1.Eta())));
+  }else{
+    if(fabs(l1.Eta()) < fabs(l2.Eta())){
+      muSF = h2_MuonTrig2012[1]->GetBinContent(h2_MuonTrig2012[1]->FindBin(fabs(l2.Eta()),fabs(l1.Eta())));
+    }else{
+      muSF = h2_MuonTrig2012[1]->GetBinContent(h2_MuonTrig2012[1]->FindBin(fabs(l1.Eta()),fabs(l2.Eta())));
+    }
+  }
+  return muSF;
+}
+
+
+
+
 
 float WeightUtils::ElectronTriggerWeight(TLorentzVector l1, TLorentzVector l2, bool approx) 
 {

@@ -15,6 +15,7 @@
 #include "TH2D.h"
 #include "TFile.h"
 #include "TLorentzVector.h"
+#include "TGraphErrors.h"
 #include "AnalysisParameters.h"
 //#include "../../src/TCJet.h"
 
@@ -36,6 +37,7 @@ class WeightUtils: public TObject {
 
         float ElectronTriggerWeight(TLorentzVector l1, TLorentzVector l2, bool approx);
         float MuonTriggerWeight(TLorentzVector l1, TLorentzVector l2);
+        float MuonTriggerWeightV2(TLorentzVector l1, TLorentzVector l2);
         float PhotonFakeWeight(float eta, float pt);
 
 
@@ -81,6 +83,10 @@ class WeightUtils: public TObject {
         TFile *_EleMoriondWP2012;
         TFile *_EleLegacyWP2012;
         TFile *_EleTightMVAWP;
+
+        TFile *_inFileMuonID2012;
+        TFile *_inFileMuonISO2012;
+        TFile *_inFileMuonTrig2012;
 
 
         TH2D * _HLTMu17Mu8_2011;
@@ -129,6 +135,12 @@ class WeightUtils: public TObject {
 
         TH1F * h1_PhoMedWPJan22RD1_2012;
         TH1F * h1_PhoMedWPvetoJan22RD1_2012;
+
+        TGraphErrors * ge_MuonID2012_Tight[4];
+        TGraphErrors * ge_MuonISO2012_Tight[4];
+        TGraphErrors * ge_MuonISO2012_Loose[4];
+
+        TH2F * h2_MuonTrig2012[2];
 
 
         //weights
