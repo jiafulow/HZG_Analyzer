@@ -807,17 +807,34 @@ class Plotter:
       ratio = compHists[0].Clone()
       ratio.Divide(compHists[1])
     for i,plot in enumerate(compHists):
+      stackLeg = False
       if i == 0:
         if chooseNames[0] == 'DATA' and chooseNames[1] != 'DATA':
           plot.Draw('pe')
+        elif chooseNames[0] == 'BG' and chooseNames[1] != 'BG':
+          try: bgList = self.GetBGHists(histList)
+          except: bgList = self.GetBGHists(histList1)
+          bgStack = self.MakeBGStack(bgList,leg,False)
+          bgStack.Draw('hist')
+          stackLeg = True
         else:
           plot.Draw('hist')
       else:
         if chooseNames[1] == 'DATA' and chooseNames[0] != 'DATA':
           plot.Draw('pesame')
+        elif chooseNames[1] == 'BG' and chooseNames[0] != 'BG':
+          try: bgList = self.GetBGHists(histList)
+          except: bgList = self.GetBGHists(histList2)
+          bgStack = self.MakeBGStack(bgList,leg,False)
+          bgStack.Draw('histsame')
+          stackLeg = True
         else:
           plot.Draw('histsame')
-      leg.AddEntry(plot,legendNames[i],'l')
+      if not stackLeg: leg.AddEntry(plot,legendNames[i],'l')
+    if 'DATA' in chooseNames:
+      idat = chooseNames.index('DATA')
+      compHists[idat].Draw('pesame')
+
     leg.Draw()
     pad2.cd()
     ratio.SetTitle('')
