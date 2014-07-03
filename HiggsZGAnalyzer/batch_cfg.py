@@ -121,7 +121,7 @@ else:
   if doEEGamma:
     #configs.append(b.JobConfig('ggHZG_M120', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M120_RD1', 5, 'Signal2012ggM120 ABCD eeGamma 2012 {0}'.format(analyzer),'eeGamma'))
     #configs.append(b.JobConfig('ggHZG_M123', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M123_RD1', 5, 'Signal2012ggM123 ABCD eeGamma 2012 {0}'.format(analyzer),'eeGamma'))
-    #configs.append(b.JobConfig('ggHZG_M125', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M125_RD1', 5, 'Signal2012ggM125 ABCD eeGamma 2012 {0}'.format(analyzer),'eeGamma'))
+    configs.append(b.JobConfig('ggHZG_M125', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M125_RD1', 5, 'Signal2012ggM125 ABCD eeGamma 2012 {0}'.format(analyzer),'eeGamma'))
     #configs.append(b.JobConfig('ggHZG_M130', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M130_RD1', 5, 'Signal2012ggM130 ABCD eeGamma 2012 {0}'.format(analyzer),'eeGamma'))
     #configs.append(b.JobConfig('ggHZG_M135', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M135_RD1', 5, 'Signal2012ggM135 ABCD eeGamma 2012 {0}'.format(analyzer),'eeGamma'))
     #configs.append(b.JobConfig('ggHZG_M140', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M140_RD1', 5, 'Signal2012ggM140 ABCD eeGamma 2012 {0}'.format(analyzer),'eeGamma'))
@@ -177,8 +177,8 @@ else:
     configs.append(b.JobConfig('Run2012D', t3storage+'/nuTuples_v9.8_8TeV/Data/DoubleElectron_Run2012D', 150, 'DATA ABCD eeGamma 2012 {0}'.format(analyzer),'eeGamma'))
 
     configs.append(b.JobConfig('ZGToLLG', t3storage+'/nuTuples_v9.8_8TeV/MC/ZGToLLG_RD1', 50, 'ZGToLLG ABCD eeGamma 2012 {0}'.format(analyzer),'eeGamma'))
-    #configs.append(b.JobConfig('DYJets', t3storage+'/nuTuples_v9.8_8TeV/MC/DYJetsToLL_M-50_RD1', 150, 'DYJets ABCD eeGamma 2012 {0}'.format(analyzer),'eeGamma'))
-    configs.append(b.JobConfig('DYJets', t3storage+'/nuTuples_v9.8_8TeV/MC_skimmed/DYJetsToLL_M-50_noSkim', 150, 'DYJets ABCD eeGamma 2012 {0}'.format(analyzer),'eeGamma'))
+    configs.append(b.JobConfig('DYJets', t3storage+'/nuTuples_v9.8_8TeV/MC/DYJetsToLL_M-50_RD1', 150, 'DYJets ABCD eeGamma 2012 {0}'.format(analyzer),'eeGamma'))
+    #configs.append(b.JobConfig('DYJets', t3storage+'/nuTuples_v9.8_8TeV/MC_skimmed/DYJetsToLL_M-50_noSkim', 150, 'DYJets ABCD eeGamma 2012 {0}'.format(analyzer),'eeGamma'))
 
   if doMuEGamma:
     configs.append(b.JobConfig('Run2012A', t3storage+'/nuTuples_v9.8_8TeV/Data/MuEG_Run2012A', 50, 'DATA ABCD mueGamma 2012 {0}'.format(analyzer),'mueGamma'))

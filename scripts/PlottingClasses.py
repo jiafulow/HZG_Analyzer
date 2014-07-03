@@ -738,7 +738,7 @@ class Plotter:
 
     #self.can.IsA().Destructor(self.can)
 
-  def RatioPlot(self, key, chooseNames, legendNames, norm = False):
+  def RatioPlot(self, key, chooseNames, legendNames, norm = False, logy = False):
     '''Get two plots, normalize them, compare with ratio'''
     if type(self.thisFile) != list:
         histList = self.folderDict[key]
@@ -795,6 +795,7 @@ class Plotter:
     pad1.Draw()
     pad2.Draw()
     pad1.cd()
+    if logy: pad1.SetLogy()
 
     if type(compHists[0]) is TProfile:
       h1 = compHists[0].ProjectionX()
@@ -810,10 +811,15 @@ class Plotter:
       stackLeg = False
       if i == 0:
         if chooseNames[0] == 'DATA' and chooseNames[1] != 'DATA':
+          if logy:
+            plot.SetMinimum(0.1)
           plot.Draw('pe')
         elif chooseNames[0] == 'BG' and chooseNames[1] != 'BG':
           try: bgList = self.GetBGHists(histList)
           except: bgList = self.GetBGHists(histList1)
+          if logy:
+            for bg in bgList:
+              bg.SetMinimum(0.1)
           bgStack = self.MakeBGStack(bgList,leg,False)
           bgStack.Draw('hist')
           stackLeg = True
@@ -825,6 +831,9 @@ class Plotter:
         elif chooseNames[1] == 'BG' and chooseNames[0] != 'BG':
           try: bgList = self.GetBGHists(histList)
           except: bgList = self.GetBGHists(histList2)
+          if logy:
+            for bg in bgList:
+              bg.SetMinimum(0.1)
           bgStack = self.MakeBGStack(bgList,leg,False)
           bgStack.Draw('histsame')
           stackLeg = True

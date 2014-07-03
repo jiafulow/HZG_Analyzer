@@ -37,7 +37,7 @@ void higgsAnalyzer::Begin(TTree * tree)
 
   //params->doSync         = true;
   //params->dumps          = true;
-  //params->EVENTNUMBER    = 2987;
+  //params->EVENTNUMBER    = 1250412564;
 
   //params->doAltMVA         = true; //FOR MVA OPT TEST
   //params->DYGammaVeto      = false;
@@ -890,8 +890,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     }
     //cout<<eventWeight<<endl;
   }else{
-    //goodZ = particleSelector->FindGoodZMuon(muonsIDIso,lepton1,lepton2,ZP4,lepton1int,lepton2int, 91.1876);
-    goodZ = particleSelector->FindGoodZMuon(muonsIDIso,lepton1,lepton2,ZP4,lepton1int,lepton2int, 10);
+    goodZ = particleSelector->FindGoodZMuon(muonsIDIso,lepton1,lepton2,ZP4,lepton1int,lepton2int, 91.1876);
+    //goodZ = particleSelector->FindGoodZMuon(muonsIDIso,lepton1,lepton2,ZP4,lepton1int,lepton2int, 10);
     if (eventNumber == params->EVENTNUMBER) cout<<"goodZ?: "<<goodZ<<endl;
     if (!goodZ) return kTRUE;
     if (eventNumber == params->EVENTNUMBER) cout<<"goodZ?: "<<goodZ<<endl;
@@ -1655,6 +1655,7 @@ void higgsAnalyzer::StandardPlots(TLorentzVector p1, TLorentzVector p2, TLorentz
   hm->fill1DHist(threeBody.Eta(),"h1_threeBodyEta"+tag+"_"+params->suffix, "#eta 3body;#eta;N_{evts}", 18, -2.5, 2.5, eventWeight,folder);    
   hm->fill1DHist(threeBody.Phi(),"h1_threeBodyPhi"+tag+"_"+params->suffix, "#phi 3body;#phi;N_{evts}", 18, -TMath::Pi(), TMath::Pi(), eventWeight,folder);    
   hm->fill1DHist(threeBody.M(),"h1_threeBodyMass"+tag+"_"+params->suffix, "M_{3body};M (GeV);N_{evts}", 150, 50, 200, eventWeight,folder);    
+  hm->fill1DHist(threeBody.M(),"h1_threeBodyMassHigh"+tag+"_"+params->suffix, "M_{3body};M (GeV);N_{evts}", 70, 150, 500, eventWeight,folder);    
 
 
   hm->fill1DHist(primaryVtx->GetSize(),"h1_pvMultCopy"+tag+"_"+params->suffix, "Multiplicity of PVs;N_{PV};N_{evts}", 25, 0.5, 25.5, eventWeight, folder);
@@ -2379,9 +2380,15 @@ void higgsAnalyzer::UniversalEnergyCorrector(TCMuon& mu){
 }
 
 void higgsAnalyzer::UniversalEnergyCorrector(TCElectron& el){
+  if (eventNumber == params->EVENTNUMBER){
+    cout<< "electron before cor: "<<TCPhysObject(el)<<endl;
+  }
   if (params->period.find("2012") != string::npos){
     if (el.RegressionMomCombP4().E() != 0){
-      el.SetPtEtaPhiE(el.RegressionMomCombP4().E()/cosh(el.RegressionMomCombP4().Eta()),el.RegressionMomCombP4().Eta(),el.RegressionMomCombP4().Phi(),el.RegressionMomCombP4().E());
+      el.SetPtEtaPhiM(el.RegressionMomCombP4().Pt(),el.RegressionMomCombP4().Eta(),el.RegressionMomCombP4().Phi(),0.000511);
+    }
+    if (eventNumber == params->EVENTNUMBER){
+      cout<< "electron after cor: "<<TCPhysObject(el)<<endl;
     }
   }
 }
