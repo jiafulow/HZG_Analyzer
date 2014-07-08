@@ -6,7 +6,7 @@ from collections import defaultdict
 import numpy as np
 
 #color dictionary
-colorDict = {'DYJets':kGreen+1,'ZGToLLG':kBlue,'DYToMuMu':kOrange}
+colorDict = {'DYJets':kGreen+1,'ZGToLLG':kBlue,'DYToMuMu':kOrange,'DYJetsS10':kGreen+1}
 colorList = [kBlack,kRed,kBlue,kGreen+1,kMagenta+1,kOrange]
 
 # class for multi-layered nested dictionaries, pretty cool
@@ -68,6 +68,7 @@ class Plotter:
     scaleDict = AutoVivification()
 
     scaleDict['2012']['DYJets'] = 3503.71*1000
+    scaleDict['2012']['DYJetsS10'] = 3503.71*1000
     scaleDict['2012']['DYToMuMu'] = 1966.7*1000
     scaleDict['2012']['ZGToLLG'] = 156.2*1000
     scaleDict['2012']['gg']['123'] = 20.15*0.00136*0.10098*1000
@@ -783,6 +784,7 @@ class Plotter:
     pad1.SetBottomMargin(0.03)
     pad1.SetLeftMargin(0.09)
     pad1.SetRightMargin(0.018)
+    pad1.SetGrid(2,2)
     pad2 = TPad('pad2', '', 0.00, 0.02, 1.0, 0.32, 0)
     #SetOwnership(pad2,False)
     pad2.SetTopMargin(0.)
@@ -813,7 +815,10 @@ class Plotter:
         if chooseNames[0] == 'DATA' and chooseNames[1] != 'DATA':
           if logy:
             plot.SetMinimum(0.1)
+          plot.SetMarkerColor(kBlack)
+          plot.SetMarkerStyle(20)
           plot.Draw('pe')
+
         elif chooseNames[0] == 'BG' and chooseNames[1] != 'BG':
           try: bgList = self.GetBGHists(histList)
           except: bgList = self.GetBGHists(histList1)
@@ -827,6 +832,8 @@ class Plotter:
           plot.Draw('hist')
       else:
         if chooseNames[1] == 'DATA' and chooseNames[0] != 'DATA':
+          plot.SetMarkerColor(kBlack)
+          plot.SetMarkerStyle(20)
           plot.Draw('pesame')
         elif chooseNames[1] == 'BG' and chooseNames[0] != 'BG':
           try: bgList = self.GetBGHists(histList)

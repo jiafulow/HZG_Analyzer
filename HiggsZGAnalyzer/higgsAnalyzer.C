@@ -37,11 +37,14 @@ void higgsAnalyzer::Begin(TTree * tree)
 
   //params->doSync         = true;
   //params->dumps          = true;
-  //params->EVENTNUMBER    = 1250412564;
+  //params->EVENTNUMBER    = 54768;
 
   //params->doAltMVA         = true; //FOR MVA OPT TEST
-  //params->DYGammaVeto      = false;
+  params->DYGammaVeto      = false;
   //params->doLooseMuIso     = false;
+  //params->doEleMVA         = false;
+  
+  //params->doLeptonPrune    = false;
 
   for (int i =0; i<100; i++){
     nEvents[i] = 0;
@@ -344,6 +347,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
     if (params->suffix.find("zh") != string::npos && genHZG.w) return kTRUE;
     if (params->suffix.find("wh") != string::npos && !genHZG.w) return kTRUE;
+    unskimmedEventsTotalSpecial += 1; 
+
 
     ///////// gen angles, plots before any kinematic/fiducial cleaning //////////////
 
@@ -554,23 +559,29 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     if(params->doEleMVA){
 
       /// low pt
-      if (thisElec->Pt() < 20 && particleSelector->PassElectronID(*thisElec, cuts->mvaPreElID, *recoMuons) && thisElec->MvaID_Old() > -0.9){
+      if (thisElec->Pt() < 20 && particleSelector->PassElectronID(*thisElec, cuts->mvaPreElID, *recoMuons, true) && thisElec->MvaID_Old() > -0.9){
         passID = true; 
       /// high pt
-      }else if (thisElec->Pt() > 20 && particleSelector->PassElectronID(*thisElec, cuts->mvaPreElID, *recoMuons) && thisElec->MvaID_Old() > -0.5){
+      }else if (thisElec->Pt() > 20 && particleSelector->PassElectronID(*thisElec, cuts->mvaPreElID, *recoMuons,true) && thisElec->MvaID_Old() > -0.5){
         passID = true; 
       }
       if (particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)) passIso = true;
                                                                   
 
     }else{
-      if (particleSelector->PassElectronID(*thisElec, cuts->looseElID, *recoMuons)) passID = true;
-      if (particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)) passIso = true; 
+      if (particleSelector->PassElectronID(*thisElec, cuts->mediumElID, *recoMuons, false)) passID = true;
+      if (particleSelector->PassElectronIso(*thisElec, cuts->mediumElIso, cuts->EAEle)) passIso = true; 
     } 
     
     // eng cor
 
+    if (eventNumber == params->EVENTNUMBER){
+      cout<< "electron before cor: "<<TCPhysObject(*thisElec)<<endl;
+    }
     if(params->engCor && !params->doSync) UniversalEnergyCorrector(*thisElec);
+    if (eventNumber == params->EVENTNUMBER){
+      cout<< "electron after cor: "<<TCPhysObject(*thisElec)<<endl;
+    }
 
 
     dumper->ElectronDump(*thisElec, *recoMuons, 1);
@@ -758,6 +769,12 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     //////////////////////
     // 2 good electrons //
     //////////////////////
+    if(params->doLeptonPrune){
+      if (params->suffix.find("zh") != string::npos || params->suffix.find("wh") != string::npos || params->suffix.find("tth") != string::npos){
+        if(electronsIDIso.size() > 0) BadLeptonPrune(electronsIDIso, genHZG);
+      }
+    }
+
     if (electronsID.size() < 2) return kTRUE;
 
     bool firstEl = false;
@@ -800,6 +817,13 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   } else if (params->selection == "muon" || params->selection =="mumuGamma") {
     if (eventNumber == params->EVENTNUMBER) cout<<"two ID muons?: "<<muonsID.size()<<endl;
+
+    if(params->doLeptonPrune){
+      if (params->suffix.find("zh") != string::npos || params->suffix.find("wh") != string::npos || params->suffix.find("tth") != string::npos){
+        if(muonsIDIso.size() > 0) BadLeptonPrune(muonsIDIso, genHZG);
+      }
+    }
+
     if (muonsID.size() < 2) return kTRUE;
 
     bool firstMu = false;
@@ -942,6 +966,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   if (eventNumber == params->EVENTNUMBER) cout<<ZP4.M()<<endl;
   if ((ZP4.M() < cuts->zMassLow || ZP4.M() > cuts->zMassHigh)) return kTRUE;  
+  //if ((ZP4.M() < 30 || ZP4.M() > cuts->zMassHigh)) return kTRUE;  
   hm->fill1DHist(9,"h1_acceptanceByCut_"+params->suffix, "Weighted number of events passing cuts by cut; cut; N_{evts}", 100, 0.5, 100.5, eventWeight,"Misc");
   hm->fill1DHist(9,"h1_acceptanceByCutRaw_"+params->suffix, "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
   ++nEvents[8];
@@ -1561,7 +1586,12 @@ void higgsAnalyzer::Terminate()
 
   m_llgFile->cd();
   TH1I* totalEvents = new TH1I(("unskimmedEventsTotal_"+params->suffix).c_str(),("unskimmedEventsTotal_"+params->suffix).c_str(),1,0,1);
-  totalEvents->SetBinContent(1,unskimmedEventsTotal);
+  
+  if (params->suffix.find("zh") != string::npos || (params->suffix.find("wh") != string::npos)){ 
+    totalEvents->SetBinContent(1,unskimmedEventsTotalSpecial);
+  }else{
+    totalEvents->SetBinContent(1,unskimmedEventsTotal);
+  }
 
   //hm->writeHists();
   trainingFile->Write();
@@ -1683,6 +1713,14 @@ void higgsAnalyzer::StandardPlots(TLorentzVector p1, TLorentzVector p2, float ev
   hm->fill1DHist(diLep.Phi(),"h1_diLepPhi"+tag+"_"+params->suffix, "#phi Z;#phi;N_{evts}", 18, -TMath::Pi(), TMath::Pi(), eventWeight,folder);    
   hm->fill1DHist(diLep.M(),"h1_diLepMass"+tag+"_"+params->suffix, "M_{Z};M (GeV);N_{evts}", 50, 66, 116, eventWeight,folder);    
   hm->fill1DHist(diLep.M(),"h1_diLepMassLow"+tag+"_"+params->suffix, "M_{Z};M (GeV);N_{evts}", 66, 0, 66, eventWeight,folder);    
+
+  if(fabs(p1.Eta()) < 1.4442 && fabs(p2.Eta()) < 1.4442){
+    hm->fill1DHist(diLep.M(),"h1_diLepMassEB-EB"+tag+"_"+params->suffix, "M_{Z} EB-EB;M (GeV);N_{evts}", 50, 66, 116, eventWeight,folder);    
+  }else if (fabs(p1.Eta()) > 1.566 && fabs(p2.Eta()) < 1.566){
+    hm->fill1DHist(diLep.M(),"h1_diLepMassEE-EE"+tag+"_"+params->suffix, "M_{Z} EE-EE;M (GeV);N_{evts}", 50, 66, 116, eventWeight,folder);    
+  }else if (fabs(p1.Eta()) < 1.566 && fabs(p2.Eta()) < 1.566 && fabs(p1.Eta()) > 1.4442 && fabs(p2.Eta()) > 1.4442){
+    hm->fill1DHist(diLep.M(),"h1_diLepMassET-ET"+tag+"_"+params->suffix, "M_{Z} ET-ET;M (GeV);N_{evts}", 50, 66, 116, eventWeight,folder);    
+  }
 
   hm->fill1DHist(primaryVtx->GetSize(),"h1_pvMultCopy"+tag+"_"+params->suffix, "Multiplicity of PVs;N_{PV};N_{evts}", 25, 0.5, 25.5, eventWeight, folder);
   for(int i = 0; i < 64; ++i) {
@@ -2380,9 +2418,6 @@ void higgsAnalyzer::UniversalEnergyCorrector(TCMuon& mu){
 }
 
 void higgsAnalyzer::UniversalEnergyCorrector(TCElectron& el){
-  if (eventNumber == params->EVENTNUMBER){
-    cout<< "electron before cor: "<<TCPhysObject(el)<<endl;
-  }
   if (params->period.find("2012") != string::npos){
     if (el.RegressionMomCombP4().E() != 0){
       el.SetPtEtaPhiM(el.RegressionMomCombP4().Pt(),el.RegressionMomCombP4().Eta(),el.RegressionMomCombP4().Phi(),0.000511);
@@ -2391,5 +2426,43 @@ void higgsAnalyzer::UniversalEnergyCorrector(TCElectron& el){
       cout<< "electron after cor: "<<TCPhysObject(el)<<endl;
     }
   }
+}
+
+void higgsAnalyzer::BadLeptonPrune(vector<TCMuon>& myLeptons, const ParticleSelector::genHZGParticles& myGens)
+{
+  if (!myGens.lm || !myGens.lp) {
+    myLeptons.clear();
+    return;
+  }
+  vector<TCMuon>::iterator lep = myLeptons.begin();
+  while(lep != myLeptons.end()){
+    if (lep->Charge() == -1 && lep->DeltaR(*(myGens.lm)) > 0.02){
+      lep = myLeptons.erase(lep);
+    }else if(lep->Charge() == 1 && lep->DeltaR(*(myGens.lp)) > 0.02){
+      lep = myLeptons.erase(lep);
+    }else{
+      lep++;
+    }
+  }
+  return;
+}
+      
+void higgsAnalyzer::BadLeptonPrune(vector<TCElectron>& myLeptons, const ParticleSelector::genHZGParticles& myGens)
+{
+  if (!myGens.lm || !myGens.lp) {
+    myLeptons.clear();
+    return;
+  }
+  vector<TCElectron>::iterator lep = myLeptons.begin();
+  while(lep != myLeptons.end()){
+    if (lep->Charge() == -1 && lep->DeltaR(*(myGens.lm)) > 0.02){
+      lep = myLeptons.erase(lep);
+    }else if(lep->Charge() == 1 && lep->DeltaR(*(myGens.lp)) > 0.02){
+      lep = myLeptons.erase(lep);
+    }else{
+      lep++;
+    }
+  }
+  return;
 }
 

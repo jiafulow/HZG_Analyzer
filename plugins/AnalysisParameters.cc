@@ -23,6 +23,7 @@ Parameters::Parameters():
   doAltMVA(false),
   doPhotonPurityStudy(false),
   doPhoMVA(true),
+  doLeptonPrune(true),
 
   dumps(false),
   dataDumps(false),
@@ -98,6 +99,27 @@ Cuts::Cuts():
   vetoElID.ConversionMissHits[1] =       999999;
   vetoElID.PassedConversionProb[1] =     1;
 
+  mediumElID.cutName =                     "mediumElID";
+  mediumElID.dEtaIn[0] =                   0.004;
+  mediumElID.dPhiIn[0] =                   0.06;
+  mediumElID.sigmaIetaIeta[0] =            0.01;
+  mediumElID.HadOverEm[0] =                0.12;
+  mediumElID.dxy[0] =                      0.02;
+  mediumElID.dz[0] =                       0.1;
+  mediumElID.fabsEPDiff[0] =               0.05;
+  mediumElID.ConversionMissHits[0] =       1;
+  mediumElID.PassedConversionProb[0] =     1;
+
+  mediumElID.dEtaIn[1] =                   0.007;
+  mediumElID.dPhiIn[1] =                   0.03;
+  mediumElID.sigmaIetaIeta[1] =            0.03;
+  mediumElID.HadOverEm[1] =                0.10;
+  mediumElID.dxy[1] =                      0.02;
+  mediumElID.dz[1] =                       0.1;
+  mediumElID.fabsEPDiff[1] =               0.05;
+  mediumElID.ConversionMissHits[1] =       1;
+  mediumElID.PassedConversionProb[1] =     1;
+
   looseElID.cutName =                     "looseElID";
   looseElID.dEtaIn[0] =                   0.007;
   looseElID.dPhiIn[0] =                   0.15;
@@ -154,6 +176,20 @@ Cuts::Cuts():
   looseElIso.nhIso04 =                    99999;
   looseElIso.phIso04 =                    99999;
   looseElIso.relCombIso04 =               0.4;
+  looseElIso.chIso03 =                    99999;
+  looseElIso.nhIso03 =                    99999;
+  looseElIso.phIso03 =                    99999;
+  looseElIso.relCombIso03 =               0.15;
+
+  mediumElIso.cutName =                    "mediumElIso";
+  mediumElIso.chIso04 =                    99999;
+  mediumElIso.nhIso04 =                    99999;
+  mediumElIso.phIso04 =                    99999;
+  mediumElIso.relCombIso04 =               0.15;
+  mediumElIso.chIso03 =                    99999;
+  mediumElIso.nhIso03 =                    99999;
+  mediumElIso.phIso03 =                    99999;
+  mediumElIso.relCombIso03 =               0.15;
 
   tightMuID.cutName =                     "tightMuID";
   tightMuID.IsPF =                        1;

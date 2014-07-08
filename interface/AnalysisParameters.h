@@ -32,6 +32,8 @@ class Parameters{
 
     bool doPhotonPurityStudy;     
     bool doPhoMVA;
+
+    bool doLeptonPrune;
     
 
     ///// debugging /////
@@ -99,15 +101,19 @@ class Cuts{
       float dr03HcalTowerSumEt[2];
       int   numberOfLostHits[2];
       string cutName;
-    } vetoElID,looseElID,mvaPreElID;
+    } vetoElID,looseElID, mediumElID, mvaPreElID;
 
     struct elIsoCuts{
       float chIso04;
       float nhIso04;
       float phIso04;
       float relCombIso04;
+      float chIso03;
+      float nhIso03;
+      float phIso03;
+      float relCombIso03;
       string cutName;
-    } looseElIso;
+    } looseElIso, mediumElIso;
 
     struct phIDCuts{
       //broken into [0] barrel and [1] endcap

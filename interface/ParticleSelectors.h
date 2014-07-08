@@ -45,7 +45,7 @@ class ParticleSelector {
 
     bool PassMuonID(const TCMuon& mu, const Cuts::muIDCuts& cutLevel);
     bool PassMuonIso(const TCMuon& mu, const Cuts::muIsoCuts& cutLevel);
-    bool PassElectronID(const TCElectron& el, const Cuts::elIDCuts& cutLevel, const TClonesArray&);
+    bool PassElectronID(const TCElectron& el, const Cuts::elIDCuts& cutLevel, const TClonesArray&, const bool cleanVsMuons);
     bool PassElectronIso(const TCElectron& el, const Cuts::elIsoCuts& cutLevel, float EAEle[7]);
     bool PassPhotonID(const TCPhoton& ph, const Cuts::phIDCuts& cutLevel);
     bool PassPhotonIso(const TCPhoton& ph, const Cuts::phIsoCuts& cutLevel, float EAPho[7][3]);

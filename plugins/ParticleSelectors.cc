@@ -58,7 +58,7 @@ bool ParticleSelector::FindGoodZMuon(const vector<TCMuon>& muonList, TCPhysObjec
   for(unsigned int i =0; i<muonList.size(); i++){
     if (muonList[i].Pt() > _cuts.leadMuPt){
       for(unsigned int j =1; j<muonList.size(); j++){
-        if (muonList[j].Pt() > _cuts.trailMuPt && muonList[j].Charge() != muonList[i].Charge()){
+        if ((muonList[j].Pt() > _cuts.trailMuPt) && (muonList[j].Charge() != muonList[i].Charge())){
           goodZ = true;
           tmpZ = (muonList[i]+muonList[j]);
           if(fabs(91.1876-tmpZ.M()) < ZmassDiff){
@@ -83,7 +83,7 @@ bool ParticleSelector::FindGoodZMuon(const vector<TCMuon>& muonList, TCPhysObjec
   for(unsigned int i =0; i<muonList.size(); i++){
     if (muonList[i].Pt() > _cuts.leadMuPt){
       for(unsigned int j =1; j<muonList.size(); j++){
-        if (muonList[j].Pt() > _cuts.trailMuPt && muonList[j].Charge() != muonList[i].Charge()){
+        if ((muonList[j].Pt() > _cuts.trailMuPt) && (muonList[j].Charge() != muonList[i].Charge())){
           goodZ = true;
           tmpZ = (muonList[i]+muonList[j]);
           if(fabs(diLepMass-tmpZ.M()) < ZmassDiff){
@@ -248,6 +248,12 @@ void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, const
     _genHZG.lp->Print();
     cout<<endl;
   }
+
+  if (genZs.size() > 0) _genHZG.z = new TCGenParticle(genZs.front());
+  if (genWs.size() > 0) _genHZG.w = new TCGenParticle(genWs.front());
+  if (genHs.size() > 0){
+    _genHZG.h = new TCGenParticle(genHs.front());
+  }
   
   bool posLep = false;
   bool negLep = false;
@@ -255,10 +261,11 @@ void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, const
 
   if (genLeptons.size() > 1){
     for (testIt=genLeptons.begin(); testIt<genLeptons.end(); testIt++){
-      if((*testIt).Mother() && (*testIt).Mother()->GetPDGId() == 23 && (*testIt).Charge() == 1 ){
+      if((*testIt).Mother() && (*testIt).Mother()->GetPDGId() == 23 && (*testIt).Mother()->Mother()->GetPDGId() == 25 && (*testIt).Charge() == 1 ){
+
         _genHZG.lp = new TCGenParticle(*testIt);
         posLep = true;
-      }else if((*testIt).Mother() && (*testIt).Mother()->GetPDGId()== 23 && (*testIt).Charge() == -1){
+      }else if((*testIt).Mother() && (*testIt).Mother()->GetPDGId()== 23 && (*testIt).Mother()->Mother()->GetPDGId() == 25 && (*testIt).Charge() == -1){
         _genHZG.lm = new TCGenParticle(*testIt);
         negLep = true;
       }
@@ -269,17 +276,14 @@ void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, const
   if (genPhotons.size() > 0 && posLep && negLep){
       for (testIt=genPhotons.begin(); testIt<genPhotons.end(); testIt++){
         //cout<<"mother: "<<testIt->Mother()<<"\tstatus: "<<testIt->GetStatus()<<endl;
-        if (fabs((*testIt+*_genHZG.lm+*_genHZG.lp).M()-125.0) < 0.1) _genHZG.g = new TCGenParticle(*testIt); goodPhot = true; break;
-        if ((*testIt).Mother() && (*testIt).Mother()->GetPDGId() == 25 && fabs((*testIt+*_genHZG.lm+*_genHZG.lp).M()-125.0) < 0.1) _genHZG.g = new TCGenParticle(*testIt); goodPhot = true; break;
+        if (fabs((*testIt+*_genHZG.lm+*_genHZG.lp).M()- _genHZG.h->M()) < 0.1) _genHZG.g = new TCGenParticle(*testIt); goodPhot = true; break;
+        if ((*testIt).Mother() && (*testIt).Mother()->GetPDGId() == 25 && fabs((*testIt+*_genHZG.lm+*_genHZG.lp).M()-_genHZG.h->M()) < 0.1) _genHZG.g = new TCGenParticle(*testIt); goodPhot = true; break;
       }
       if (!goodPhot) return;
     //_genHZG.g = new TCGenParticle(genPhotons.front());
   }else{ return;}
 
 
-  if (genZs.size() > 0) _genHZG.z = new TCGenParticle(genZs.front());
-  if (genWs.size() > 0) _genHZG.w = new TCGenParticle(genWs.front());
-  if (genHs.size() > 0) _genHZG.h = new TCGenParticle(genHs.front());
 
   return;
 }
@@ -352,7 +356,7 @@ bool ParticleSelector::PassMuonIso(const TCMuon& mu, const Cuts::muIsoCuts& cutL
 }
 
 
-bool ParticleSelector::PassElectronID(const TCElectron& el, const Cuts::elIDCuts& cutLevel, const TClonesArray& recoMuons)
+bool ParticleSelector::PassElectronID(const TCElectron& el, const Cuts::elIDCuts& cutLevel, const TClonesArray& recoMuons, const bool cleanVsMuons)
 {
   bool elPass = false;
   if (fabs(el.SCEta()) > 2.5) return elPass;
@@ -375,42 +379,44 @@ bool ParticleSelector::PassElectronID(const TCElectron& el, const Cuts::elIDCuts
         elPass = true;
     }
   }else{
-    if (fabs(el.SCEta()) > 1.4442 && fabs(el.SCEta()) < 1.566) return elPass;
+    if (fabs(el.SCEta()) > 1.4446 && fabs(el.SCEta()) < 1.566) return elPass;
     if (
-        (fabs(el.Eta()) < 1.566
+        (fabs(el.SCEta()) < 1.479
          && fabs(el.DeltaEtaSeedCluster())    < cutLevel.dEtaIn[0]
          && fabs(el.DeltaPhiSeedCluster())    < cutLevel.dPhiIn[0]
          && el.SigmaIEtaIEta()             < cutLevel.sigmaIetaIeta[0]
          && el.HadOverEm()                 < cutLevel.HadOverEm[0]
          && fabs(el.Dxy(&_pv))       < cutLevel.dxy[0]
          && fabs(el.Dz(&_pv))        < cutLevel.dz[0]
-         && el.IdMap("fabsEPDiff")         < cutLevel.fabsEPDiff[0]
+         && el.InverseEnergyMomentumDiff()         < cutLevel.fabsEPDiff[0]
          && el.ConversionMissHits()        <= cutLevel.ConversionMissHits[0]
          && el.PassConversionVeto()            == cutLevel.PassedConversionProb[0]
         ) ||
-        (fabs(el.Eta()) > 1.566  
+        (fabs(el.Eta()) > 1.479 
          && fabs(el.DeltaEtaSeedCluster())    < cutLevel.dEtaIn[1]
          && fabs(el.DeltaPhiSeedCluster())    < cutLevel.dPhiIn[1]
          && el.SigmaIEtaIEta()             < cutLevel.sigmaIetaIeta[1]
          && el.HadOverEm()                 < cutLevel.HadOverEm[1]
          && fabs(el.Dxy(&_pv))       < cutLevel.dxy[1]
          && fabs(el.Dz(&_pv))        < cutLevel.dz[1]
-         && el.IdMap("fabsEPDiff")         < cutLevel.fabsEPDiff[1]
+         && el.InverseEnergyMomentumDiff()         < cutLevel.fabsEPDiff[1]
          && el.ConversionMissHits()        <= cutLevel.ConversionMissHits[1]
          && el.PassConversionVeto()            == cutLevel.PassedConversionProb[1]
         )
         ) elPass = true; 
     //   cout<<"evt: "<<eventNumber<<" muon num: "<<recoMuons->GetSize()<<endl;
-    for (int j = 0; j < recoMuons.GetSize(); ++ j)
-    {
-      TCMuon* thisMuon = (TCMuon*) recoMuons.At(j);    
-      //     if (eventNumber==11944 || eventNumber==1780) cout<<thisMuon->DeltaR(*el)<<endl;
-      if (thisMuon->DeltaR(el) < 0.05){
-        //cout<<"event: "<<eventNumber<<endl;
-        //cout<<"unclean"<<endl;
-        //el.Print();
-        elPass = false;
-        break;
+    if(cleanVsMuons){
+      for (int j = 0; j < recoMuons.GetSize(); ++ j)
+      {
+        TCMuon* thisMuon = (TCMuon*) recoMuons.At(j);    
+        //     if (eventNumber==11944 || eventNumber==1780) cout<<thisMuon->DeltaR(*el)<<endl;
+        if (thisMuon->DeltaR(el) < 0.05){
+          //cout<<"event: "<<eventNumber<<endl;
+          //cout<<"unclean"<<endl;
+          //el.Print();
+          elPass = false;
+          break;
+        }
       }
     }
   }
@@ -425,7 +431,17 @@ bool ParticleSelector::PassElectronIso(const TCElectron& el, const Cuts::elIsoCu
   float combIso = (el.PfIsoCharged()
     + max(0.,(double)el.PfIsoNeutral() + el.PfIsoPhoton() - _rhoFactor*thisEA));
   bool isoPass = false;
-  if (combIso/el.Pt() < cutLevel.relCombIso04) isoPass = true;
+
+  if (cutLevel.cutName == "mediumElIso"){
+    if (el.Pt() < 20){
+      if (combIso/el.Pt() < 0.10) isoPass = true;
+    }else{
+      if (combIso/el.Pt() < 0.15) isoPass = true;
+    }
+
+  }else{
+    if (combIso/el.Pt() < cutLevel.relCombIso04) isoPass = true;
+  }
   return isoPass;
 }
 

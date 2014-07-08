@@ -86,6 +86,7 @@ class higgsAnalyzer : public TSelector {
     auto_ptr<HistManager> hm;
 
     int unskimmedEventsTotal;
+    int unskimmedEventsTotalSpecial;
     int fileCount;
 
     auto_ptr<TVector3> pvPosition;
@@ -280,6 +281,9 @@ class higgsAnalyzer : public TSelector {
     void            UniversalEnergyCorrector(TCMuon& mu); 
     void            UniversalEnergyCorrector(TCElectron& el); 
 
+    void            BadLeptonPrune(vector<TCMuon>& myLeptons, const ParticleSelector::genHZGParticles& myGens);
+    void            BadLeptonPrune(vector<TCElectron>& myLeptons, const ParticleSelector::genHZGParticles& myGens);
+
 
     ///////////////////////
     // ZGAngles MVA defs //
@@ -366,6 +370,7 @@ void higgsAnalyzer::Init(TTree *tree)
   fileCount = 0;
   unskimmedEvents = 0;
   unskimmedEventsTotal = 0;
+  unskimmedEventsTotalSpecial = 0;
 	recoJets = 0;
 	recoMET = 0;
 	genJets = 0;
