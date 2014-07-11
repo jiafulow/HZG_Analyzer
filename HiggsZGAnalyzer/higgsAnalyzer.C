@@ -32,7 +32,7 @@ void higgsAnalyzer::Begin(TTree * tree)
 
   // change any params from default
 
-  //params->doPhoMVA       = false; //FOR PROPER
+  params->doPhoMVA       = false; //FOR PROPER
   params->doAnglesMVA    = false; //FOR PROPER or No KinMVA
 
   //params->doSync         = true;
@@ -40,7 +40,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   //params->EVENTNUMBER    = 54768;
 
   //params->doAltMVA         = true; //FOR MVA OPT TEST
-  params->DYGammaVeto      = false;
+  //params->DYGammaVeto      = false;
   //params->doLooseMuIso     = false;
   //params->doEleMVA         = false;
   
@@ -69,6 +69,10 @@ void higgsAnalyzer::Begin(TTree * tree)
   
   // Change any cuts from non-default values
 
+
+  cuts->zgMassHigh = 999.0;
+
+  // More plugin init
 
   weighter.reset(new WeightUtils(*params, isRealData, runNumber));
   triggerSelector.reset(new TriggerSelector(params->selection, params->period, *triggerNames));
@@ -578,7 +582,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     if (eventNumber == params->EVENTNUMBER){
       cout<< "electron before cor: "<<TCPhysObject(*thisElec)<<endl;
     }
-    if(params->engCor && !params->doSync) UniversalEnergyCorrector(*thisElec);
+    if(params->engCor && !params->doSync && isRealData) UniversalEnergyCorrector(*thisElec);
     if (eventNumber == params->EVENTNUMBER){
       cout<< "electron after cor: "<<TCPhysObject(*thisElec)<<endl;
     }

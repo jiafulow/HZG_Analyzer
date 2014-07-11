@@ -67,8 +67,8 @@ class Plotter:
 
     scaleDict = AutoVivification()
 
-    scaleDict['2012']['DYJets'] = 3503.71*1000
-    scaleDict['2012']['DYJetsS10'] = 3503.71*1000
+    scaleDict['2012']['DYJets'] = 3532.8*1000
+    scaleDict['2012']['DYJetsS10'] = 3532.8*1000
     scaleDict['2012']['DYToMuMu'] = 1966.7*1000
     scaleDict['2012']['ZGToLLG'] = 156.2*1000
     scaleDict['2012']['gg']['123'] = 20.15*0.00136*0.10098*1000

@@ -101,7 +101,7 @@ def RatioPlotter():
 def DoAll():
   if os.environ.get('AT_NWU'):
     mainPath = '/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_'
-    suffix = '07-7-14_EECorS10'
+    suffix = '07-10-14_ProperHighMass'
     headDir = 'Full_'+suffix
     if not os.path.isdir(headDir):
       os.mkdir(headDir)
@@ -116,7 +116,8 @@ def DoAll():
       if (FileEl.GetSize() == -1):
         raise IOError(mainPath+'EE2012ABCD_'+suffix+'.root not found')
 
-    folders = ['ZGAngles', 'ZGAngles_RECO','MVAPlots','pT-Eta-Phi','PreSelDiLep','PreSelThreeBody','PreSelDiLepNoW','PreSelThreeBodyNoW']
+    #folders = ['ZGAngles','ZGAngles_RECO','MVAPlots','pT-Eta-Phi','PreSelDiLep','PreSelThreeBody','PreSelDiLepNoW','PreSelThreeBodyNoW']
+    folders = ['pT-Eta-Phi','PreSelDiLep','PreSelThreeBody','PreSelDiLepNoW','PreSelThreeBodyNoW']
     #folders = ['pT-Eta-Phi']
     #folders = ['ZGamma','CAT1','CAT2','CAT3','CAT4','CAT5','CAT6','CAT7','CAT8','CAT9','pT-Eta-Phi','MVAPlots','Misc','ZGAngles_RECO','PreSel']
     if FileEl != None:
@@ -138,7 +139,10 @@ def DoAll():
         for key in plotterMu.folderDict.keys():
           #plotterMu.RatioPlot(key,['Signal','BG'],['Signal','BG'],True)
           #plotterMu.RatioPlot(key,['DATA','BG'],['DATA','BG'],True)
-          plotterMu.RatioPlot(key,['DATA','BG'],['DATA','BG'],False,False)
+          if 'MassHigh' in key:
+            plotterMu.RatioPlot(key,['DATA','BG'],['DATA','BG'],False,True)
+          else:
+            plotterMu.RatioPlot(key,['DATA','BG'],['DATA','BG'],False,False)
           #plotterMu.RatioPlot(key,['DYToMuMu','ZGToLLG'],['DYToMuMu','ZGToLLG'],False)
           #plotterMu.RatioPlot(key,['Signal','ZGToLLG'],['Signal','ZGToLLG'],True)
           #plotterMu.RatioPlot(key,['Signal','DYJets'],['Signal','DYJets'],True)

@@ -261,11 +261,11 @@ void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, const
 
   if (genLeptons.size() > 1){
     for (testIt=genLeptons.begin(); testIt<genLeptons.end(); testIt++){
-      if((*testIt).Mother() && (*testIt).Mother()->GetPDGId() == 23 && (*testIt).Mother()->Mother()->GetPDGId() == 25 && (*testIt).Charge() == 1 ){
+      if((*testIt).Mother() && (*testIt).Mother()->Mother() && (*testIt).Mother()->GetPDGId() == 23 && (*testIt).Mother()->Mother()->GetPDGId() == 25 && (*testIt).Charge() == 1 ){
 
         _genHZG.lp = new TCGenParticle(*testIt);
         posLep = true;
-      }else if((*testIt).Mother() && (*testIt).Mother()->GetPDGId()== 23 && (*testIt).Mother()->Mother()->GetPDGId() == 25 && (*testIt).Charge() == -1){
+      }else if((*testIt).Mother() && (*testIt).Mother()->Mother() && (*testIt).Mother()->GetPDGId()== 23 && (*testIt).Mother()->Mother()->GetPDGId() == 25 && (*testIt).Charge() == -1){
         _genHZG.lm = new TCGenParticle(*testIt);
         negLep = true;
       }
@@ -273,7 +273,7 @@ void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, const
     }
   }else { return;}
 
-  if (genPhotons.size() > 0 && posLep && negLep){
+  if (genPhotons.size() > 0 && posLep && negLep && _genHZG.h){
       for (testIt=genPhotons.begin(); testIt<genPhotons.end(); testIt++){
         //cout<<"mother: "<<testIt->Mother()<<"\tstatus: "<<testIt->GetStatus()<<endl;
         if (fabs((*testIt+*_genHZG.lm+*_genHZG.lp).M()- _genHZG.h->M()) < 0.1) _genHZG.g = new TCGenParticle(*testIt); goodPhot = true; break;
