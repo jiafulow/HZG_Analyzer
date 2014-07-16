@@ -38,6 +38,10 @@ def fastHadd():
       if not os.path.isdir('liteFiles'): os.mkdir('liteFiles')
       os.system('./hadd.py liteFiles/liteFile_'+leptonA+year+'_'+tag+'.root '+leptonB+' liteFile {0}'.format(' '.join(selectionList[1:])))
 
+    elif 'eeSelector' in analyzer:
+      if not os.path.isdir('eleFiles'): os.mkdir('eleFiles')
+      os.system('./hadd.py eleFiles/eleFile_'+leptonA+year+'_'+tag+'.root '+leptonB+' eleFile {0}'.format(' '.join(selectionList[1:])))
+
     else:
       if os.environ.get('AT_NWU') == None:
         os.system('./hadd.py ~/afsHome/public/m_llgFile_'+leptonA+year+'_'+tag+'.root '+leptonB+' m_llgFile {0}'.format(' '.join(selectionList[1:])))

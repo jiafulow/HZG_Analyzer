@@ -41,6 +41,7 @@ class WeightUtils: public TObject {
         float PhotonFakeWeight(float eta, float pt);
 
 
+
     private:
         //input parameters
         Parameters _params;

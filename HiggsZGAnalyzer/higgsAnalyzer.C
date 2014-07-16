@@ -40,9 +40,9 @@ void higgsAnalyzer::Begin(TTree * tree)
   //params->EVENTNUMBER    = 54768;
 
   //params->doAltMVA         = true; //FOR MVA OPT TEST
-  //params->DYGammaVeto      = false;
+  params->DYGammaVeto      = false;
   //params->doLooseMuIso     = false;
-  //params->doEleMVA         = false;
+  params->doEleMVA         = false;
   
   //params->doLeptonPrune    = false;
 
@@ -70,7 +70,8 @@ void higgsAnalyzer::Begin(TTree * tree)
   // Change any cuts from non-default values
 
 
-  cuts->zgMassHigh = 999.0;
+  //cuts->zgMassHigh = 999.0;
+  cuts->trailElePt = 20.0;
 
   // More plugin init
 
@@ -583,6 +584,11 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       cout<< "electron before cor: "<<TCPhysObject(*thisElec)<<endl;
     }
     if(params->engCor && !params->doSync && isRealData) UniversalEnergyCorrector(*thisElec);
+    else if(params->engCor && !params->doSync && !isRealData){
+      float ptCor = ElectronMCScale(thisElec->SCEta(), thisElec->Pt());
+      thisElec->SetPtEtaPhiM(thisElec->Pt()*ptCor, thisElec->Eta(), thisElec->Phi(), thisElec->M());
+    }
+
     if (eventNumber == params->EVENTNUMBER){
       cout<< "electron after cor: "<<TCPhysObject(*thisElec)<<endl;
     }
@@ -913,6 +919,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       }else if (params->period.find("2012") != string::npos){
         eventWeightLep   *= weighter->ElectronSelectionWeight(lepton1);
         eventWeightLep   *= weighter->ElectronSelectionWeight(lepton2);
+
       }
 
     }
@@ -2468,5 +2475,53 @@ void higgsAnalyzer::BadLeptonPrune(vector<TCElectron>& myLeptons, const Particle
     }
   }
   return;
+}
+
+float higgsAnalyzer::ElectronMCScale(float eta, float pt){
+  /*
+   MC->Data scale correction
+ $0 < |\eta| < 0.4$ & $0.998107$ \pm $-1$ \\
+ $0.4 < |\eta| < 0.8$ & $0.99943$ \pm $-1$ \\
+ $0.8 < |\eta| < 1.2$ & $1.00714$ \pm $-1$ \\
+ $1.2 < |\eta| < 1.4442$ & $1.01949$ \pm $-1$ \\
+ $1.4442 < |\eta| < 2.1$ & $0.999455$ \pm $-1$ \\
+ $2.1 < |\eta| < 2.5$ & $0.995461$ \pm $-1$ \\
+ 
+   MC->Data resolution correction [GeV]
+ 0 < |\eta| < 0.4 & $0.0298524$ \pm $0.00240817$ \\
+ 0.4 < |\eta| < 0.8 & $0.0399948$ \pm $0.00203437$ \\
+ 0.8 < |\eta| < 1.2 & $0.036199$ \pm $0.0105744$ \\
+ 1.2 < |\eta| < 1.4442 & $0.0676282$ \pm $4.55263$ \\
+ 1.4442 < |\eta| < 2.1 & $0.125098$ \pm $0.00575003$ \\
+ 2.1 < |\eta| < 2.5 & $0.359072$ \pm $0.00185872$ \\
+ */
+
+  float scaleWeights[6] = {0.998107, 0.99943, 1.00714, 1.01949, 0.999455, 0.995461};
+  float sigmaWeights[6] = {0.0298524, 0.0399948, 0.036199, 0.0676282, 0.125098, 0.359072};
+  float ptScale = 1.0;
+  float ptSmear = 1.0;
+
+  if (fabs(eta) < 0.4){
+    ptScale = scaleWeights[0];
+    ptSmear = rnGenerator->Gaus(1,(sigmaWeights[0])/pt);
+  }else if(fabs(eta) >= 0.4 && fabs(eta) < 0.8){
+    ptScale = scaleWeights[1];
+    ptSmear = rnGenerator->Gaus(1,(sigmaWeights[1])/pt);
+  }else if(fabs(eta) >= 0.8 && fabs(eta) < 1.2){
+    ptScale = scaleWeights[2];
+    ptSmear = rnGenerator->Gaus(1,(sigmaWeights[2])/pt);
+  }else if(fabs(eta) >= 1.2 && fabs(eta) < 1.4442){
+    ptScale = scaleWeights[3];
+    ptSmear = rnGenerator->Gaus(1,(sigmaWeights[3])/pt);
+  }else if(fabs(eta) >= 1.4442 && fabs(eta) < 2.1){
+    ptScale = scaleWeights[4];
+    ptSmear = rnGenerator->Gaus(1,(sigmaWeights[4])/pt);
+  }else if(fabs(eta) >= 2.1 && fabs(eta) < 2.5){
+    ptScale = scaleWeights[5];
+    ptSmear = rnGenerator->Gaus(1,(sigmaWeights[5])/pt);
+  }
+  
+  //cout<<ptSmear<<endl;
+  return ptScale*ptSmear;
 }
 

@@ -184,9 +184,12 @@ class eeSelector : public TSelector {
     //ElectronMVA selection
     auto_ptr<TMVA::Reader> myTMVAReader;
 
-    //the lite branches
-    TLorentzVector elePos;
-    TLorentzVector eleNeg;
+    //the ee branches
+    TLorentzVector ele1;
+    TLorentzVector ele2;
+    float SCetaEl1;
+    float SCetaEl2;
+    float eventWeight;
 
     // Default functions
 
@@ -197,7 +200,9 @@ class eeSelector : public TSelector {
       unskimmedEvents(0),
       file0(0),
       h1_numOfEvents(0),
-      thisTree(0) { }
+      thisTree(0),
+      SCetaEl1(0),
+      SCetaEl2(0){ }
     virtual ~eeSelector() { }
     virtual Int_t   Version() const { return 2; }
     virtual void    Begin(TTree *tree);

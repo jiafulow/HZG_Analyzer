@@ -280,6 +280,7 @@ class higgsAnalyzer : public TSelector {
     void            UniversalEnergyCorrector(TCPhoton& ph, vector<TCGenParticle>& _genPhotons);
     void            UniversalEnergyCorrector(TCMuon& mu); 
     void            UniversalEnergyCorrector(TCElectron& el); 
+    float           ElectronMCScale(float eta, float pt);
 
     void            BadLeptonPrune(vector<TCMuon>& myLeptons, const ParticleSelector::genHZGParticles& myGens);
     void            BadLeptonPrune(vector<TCElectron>& myLeptons, const ParticleSelector::genHZGParticles& myGens);

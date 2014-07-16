@@ -26,13 +26,13 @@ def checkFiles():
       num2 = int(resOut.rsplit(" ")[0])
       print
       print selectionList[0], dataType
-      if 'smzg' in analyzer:
-        print ' ',num1,num2/3
-        if num1 == num2/3: print '  ALL JOBS FINISHED'
-        else: print "  SOME JOBS HAVEN'T FUCKING FINISHED GODDAMNIT!"
-      else:
+      if 'higgsAnalyzer' in analyzer:
         print ' ',num1/4,num2/3
         if num1/4 == num2/3: print '  ALL JOBS FINISHED'
+        else: print "  SOME JOBS HAVEN'T FUCKING FINISHED GODDAMNIT!"
+      else:
+        print ' ',num1,num2/3
+        if num1 == num2/3: print '  ALL JOBS FINISHED'
         else: print "  SOME JOBS HAVEN'T FUCKING FINISHED GODDAMNIT!"
 
 

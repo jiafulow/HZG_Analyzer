@@ -64,16 +64,7 @@ void eeSelector::Begin(TTree * tree)
   int jobNum = atoi(params->jobCount.c_str());
   cuts.reset(new Cuts());
 
-  if (params->period.find("2012") != string::npos){
-    cuts->gPt = 25;
-    cuts->leadMuPt = 23;
-    cuts->trailMuPt = 4;
-  }else{
-    cuts->gPt = 25;
-    cuts->leadMuPt = 4;
-    cuts->trailMuPt = 4;
-  }
-
+  
 
   cuts->InitEA(params->period);
   weighter.reset(new WeightUtils(*params, isRealData, runNumber));
@@ -92,8 +83,15 @@ void eeSelector::Begin(TTree * tree)
   eleFile->cd();
   eleTree.reset(new TTree(("eleTree_"+params->suffix).c_str(),"three body mass values"));
 
-  eleTree->Branch("elePos",&elePos);
-  eleTree->Branch("eleNeg",&eleNeg);
+  eleTree->Branch("ele1",&ele1);
+  eleTree->Branch("ele2",&ele2);
+  eleTree->Branch("runNumber",&runNumber);
+  eleTree->Branch("eventNumber",&eventNumber);
+  eleTree->Branch("lumiSection",&lumiSection);
+  eleTree->Branch("eventWeight",&eventWeight);
+  eleTree->Branch("SCetaEl1",&SCetaEl1);
+  eleTree->Branch("SCetaEl2",&SCetaEl2);
+  
 }
 
 
@@ -101,6 +99,8 @@ Bool_t eeSelector::Process(Long64_t entry)
 {
   GetEntry(entry,1);
   particleSelector->SetRho(rhoFactor);
+  weighter->SetIsRealData(isRealData);
+  weighter->SetRunNumber(runNumber);
 
   // trigger
 
@@ -205,7 +205,7 @@ Bool_t eeSelector::Process(Long64_t entry)
   TLorentzVector uncorLepton1;
   TLorentzVector uncorLepton2;
   TLorentzVector ZP4;
-  float eventWeight = 1;
+  eventWeight = 1.0;
 
   if (electronsID.size() < 2) return kTRUE;
 
@@ -236,20 +236,19 @@ Bool_t eeSelector::Process(Long64_t entry)
   if (!bothEls) return kTRUE;
 
   bool goodZ = false;
-  float SCetaEl1 = -99999;
-  float SCetaEl2 = -99999;
   goodZ = particleSelector->FindGoodZElectron(electronsIDIso,lepton1,lepton2,ZP4,SCetaEl1,SCetaEl2,lepton1int,lepton2int);
   if (eventNumber == params->EVENTNUMBER) cout<<"el num: "<<electronsIDIso.size()<<" goodZ: "<<goodZ<<endl;
   if (!goodZ) return kTRUE;
   if (!isRealData){ 
     if (params->doScaleFactors){
-      eventWeight   *= weighter->ElectronTriggerWeight(lepton1, lepton2, true);
+      eventWeight   *= weighter->PUWeight(nPUVerticesTrue);
+      //eventWeight   *= weighter->ElectronTriggerWeight(lepton1, lepton2, true);
       if (params->period.find("2011") != string::npos){
-        eventWeight   *= getEfficiencyWeight( &lepton1, CorrectionType::CENTRAL, atoi(params->period.c_str()));
-        eventWeight   *= getEfficiencyWeight( &lepton2, CorrectionType::CENTRAL, atoi(params->period.c_str()));
+        //eventWeight   *= getEfficiencyWeight( &lepton1, CorrectionType::CENTRAL, atoi(params->period.c_str()));
+        //eventWeight   *= getEfficiencyWeight( &lepton2, CorrectionType::CENTRAL, atoi(params->period.c_str()));
       }else if (params->period.find("2012") != string::npos){
-        eventWeight   *= weighter->ElectronSelectionWeight(lepton1);
-        eventWeight   *= weighter->ElectronSelectionWeight(lepton2);
+        //eventWeight   *= weighter->ElectronSelectionWeight(lepton1);
+        //eventWeight   *= weighter->ElectronSelectionWeight(lepton2);
       }
     }
   }
@@ -257,13 +256,9 @@ Bool_t eeSelector::Process(Long64_t entry)
 
   // put them in the branch
 
-  if (lepton1.Charge() == 1){
-    elePos = lepton1;
-    eleNeg = lepton2;
-  }else{
-    elePos = lepton2;
-    eleNeg = lepton1;
-  }
+  ele1 = lepton1;
+  ele2 = lepton2;
+
 
   
   eleTree->Fill();

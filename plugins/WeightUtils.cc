@@ -149,6 +149,7 @@ float WeightUtils::PUWeight(float nPU)
 {
   if (_isRealData){
     return 1;
+
   }else{
     if (nPU < 100 && _params.period == "2011" ){
       _puWeight = h1_S6to2011obs->GetBinContent(h1_S6to2011obs->FindBin(nPU)); 
@@ -888,5 +889,3 @@ float WeightUtils::PhotonFakeWeight(float eta, float pt){
     float totalWeight = ptWeight*etaWeight;
     return totalWeight;
 }
-    
-

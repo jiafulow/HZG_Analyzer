@@ -2,14 +2,6 @@
 
 set dir=`echo $1 | cut -d _ -f 1 `
 
-#cp $6 higgsAnalyzer.C
-
-#sed -i "s/SUFFIX/$1/g" higgsAnalyzer.C
-#sed -i "s/ABCD/$2/g" higgsAnalyzer.C
-#sed -i "s/DATANAME/$3/g" higgsAnalyzer.C
-#sed -i "s/SELECTION/$4/g" higgsAnalyzer.C
-#sed -i "s/PERIOD/$5/g" higgsAnalyzer.C
-#sed -i "s/COUNT/local/g" higgsAnalyzer.C
 
 set suffix=$1
 set abcd=$2
