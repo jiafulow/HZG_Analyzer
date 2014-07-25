@@ -18,11 +18,12 @@ suffix=$3
 abcd=$4
 selection=$5
 period=$6
-if [ -z $7 ]
+PU=$7
+if [ -z $8 ]
 then
   analyzer='higgsAnalyzer'
 else
-  analyzer="$7"
+  analyzer="$8"
 fi
 
 
@@ -108,7 +109,7 @@ cat > run.C << +EOF
                                           
 +EOF
 
-root -l -b -q 'run.C("'$suffix' '$abcd' '$selection' '$period' '$dataName' '$count'")'
+root -l -b -q 'run.C("'$suffix' '$abcd' '$selection' '$period' '$dataName' '$count' '$PU'")'
 
 mv *.root ../.
 rm $analyzer*

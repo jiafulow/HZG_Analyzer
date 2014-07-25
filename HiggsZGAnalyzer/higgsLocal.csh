@@ -9,8 +9,9 @@ set dataName=$3
 set selection=$4
 set period=$5
 set count='local'
-if ($#argv == 6) then
-  set analyzer="$6+"
+set PU=$6
+if ($#argv == 7) then
+  set analyzer="$7+"
 else
   set analyzer='higgsAnalyzer.C+'
 endif
@@ -105,6 +106,6 @@ cat > run.C << +EOF
 
 +EOF
 
-root -l -b -q 'run.C("'$suffix' '$abcd' '$selection' '$period' '$dataName' '$count'")'
+root -l -b -q 'run.C("'$suffix' '$abcd' '$selection' '$period' '$dataName' '$count' '$PU'")'
 rm run.C
 mv *local.root localHistos/.

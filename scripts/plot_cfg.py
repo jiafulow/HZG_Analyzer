@@ -31,27 +31,21 @@ def GenericPlotter(inFolder, outFolder):
     plotterEl.DataBGComp2DProj(plotterEl.folderDict[key],125)
 
 def ROCPlotter(suffix = '05-07-14_PhoMVA'):
-  if os.environ.get('AT_NWU') == None:
-    #FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_11-18-13_anglesOnly.root")
-    #FileEl= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_11-18-13_anglesOnly.root")
-    FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_11-29-13_plusPtTest.root")
-    FileEl= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_11-29-13_plusPtTest.root")
-  else:
-    #FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_02-04-14.root")
-    #FileEl= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_02-04-14.root")
-    FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_"+suffix+".root")
-    FileEl= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_"+suffix+".root")
+  #FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_02-04-14.root")
+  #FileEl= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_02-04-14.root")
+  FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_"+suffix+".root")
+  FileEl= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_"+suffix+".root")
 
   plotter = Plotter(FileMu, 'MVAPlots', 'ROC_MVA_'+suffix, '2012','mu','Signal2012ggM123')
   for key in plotter.folderDict.keys():
     if 'CAT5' in key: continue
     plotter.ROCcurves(plotter.folderDict[key])
     plotter.ROCcurves(plotter.folderDict[key],123)
-  #plotterEl = Plotter(FileEl, 'MVAPlots', 'ROC_MVA_'+suffix, '2012','el','Signal2012ggM123')
-  #for key in plotterEl.folderDict.keys():
-    #if 'CAT5' in key: continue
-    #plotterEl.ROCcurves(plotterEl.folderDict[key])
-    #plotterEl.ROCcurves(plotterEl.folderDict[key],123)
+  plotterEl = Plotter(FileEl, 'MVAPlots', 'ROC_MVA_'+suffix, '2012','el','Signal2012ggM123')
+  for key in plotterEl.folderDict.keys():
+    if 'CAT5' in key: continue
+    plotterEl.ROCcurves(plotterEl.folderDict[key])
+    plotterEl.ROCcurves(plotterEl.folderDict[key],123)
 
 def RatioPlotter():
   if os.environ.get('AT_NWU') == None:

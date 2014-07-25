@@ -19,6 +19,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   string period = static_cast<string>(static_cast<TObjString*>(option.Tokenize(" ")->At(3))->GetString());
   string dataname = static_cast<string>(static_cast<TObjString*>(option.Tokenize(" ")->At(4))->GetString());
   string count = static_cast<string>(static_cast<TObjString*>(option.Tokenize(" ")->At(5))->GetString()); 
+  string PU = static_cast<string>(static_cast<TObjString*>(option.Tokenize(" ")->At(6))->GetString()); 
 
   params.reset(new Parameters());
 
@@ -29,10 +30,11 @@ void higgsAnalyzer::Begin(TTree * tree)
   params->suffix         = suffix;
   params->dataname       = dataname;
   params->jobCount       = count;
+  params->PU             = PU;
 
   // change any params from default
 
-  params->doPhoMVA       = false; //FOR PROPER
+  //params->doPhoMVA       = false; //FOR PROPER
   params->doAnglesMVA    = false; //FOR PROPER or No KinMVA
 
   //params->doSync         = true;
@@ -40,11 +42,26 @@ void higgsAnalyzer::Begin(TTree * tree)
   //params->EVENTNUMBER    = 54768;
 
   //params->doAltMVA         = true; //FOR MVA OPT TEST
-  params->DYGammaVeto      = false;
+  //params->DYGammaVeto      = false;
   //params->doLooseMuIso     = false;
-  params->doEleMVA         = false;
+  //params->doEleMVA         = false;
   
   //params->doLeptonPrune    = false;
+
+  // Initialize utilities and selectors here //
+  int jobNum = atoi(params->jobCount.c_str());
+  cout<<jobNum<<endl;
+  cuts.reset(new Cuts());
+  cuts->InitEA(params->period);
+  
+  // Change any cuts from non-default values
+
+  cuts->zgMassHigh = 999.0;
+  //cuts->trailElePt = 20.0;
+  
+
+
+
 
   for (int i =0; i<100; i++){
     nEvents[i] = 0;
@@ -61,17 +78,6 @@ void higgsAnalyzer::Begin(TTree * tree)
   jobTree->SetBranchAddress("triggerNames", &triggerNames);
   jobTree->GetEntry();
 
-  // Initialize utilities and selectors here //
-  int jobNum = atoi(params->jobCount.c_str());
-  cout<<jobNum<<endl;
-  cuts.reset(new Cuts());
-  cuts->InitEA(params->period);
-  
-  // Change any cuts from non-default values
-
-
-  //cuts->zgMassHigh = 999.0;
-  cuts->trailElePt = 20.0;
 
   // More plugin init
 
@@ -264,7 +270,11 @@ void higgsAnalyzer::Begin(TTree * tree)
   //mvaInits.discrSuffixName = "anglesOnly";
   //mvaInits.discrSuffixName = "newAnglesR9";
   //mvaInits.discrSuffixName = "01-29-14_v0905";
-  mvaInits.discrSuffixName = "05-24-14_PhoMVA";
+  if (params->selection == "mumuGamma"){ 
+    mvaInits.discrSuffixName = "07-6-14_PhoMVA";
+  }else{
+    mvaInits.discrSuffixName = "07-24-14_PhoMVA";
+  }
 
 
   mvaInits.mvaHiggsMassPoint[0] = 123;
@@ -584,10 +594,10 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       cout<< "electron before cor: "<<TCPhysObject(*thisElec)<<endl;
     }
     if(params->engCor && !params->doSync && isRealData) UniversalEnergyCorrector(*thisElec);
-    else if(params->engCor && !params->doSync && !isRealData){
-      float ptCor = ElectronMCScale(thisElec->SCEta(), thisElec->Pt());
-      thisElec->SetPtEtaPhiM(thisElec->Pt()*ptCor, thisElec->Eta(), thisElec->Phi(), thisElec->M());
-    }
+    //else if(params->engCor && !params->doSync && !isRealData){
+    //  float ptCor = ElectronMCScale(thisElec->SCEta(), thisElec->Pt());
+    //  thisElec->SetPtEtaPhiM(thisElec->Pt()*ptCor, thisElec->Eta(), thisElec->Phi(), thisElec->M());
+    //}
 
     if (eventNumber == params->EVENTNUMBER){
       cout<< "electron after cor: "<<TCPhysObject(*thisElec)<<endl;
@@ -1306,23 +1316,23 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     //with photon mva (good with seperation)
     if (params->selection == "mumuGamma"){
       if (catNum ==1){
-        if (mvaVal < -0.27) catNum = 6;
+        if (mvaVal < -0.089) catNum = 6;
       }else if (catNum==2){
-        if (mvaVal < -0.2) catNum = 7; 
+        if (mvaVal < -0.044) catNum = 7; 
       }else if (catNum==3){
-        if (mvaVal < -0.38) catNum = 8;
+        if (mvaVal < -0.24) catNum = 8;
       }else if (catNum==4){
-        if (mvaVal < -0.56) catNum = 9;
+        if (mvaVal < -0.33) catNum = 9;
       }
     }else if (params->selection == "eeGamma"){
       if (catNum ==1){
-        if (mvaVal < -0.18) catNum = 6;
+        if (mvaVal < 0.089) catNum = 6;
       }else if (catNum==2){
-        if (mvaVal < -0.31) catNum = 7;
+        if (mvaVal < 0.089) catNum = 7;
       }else if (catNum==3){
-        if (mvaVal < -0.29) catNum = 8;
+        if (mvaVal < -0.24) catNum = 8;
       }else if (catNum==4){
-        if (mvaVal < -0.51) catNum = 9;
+        if (mvaVal < -0.31) catNum = 9;
       }
     }
    
@@ -2114,21 +2124,21 @@ TMVA::Reader* higgsAnalyzer::MVAInitializer(){
     tmvaReader->AddVariable("smallTheta", &(mvaVars._smallTheta));
     tmvaReader->AddVariable("l1Eta", &(mvaVars._l1Eta));
   }else{
-    if (params->selection =="mumuGamma"){
-      tmvaReader->AddVariable("comPhi", &(mvaVars._comPhi));
-      tmvaReader->AddVariable("threeBodyPtOM", &(mvaVars._threeBodyPtOM));
-      tmvaReader->AddVariable("l2Eta", &(mvaVars._l2Eta));
-      tmvaReader->AddVariable("GEta", &(mvaVars._GEta));
-      tmvaReader->AddVariable("bigTheta", &(mvaVars._bigTheta));
-      tmvaReader->AddVariable("l1Eta", &(mvaVars._l1Eta));
-    }else if (params->selection=="eeGamma"){
+    //if (params->selection =="mumuGamma"){
+    //  tmvaReader->AddVariable("comPhi", &(mvaVars._comPhi));
+    //  tmvaReader->AddVariable("threeBodyPtOM", &(mvaVars._threeBodyPtOM));
+    //  tmvaReader->AddVariable("l2Eta", &(mvaVars._l2Eta));
+    //  tmvaReader->AddVariable("GEta", &(mvaVars._GEta));
+    //  tmvaReader->AddVariable("bigTheta", &(mvaVars._bigTheta));
+    //  tmvaReader->AddVariable("l1Eta", &(mvaVars._l1Eta));
+    //}else if (params->selection=="eeGamma"){
       tmvaReader->AddVariable("threeBodyPtOM", &(mvaVars._threeBodyPtOM));
       tmvaReader->AddVariable("l2Eta", &(mvaVars._l2Eta));
       tmvaReader->AddVariable("GEta", &(mvaVars._GEta));
       tmvaReader->AddVariable("bigTheta", &(mvaVars._bigTheta));
       tmvaReader->AddVariable("smallTheta", &(mvaVars._smallTheta));
       tmvaReader->AddVariable("l1Eta", &(mvaVars._l1Eta));
-    }
+    //}
   }
   
   //tmvaReader->AddVariable("medisc", &(mvaVars._medisc));
@@ -2278,7 +2288,7 @@ float higgsAnalyzer::MEDiscriminator(TCPhysObject lepton1, TCPhysObject lepton2,
 void higgsAnalyzer::PhotonR9Corrector(TCPhoton& ph){
   //old R9 correction
   float R9Cor;
-  if (params->suffix.find("S10") != string::npos){
+  if (params->PU == "S10"){
     R9Cor = ph.R9();
     if (params->suffix != "DATA"){
       if (params->period == "2011"){

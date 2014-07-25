@@ -11,6 +11,7 @@ Parameters::Parameters():
   suffix("lol"),
   dataname("lol"),
   jobCount("lol"),
+  PU("lol"),
 
   VBFcuts(false),
   DYGammaVeto(true),

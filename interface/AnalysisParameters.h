@@ -16,6 +16,7 @@ class Parameters{
     string  suffix;
     string  dataname;
     string  jobCount;
+    string  PU;
 
     bool VBFcuts;                 
     bool DYGammaVeto;            
