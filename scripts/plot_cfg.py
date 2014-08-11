@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 import sys,os
-sys.argv.append('-b')
 from PlottingClasses import *
 from ROOT import *
 import numpy as np
+from tempfile import mkstemp
+from shutil import move
 
 gROOT.ProcessLine('.L ./tdrstyle.C')
 setTDRStyle()
+gROOT.SetBatch(True)
 
 
 def GenericPlotter(inFolder, outFolder):
@@ -92,10 +94,9 @@ def RatioPlotter():
   #  for key in plotterMu.folderDict.keys():
   #    plotterMu.RatioPlot(key,['DATA','Signal'],['Data','Signal'],True)
 
-def DoAll():
+def DoAll(suffix):
   if os.environ.get('AT_NWU'):
     mainPath = '/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_'
-    suffix = '07-15-14_EEScaleTest'
     headDir = 'Full_'+suffix
     if not os.path.isdir(headDir):
       os.mkdir(headDir)
@@ -111,14 +112,14 @@ def DoAll():
         raise IOError(mainPath+'EE2012ABCD_'+suffix+'.root not found')
 
     #folders = ['ZGAngles','ZGAngles_RECO','MVAPlots','pT-Eta-Phi','PreSelDiLep','PreSelThreeBody','PreSelDiLepNoW','PreSelThreeBodyNoW']
-    folders = ['pT-Eta-Phi','PreSelDiLep','PreSelThreeBody','PreSelDiLepNoW','PreSelThreeBodyNoW']
+    folders = ['pT-Eta-Phi','PreSelDiLep','PreSelThreeBody','ZGAngles_RECO']
     #folders = ['pT-Eta-Phi']
     #folders = ['ZGamma','CAT1','CAT2','CAT3','CAT4','CAT5','CAT6','CAT7','CAT8','CAT9','pT-Eta-Phi','MVAPlots','Misc','ZGAngles_RECO','PreSel']
     if FileEl != None:
       for folder in folders:
-        plotterEl = Plotter(FileEl, folder, headDir+'/'+folder, '2012','el','Signal2012ggM125')
+        plotterEl = Plotter(FileEl, folder, headDir+'/'+folder, '2012','el','Signal2012ggM200')
         for key in plotterEl.folderDict.keys():
-          #plotterEl.RatioPlot(key,['Signal','BG'],['Signal','BG'],True)
+          plotterEl.RatioPlot(key,['Signal','BG'],['Signal','BG'],True, False)
           #plotterEl.RatioPlot(key,['DATA','BG'],['DATA','BG'],True)
           plotterEl.RatioPlot(key,['DATA','BG'],['DATA','BG'],False,False)
           #plotterEl.RatioPlot(key,['DYToElEl','ZGToLLG'],['DYToElEl','ZGToLLG'],False)
@@ -129,9 +130,9 @@ def DoAll():
           #plotterEl.DataBGComp2DProj(plotterEl.folderDict[key])
     if FileMu != None:
       for folder in folders:
-        plotterMu = Plotter(FileMu, folder, headDir+'/'+folder, '2012','mu','Signal2012ggM125')
+        plotterMu = Plotter(FileMu, folder, headDir+'/'+folder, '2012','mu','Signal2012ggM200')
         for key in plotterMu.folderDict.keys():
-          #plotterMu.RatioPlot(key,['Signal','BG'],['Signal','BG'],True)
+          plotterMu.RatioPlot(key,['Signal','BG'],['Signal','BG'],False,False)
           #plotterMu.RatioPlot(key,['DATA','BG'],['DATA','BG'],True)
           if 'MassHigh' in key:
             plotterMu.RatioPlot(key,['DATA','BG'],['DATA','BG'],False,True)
@@ -171,8 +172,42 @@ def DoMulti():
     plotterMu.MultiPlots([a+b for a,b in zip(keys,folders)],['DATA','DATA','DATA','DATA'],folders,True)
   else: print 'this is not set up for FNAL'
 
+def update_default(args):
+  #Create temp file
+  fh, abs_path = mkstemp()
+  new_file = open(abs_path,'w')
+  try:
+    old_file = open('.scripts_hist')
+  except IOError:
+    old_file = open('.scripts_hist','w')
+    old_file.write('last good script calls:\n')
+    old_file.close()
+    old_file = open('.scripts_hist')
+
+  rep = False
+  for line in old_file:
+    if args[0] in line:
+      rep = True
+      new_file.write(' '.join(args)+'\n')
+    else:
+      new_file.write(line)
+  if not rep:
+    new_file.write(' '.join(args)+'\n')
+
+  #close temp file
+  new_file.close()
+  os.close(fh)
+  old_file.close()
+  #Remove original file
+  os.remove('.scripts_hist')
+  #Move new file
+  move(abs_path, '.scripts_hist')
 
 if __name__=="__main__":
+  print len(sys.argv)
+  if len(sys.argv) < 3:
+    raise NameError('bad call')
+
   print 'executing', sys.argv[1]
   if 'plot' == sys.argv[1].lower():
     GenericPlotter(sys.argv[2], sys.argv[3])
@@ -182,6 +217,13 @@ if __name__=="__main__":
   elif 'ratio' == sys.argv[1].lower():
     RatioPlotter()
   elif 'all' == sys.argv[1].lower():
-    DoAll()
+    DoAll(sys.argv[2])
+    update_default(sys.argv)
   elif 'multi' == sys.argv[1].lower():
     DoMulti()
+
+
+
+
+
+

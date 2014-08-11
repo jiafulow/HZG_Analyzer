@@ -13,7 +13,6 @@ Parameters::Parameters():
   jobCount("lol"),
   PU("lol"),
 
-  VBFcuts(false),
   DYGammaVeto(true),
   customPhotoID(false),
   spikeVeto(true),
@@ -25,6 +24,7 @@ Parameters::Parameters():
   doPhotonPurityStudy(false),
   doPhoMVA(true),
   doLeptonPrune(true),
+  doVBF(true),
 
   dumps(false),
   dataDumps(false),

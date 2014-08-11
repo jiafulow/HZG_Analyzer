@@ -35,6 +35,7 @@ class Parameters{
     bool doPhoMVA;
 
     bool doLeptonPrune;
+    bool doVBF;
     
 
     ///// debugging /////

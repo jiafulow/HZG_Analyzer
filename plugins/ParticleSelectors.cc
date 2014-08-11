@@ -174,7 +174,7 @@ bool ParticleSelector::FindGoodDiJets(const vector<TCJet>& jetList, const TCPhys
   return goodDiJets;
 }
 
-void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, const TClonesArray& _recoPhotons, vector<TCGenParticle>& _genPhotons, vector<TCGenParticle>& _genMuons, genHZGParticles& _genHZG, bool& vetoDY){
+void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, const TClonesArray& _recoPhotons, vector<TCGenParticle>& _genPhotons, vector<TCGenParticle>& _genMuons, vector<TCGenParticle>& _genZs, genHZGParticles& _genHZG, bool& vetoDY){
   vector<TCGenParticle> genElectrons;
   vector<TCGenParticle> genMuons;
   vector<TCGenParticle> genZs;
@@ -210,6 +210,7 @@ void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, const
   sort(genHs.begin(), genHs.end(), P4SortCondition);
   _genPhotons = genPhotons;
   _genMuons = genMuons;
+  _genZs = genZs;
 
 
 

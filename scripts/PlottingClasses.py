@@ -6,7 +6,7 @@ from collections import defaultdict
 import numpy as np
 
 #color dictionary
-colorDict = {'DYJets':kGreen+1,'ZGToLLG':kBlue,'DYToMuMu':kOrange,'DYJetsS10':kGreen+1}
+colorDict = {'DYJets':kGreen+1,'ZGToLLG':kBlue,'DYToMuMu':kOrange,'DYToEE':kOrange,'DYJetsS10':kGreen+1}
 colorList = [kBlack,kRed,kBlue,kGreen+1,kMagenta+1,kOrange]
 
 # class for multi-layered nested dictionaries, pretty cool
@@ -70,10 +70,12 @@ class Plotter:
     scaleDict['2012']['DYJets'] = 3532.8*1000
     scaleDict['2012']['DYJetsS10'] = 3532.8*1000
     scaleDict['2012']['DYToMuMu'] = 1966.7*1000
+    scaleDict['2012']['DYToEE'] = 1966.7*1000
     scaleDict['2012']['ZGToLLG'] = 156.2*1000
     scaleDict['2012']['gg']['123'] = 20.15*0.00136*0.10098*1000
     scaleDict['2012']['gg']['125'] = 19.52*0.00154*0.10098*1000
     scaleDict['2012']['gg']['135'] = 16.79*0.00227*0.10098*1000
+    scaleDict['2012']['gg']['200'] = 5.356*0.000175*0.10098*1000
 
     initEvents = self.thisFile.GetDirectory('Misc').Get('h1_acceptanceByCut_'+name).Integral(1,1)
     if 'Signal' in name:
@@ -850,6 +852,9 @@ class Plotter:
     if 'DATA' in chooseNames:
       idat = chooseNames.index('DATA')
       compHists[idat].Draw('pesame')
+    if 'Signal' in chooseNames:
+      idat = chooseNames.index('Signal')
+      compHists[idat].Draw('histsame')
 
     leg.Draw()
     pad2.cd()

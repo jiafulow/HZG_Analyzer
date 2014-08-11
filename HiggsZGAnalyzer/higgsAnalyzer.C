@@ -47,6 +47,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   //params->doEleMVA         = false;
   
   //params->doLeptonPrune    = false;
+  params->doVBF              = false;
 
   // Initialize utilities and selectors here //
   int jobNum = atoi(params->jobCount.c_str());
@@ -57,6 +58,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   // Change any cuts from non-default values
 
   cuts->zgMassHigh = 999.0;
+  cuts->gPt = 40.0;
   //cuts->trailElePt = 20.0;
   
 
@@ -339,12 +341,13 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   vector<TCGenParticle> genPhotons;
   vector<TCGenParticle> genMuons;
+  vector<TCGenParticle> genZs;
   particleSelector->CleanUpGen(genHZG);
   bool vetoDY = false;
   //genHZG = {0,0,0,0,0,0};
   if(!isRealData){
     ///////// load all the relevent particles into a struct /////////
-    particleSelector->FindGenParticles(*genParticles, *recoPhotons, genPhotons, genMuons, genHZG, vetoDY);
+    particleSelector->FindGenParticles(*genParticles, *recoPhotons, genPhotons, genMuons, genZs, genHZG, vetoDY);
     if (params->DYGammaVeto && (params->suffix.find("DY") != string::npos)){
       if (vetoDY) return kTRUE;
     }
@@ -593,7 +596,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     if (eventNumber == params->EVENTNUMBER){
       cout<< "electron before cor: "<<TCPhysObject(*thisElec)<<endl;
     }
-    if(params->engCor && !params->doSync && isRealData) UniversalEnergyCorrector(*thisElec);
+    if(params->engCor && !params->doSync && params->PU == "S10") UniversalEnergyCorrector(*thisElec);
     //else if(params->engCor && !params->doSync && !isRealData){
     //  float ptCor = ElectronMCScale(thisElec->SCEta(), thisElec->Pt());
     //  thisElec->SetPtEtaPhiM(thisElec->Pt()*ptCor, thisElec->Eta(), thisElec->Phi(), thisElec->M());
@@ -715,7 +718,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       }
 
       // energy correction after ID and ISO
-      if (params->engCor && !params->doSync) UniversalEnergyCorrector(*thisPhoton, genPhotons);
+  
+      if (params->engCor && !params->doSync && cuts->zgMassHigh != 999.0) UniversalEnergyCorrector(*thisPhoton, genPhotons);
 
       if (passID) photonsID.push_back(*thisPhoton);
       if (passID && passIso) photonsIDIso.push_back(*thisPhoton);
@@ -1275,6 +1279,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   if (params->suffix.find("ggM123") != string::npos) scaleFactor *= 19.672/(unskimmedEventsTotal/(19.52*0.00154*0.10098*1000));
   if (params->suffix == "DYJets") scaleFactor *= 19.672/(unskimmedEventsTotal/(3503.71*1000));
   if (params->suffix == "DYToMuMu") scaleFactor *= 19.672/(unskimmedEventsTotal/(1966.7*1000));
+  if (params->suffix == "DYToEE") scaleFactor *= 19.672/(unskimmedEventsTotal/(1966.7*1000));
   if (params->suffix == "ZGToLLG") scaleFactor *= 19.672/(unskimmedEventsTotal/(156.2*1000)); 
   //if (params->suffix == "ZGEE") scaleFactor *= 4.98/7.11;
   //if (params->suffix == "ZZJets") scaleFactor *= 4.98/6175;
@@ -1694,6 +1699,7 @@ void higgsAnalyzer::StandardPlots(TLorentzVector p1, TLorentzVector p2, TLorentz
   hm->fill1DHist(p2.Phi(),"h1_trailingLeptonStdPhi"+tag+"_"+params->suffix, "#phi trailing lepton;#phi;N_{evts}", 20, -TMath::Pi(), TMath::Pi(), eventWeight,folder);
 
   hm->fill1DHist(gamma.Pt(),"h1_photonPt"+tag+"_"+params->suffix, "p_{T} gamma;p_{T};N_{evts}", 16, 0., 80., eventWeight,folder); 
+  hm->fill1DHist(gamma.Pt(),"h1_photonPtHigh"+tag+"_"+params->suffix, "p_{T} gamma;p_{T};N_{evts}", 20, 0.,400., eventWeight,folder); 
   hm->fill1DHist(gamma.Eta(),"h1_photonEta"+tag+"_"+params->suffix, "#eta gamma;#eta;N_{evts}", 20, -2.5, 2.5, eventWeight,folder);//20
   hm->fill1DHist(gamma.Phi(),"h1_photonPhi"+tag+"_"+params->suffix, "#phi gamma;#phi;N_{evts}", 20, -TMath::Pi(), TMath::Pi(), eventWeight,folder);//18
 

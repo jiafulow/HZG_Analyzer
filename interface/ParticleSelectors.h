@@ -40,7 +40,7 @@ class ParticleSelector {
       TCGenParticle* lm;
     }genHZG;
 
-    void FindGenParticles(const TClonesArray& genParticles, const TClonesArray& _recoPhotons, vector<TCGenParticle>& _genPhotons, vector<TCGenParticle>& _genMuons, genHZGParticles& _genHZG,bool& vetoDY);
+    void FindGenParticles(const TClonesArray& genParticles, const TClonesArray& _recoPhotons, vector<TCGenParticle>& _genPhotons, vector<TCGenParticle>& _genMuons, vector<TCGenParticle>& _genZs, genHZGParticles& _genHZG,bool& vetoDY);
     void CleanUpGen(genHZGParticles& _genHZG);
 
     bool PassMuonID(const TCMuon& mu, const Cuts::muIDCuts& cutLevel);

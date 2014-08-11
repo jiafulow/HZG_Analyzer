@@ -163,6 +163,7 @@ class smzgAnalyzer : public TSelector {
 
     auto_ptr<TFile> liteFile;
     auto_ptr<TTree> zgTree;
+    auto_ptr<TTree> genTree;
 
     auto_ptr<TVector3> pvPosition;
 
@@ -190,6 +191,10 @@ class smzgAnalyzer : public TSelector {
     TLorentzVector muonPos;
     TLorentzVector muonNeg;
     TLorentzVector photon;
+
+    TLorentzVector muonPosGen;
+    TLorentzVector muonNegGen;
+    TLorentzVector photonGen;
 
     // Default functions
 
