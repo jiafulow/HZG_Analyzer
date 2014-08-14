@@ -259,6 +259,7 @@ class higgsAnalyzer : public TSelector {
 		virtual void    GenPlots(vector<TCGenParticle> Zs, vector<TCGenParticle> leps, vector<TCGenParticle> phots, vector<TCGenParticle> Hs, TLorentzVector ZP4,TLorentzVector GP4, float evtWeight); 
     virtual void    StandardPlots(TLorentzVector p1, TLorentzVector p2, float evtWeight,string tag, string folder);
     virtual void    StandardPlots(TLorentzVector p1, TLorentzVector p2, TLorentzVector gamma, float evtWeight,string tag, string folder);
+    virtual void    HighMassPlots(TLorentzVector p1, TLorentzVector p2, TLorentzVector gamma, float eventWeight,string tag, string folder);
     virtual void    AnglePlots(ZGAngles &zga, float eventWeight, string folder, string tag);
 		virtual void    DileptonBasicPlots(TLorentzVector ZP4, float evtWeight);
 		virtual bool    CosmicMuonFilter(TCMuon muon1, TCMuon muon2);

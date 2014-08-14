@@ -58,7 +58,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   // Change any cuts from non-default values
 
   cuts->zgMassHigh = 999.0;
-  cuts->gPt = 40.0;
+  //cuts->gPt = 40.0;
   //cuts->trailElePt = 20.0;
   
 
@@ -149,6 +149,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   histoFile->mkdir("PhotonPurity", "PhotonPurity");
   histoFile->mkdir("MEPlots", "MEPlots");
   histoFile->mkdir("MVAPlots", "MVAPlots");
+  histoFile->mkdir("HighMass", "HighMass");
   //histoFile->mkdir("FakeRateWeight", "FakeRateWeight");
 
   diffZGscalar = diffZGvector = threeBodyMass = threeBodyPt = divPt = cosZ = cosG = METdivQt = GPt = ZPt = DPhi = diffPlaneMVA = vtxVariable = dr1 = dr2 = M12 = medisc = smallTheta = bigTheta = comPhi = GPtOM = diffZGvectorOM = threeBodyPtOM = ZPtOM = GEta = ZEta = threeBodyEta = GPtOHPt = l1Eta = l2Eta = R9var = sieip = sipip = SCRawE = SCPSE = e5x5 = e2x2 = SCPSEOPt = SCRawEOPt = e2x2O5x5 = scaleFactor = -99999;
@@ -1513,6 +1514,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   /////////////////////////
 
   StandardPlots(lepton1,lepton2,GP4,eventWeight,"", "pT-Eta-Phi");
+  HighMassPlots(lepton1,lepton2,GP4,eventWeight,"", "HighMass");
 
   //////////////////////////////
   // Fill Vtx variable histos //
@@ -1699,7 +1701,6 @@ void higgsAnalyzer::StandardPlots(TLorentzVector p1, TLorentzVector p2, TLorentz
   hm->fill1DHist(p2.Phi(),"h1_trailingLeptonStdPhi"+tag+"_"+params->suffix, "#phi trailing lepton;#phi;N_{evts}", 20, -TMath::Pi(), TMath::Pi(), eventWeight,folder);
 
   hm->fill1DHist(gamma.Pt(),"h1_photonPt"+tag+"_"+params->suffix, "p_{T} gamma;p_{T};N_{evts}", 16, 0., 80., eventWeight,folder); 
-  hm->fill1DHist(gamma.Pt(),"h1_photonPtHigh"+tag+"_"+params->suffix, "p_{T} gamma;p_{T};N_{evts}", 20, 0.,400., eventWeight,folder); 
   hm->fill1DHist(gamma.Eta(),"h1_photonEta"+tag+"_"+params->suffix, "#eta gamma;#eta;N_{evts}", 20, -2.5, 2.5, eventWeight,folder);//20
   hm->fill1DHist(gamma.Phi(),"h1_photonPhi"+tag+"_"+params->suffix, "#phi gamma;#phi;N_{evts}", 20, -TMath::Pi(), TMath::Pi(), eventWeight,folder);//18
 
@@ -1712,7 +1713,6 @@ void higgsAnalyzer::StandardPlots(TLorentzVector p1, TLorentzVector p2, TLorentz
   hm->fill1DHist(threeBody.Eta(),"h1_threeBodyEta"+tag+"_"+params->suffix, "#eta 3body;#eta;N_{evts}", 18, -2.5, 2.5, eventWeight,folder);    
   hm->fill1DHist(threeBody.Phi(),"h1_threeBodyPhi"+tag+"_"+params->suffix, "#phi 3body;#phi;N_{evts}", 18, -TMath::Pi(), TMath::Pi(), eventWeight,folder);    
   hm->fill1DHist(threeBody.M(),"h1_threeBodyMass"+tag+"_"+params->suffix, "M_{3body};M (GeV);N_{evts}", 150, 50, 200, eventWeight,folder);    
-  hm->fill1DHist(threeBody.M(),"h1_threeBodyMassHigh"+tag+"_"+params->suffix, "M_{3body};M (GeV);N_{evts}", 70, 150, 500, eventWeight,folder);    
 
 
   hm->fill1DHist(primaryVtx->GetSize(),"h1_pvMultCopy"+tag+"_"+params->suffix, "Multiplicity of PVs;N_{PV};N_{evts}", 25, 0.5, 25.5, eventWeight, folder);
@@ -1757,6 +1757,23 @@ void higgsAnalyzer::StandardPlots(TLorentzVector p1, TLorentzVector p2, float ev
   } 
 }
 
+void higgsAnalyzer::HighMassPlots(TLorentzVector p1, TLorentzVector p2, TLorentzVector gamma, float eventWeight,string tag, string folder)
+{
+  TLorentzVector diLep = p1+p2;
+  TLorentzVector threeBody = p1+p2+gamma;
+
+
+  hm->fill1DHist(gamma.Pt(),"h1_photonPtHigh"+tag+"_"+params->suffix, "p_{T} gamma;p_{T};N_{evts}", 50, 0.,500., eventWeight,folder); 
+  hm->fill1DHist(diLep.Pt(),"h1_diLepPtHigh"+tag+"_"+params->suffix, "p_{T} Z;p_{T};N_{evts}", 50, 0., 500., eventWeight,folder);     
+  hm->fill1DHist(threeBody.M(),"h1_threeBodyMassHigh"+tag+"_"+params->suffix, "M_{3body};M (GeV);N_{evts}", 130, 150, 800, eventWeight,folder);    
+  hm->fill1DHist(threeBody.Pt(),"h1_threeBodyPtHigh"+tag+"_"+params->suffix, "pT_{3body};pT_{ll#gamma} (GeV);N_{evts}", 40, 0, 200, eventWeight,folder);    
+
+  hm->fill2DHist(threeBody.M(),gamma.Pt(),"h2_threeBodyMassVphotonPt"+tag+"_"+params->suffix, "M_{3body} v pT_{#gamma};M_{ll#gamma} (GeV);pT_{#gamma} (GeV)", 130, 150, 800, 50, 0, 500, eventWeight,folder);    
+  hm->fill2DHist(threeBody.M(),diLep.Pt(),"h2_threeBodyMassVdiLepPt"+tag+"_"+params->suffix, "M_{3body} v pT_{ll};M_{ll#gamma} (GeV);pT_{ll} (GeV)", 130, 150, 800, 50, 0, 500, eventWeight,folder);    
+  hm->fill2DHist(gamma.Pt(),diLep.Pt(),"h2_photonPtVdiLepPt"+tag+"_"+params->suffix, "pT_{#gamma} v pT_{ll};pT_{#gamma} (GeV);pT_{ll} (GeV)", 50, 0, 500, 50, 0, 500, eventWeight,folder);    
+
+}
+
 void higgsAnalyzer::MVAPlots(mvaVarStruct _mvaVars, float _mvaVal, float eventWeight, string tag, string folder)
 {
   hm->fill1DHist(_mvaVars._smallTheta,"h1_smallTheta"+tag+"_"+params->suffix, "smallTheta;;N_{evts}", 30, 0., 1., eventWeight,folder);     
@@ -1771,6 +1788,7 @@ void higgsAnalyzer::MVAPlots(mvaVarStruct _mvaVars, float _mvaVal, float eventWe
   hm->fill1DHist(_mvaVars._e2x2O5x5,"h1_e2x2O5x5"+tag+"_"+params->suffix, "e2x2O5x5;;N_{evts}", 30, 0., 2., eventWeight,folder);     
   hm->fill1DHist(_mvaVal,"h1_mvaVal"+tag+"_"+params->suffix, "mvaVal;;N_{evts}", 30, -1., 1., eventWeight,folder);     
 }
+
 
 
 void higgsAnalyzer::AnglePlots(ZGAngles &zga,float eventWeight, string folder, string tag)

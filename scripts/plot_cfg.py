@@ -146,30 +146,45 @@ def DoAll(suffix):
           #plotterMu.DataBGComp2DProj(plotterMu.folderDict[key])
   else: print 'this is not set up for FNAL'
 
-def DoMulti():
+def DoMulti(suffix1, nS1, folder1, nF1, **kwargs):
+  """There are 3 items that can be extended: the suffixes, the folders, and the keys.
+  The suffixes determine the files, the folders determine the folder per file (number of files must equal number of folders).
+  The total number of files (and folders): N = sum(suffix_i*nS_i,i=1,i=n).
+  The keys are looped over, where each key is called N times, where N = N_suffixes = N_folders.  The syntax must be preserved."""
+
   if os.environ.get('AT_NWU'):
     mainPath = '/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_'
-    suffix1 = suffix2 = suffix3 = suffix4 = '04-28-14_PhoMVA'
-    headDir = '_'.join(['Multi',suffix1,suffix2,suffix3,suffix4])
+
+    suffixes = [suffix1]*int(nS1)
+
+    moreSuffix = dict((k, v) for k, v in kwargs.iteritems() if 'suffix' in k)
+    moreNs = dict((k, v) for k, v in kwargs.iteritems() if 'nS' in k)
+    for i in range(2,len(moreSuffix)+2):
+      suffixes += [moreSuffix['suffix'+str(i)]]*moreNs['nS'+str(i)]
+
+    headDir = '_'.join(['Multi']+suffixes)
     if not os.path.isdir(headDir):
       os.mkdir(headDir)
-    FileMu1 = TFile(mainPath+'MuMu2012ABCD_'+suffix1+'.root','OPEN')
-    FileMu2 = TFile(mainPath+'MuMu2012ABCD_'+suffix2+'.root','OPEN')
-    FileMu3 = TFile(mainPath+'MuMu2012ABCD_'+suffix3+'.root','OPEN')
-    FileMu4 = TFile(mainPath+'MuMu2012ABCD_'+suffix4+'.root','OPEN')
-    files = [FileMu1,FileMu2,FileMu3,FileMu4]
-    #FileEl1 = TFile(mainPath+'EE2012ABCD_'+suffix1+'.root','OPEN')
-    #FileEl2 = TFile(mainPath+'EE2012ABCD_'+suffix2+'.root','OPEN')
-    #FileEl3 = TFile(mainPath+'EE2012ABCD_'+suffix3+'.root','OPEN')
-    #FileEl = TFile(mainPath+'EE2012ABCD_'+suffix+'.root','OPEN')
-    #folders = ['ZGamma','CAT1','CAT2','CAT3','CAT4','CAT5','pT-Eta-Phi','ZGAngles_RECO']
-    folders = ['CAT1','CAT2','CAT3','CAT4']
 
-    plotterMu = Plotter(files, folders, headDir, '2012','mu','Signal2012ggM125')
-    #for key in plotterMu.folderDict[0].keys():
-      #print key
-    keys = ['mvaVal']*4
-    plotterMu.MultiPlots([a+b for a,b in zip(keys,folders)],['DATA','DATA','DATA','DATA'],folders,True)
+    files = [TFile(mainPath+'MuMu2012ABCD_'+suffix+'.root','OPEN') for suffix in suffixes]
+
+    folders = [folder1]*int(nF1)
+
+    moreFolder = dict((k, v) for k, v in kwargs.iteritems() if 'folder' in k)
+    moreNf = dict((k, v) for k, v in kwargs.iteritems() if 'nF' in k)
+    for i in range(2,len(moreFolder)+2):
+      folders += [moreFolder['folder'+str(i)]]*moreNf['nF'+str(i)]
+
+    plotterMu = Plotter(files, folders, headDir, '2012','mu','Signal2012ggM200')
+    chooseNames = ['BG','Signal2012ggM200','Signal2012ggM250','Signal2012ggM300','Signal2012ggM350','Signal2012ggM400']
+    keys = ['photonPtHigh','diLepPtHigh','threeBodyMassHigh']
+    for key in keys:
+      key = [key]*len(folders)
+      if 'Mass' in key[0]:
+        plotterMu.MultiPlots(key,chooseNames,chooseNames,True,True)
+      else:
+        plotterMu.MultiPlots(key,chooseNames,chooseNames,True)
+
   else: print 'this is not set up for FNAL'
 
 def update_default(args):
@@ -186,7 +201,7 @@ def update_default(args):
 
   rep = False
   for line in old_file:
-    if args[0] in line:
+    if len(args[0:2]) == len([x for x in line if x in args[0:2]]):
       rep = True
       new_file.write(' '.join(args)+'\n')
     else:
@@ -220,7 +235,8 @@ if __name__=="__main__":
     DoAll(sys.argv[2])
     update_default(sys.argv)
   elif 'multi' == sys.argv[1].lower():
-    DoMulti()
+    DoMulti(*sys.argv[2:])
+    update_default(sys.argv)
 
 
 

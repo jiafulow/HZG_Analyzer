@@ -7,7 +7,7 @@ import numpy as np
 
 #color dictionary
 colorDict = {'DYJets':kGreen+1,'ZGToLLG':kBlue,'DYToMuMu':kOrange,'DYToEE':kOrange,'DYJetsS10':kGreen+1}
-colorList = [kBlack,kRed,kBlue,kGreen+1,kMagenta+1,kOrange]
+colorList = [kBlack,kRed,kBlue,kGreen+1,kMagenta+1,kOrange,kYellow+2]
 
 # class for multi-layered nested dictionaries, pretty cool
 class AutoVivification(dict):
@@ -55,7 +55,7 @@ class Plotter:
           folderDict[-1][key].append(aFile.GetDirectory(self.folder[a]).Get(name))
       self.folderDict = folderDict
 
-  def LumiXSScale(self,name):
+  def LumiXSScale(self,name,fNum=None):
     '''Outputs scale for MC with respect to lumi and XS'''
 
     if name is 'DATA': return 1
@@ -77,7 +77,11 @@ class Plotter:
     scaleDict['2012']['gg']['135'] = 16.79*0.00227*0.10098*1000
     scaleDict['2012']['gg']['200'] = 5.356*0.000175*0.10098*1000
 
-    initEvents = self.thisFile.GetDirectory('Misc').Get('h1_acceptanceByCut_'+name).Integral(1,1)
+    if type(self.thisFile) != list:
+      initEvents = self.thisFile.GetDirectory('Misc').Get('h1_acceptanceByCut_'+name).Integral(1,1)
+    else:
+      initEvents = self.thisFile[fNum].GetDirectory('Misc').Get('h1_acceptanceByCut_'+name).Integral(1,1)
+
     if 'Signal' in name:
       sig = name[10:].partition('M')[0]
       mass = name[10:].partition('M')[-1][0:3]
@@ -153,7 +157,7 @@ class Plotter:
     #outList[1].Scale(1/outList[1].Integral())
     return outList
 
-  def ChooseNHists(self,chooseNames,histListN, norm = False):
+  def ChooseNHists(self,chooseNames,histListN, norm = False, fNum = None ):
     outList = []
     for i, histList in enumerate(histListN):
       for hist in histList: print hist.GetName()
@@ -163,7 +167,7 @@ class Plotter:
         bgHist.Reset()
         for hist in bgList:
           label = hist.GetName().split('_')[-1]
-          scale = self.LumiXSScale(label)
+          scale = self.LumiXSScale(label,fNum)
           hist.Scale(scale)
           bgHist.Add(hist)
         outList.append(bgHist)
@@ -182,9 +186,9 @@ class Plotter:
         hist.Scale(1/hist.Integral())
 
     ymax = max(map(lambda x:x.GetMaximum(),outList))*1.1
-    ymin = 0
+    #ymin = 0.00001
     outList[0].SetMaximum(ymax)
-    outList[0].SetMinimum(ymin)
+    #outList[0].SetMinimum(ymin)
     outList[0].SetLineColor(colorList[0])
     outList[0].SetMarkerColor(colorList[0])
     outList[0].SetLineWidth(2)
@@ -896,7 +900,7 @@ class Plotter:
             '_'+ratioNames+'.pdf')
     self.can.IsA().Destructor(self.can)
 
-  def MultiPlots(self, keys, chooseNames, legendNames, norm = False):
+  def MultiPlots(self, keys, chooseNames, legendNames, norm = False,logy=False):
     '''Get N plots, plot them'''
     if type(self.thisFile) != list:
       print 'must have lists of files'
@@ -909,7 +913,7 @@ class Plotter:
           print 'skipping ratio plot for', histListN[-1][0].GetName()
           return
       gStyle.SetOptStat(0)
-      compHists = self.ChooseNHists(chooseNames,histListN,norm = norm)
+      compHists = self.ChooseNHists(chooseNames,histListN,norm = norm, fNum = chooseNames.index('BG'))
 
     if compHists == None:
       print 'Cannot find all the necessary histograms for ratio, skipping', keys
@@ -923,13 +927,14 @@ class Plotter:
 
     self.can= TCanvas('multiCan','canvas',800,600)
     self.can.cd()
-    leg = self.MakeLegend(0.8,0.73,0.95,0.90)
+    leg = self.MakeLegend(0.7,0.90-0.05*len(legendNames),0.95,0.90)
     for i,plot in enumerate(compHists):
       if i ==0:
         plot.Draw('hist')
       else:
         plot.Draw('histsame')
       leg.AddEntry(plot,legendNames[i],'l')
+    self.can.SetLogy(logy)
     leg.Draw()
 
     ratioNames = ''.join(chooseNames)

@@ -43,6 +43,7 @@ else:
       configs.append(b.JobConfig('ggHZG_M250', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M250_S10', 5, 'Signal2012ggM250 ABCD mumuGamma 2012 S10 {0}'.format(analyzer),'mumuGamma'))
       configs.append(b.JobConfig('ggHZG_M275', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M275_S10', 5, 'Signal2012ggM275 ABCD mumuGamma 2012 S10 {0}'.format(analyzer),'mumuGamma'))
       configs.append(b.JobConfig('ggHZG_M300', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M300_S10', 5, 'Signal2012ggM300 ABCD mumuGamma 2012 S10 {0}'.format(analyzer),'mumuGamma'))
+      configs.append(b.JobConfig('ggHZG_M350', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M350_S10', 5, 'Signal2012ggM350 ABCD mumuGamma 2012 S10 {0}'.format(analyzer),'mumuGamma'))
       configs.append(b.JobConfig('ggHZG_M400', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M400_S10', 5, 'Signal2012ggM400 ABCD mumuGamma 2012 S10 {0}'.format(analyzer),'mumuGamma'))
       configs.append(b.JobConfig('ggHZG_M500', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M500_S10', 5, 'Signal2012ggM500 ABCD mumuGamma 2012 S10 {0}'.format(analyzer),'mumuGamma'))
 
@@ -114,6 +115,7 @@ else:
     configs.append(b.JobConfig('ggHZG_M250', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M250_S10', 5, 'Signal2012ggM250 ABCD eeGamma 2012 S10 {0}'.format(analyzer),'eeGamma'))
     configs.append(b.JobConfig('ggHZG_M275', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M275_S10', 5, 'Signal2012ggM275 ABCD eeGamma 2012 S10 {0}'.format(analyzer),'eeGamma'))
     configs.append(b.JobConfig('ggHZG_M300', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M300_S10', 5, 'Signal2012ggM300 ABCD eeGamma 2012 S10 {0}'.format(analyzer),'eeGamma'))
+    configs.append(b.JobConfig('ggHZG_M350', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M350_S10', 5, 'Signal2012ggM350 ABCD eeGamma 2012 S10 {0}'.format(analyzer),'eeGamma'))
     configs.append(b.JobConfig('ggHZG_M400', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M400_S10', 5, 'Signal2012ggM400 ABCD eeGamma 2012 S10 {0}'.format(analyzer),'eeGamma'))
     configs.append(b.JobConfig('ggHZG_M500', t3storage+'/nuTuples_v9.8_8TeV/MC/ggHZG_M500_S10', 5, 'Signal2012ggM500 ABCD eeGamma 2012 S10 {0}'.format(analyzer),'eeGamma'))
 
