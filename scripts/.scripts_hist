@@ -13,3 +13,14 @@ last good script calls:
 ./plot_cfg.py multi 08-14-14_HighMass 6 HighMass 6
 ./plot_cfg.py multi 08-14-14_HighMass 6 HighMass 6
 ./plot_cfg.py multi 08-14-14_HighMass 6 HighMass 6
+./plot_cfg.py multi 08-14-14_HighMass 6 HighMass 6
+./plot_cfg.py all 08-14-14_HighMass
+./plot_cfg.py all 07-25-14_PhoMVA
+./plot_cfg.py all 08-14-14_HighMass
+./plot_cfg.py all 08-20-14_HighMass
+./plot_cfg.py all 08-20-14_HighMass
+./plot_cfg.py all 08-20-14_HighMass
+./plot_cfg.py all 08-20-14_HighMass
+./plot_cfg.py all 08-20-14_HighMass
+./plot_cfg.py all 08-20-14_HighMass
+./plot_cfg.py multi 08-20-14_HighMass 8 HighMass 8

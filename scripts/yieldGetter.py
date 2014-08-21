@@ -35,7 +35,7 @@ def LumiXSScale(name,lepton,year,thisFile):
 
 def DoYield(fileName, secondName = None):
   print fileName
-  signal = 'M125'
+  signal = 'M200'
   '''Get full yield breakdown for all categories, data, signal'''
   leptons = ['MuMu','EE']
   dataTypes = ['Data','Signal']
@@ -50,18 +50,19 @@ def DoYield(fileName, secondName = None):
       print '    ',suffix
       rawTotal = thisFile.GetDirectory('ZGamma').Get('h1_InvariantMass_'+suffix).Integral()
 
-      initEvents = thisFile.GetDirectory('Misc').Get('h1_acceptanceByCut_'+name).Integral(1,1)
-      if 'gg' in name: sig = 'ggH'
-      elif 'vbh' in name: sig = 'qqH'
-      elif 'wh' in name: sig = 'WH'
-      elif 'zh' in name: sig = 'ZH'
-      elif 'tth' in name: sig = 'ttH'
-      elif 'DYJets' in name: sig = 'DYJets'
-      elif 'ZGToLLG' in name: sig = 'ZGToLLG'
+      print suffix
+      initEvents = thisFile.GetDirectory('Misc').Get('h1_acceptanceByCut_'+suffix).Integral(1,1)
+      if 'gg' in suffix: sig = 'ggH'
+      elif 'vbh' in suffix: sig = 'qqH'
+      elif 'wh' in suffix: sig = 'WH'
+      elif 'zh' in suffix: sig = 'ZH'
+      elif 'tth' in suffix: sig = 'ttH'
+      elif 'DYJets' in suffix: sig = 'DYJets'
+      elif 'ZGToLLG' in suffix: sig = 'ZGToLLG'
 
-      if 'Signal' in name:
-        sig = name[10:].partition('M')[0]
-        mass = name[10:].partition('M')[-1][0:3]
+      if 'Signal' in suffix:
+        sig = suffix[10:].partition('M')[0]
+        mass = suffix[10:].partition('M')[-1][0:3]
 
       #scaledTotal = rawTotal*LumiXSScale(suffix, lep, '2012', thisFile)
       scaledTotal = LumiXSWeighter('2012',lep,sig,mass,nEvt)

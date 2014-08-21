@@ -5,6 +5,7 @@ from ROOT import *
 import numpy as np
 from tempfile import mkstemp
 from shutil import move
+from collections import OrderedDict
 
 gROOT.ProcessLine('.L ./tdrstyle.C')
 setTDRStyle()
@@ -111,17 +112,21 @@ def DoAll(suffix):
       if (FileEl.GetSize() == -1):
         raise IOError(mainPath+'EE2012ABCD_'+suffix+'.root not found')
 
-    #folders = ['ZGAngles','ZGAngles_RECO','MVAPlots','pT-Eta-Phi','PreSelDiLep','PreSelThreeBody','PreSelDiLepNoW','PreSelThreeBodyNoW']
-    folders = ['pT-Eta-Phi','PreSelDiLep','PreSelThreeBody','ZGAngles_RECO']
+    #folders = ['ZGAngles_RECO','MVAPlots','pT-Eta-Phi','PreSelDiLep','PreSelThreeBody','PreSelDiLepNoW','PreSelThreeBodyNoW']
+    folders = ['pT-Eta-Phi','HighMass']
     #folders = ['pT-Eta-Phi']
-    #folders = ['ZGamma','CAT1','CAT2','CAT3','CAT4','CAT5','CAT6','CAT7','CAT8','CAT9','pT-Eta-Phi','MVAPlots','Misc','ZGAngles_RECO','PreSel']
+    #folders = ['ZGamma','CAT1','CAT2','CAT3','CAT4','CAT5','CAT6','CAT7','CAT8','CAT9','pT-Eta-Phi','MVAPlots','ZGAngles_RECO','PreSelDiLep','PreSelThreeBody']
     if FileEl != None:
       for folder in folders:
         plotterEl = Plotter(FileEl, folder, headDir+'/'+folder, '2012','el','Signal2012ggM200')
         for key in plotterEl.folderDict.keys():
           plotterEl.RatioPlot(key,['Signal','BG'],['Signal','BG'],True, False)
+          #plotterEl.RatioPlot(key,['BG','Signal'],['BG','Signal'],True, False)
           #plotterEl.RatioPlot(key,['DATA','BG'],['DATA','BG'],True)
-          plotterEl.RatioPlot(key,['DATA','BG'],['DATA','BG'],False,False)
+          if 'MassHigh' in key:
+            plotterEl.RatioPlot(key,['DATA','BG'],['DATA','BG'],False,True)
+          else:
+            plotterEl.RatioPlot(key,['DATA','BG'],['DATA','BG'],False,False)
           #plotterEl.RatioPlot(key,['DYToElEl','ZGToLLG'],['DYToElEl','ZGToLLG'],False)
           #plotterEl.RatioPlot(key,['Signal','ZGToLLG'],['Signal','ZGToLLG'],True)
           #plotterEl.RatioPlot(key,['Signal','DYJets'],['Signal','DYJets'],True)
@@ -155,18 +160,19 @@ def DoMulti(suffix1, nS1, folder1, nF1, **kwargs):
   if os.environ.get('AT_NWU'):
     mainPath = '/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_'
 
-    suffixes = [suffix1]*int(nS1)
+    suffixes = OrderedDict({suffix1:int(nS1)})
 
     moreSuffix = dict((k, v) for k, v in kwargs.iteritems() if 'suffix' in k)
     moreNs = dict((k, v) for k, v in kwargs.iteritems() if 'nS' in k)
     for i in range(2,len(moreSuffix)+2):
-      suffixes += [moreSuffix['suffix'+str(i)]]*moreNs['nS'+str(i)]
+      suffixes[moreSuffix['suffix'+str(i)]] = moreNs['nS'+str(i)]
 
-    headDir = '_'.join(['Multi']+suffixes)
+    headDir = '_'.join(['Multi']+[suffixes[k]+k for k in suffixes])
     if not os.path.isdir(headDir):
       os.mkdir(headDir)
 
-    files = [TFile(mainPath+'MuMu2012ABCD_'+suffix+'.root','OPEN') for suffix in suffixes]
+    filesMu = [TFile(mainPath+'MuMu2012ABCD_'+suffix+'.root','OPEN') for suffix in suffixes]
+    filesEl = [TFile(mainPath+'EE2012ABCD_'+suffix+'.root','OPEN') for suffix in suffixes]
 
     folders = [folder1]*int(nF1)
 
@@ -175,15 +181,18 @@ def DoMulti(suffix1, nS1, folder1, nF1, **kwargs):
     for i in range(2,len(moreFolder)+2):
       folders += [moreFolder['folder'+str(i)]]*moreNf['nF'+str(i)]
 
-    plotterMu = Plotter(files, folders, headDir, '2012','mu','Signal2012ggM200')
-    chooseNames = ['BG','Signal2012ggM200','Signal2012ggM250','Signal2012ggM300','Signal2012ggM350','Signal2012ggM400']
+    plotterMu = Plotter(filesMu, folders, headDir, '2012','mu','Signal2012ggM200')
+    plotterEl = Plotter(filesEl, folders, headDir, '2012','el','Signal2012ggM200')
+    chooseNames = ['BG','Signal2012ggM200','Signal2012ggM250','Signal2012ggM300','Signal2012ggM350','Signal2012ggM400','Signal2012ggM450','Signal2012ggM500']
     keys = ['photonPtHigh','diLepPtHigh','threeBodyMassHigh']
     for key in keys:
       key = [key]*len(folders)
       if 'Mass' in key[0]:
         plotterMu.MultiPlots(key,chooseNames,chooseNames,True,True)
+        plotterEl.MultiPlots(key,chooseNames,chooseNames,True,True)
       else:
         plotterMu.MultiPlots(key,chooseNames,chooseNames,True)
+        plotterEl.MultiPlots(key,chooseNames,chooseNames,True)
 
   else: print 'this is not set up for FNAL'
 

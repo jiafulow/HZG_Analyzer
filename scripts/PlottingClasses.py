@@ -7,7 +7,7 @@ import numpy as np
 
 #color dictionary
 colorDict = {'DYJets':kGreen+1,'ZGToLLG':kBlue,'DYToMuMu':kOrange,'DYToEE':kOrange,'DYJetsS10':kGreen+1}
-colorList = [kBlack,kRed,kBlue,kGreen+1,kMagenta+1,kOrange,kYellow+2]
+colorList = [kBlack,kRed,kBlue,kGreen+1,kMagenta+1,kOrange,kYellow+2,kMagenta+3,kGreen-1]
 
 # class for multi-layered nested dictionaries, pretty cool
 class AutoVivification(dict):
@@ -826,14 +826,17 @@ class Plotter:
           plot.Draw('pe')
 
         elif chooseNames[0] == 'BG' and chooseNames[1] != 'BG':
-          try: bgList = self.GetBGHists(histList)
-          except: bgList = self.GetBGHists(histList1)
-          if logy:
-            for bg in bgList:
-              bg.SetMinimum(0.1)
-          bgStack = self.MakeBGStack(bgList,leg,False)
-          bgStack.Draw('hist')
-          stackLeg = True
+          if norm:
+            plot.Draw('hist')
+          else:
+            try: bgList = self.GetBGHists(histList)
+            except: bgList = self.GetBGHists(histList1)
+            if logy:
+              for bg in bgList:
+                bg.SetMinimum(0.1)
+            bgStack = self.MakeBGStack(bgList,leg,False)
+            bgStack.Draw('hist')
+            stackLeg = True
         else:
           plot.Draw('hist')
       else:
@@ -842,14 +845,17 @@ class Plotter:
           plot.SetMarkerStyle(20)
           plot.Draw('pesame')
         elif chooseNames[1] == 'BG' and chooseNames[0] != 'BG':
-          try: bgList = self.GetBGHists(histList)
-          except: bgList = self.GetBGHists(histList2)
-          if logy:
-            for bg in bgList:
-              bg.SetMinimum(0.1)
-          bgStack = self.MakeBGStack(bgList,leg,False)
-          bgStack.Draw('histsame')
-          stackLeg = True
+          if norm:
+            plot.Draw('histsame')
+          else:
+            try: bgList = self.GetBGHists(histList)
+            except: bgList = self.GetBGHists(histList2)
+            if logy:
+              for bg in bgList:
+                bg.SetMinimum(0.1)
+            bgStack = self.MakeBGStack(bgList,leg,False)
+            bgStack.Draw('histsame')
+            stackLeg = True
         else:
           plot.Draw('histsame')
       if not stackLeg: leg.AddEntry(plot,legendNames[i],'l')

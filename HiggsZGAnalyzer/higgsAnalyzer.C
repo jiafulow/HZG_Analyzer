@@ -1448,7 +1448,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     }
 
 
-    StandardPlots(lepton1,lepton2,GP4,eventWeight,"CAT"+str(catNum)+"", "CAT"+str(catNum)+"");
+    StandardPlots(lepton1,lepton2,GP4,eventWeight,"CAT"+str(catNum), "CAT"+str(catNum));
+    HighMassPlots(lepton1,lepton2,GP4,eventWeight,"CAT"+str(catNum), "CAT"+str(catNum));
     hm->fill1DHist(GP4.R9(), "h1_R9CAT"+str(catNum)+"_"+params->suffix,"R9;R9;Entries",100,0,1,eventWeight);
     hm->fill2DHist(lepton1.Eta(),lepton2.Eta(),"h2_dilepEtaCAT"+str(catNum)+"_"+params->suffix,"Dilepton Eta CAT"+str(catNum)+"; Eta (leading); Eta (trailing)", 50,-2.5,2.5,50,-2.5,2.5,eventWeight,"CAT"+str(catNum)+"");
     hm->fill2DHist((GP4+ZP4).M(),MEdisc,"h2_MassVsMECAT"+str(catNum)+"_"+params->suffix,"Mass vs ME; m_{ll#gamma}; ME Disc", 90,100,190,90,0,0.2,eventWeight,"MEPlots");

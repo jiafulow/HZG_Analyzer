@@ -108,6 +108,41 @@ Bool_t smzgAnalyzer::Process(Long64_t entry)
   GetEntry(entry,1);
   particleSelector->SetRho(rhoFactor);
 
+  // gen
+
+  vector<TCGenParticle> genPhotons;
+  vector<TCGenParticle> genMuons;
+  vector<TCGenParticle> genZs;
+  bool vetoDY = false;
+  particleSelector->CleanUpGen(genHZG);
+  if(!isRealData) particleSelector->FindGenParticles(*genParticles, *recoPhotons, genPhotons, genMuons, genZs, genHZG, vetoDY);
+
+  bool muon1 = false;
+  bool muon2 = false;
+  bool pho = false;
+  if (genMuons.size() > 1){
+    for(vector<TCGenParticle>::iterator it = genMuons.begin(); it != genMuons.end(); ++it){
+      if (it->GetStatus() == 1){
+        if (it->Charge() == 1 && !muon1){
+          muonPosGen = *it;
+          muon1 = true;
+        }else if(it->Charge() == -1 && !muon2){
+          muonNegGen = *it;
+          muon2 = true;
+        }
+      }
+      if(muon1 && muon2) break;
+    }
+  }
+    
+  if (genPhotons.size() > 1){
+    photonGen = genPhotons[0];
+    pho = true;
+  }
+  if (muon1 && muon2 && pho){
+    genTree->Fill();
+  }
+
   
 
 
@@ -145,41 +180,6 @@ Bool_t smzgAnalyzer::Process(Long64_t entry)
   *pvPosition = goodVertices[0];
   particleSelector->SetPv(*pvPosition);
   
-  // gen
-
-  vector<TCGenParticle> genPhotons;
-  vector<TCGenParticle> genMuons;
-  vector<TCGenParticle> genZs;
-  bool vetoDY = false;
-  particleSelector->CleanUpGen(genHZG);
-  if(!isRealData) particleSelector->FindGenParticles(*genParticles, *recoPhotons, genPhotons, genMuons, genZs, genHZG, vetoDY);
-
-  bool muon1 = false;
-  bool muon2 = false;
-  bool pho = false;
-  if (genMuons.size() > 1){
-    for(vector<TCGenParticle>::iterator it = genMuons.begin(); it != genMuons.end(); ++it){
-      if (it->GetStatus() == 1){
-        if (it->Charge() == 1 && !muon1){
-          muonPosGen = *it;
-          muon1 = true;
-        }else if(it->Charge() == -1 && !muon2){
-          muonNegGen = *it;
-          muon2 = true;
-        }
-      }
-      if(muon1 && muon2) break;
-    }
-  }
-    
-  if (genPhotons.size() > 1){
-    photonGen = genPhotons[0];
-    pho = true;
-  }
-  if (muon1 && muon2 && pho){
-    genTree->Fill();
-  }
-
   // muons
 
   vector<TCMuon> muonsID;
