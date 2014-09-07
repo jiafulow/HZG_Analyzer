@@ -11,7 +11,7 @@ outputPathNWU  = '/tthome/bpollack/BatchOutput'
 
 
 do7Tev = False
-doHighMass = True
+doHighMass = False
 doLite = False
 configs = []
 
@@ -45,14 +45,14 @@ os.system('tar -zcvf stageball.tar.gz {0}* ../src  otherHistos ../plugins ../int
 if not do7Tev and not doLite:
   for lepton in leptonDict:
     for sig in sigList:
-      if sig != 'gg' and not doHighMass: massList = massList[0:-1]
       if sig in ['wh','zh']:
         sigFile = 'whzh'
       else:
         sigFile = sig
       for mass in massList:
+        if sig != 'gg' and mass == 123: continue
         if mass == 125:
-          puPass = 'S10'
+          puPass = 'RD1'
         else:
           puPass = pu
 

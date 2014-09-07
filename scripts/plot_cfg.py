@@ -17,8 +17,8 @@ def GenericPlotter(inFolder, outFolder):
     FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_ME_2Dv5.root")
     #FileEl= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_11-18-13_anglesOnly.root")
   else:
-    FileMu = TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_02-01-14_Cut.root")
-    FileEl = TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_02-01-14_Cut.root")
+    FileMu = TFile("/tthome/bpollack/CMSSW_6_1_1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_02-01-14_Cut.root")
+    FileEl = TFile("/tthome/bpollack/CMSSW_6_1_1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_02-01-14_Cut.root")
 
   plotterMu = Plotter(FileMu, inFolder, outFolder, '2012','mu','Signal2012ggM125')
   for key in plotterMu.folderDict.keys():
@@ -34,10 +34,10 @@ def GenericPlotter(inFolder, outFolder):
     plotterEl.DataBGComp2DProj(plotterEl.folderDict[key],125)
 
 def ROCPlotter(suffix = '05-07-14_PhoMVA'):
-  #FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_02-04-14.root")
-  #FileEl= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_02-04-14.root")
-  FileMu= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_"+suffix+".root")
-  FileEl= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_"+suffix+".root")
+  #FileMu= TFile("/tthome/bpollack/CMSSW_6_1_1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_02-04-14.root")
+  #FileEl= TFile("/tthome/bpollack/CMSSW_6_1_1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_02-04-14.root")
+  FileMu= TFile("/tthome/bpollack/CMSSW_6_1_1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_"+suffix+".root")
+  FileEl= TFile("/tthome/bpollack/CMSSW_6_1_1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_"+suffix+".root")
 
   plotter = Plotter(FileMu, 'MVAPlots', 'ROC_MVA_'+suffix, '2012','mu','Signal2012ggM123')
   for key in plotter.folderDict.keys():
@@ -56,16 +56,16 @@ def RatioPlotter():
     FileMu= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_signalTest.root")
     #FileEl= TFile("/uscms_data/d2/bpollack/CMSSW_5_3_8_patch1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_11-20-13_anglesOnly.root")
   else:
-    #FileMu1= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_01-13-14.root")
-    #FileMu2= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_01-21-14_v9_4.root")
-    #FileEl1= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_01-13-14.root")
-    #FileEl2= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_01-21-14_v9_4.root")
-    FileEl1= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_04-1-14_PhoMVA.root")
-    FileEl2= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_04-1-14_PhoKinMVA.root")
-    FileMu1= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_04-1-14_PhoMVA.root")
-    FileMu2= TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_04-1-14_PhoKinMVA.root")
-    #FileMu = TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_02-12-14_PUTest.root")
-    #FileEl = TFile("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_02-12-14_PUTest.root")
+    #FileMu1= TFile("/tthome/bpollack/CMSSW_6_1_1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_01-13-14.root")
+    #FileMu2= TFile("/tthome/bpollack/CMSSW_6_1_1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_01-21-14_v9_4.root")
+    #FileEl1= TFile("/tthome/bpollack/CMSSW_6_1_1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_01-13-14.root")
+    #FileEl2= TFile("/tthome/bpollack/CMSSW_6_1_1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_01-21-14_v9_4.root")
+    FileEl1= TFile("/tthome/bpollack/CMSSW_6_1_1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_04-1-14_PhoMVA.root")
+    FileEl2= TFile("/tthome/bpollack/CMSSW_6_1_1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_04-1-14_PhoKinMVA.root")
+    FileMu1= TFile("/tthome/bpollack/CMSSW_6_1_1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_04-1-14_PhoMVA.root")
+    FileMu2= TFile("/tthome/bpollack/CMSSW_6_1_1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_04-1-14_PhoKinMVA.root")
+    #FileMu = TFile("/tthome/bpollack/CMSSW_6_1_1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_MuMu2012ABCD_02-12-14_PUTest.root")
+    #FileEl = TFile("/tthome/bpollack/CMSSW_6_1_1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_EE2012ABCD_02-12-14_PUTest.root")
 
   #plotter = Plotter(FileMu, 'Vtx', 'PUCheck_NoRD', '2012','mu','Signal2012ggM125p8')
   #plotterMu = Plotter([FileMu1,FileMu2], 'pT-Eta-Phi', 'ntuple8v9', '2012','mu','Signal2012ggM125NLOp8')
@@ -97,10 +97,12 @@ def RatioPlotter():
 
 def DoAll(suffix):
   if os.environ.get('AT_NWU'):
-    mainPath = '/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_'
+    mainPath = '/tthome/bpollack/CMSSW_6_1_1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_'
     headDir = 'Full_'+suffix
     if not os.path.isdir(headDir):
       os.mkdir(headDir)
+    if 'HighMass' in suffix: testMass = 'M200'
+    else: testMass = 'M125'
 
     FileMu = FileEl = None
     if os.path.isfile(mainPath+'MuMu2012ABCD_'+suffix+'.root'):
@@ -113,14 +115,19 @@ def DoAll(suffix):
         raise IOError(mainPath+'EE2012ABCD_'+suffix+'.root not found')
 
     #folders = ['ZGAngles_RECO','MVAPlots','pT-Eta-Phi','PreSelDiLep','PreSelThreeBody','PreSelDiLepNoW','PreSelThreeBodyNoW']
-    folders = ['pT-Eta-Phi','HighMass']
+    folders = ['pT-Eta-Phi','HighMass','MVAPlots','ZGAngles_RECO','ZGamma']
     #folders = ['pT-Eta-Phi']
     #folders = ['ZGamma','CAT1','CAT2','CAT3','CAT4','CAT5','CAT6','CAT7','CAT8','CAT9','pT-Eta-Phi','MVAPlots','ZGAngles_RECO','PreSelDiLep','PreSelThreeBody']
     if FileEl != None:
       for folder in folders:
-        plotterEl = Plotter(FileEl, folder, headDir+'/'+folder, '2012','el','Signal2012ggM200')
+        plotterEl = Plotter(FileEl, folder, headDir+'/'+folder, '2012','el','Signal2012gg'+testMass)
         for key in plotterEl.folderDict.keys():
-          plotterEl.RatioPlot(key,['Signal','BG'],['Signal','BG'],True, False)
+          plotterEl.RatioPlot(key,['Signal2012gg'+testMass,'BG'],['Signal2012gg'+testMass,'BG'],True, False)
+          if testMass != 'M125':
+            try:
+              plotterEl.RatioPlot(key,['Signal2012gg'+testMass,'Signal2012ggM125'],[testMass,'M125'],True, False)
+            except:
+              pass
           #plotterEl.RatioPlot(key,['BG','Signal'],['BG','Signal'],True, False)
           #plotterEl.RatioPlot(key,['DATA','BG'],['DATA','BG'],True)
           if 'MassHigh' in key:
@@ -135,9 +142,14 @@ def DoAll(suffix):
           #plotterEl.DataBGComp2DProj(plotterEl.folderDict[key])
     if FileMu != None:
       for folder in folders:
-        plotterMu = Plotter(FileMu, folder, headDir+'/'+folder, '2012','mu','Signal2012ggM200')
+        plotterMu = Plotter(FileMu, folder, headDir+'/'+folder, '2012','mu','Signal2012gg'+testMass)
         for key in plotterMu.folderDict.keys():
-          plotterMu.RatioPlot(key,['Signal','BG'],['Signal','BG'],False,False)
+          plotterMu.RatioPlot(key,['Signal2012gg'+testMass,'BG'],['Signal2012gg'+testMass,'BG'],True,False)
+          if testMass != 'M125':
+            try:
+              plotterMu.RatioPlot(key,['Signal2012gg'+testMass,'Signal2012ggM125'],[testMass,'M125'],True, False)
+            except:
+              pass
           #plotterMu.RatioPlot(key,['DATA','BG'],['DATA','BG'],True)
           if 'MassHigh' in key:
             plotterMu.RatioPlot(key,['DATA','BG'],['DATA','BG'],False,True)
@@ -158,7 +170,7 @@ def DoMulti(suffix1, nS1, folder1, nF1, **kwargs):
   The keys are looped over, where each key is called N times, where N = N_suffixes = N_folders.  The syntax must be preserved."""
 
   if os.environ.get('AT_NWU'):
-    mainPath = '/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_'
+    mainPath = '/tthome/bpollack/CMSSW_6_1_1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_'
 
     suffixes = OrderedDict({suffix1:int(nS1)})
 
@@ -167,12 +179,15 @@ def DoMulti(suffix1, nS1, folder1, nF1, **kwargs):
     for i in range(2,len(moreSuffix)+2):
       suffixes[moreSuffix['suffix'+str(i)]] = moreNs['nS'+str(i)]
 
-    headDir = '_'.join(['Multi']+[suffixes[k]+k for k in suffixes])
+    headDir = '_'.join(['Multi']+[str(suffixes[k])+'x'+k for k in suffixes])
     if not os.path.isdir(headDir):
       os.mkdir(headDir)
 
-    filesMu = [TFile(mainPath+'MuMu2012ABCD_'+suffix+'.root','OPEN') for suffix in suffixes]
-    filesEl = [TFile(mainPath+'EE2012ABCD_'+suffix+'.root','OPEN') for suffix in suffixes]
+    filesMu = []
+    filesEl = []
+    for suffix in suffixes:
+      filesMu += [TFile(mainPath+'MuMu2012ABCD_'+suffix+'.root','OPEN')]*suffixes[suffix]
+      filesEl += [TFile(mainPath+'EE2012ABCD_'+suffix+'.root','OPEN')]*suffixes[suffix]
 
     folders = [folder1]*int(nF1)
 
@@ -181,11 +196,14 @@ def DoMulti(suffix1, nS1, folder1, nF1, **kwargs):
     for i in range(2,len(moreFolder)+2):
       folders += [moreFolder['folder'+str(i)]]*moreNf['nF'+str(i)]
 
-    plotterMu = Plotter(filesMu, folders, headDir, '2012','mu','Signal2012ggM200')
-    plotterEl = Plotter(filesEl, folders, headDir, '2012','el','Signal2012ggM200')
+    print len(filesMu), len(folders)
+    plotterMu = Plotter(filesMu, folders, headDir, '2012','mu','Signal2012ggM125')
+    plotterEl = Plotter(filesEl, folders, headDir, '2012','el','Signal2012ggM125')
     chooseNames = ['BG','Signal2012ggM200','Signal2012ggM250','Signal2012ggM300','Signal2012ggM350','Signal2012ggM400','Signal2012ggM450','Signal2012ggM500']
-    keys = ['photonPtHigh','diLepPtHigh','threeBodyMassHigh']
-    for key in keys:
+    #chooseNames = ['BG','BG']
+    #keys = ['photonPtHigh','diLepPtHigh','threeBodyMassHigh']
+    for key in plotterEl.folderDict[0].keys():
+    #for key in keys:
       key = [key]*len(folders)
       if 'Mass' in key[0]:
         plotterMu.MultiPlots(key,chooseNames,chooseNames,True,True)

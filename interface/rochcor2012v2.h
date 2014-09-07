@@ -31,18 +31,18 @@ class rochcor2012 {
   
   
   //  static float netabin[9] = {-2.4,-2.1,-1.4,-0.7,0.0,0.7,1.4,2.1,2.4};
-  static const double pi = 3.14159265358979323846;
+  static double constexpr pi = 3.14159265358979323846;
   static const float netabin[9];
   
-  static const float genm_smr = 9.09956e+01; //gen mass peak with eta dependent gaussian smearing => better match in Z mass profile vs. eta/phi
-  static const float genm = 91.06; //gen mass peak without smearing => Z mass profile vs. eta/phi in CMS note
+  static float constexpr genm_smr = 9.09956e+01; //gen mass peak with eta dependent gaussian smearing => better match in Z mass profile vs. eta/phi
+  static float constexpr genm = 91.06; //gen mass peak without smearing => Z mass profile vs. eta/phi in CMS note
   
-  static const float mrecm = 90.9836; //rec mass peak in MC (2011A)
-  static const float drecm = 90.8838; //rec mass peak in data (2011A)
-  static const float mgscl_stat = 0.0001; //stat. error of global factor for mass peak in MC (2011A)  
-  static const float mgscl_syst = 0.0006; //syst. error of global factor for mass peak in MC (2011A)  
-  static const float dgscl_stat = 0.0001; //stat. error of global factor for mass peak in data (2011A)
-  static const float dgscl_syst = 0.0008; //syst. error of global factor for mass peak in data (2011A)
+  static float constexpr mrecm = 90.9836; //rec mass peak in MC (2011A)
+  static float constexpr drecm = 90.8838; //rec mass peak in data (2011A)
+  static float constexpr mgscl_stat = 0.0001; //stat. error of global factor for mass peak in MC (2011A)  
+  static float constexpr mgscl_syst = 0.0006; //syst. error of global factor for mass peak in MC (2011A)  
+  static float constexpr dgscl_stat = 0.0001; //stat. error of global factor for mass peak in data (2011A)
+  static float constexpr dgscl_syst = 0.0008; //syst. error of global factor for mass peak in data (2011A)
       
   static const float sf[8];
   static const float sfer[8];

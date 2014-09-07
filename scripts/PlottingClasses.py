@@ -262,7 +262,7 @@ class Plotter:
     if len(bgList) == 0:
       bgList = None
       return bgList
-    bgList = sorted(bgList, key=lambda hist:hist.GetName()[-1], reverse=True)
+    bgList = sorted(bgList, key=lambda hist:hist.GetName())
     return bgList
 
   def GetBGHistsMD(self, histList,sigWindow = False):
@@ -272,8 +272,8 @@ class Plotter:
     #bgListD = [hist.ProjectionY('projD'+hist.GetName(),1,hist.GetNbinsX(),'') for hist in histList if (hist.GetName().find('DATA') == -1 and hist.GetName().find('Signal') == -1)]
 
     if len(bgListM) == 0: raise NameError('No BG hists found in this list')
-    bgListM = sorted(bgListM, key=lambda hist:hist.GetName()[-1], reverse=True)
-    bgListD = sorted(bgListD, key=lambda hist:hist.GetName()[-1], reverse=True)
+    bgListM = sorted(bgListM, key=lambda hist:hist.GetName())
+    bgListD = sorted(bgListD, key=lambda hist:hist.GetName())
     for i,hist in enumerate(bgListM):
       bgListM[i].GetYaxis().SetTitle('Entries')
       bgListD[i].GetYaxis().SetTitle('Entries')
@@ -517,7 +517,7 @@ class Plotter:
     signifStats.AddText('Discrim Cut: {0:.2}'.format(bestCut))
     signifStats.AddText('Significance (start): {0:.2}'.format(initialSignif))
     signifStats.AddText('Significance (best): {0:.2}'.format(bestSignif))
-    signifStats.AddText('Improvement: {0:.2}%'.format(percentImprovement))
+    signifStats.AddText('Improvement: {0:.3}%'.format(percentImprovement))
     signifStats.AddText('BG Eff: {0:.2}'.format(bestBGEff))
     signifStats.AddText('Sig Eff: {0:.2}'.format(bestSigEff))
     signifStats.Draw()

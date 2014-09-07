@@ -35,7 +35,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   // change any params from default
 
   //params->doPhoMVA       = false; //FOR PROPER
-  params->doAnglesMVA    = false; //FOR PROPER or No KinMVA
+  //params->doAnglesMVA    = false; //FOR PROPER or No KinMVA
 
   //params->doSync         = true;
   //params->dumps          = true;
@@ -47,7 +47,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   //params->doEleMVA         = false;
   
   //params->doLeptonPrune    = false;
-  params->doVBF              = false;
+  //params->doVBF              = false;
 
   // Initialize utilities and selectors here //
   int jobNum = atoi(params->jobCount.c_str());
@@ -57,9 +57,10 @@ void higgsAnalyzer::Begin(TTree * tree)
   
   // Change any cuts from non-default values
 
-  cuts->zgMassHigh = 999.0;
+  //cuts->zgMassHigh = 999.0;
   //cuts->gPt = 40.0;
   //cuts->trailElePt = 20.0;
+  //cuts->gPtOverMass = 40./150.;
   
 
 
@@ -274,9 +275,9 @@ void higgsAnalyzer::Begin(TTree * tree)
   //mvaInits.discrSuffixName = "newAnglesR9";
   //mvaInits.discrSuffixName = "01-29-14_v0905";
   if (params->selection == "mumuGamma"){ 
-    mvaInits.discrSuffixName = "07-6-14_PhoMVA";
+    mvaInits.discrSuffixName = "08-21-14_PhoMVA";
   }else{
-    mvaInits.discrSuffixName = "07-24-14_PhoMVA";
+    mvaInits.discrSuffixName = "08-21-14_PhoMVA";
   }
 
 
@@ -380,8 +381,10 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
         if (genHZG.lp->Pt() > genHZG.lm->Pt()){
           StandardPlots(*genHZG.lp,*genHZG.lm,*genHZG.g,1,"PreGen", "PreGen");
+          HighMassPlots(*genHZG.lp,*genHZG.lm,*genHZG.g,1,"PreGen", "PreGen");
         }else{
           StandardPlots(*genHZG.lm,*genHZG.lp,*genHZG.g,1,"PreGen", "PreGen");
+          HighMassPlots(*genHZG.lm,*genHZG.lp,*genHZG.g,1,"PreGen", "PreGen");
         }
         //genHZG.lp->Print();
         //genHZG.lm->Print();
@@ -1192,7 +1195,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     goodLep = GoodLeptonsCat(SCetaEl1, SCetaEl2);
   }
   // If lep1 or lep2 is in 0.9 and both are in 2.1 //
-  if (isVBF){
+  if (isVBF && params->doVBF){
     catNum = 5;
   }else if (goodLep && (fabs(GP4scEta) < 1.4442) ){
     if (GP4.R9()>= 0.94){
@@ -1332,13 +1335,13 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       }
     }else if (params->selection == "eeGamma"){
       if (catNum ==1){
-        if (mvaVal < 0.089) catNum = 6;
+        if (mvaVal < -0.18) catNum = 6;
       }else if (catNum==2){
-        if (mvaVal < 0.089) catNum = 7;
+        if (mvaVal < 0.067) catNum = 7;
       }else if (catNum==3){
-        if (mvaVal < -0.24) catNum = 8;
+        if (mvaVal < -0.22) catNum = 8;
       }else if (catNum==4){
-        if (mvaVal < -0.31) catNum = 9;
+        if (mvaVal < -0.27) catNum = 9;
       }
     }
    
@@ -1477,6 +1480,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     hm->fill1DHist(lepton1.DeltaR(GP4),"h1_DeltaRLeading_"+params->suffix,"DeltaR leading lepton vs photon;#Delta R;Entries",16,0,4,eventWeight,"ZGamma");
     hm->fill1DHist(lepton2.DeltaR(GP4),"h1_DeltaRTrailing_"+params->suffix,"DeltaR trailing lepton vs photon;#Delta R;Entries",16,0,4,eventWeight,"ZGamma");
     hm->fill1DHist(ZP4.DeltaR(GP4),"h1_DeltaRZG_"+params->suffix,"DeltaR diLepton vs photon;#Delta R;Entries",16,0,4,eventWeight,"ZGamma");
+    hm->fill1DHist(lepton1.DeltaR(lepton2),"h1_DeltaRDiLep_"+params->suffix,"DeltaR leading lepton vs trailing lepton;#Delta R;Entries",16,0,4,eventWeight,"ZGamma");
     hm->fill1DHist(CalculateM12sqrd(ZP4,GP4),"h1_M12sqrd_"+params->suffix,"M12^{2} CORRECTED (H->Z#gamma);Mass^{2} (GeV^{2});Entries",25,3600,34400,eventWeight,"ZGamma");
     hm->fill1DHist(CalculateX1(ZP4,GP4),"h1_X1_"+params->suffix,"x1;x1;Entries",50,0,0.4,eventWeight,"ZGamma");
     hm->fill1DHist(CalculateX2(ZP4,GP4),"h1_X2_"+params->suffix,"x2;x2;Entries",50,0,0.4,eventWeight,"ZGamma");

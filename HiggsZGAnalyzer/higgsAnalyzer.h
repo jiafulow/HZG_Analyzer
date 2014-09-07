@@ -61,8 +61,8 @@
 #include "../interface/AnalysisParameters.h"
 #include "../interface/ParticleSelectors.h"
 #include "../interface/Dumper.h"
-#include "/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/hzgammaME/TVar.hh"
-#include "/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/hzgammaME/TEvtProb.cc"
+#include "/tthome/bpollack/CMSSW_6_1_1/src/HZG_Analyzer/hzgammaME/TVar.hh"
+#include "/tthome/bpollack/CMSSW_6_1_1/src/HZG_Analyzer/hzgammaME/TEvtProb.cc"
 
 #ifdef __MAKECINT__
 #pragma link C++ class vector<string>+;

@@ -24,3 +24,33 @@ last good script calls:
 ./plot_cfg.py all 08-20-14_HighMass
 ./plot_cfg.py all 08-20-14_HighMass
 ./plot_cfg.py multi 08-20-14_HighMass 8 HighMass 8
+./plot_cfg.py multi 08-14-14_HighMass 6 HighMass 6
+./plot_cfg.py multi 08-14-14_HighMass 6 HighMass 6
+./plot_cfg.py multi 08-14-14_HighMass 6 HighMass 6
+./plot_cfg.py all 08-20-14_HighMass
+./plot_cfg.py all 08-20-14_HighMass
+./plot_cfg.py all 08-19-14_PhoMVA
+./plot_cfg.py all 08-21-14_PhoMVA
+./plot_cfg.py all 08-21-14_HighMass
+./plot_cfg.py multi 08-21-14_HighMass 8 HighMass 8
+./plot_cfg.py multi 08-21-14_HighMass 8 pT-Eta-Phi 8
+./plot_cfg.py multi 08-21-14_HighMass 8 HighMass 8
+./plot_cfg.py multi 08-21-14_HighMass 6 HighMass 6
+./plot_cfg.py multi 08-21-14_HighMass 6 HighMass 6
+./plot_cfg.py multi 08-21-14_HighMass 8 HighMass 8
+./plot_cfg.py multi 08-21-14_HighMass 8 HighMass 8
+./plot_cfg.py multi 08-21-14_HighMass 8 HighMass 8
+./plot_cfg.py multi 08-21-14_HighMass 8 HighMass 8
+./plot_cfg.py multi 08-21-14_HighMass 8 HighMass 8
+./plot_cfg.py multi 08-21-14_HighMass 8 HighMass 8
+./plot_cfg.py multi 08-21-14_HighMass 8 pT-Eta-Phi 8
+./plot_cfg.py all 08-21-14_HighMass
+./plot_cfg.py all 08-21-14_HighMass
+./plot_cfg.py all 08-21-14_HighMass
+./plot_cfg.py all 09-3-14_Proper
+./plot_cfg.py all 09-5-14_HighMass
+./plot_cfg.py all 09-5-14_HighMass
+./plot_cfg.py all 09-5-14_HighMass
+./plot_cfg.py all 09-5-14_HighMass
+./plot_cfg.py multi 09-5-14_HighMass 8 pT-Eta-Phi 8
+./plot_cfg.py multi 09-5-14_HighMass 8 HighMass 8

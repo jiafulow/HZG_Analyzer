@@ -3,8 +3,8 @@
 export OSG_APP=/software/tier3/osg
 export SCRAM_ARCH=slc5_amd64_gcc462
 source /software/tier3/osg/cmsset_default.sh
-scramv1 project CMSSW_5_3_11_patch6
-cd CMSSW_5_3_11_patch6/src
+scramv1 project CMSSW_6_1_1
+cd CMSSW_6_1_1/src
 cmsenv
 cd ${_CONDOR_SCRATCH_DIR}
 #cd /scratch/condor
@@ -27,7 +27,7 @@ else
 fi
 
 
-#cp -v /tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/HiggsZGAnalyzer/stageball.tar.gz .
+#cp -v /tthome/bpollack/CMSSW_6_1_1/src/HZG_Analyzer/HiggsZGAnalyzer/stageball.tar.gz .
 tar -zxf stageball.tar.gz
 mkdir -v higgsDir
 mv -v $analyzer* higgsDir/.
@@ -76,8 +76,8 @@ cat > run.C << +EOF
     gROOT->LoadMacro("Dumper.cc+");
     cout<<"loading fortran"<<endl;
     gSystem->Load("libgfortran.so");
-    gSystem->Load("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/hzgammaME/MCFM-6.6/obj/libmcfm_6p6.so");
-    gSystem->Load("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/hzgammaME/libME.so");
+    gSystem->Load("/tthome/bpollack/CMSSW_6_1_1/src/HZG_Analyzer/hzgammaME/MCFM-6.6/obj/libmcfm_6p6.so");
+    gSystem->Load("/tthome/bpollack/CMSSW_6_1_1/src/HZG_Analyzer/hzgammaME/libME.so");
     cout<<"fortran and ME loaded"<<endl;
 
     TChain* fChain = new TChain("ntupleProducer/eventTree");

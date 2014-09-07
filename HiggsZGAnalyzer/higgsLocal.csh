@@ -64,8 +64,8 @@ cat > run.C << +EOF
     gROOT->LoadMacro("ParticleSelectors.cc+");
     gROOT->LoadMacro("Dumper.cc+");
     gSystem->Load("libgfortran.so");
-    gSystem->Load("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/hzgammaME/MCFM-6.6/obj/libmcfm_6p6.so");
-    gSystem->Load("/tthome/bpollack/CMSSW_5_3_11_patch6/src/HZG_Analyzer/hzgammaME/libME.so");
+    gSystem->Load("/tthome/bpollack/CMSSW_6_1_1/src/HZG_Analyzer/hzgammaME/MCFM-6.6/obj/libmcfm_6p6.so");
+    gSystem->Load("/tthome/bpollack/CMSSW_6_1_1/src/HZG_Analyzer/hzgammaME/libME.so");
 
     TChain* fChain = new TChain("ntupleProducer/eventTree");
 
