@@ -54,3 +54,6 @@ last good script calls:
 ./plot_cfg.py all 09-5-14_HighMass
 ./plot_cfg.py multi 09-5-14_HighMass 8 pT-Eta-Phi 8
 ./plot_cfg.py multi 09-5-14_HighMass 8 HighMass 8
+./plot_cfg.py all 09-23-14_HighMass
+./plot_cfg.py all 09-23-14_HighMass_RD1PU
+./plot_cfg.py all 09-25-14_HighMass

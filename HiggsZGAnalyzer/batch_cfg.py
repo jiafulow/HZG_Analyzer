@@ -11,7 +11,7 @@ outputPathNWU  = '/tthome/bpollack/BatchOutput'
 
 
 do7Tev = False
-doHighMass = False
+doHighMass = True
 doLite = False
 configs = []
 
@@ -72,9 +72,9 @@ if not do7Tev and not doLite:
 
     if lepton == 'Mu': lepTag = 'MuMu'
     else: lepTag = 'EE'
-    configs.append(b.JobConfig('ZGToLLG', t3storage+'/nuTuples_v9.8_8TeV/MC/ZGToLLG_RD1', 50, 'ZGToLLG ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
+    configs.append(b.JobConfig('ZGToLLG', t3storage+'/nuTuples_v9.8_8TeV/MC/ZGToLLG_'+pu, 50, 'ZGToLLG ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
     #configs.append(b.JobConfig('DYJets', t3storage+'/nuTuples_v9.8_8TeV/MC/DYJetsToLL_M-50_RD1', 150, 'DYJets ABCD {0} 2012 {1} {2} {0}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
-    configs.append(b.JobConfig('DYTo'+lepTag, t3storage+'/nuTuples_v9.8_8TeV/MC/DYTo'+lepTag+'_M-20_RD1', 200, 'DYTo{3} ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer,lepTag),leptonDict[lepton]))
+    configs.append(b.JobConfig('DYTo'+lepTag, t3storage+'/nuTuples_v9.8_8TeV/MC/DYTo'+lepTag+'_M-20_'+pu, 200, 'DYTo{3} ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer,lepTag),leptonDict[lepton]))
 
 ##################
 # 2011 selection #

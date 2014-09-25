@@ -55,6 +55,7 @@
 #include "../interface/rochcor_2011.h"
 #include "../interface/rochcor2012jan22.h"
 #include "../interface/PhosphorCorrectorFunctor.hh"
+#include "../interface/PhotonScaleCorrections.hh"
 #include "../interface/LeptonScaleCorrections.h"
 #include "../interface/EGammaMvaEleEstimator.h"
 #include "../interface/ZGAngles.h"

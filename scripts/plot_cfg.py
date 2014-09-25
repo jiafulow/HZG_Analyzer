@@ -115,7 +115,7 @@ def DoAll(suffix):
         raise IOError(mainPath+'EE2012ABCD_'+suffix+'.root not found')
 
     #folders = ['ZGAngles_RECO','MVAPlots','pT-Eta-Phi','PreSelDiLep','PreSelThreeBody','PreSelDiLepNoW','PreSelThreeBodyNoW']
-    folders = ['pT-Eta-Phi','HighMass','MVAPlots','ZGAngles_RECO','ZGamma']
+    folders = ['pT-Eta-Phi','HighMass','MVAPlots','ZGAngles_RECO','ZGamma','PreSelDiLep','PreSelThreeBody']
     #folders = ['pT-Eta-Phi']
     #folders = ['ZGamma','CAT1','CAT2','CAT3','CAT4','CAT5','CAT6','CAT7','CAT8','CAT9','pT-Eta-Phi','MVAPlots','ZGAngles_RECO','PreSelDiLep','PreSelThreeBody']
     if FileEl != None:

@@ -35,7 +35,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   // change any params from default
 
   //params->doPhoMVA       = false; //FOR PROPER
-  //params->doAnglesMVA    = false; //FOR PROPER or No KinMVA
+  params->doAnglesMVA    = false; //FOR PROPER or No KinMVA
 
   //params->doSync         = true;
   //params->dumps          = true;
@@ -47,7 +47,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   //params->doEleMVA         = false;
   
   //params->doLeptonPrune    = false;
-  //params->doVBF              = false;
+  params->doVBF              = false;
 
   // Initialize utilities and selectors here //
   int jobNum = atoi(params->jobCount.c_str());
@@ -56,11 +56,11 @@ void higgsAnalyzer::Begin(TTree * tree)
   cuts->InitEA(params->period);
   
   // Change any cuts from non-default values
-
-  //cuts->zgMassHigh = 999.0;
-  //cuts->gPt = 40.0;
   //cuts->trailElePt = 20.0;
-  //cuts->gPtOverMass = 40./150.;
+
+  cuts->zgMassHigh = 1300.0;
+  cuts->gPt = 40.0;
+  cuts->gPtOverMass = 40./150.;
   
 
 
@@ -723,7 +723,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
       // energy correction after ID and ISO
   
-      if (params->engCor && !params->doSync && cuts->zgMassHigh != 999.0) UniversalEnergyCorrector(*thisPhoton, genPhotons);
+      if (params->engCor && !params->doSync) UniversalEnergyCorrector(*thisPhoton, genPhotons);
 
       if (passID) photonsID.push_back(*thisPhoton);
       if (passID && passIso) photonsIDIso.push_back(*thisPhoton);
@@ -1770,7 +1770,7 @@ void higgsAnalyzer::HighMassPlots(TLorentzVector p1, TLorentzVector p2, TLorentz
 
   hm->fill1DHist(gamma.Pt(),"h1_photonPtHigh"+tag+"_"+params->suffix, "p_{T} gamma;p_{T};N_{evts}", 50, 0.,500., eventWeight,folder); 
   hm->fill1DHist(diLep.Pt(),"h1_diLepPtHigh"+tag+"_"+params->suffix, "p_{T} Z;p_{T};N_{evts}", 50, 0., 500., eventWeight,folder);     
-  hm->fill1DHist(threeBody.M(),"h1_threeBodyMassHigh"+tag+"_"+params->suffix, "M_{3body};M (GeV);N_{evts}", 130, 150, 800, eventWeight,folder);    
+  hm->fill1DHist(threeBody.M(),"h1_threeBodyMassHigh"+tag+"_"+params->suffix, "M_{3body};M (GeV);N_{evts}", 230, 150, 1300, eventWeight,folder);    
   hm->fill1DHist(threeBody.Pt(),"h1_threeBodyPtHigh"+tag+"_"+params->suffix, "pT_{3body};pT_{ll#gamma} (GeV);N_{evts}", 40, 0, 200, eventWeight,folder);    
 
   hm->fill2DHist(threeBody.M(),gamma.Pt(),"h2_threeBodyMassVphotonPt"+tag+"_"+params->suffix, "M_{3body} v pT_{#gamma};M_{ll#gamma} (GeV);pT_{#gamma} (GeV)", 130, 150, 800, 50, 0, 500, eventWeight,folder);    
@@ -2407,31 +2407,45 @@ void higgsAnalyzer::UniversalEnergyCorrector(TCPhoton& ph, vector<TCGenParticle>
 
 
   float corrPhoPt = -1;
+  float corrPhoE = -1;
   int periodNum   = -1;
   if (params->period.find("2011") != string::npos) periodNum = 2011;
   if (params->period.find("2012") != string::npos) periodNum = 2012;
-  if(!isRealData && ph.Pt()>10.){
-    TCGenParticle goodGenPhoton;
-    float testDr = 9999;
-    //cout<<"veto photon size: "<<_genPhotons.size()<<endl;
-    for (UInt_t j = 0; j<_genPhotons.size(); j++){
-      //if (_genPhotons[j].Mother() && fabs(_genPhotons[j].Mother()->GetPDGId()) == 22) cout<<"mother: "<<_genPhotons[j].Mother()->GetPDGId()<<endl;
-      if(_genPhotons[j].Mother() && (fabs(_genPhotons[j].Mother()->GetPDGId()) == 25 || fabs(_genPhotons[j].Mother()->GetPDGId()) == 22) && _genPhotons[j].GetStatus()==1){
-        if(ph.DeltaR(_genPhotons[j])<testDr){
-          goodGenPhoton = _genPhotons[j];
-          testDr = ph.DeltaR(_genPhotons[j]);
-          //cout<<"testdr: "<<testDr<<endl;
+
+  //shervin photon cors
+  if (params->PU == "S10" && periodNum == 2012){ 
+    if (ph.Pt() >20.){
+      corrPhoE = correctedPhotonEnergy(ph.E(), ph.SCEta(), ph.R9(), runNumber, 0, "Moriond2014", !isRealData, rnGenerator.get());
+      //cout<<"before:" <<ph.E()<<" after: "<<corrPhoE<<endl;
+      float escale = corrPhoE/ph.E();
+      ph.SetXYZM(escale*ph.Px(), escale*ph.Py(), escale*ph.Pz(), 0.0);
+    }
+  }else{
+
+  //phosphor
+    if(!isRealData && ph.Pt()>10.){
+      TCGenParticle goodGenPhoton;
+      float testDr = 9999;
+      //cout<<"veto photon size: "<<_genPhotons.size()<<endl;
+      for (UInt_t j = 0; j<_genPhotons.size(); j++){
+        //if (_genPhotons[j].Mother() && fabs(_genPhotons[j].Mother()->GetPDGId()) == 22) cout<<"mother: "<<_genPhotons[j].Mother()->GetPDGId()<<endl;
+        if(_genPhotons[j].Mother() && (fabs(_genPhotons[j].Mother()->GetPDGId()) == 25 || fabs(_genPhotons[j].Mother()->GetPDGId()) == 22) && _genPhotons[j].GetStatus()==1){
+          if(ph.DeltaR(_genPhotons[j])<testDr){
+            goodGenPhoton = _genPhotons[j];
+            testDr = ph.DeltaR(_genPhotons[j]);
+            //cout<<"testdr: "<<testDr<<endl;
+          }
         }
       }
-    }
-    if (testDr < 0.2){
-      corrPhoPt = phoCorrector->GetCorrEtMC(ph.R9(), periodNum, ph.Pt(), ph.Eta(), goodGenPhoton.E());
+      if (testDr < 0.2){
+        corrPhoPt = phoCorrector->GetCorrEtMC(ph.R9(), periodNum, ph.Pt(), ph.Eta(), goodGenPhoton.E());
+        ph.SetPtEtaPhiM(corrPhoPt,ph.Eta(),ph.Phi(),0.0);
+      }
+
+    }else if (isRealData && ph.Pt()>10.){
+      corrPhoPt = phoCorrector->GetCorrEtData(ph.R9(), periodNum, ph.Pt(), ph.Eta());
       ph.SetPtEtaPhiM(corrPhoPt,ph.Eta(),ph.Phi(),0.0);
     }
-
-  }else if (isRealData && ph.Pt()>10.){
-    corrPhoPt = phoCorrector->GetCorrEtData(ph.R9(), periodNum, ph.Pt(), ph.Eta());
-    ph.SetPtEtaPhiM(corrPhoPt,ph.Eta(),ph.Phi(),0.0);
   }
 }
 
