@@ -45,6 +45,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   //params->DYGammaVeto      = false;
   //params->doLooseMuIso     = false;
   //params->doEleMVA         = false;
+  //params->doScaleFactors     = false;
   
   //params->doLeptonPrune    = false;
   params->doVBF              = false;
@@ -1713,6 +1714,8 @@ void higgsAnalyzer::StandardPlots(TLorentzVector p1, TLorentzVector p2, TLorentz
   hm->fill1DHist(diLep.Eta(),"h1_diLepEta"+tag+"_"+params->suffix, "#eta Z;#eta;N_{evts}", 18, -2.5, 2.5, eventWeight,folder);    
   hm->fill1DHist(diLep.Phi(),"h1_diLepPhi"+tag+"_"+params->suffix, "#phi Z;#phi;N_{evts}", 18, -TMath::Pi(), TMath::Pi(), eventWeight,folder);    
   hm->fill1DHist(diLep.M(),"h1_diLepMass"+tag+"_"+params->suffix, "M_{Z};M (GeV);N_{evts}", 50, 66, 116, eventWeight,folder);    
+  hm->fill1DHist(p1.DeltaR(p2),"h1_diLepDeltaR"+tag+"_"+params->suffix, "DeltaR(p1,p2);#DeltaR;N_{evts}", 50, 0, 6.5, eventWeight,folder);    
+  hm->fill1DHist(p1.DeltaR(p2),"h1_diLepDeltaRZoom"+tag+"_"+params->suffix, "DeltaR(p1,p2);#DeltaR;N_{evts}", 50, 0, 1, eventWeight,folder);    
 
   hm->fill1DHist(threeBody.Pt(),"h1_threeBodyPt"+tag+"_"+params->suffix, "p_{T} 3body;p_{T};N_{evts}", 20, 0., 100., eventWeight,folder);     
   hm->fill1DHist(threeBody.Eta(),"h1_threeBodyEta"+tag+"_"+params->suffix, "#eta 3body;#eta;N_{evts}", 18, -2.5, 2.5, eventWeight,folder);    
@@ -1745,6 +1748,8 @@ void higgsAnalyzer::StandardPlots(TLorentzVector p1, TLorentzVector p2, float ev
   hm->fill1DHist(diLep.Phi(),"h1_diLepPhi"+tag+"_"+params->suffix, "#phi Z;#phi;N_{evts}", 18, -TMath::Pi(), TMath::Pi(), eventWeight,folder);    
   hm->fill1DHist(diLep.M(),"h1_diLepMass"+tag+"_"+params->suffix, "M_{Z};M (GeV);N_{evts}", 50, 66, 116, eventWeight,folder);    
   hm->fill1DHist(diLep.M(),"h1_diLepMassLow"+tag+"_"+params->suffix, "M_{Z};M (GeV);N_{evts}", 66, 0, 66, eventWeight,folder);    
+  hm->fill1DHist(p1.DeltaR(p2),"h1_diLepDeltaR"+tag+"_"+params->suffix, "DeltaR(p1,p2);#DeltaR;N_{evts}", 50, 0, 6.5, eventWeight,folder);    
+  hm->fill1DHist(p1.DeltaR(p2),"h1_diLepDeltaRZoom"+tag+"_"+params->suffix, "DeltaR(p1,p2);#DeltaR;N_{evts}", 50, 0, 1, eventWeight,folder);    
 
   if(fabs(p1.Eta()) < 1.4442 && fabs(p2.Eta()) < 1.4442){
     hm->fill1DHist(diLep.M(),"h1_diLepMassEB-EB"+tag+"_"+params->suffix, "M_{Z} EB-EB;M (GeV);N_{evts}", 50, 66, 116, eventWeight,folder);    
@@ -1770,7 +1775,11 @@ void higgsAnalyzer::HighMassPlots(TLorentzVector p1, TLorentzVector p2, TLorentz
 
   hm->fill1DHist(gamma.Pt(),"h1_photonPtHigh"+tag+"_"+params->suffix, "p_{T} gamma;p_{T};N_{evts}", 50, 0.,500., eventWeight,folder); 
   hm->fill1DHist(diLep.Pt(),"h1_diLepPtHigh"+tag+"_"+params->suffix, "p_{T} Z;p_{T};N_{evts}", 50, 0., 500., eventWeight,folder);     
-  hm->fill1DHist(threeBody.M(),"h1_threeBodyMassHigh"+tag+"_"+params->suffix, "M_{3body};M (GeV);N_{evts}", 230, 150, 1300, eventWeight,folder);    
+  hm->fill1DHist(threeBody.M(),"h1_threeBodyMassHigh"+tag+"_"+params->suffix, "M_{3body};M (TeV);N_{evts}", 230, 150, 1300, eventWeight,folder);    
+  if (params->suffix != "DATA" || (params->suffix == "DATA" && (threeBody.M() > 500. || threeBody.M() < 200.))){
+    hm->fill1DHist(threeBody.M(),"h1_threeBodyMassHighBlind"+tag+"_"+params->suffix, "M_{3body};M (TeV);N_{evts}", 230, 150, 1300, eventWeight,folder);    
+  }
+  hm->fill1DHist(threeBody.M(),"h1_threeBodyMassFine"+tag+"_"+params->suffix, "M_{3body};M (TeV);N_{evts}", 11500, 150, 1300, eventWeight,folder);    
   hm->fill1DHist(threeBody.Pt(),"h1_threeBodyPtHigh"+tag+"_"+params->suffix, "pT_{3body};pT_{ll#gamma} (GeV);N_{evts}", 40, 0, 200, eventWeight,folder);    
 
   hm->fill2DHist(threeBody.M(),gamma.Pt(),"h2_threeBodyMassVphotonPt"+tag+"_"+params->suffix, "M_{3body} v pT_{#gamma};M_{ll#gamma} (GeV);pT_{#gamma} (GeV)", 130, 150, 800, 50, 0, 500, eventWeight,folder);    
@@ -2415,7 +2424,7 @@ void higgsAnalyzer::UniversalEnergyCorrector(TCPhoton& ph, vector<TCGenParticle>
   //shervin photon cors
   if (params->PU == "S10" && periodNum == 2012){ 
     if (ph.Pt() >20.){
-      corrPhoE = correctedPhotonEnergy(ph.E(), ph.SCEta(), ph.R9(), runNumber, 0, "Moriond2014", !isRealData, rnGenerator.get());
+      corrPhoE = correctedPhotonEnergy(ph.SCEnergy(), ph.SCEta(), ph.R9(), runNumber, 0, "Moriond2014", !isRealData, rnGenerator.get());
       //cout<<"before:" <<ph.E()<<" after: "<<corrPhoE<<endl;
       float escale = corrPhoE/ph.E();
       ph.SetXYZM(escale*ph.Px(), escale*ph.Py(), escale*ph.Pz(), 0.0);

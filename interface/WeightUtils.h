@@ -33,6 +33,7 @@ class WeightUtils: public TObject {
         float MuonSelectionWeight(TLorentzVector l1);
         float ElectronSelectionWeight(TLorentzVector l1);
         float GammaSelectionWeight(TLorentzVector l1, float SCEta);
+        float GammaSelectionWeight(TLorentzVector l1, int cat);
         float HqtWeight(TLorentzVector l1);
 
         float ElectronTriggerWeight(TLorentzVector l1, TLorentzVector l2, bool approx);

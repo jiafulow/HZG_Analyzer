@@ -132,6 +132,8 @@ def DoAll(suffix):
           #plotterEl.RatioPlot(key,['DATA','BG'],['DATA','BG'],True)
           if 'MassHigh' in key:
             plotterEl.RatioPlot(key,['DATA','BG'],['DATA','BG'],False,True)
+          elif 'pvMult' in key:
+            plotterEl.RatioPlot(key,['DATA','BG'],['DATA','BG'],True,False)
           else:
             plotterEl.RatioPlot(key,['DATA','BG'],['DATA','BG'],False,False)
           #plotterEl.RatioPlot(key,['DYToElEl','ZGToLLG'],['DYToElEl','ZGToLLG'],False)
@@ -153,6 +155,8 @@ def DoAll(suffix):
           #plotterMu.RatioPlot(key,['DATA','BG'],['DATA','BG'],True)
           if 'MassHigh' in key:
             plotterMu.RatioPlot(key,['DATA','BG'],['DATA','BG'],False,True)
+          elif 'pvMult' in key:
+            plotterMu.RatioPlot(key,['DATA','BG'],['DATA','BG'],True,False)
           else:
             plotterMu.RatioPlot(key,['DATA','BG'],['DATA','BG'],False,False)
           #plotterMu.RatioPlot(key,['DYToMuMu','ZGToLLG'],['DYToMuMu','ZGToLLG'],False)

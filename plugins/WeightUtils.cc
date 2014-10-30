@@ -404,6 +404,7 @@ float WeightUtils::GammaSelectionWeight(TLorentzVector l1, float SCEta)
     }
   }
 
+
   if (_params.period.find("2011") != string::npos){
     if (etaBin <= 1){
       phoSF = _gammaMedID2011[etaBin][ptBin]*_gammaMedVeto2011Barrel;
@@ -417,6 +418,25 @@ float WeightUtils::GammaSelectionWeight(TLorentzVector l1, float SCEta)
   return phoSF;
 
 }
+
+float WeightUtils::GammaSelectionWeight(TLorentzVector l1, int cat){
+  if(l1.Pt() < 40 || l1.Pt() > 120) return 1.0;
+
+  float phoSF = 1.0;
+
+  float _photonMVASF[4][2] = {
+    //40<pT<50    50<pT<120
+    {0.9975,      1.0240},  //Cat1
+    {0.9958,      1.0229},  //Cat2
+    {1.0071,      1.0311},  //Cat3
+    {0.9901,      0.9874}}; //Cat4
+
+  if(l1.Pt() < 50) phoSF = _photonMVASF[cat-1][0];
+  else phoSF = _photonMVASF[cat-1][1];
+
+  return phoSF;
+}
+
 
 float WeightUtils::ElectronSelectionWeight(TLorentzVector l1){
   float eleSF;

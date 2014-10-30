@@ -142,7 +142,7 @@ class Cuts{
       float mvaValCat3;
       float mvaValCat4;
       string cutName;
-    } catPhMVAID;
+    } catPhMVAID, noCatPhMVAID;
 
     struct jetIDCuts{
       float betaStarC[2];

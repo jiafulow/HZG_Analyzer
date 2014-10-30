@@ -62,6 +62,15 @@ if not do7Tev and not doLite:
           'Signal2012{0}M{1} ABCD {2} 2012 {3} {4}'.format(sig,mass,leptonDict[lepton],puPass,analyzer),
           leptonDict[lepton]))
 
+        if doHighMass:
+          if mass == 125: pass
+          else:
+            configs.append(b.JobConfig('{0}HZG_M{1}_Narrow'.format(sig,mass),
+              t3storage+'/nuTuples_v9.8_8TeV/MC/{0}HZG_M{1}_Narrow_{2}'.format(sigFile,mass,puPass),
+              5,
+              'Signal2012{0}M{1}Narrow ABCD {2} 2012 {3} {4}'.format(sig,mass,leptonDict[lepton],puPass,analyzer),
+              leptonDict[lepton]))
+
     if lepton == 'Mu':
       configs.append(b.JobConfig('Run2012A', t3storage+'/nuTuples_v9.8_8TeV/Data/Double'+lepton+'_Run2012A_v2', 50, 'DATA ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu, analyzer),leptonDict[lepton]))
     else:
