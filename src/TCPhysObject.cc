@@ -51,6 +51,8 @@ int  TCPhysObject::Charge() const   { return _charge; }
 bool TCPhysObject::IsPF()   const   { return _isPF; }
 bool TCPhysObject::IsTriggered() const {return _isTriggered;}
 
+map<const string*, vector<const string*> > TCPhysObject::GetTriggers() const {return _Triggers;}
+
 // "set" methods ---------------------------------------------
 
 void TCPhysObject::SetP4(TLorentzVector p4) { this->SetPxPyPzE(p4.Px(), p4.Py(), p4.Pz(), p4.E()); } 
@@ -64,6 +66,25 @@ void TCPhysObject::SetVtx(float vx, float vy, float vz) {
 void TCPhysObject::SetCharge(int c) { _charge = c; }
 void TCPhysObject::SetPF(bool p)    { _isPF = p;}
 void TCPhysObject::SetTriggered(bool t)    { _isTriggered = t;}
+
+void TCPhysObject::AddTrigger(string hlt, string l3, const vector<string>& hlts, const vector<string>& l3s){
+  //trim the version numbers off the end of the HLT
+  for(vector<string>::const_iterator it=hlts.begin(); it!=hlts.end(); it++){
+    if(hlt.find(*it) != string::npos){
+      hlt = *it;
+      break;
+    }
+  }
+  vector<string>::const_iterator hltP = find(hlts.begin(), hlts.end(), hlt);
+  assert(hltP!=hlts.end());
+  vector<string>::const_iterator l3P = find(l3s.begin(), l3s.end(), l3);
+  assert(l3P!=l3s.end());
+
+  _Triggers[&(*hltP)].push_back(&(*l3P));
+
+  return;
+}
+
 
 // generally useful methods -----------------------------------
 
@@ -90,5 +111,3 @@ float TCPhysObject::Dz(TVector3 *primVtx) const {
 ostream& TCPhysObject::TCprint(ostream& os) const {
  return os << "pt: "<< this->Pt() << " eta: " << this->Eta() << " phi: "<< this->Phi() <<" e: " << this->E() << " charge: "<<this->Charge();
 }
-
-
