@@ -1016,16 +1016,30 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
 
   bool goodPhoton = false; 
+  bool goodLep = false;
+  if (params->selection == "mumuGamma"){
+    goodLep = GoodLeptonsCat(lepton1, lepton2);
+  }else{
+    goodLep = GoodLeptonsCat(SCetaEl1, SCetaEl2);
+  }
 
   if (photonsIDIso.size() < 1) return kTRUE;
   goodPhoton = particleSelector->FindGoodPhoton(photonsIDIso, GP4, lepton1, lepton2, GP4scEta);
   if(!goodPhoton) return kTRUE;
 
   if (params->doScaleFactors){
-      eventWeight   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
+      if(params->doPhoMVA){
+        eventWeight   *= weighter->GammaSelectionWeight(GP4, GetCatNum(GP4, goodLep));
+      }else{
+        eventWeight   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
+      }
       //if (params->suffix == "DYJets") eventWeight   *= weighter->PhotonFakeWeight(GP4.Eta(), GP4.Pt()); 
   }
-  eventWeightPho   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
+  if(params->doPhoMVA){
+    eventWeightPho   *= weighter->GammaSelectionWeight(GP4, GetCatNum(GP4, goodLep));
+  }else{
+    eventWeightPho   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
+  }
 
   // new place for energy corrections:
   //if (params->engCor && !params->doSync) UniversalEnergyCorrector(GP4, genPhotons);
@@ -1189,12 +1203,12 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   // ME and MVA Disc //
   /////////////////////
 
-  bool goodLep = false;
-  if (params->selection == "mumuGamma"){
-    goodLep = GoodLeptonsCat(lepton1, lepton2);
-  }else{
-    goodLep = GoodLeptonsCat(SCetaEl1, SCetaEl2);
-  }
+  //bool goodLep = false;
+  //if (params->selection == "mumuGamma"){
+  //  goodLep = GoodLeptonsCat(lepton1, lepton2);
+  //}else{
+  //  goodLep = GoodLeptonsCat(SCetaEl1, SCetaEl2);
+ // }
   // If lep1 or lep2 is in 0.9 and both are in 2.1 //
   if (isVBF && params->doVBF){
     catNum = 5;
@@ -2387,6 +2401,22 @@ bool higgsAnalyzer::GoodLeptonsCat(const float SCEta1, const float SCEta2){
   bool _goodLep = false;
   _goodLep = (fabs(SCEta1) < 1.4442 && fabs(SCEta2) < 1.4442);
   return _goodLep;
+}
+
+int higgsAnalyzer::GetCatNum(const TCPhoton& g, const bool goodLep){
+  int catNum = 0;
+  if (goodLep && (fabs(g.SCEta()) < 1.4442) ){
+    if (g.R9()>= 0.94){
+      catNum = 1;
+    }else{
+      catNum = 2;
+    }
+  } else if ( fabs(g.SCEta()) < 1.4442){
+    catNum = 3;
+  } else {
+    catNum = 4;
+  }
+  return catNum;
 }
 
 bool higgsAnalyzer::SpikeVeto(const TCPhoton& ph){
