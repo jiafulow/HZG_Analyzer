@@ -19,7 +19,7 @@ class TCPhysObject : public TLorentzVector {
     private:                                                                                          
         TVector3 _vtx;                                                                                
         map<string, float> _IdMap;                                                                    
-        map<const string*, vector<const string*> > _Triggers;                                         
+        map<string, vector<string> > _Triggers;                                         
         int  _charge;                                                                                 
         bool _isPF;                                                                                   
         bool _isTriggered;                                                                            
@@ -41,7 +41,7 @@ class TCPhysObject : public TLorentzVector {
         float Dxy(TVector3 *primVtx) const;                                                           
         float Dz(TVector3 *primVtx) const;                                                            
                                                                                                       
-        map<const string*, vector<const string*> > GetTriggers() const;                               
+        map<string, vector<string> > GetTriggers() const;                               
                                                                                                       
                                                                                                       
         // "set" methods ---------                                                                    
@@ -52,7 +52,7 @@ class TCPhysObject : public TLorentzVector {
         void SetCharge(int c);                                                                        
         void SetPF(bool);                                                                             
         void SetTriggered(bool);                                                                      
-        void AddTrigger(string hlt, string l3,const vector<string>& hlts, const vector<string>& l3s); 
+        void AddTrigger(string hlt, string l3,const vector<string>& hlts); 
                                                                                                       
         // print method                                                                               
         virtual ostream& TCprint(ostream& out) const;                                                 

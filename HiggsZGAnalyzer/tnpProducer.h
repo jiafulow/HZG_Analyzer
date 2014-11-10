@@ -64,6 +64,7 @@
 #include "../interface/rochcor_2011.h"
 #include "../interface/rochcor2012jan22.h"
 #include "../interface/PhosphorCorrectorFunctor.hh"
+#include "../interface/PhotonScaleCorrections.hh"
 #include "../interface/LeptonScaleCorrections.h"
 #include "../interface/EGammaMvaEleEstimator.h"
 #include "../interface/ZGAngles.h"
@@ -186,6 +187,9 @@ class tnpProducer : public TSelector {
     //ElectronMVA selection
     auto_ptr<TMVA::Reader> myTMVAReader;
 
+    //TnP analysis type
+    string tnpType;
+
     // Default functions
 
     tnpProducer(TTree * /*tree*/ =0) :
@@ -218,6 +222,15 @@ class tnpProducer : public TSelector {
     void            UniversalEnergyCorrector(TCPhoton& ph, vector<TCGenParticle>& _genPhotons);
     void            UniversalEnergyCorrector(TCMuon& mu); 
     void            UniversalEnergyCorrector(TCElectron& el); 
+    
+    //branches for output
+    unsigned int runNum, lumiSec, evtNum;   // event ID
+    unsigned int npv, npu;                  // number of PV / PU
+    unsigned int pass;                      // whether probe passes requirements
+    float        scale1fb;                  // event weight per 1/fb
+    float        mass;                      // tag-probe mass
+    int          qtag, qprobe;              // tag, probe charge
+    TLorentzVector *tag=0, *probe=0;        // tag, probe 4-vector
 
 
     ClassDef(tnpProducer,0);
@@ -260,7 +273,7 @@ void tnpProducer::Init(TTree *tree)
   fChain->SetBranchAddress("recoMET", &recoMET, &b_recoMET);
   fChain->SetBranchAddress("genJets", &genJets, &b_genJets);
   fChain->SetBranchAddress("genParticles", &genParticles, &b_genParticles);
-  fChain->SetBranchAddress("triggerObjects", &triggerObjects, &b_triggerObjects);
+  //fChain->SetBranchAddress("triggerObjects", &triggerObjects, &b_triggerObjects);
   fChain->SetBranchAddress("primaryVtx", &primaryVtx, &b_primaryVtx);
   fChain->SetBranchAddress("beamSpot", &beamSpot, &b_beamSpot);
   fChain->SetBranchAddress("nPUVertices", &nPUVertices, &b_nPUVertices);

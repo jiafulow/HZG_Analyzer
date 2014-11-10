@@ -87,6 +87,8 @@ void higgsAnalyzer::Begin(TTree * tree)
 
   weighter.reset(new WeightUtils(*params, isRealData, runNumber));
   triggerSelector.reset(new TriggerSelector(params->selection, params->period, *triggerNames));
+  triggerSelector->TriggerDefaults();
+  triggerSelector->SetSelectedBits();
   rmcor2011.reset(new rochcor_2011(229+100*jobNum));
   rmcor2012.reset(new rochcor2012(229+100*jobNum));
   rMuRun.reset(new TRandom3(231+100*jobNum));
@@ -344,13 +346,14 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
   vector<TCGenParticle> genPhotons;
   vector<TCGenParticle> genMuons;
+  vector<TCGenParticle> genElectrons;
   vector<TCGenParticle> genZs;
   particleSelector->CleanUpGen(genHZG);
   bool vetoDY = false;
   //genHZG = {0,0,0,0,0,0};
   if(!isRealData){
     ///////// load all the relevent particles into a struct /////////
-    particleSelector->FindGenParticles(*genParticles, *recoPhotons, genPhotons, genMuons, genZs, genHZG, vetoDY);
+    particleSelector->FindGenParticles(*genParticles, *recoPhotons, genPhotons, genMuons, genElectrons, genZs, genHZG, vetoDY);
     if (params->DYGammaVeto && (params->suffix.find("DY") != string::npos)){
       if (vetoDY) return kTRUE;
     }
@@ -571,6 +574,16 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   for (int i = 0; i <  recoElectrons->GetSize(); ++i) {
     TCElectron* thisElec = (TCElectron*) recoElectrons->At(i);    
 
+    map<string, vector<string> > myMap = thisElec->GetTriggers();
+    map<string, vector<string> >::iterator it;
+    for(it = myMap.begin(); it!=myMap.end(); it++){
+      cout<<it->first<<endl;
+      for(vector<string>::iterator vit=it->second.begin(); vit!=it->second.end(); vit++){
+        cout<<" "<<*vit<<endl;
+      }
+    }
+    cout<<endl;
+
     bool passID = false;
     bool passIso = false;
 
@@ -633,6 +646,17 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   for (int i = 0; i < recoMuons->GetSize(); ++ i)
   {
     TCMuon* thisMuon = (TCMuon*) recoMuons->At(i);    
+
+    map<string, vector<string> > myMap = thisMuon->GetTriggers();
+    map<string, vector<string> >::iterator it;
+    for(it = myMap.begin(); it!=myMap.end(); it++){
+      cout<<it->first<<endl;
+      for(vector<string>::iterator vit=it->second.begin(); vit!=it->second.end(); vit++){
+        cout<<" "<<(*vit)<<endl;
+      }
+    }
+    cout<<endl;
+
 
     if (eventNumber == params->EVENTNUMBER){
       cout<< "muon uncor: " << TCPhysObject(*thisMuon) << endl;
@@ -732,8 +756,6 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       dumper->PhotonDump(*thisPhoton, 1); 
 
     }
-    //cout<<"debug0"<<endl;
-    //return kTRUE;
     sort(photonsID.begin(), photonsID.end(), P4SortCondition);
     sort(photonsIDIso.begin(), photonsIDIso.end(), P4SortCondition);
   }

@@ -63,21 +63,28 @@ void tnpProducer::Begin(TTree * tree)
   // Initialize utilities and selectors here //
   int jobNum = atoi(params->jobCount.c_str());
   cuts.reset(new Cuts());
-
-  if (params->period.find("2012") != string::npos){
-    cuts->gPt = 25;
-    cuts->leadMuPt = 23;
-    cuts->trailMuPt = 4;
-  }else{
-    cuts->gPt = 25;
-    cuts->leadMuPt = 4;
-    cuts->trailMuPt = 4;
-  }
-
-
   cuts->InitEA(params->period);
+
+  cuts->leadMuPt = 30;
+  cuts->trailMuPt = 10;
+  cuts->leadElePt = 30;
+  cuts->trailElePt = 10;
+  cuts->zgMassHigh = 200.0;
+  cuts->zgMassLow = 40.0;
+
+  params->DYGammaVeto      = false;
+
+  tnpType = "leadingTrigger";
+
+
   weighter.reset(new WeightUtils(*params, isRealData, runNumber));
   triggerSelector.reset(new TriggerSelector(params->selection, params->period, *triggerNames));
+  if(tnpType == "trigger"){
+    triggerSelector->AddTriggers(vector<string>(1, "HLT_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v"));
+  }else{
+    triggerSelector->TriggerDefaults();
+  }
+  triggerSelector->SetSelectedBits();
   rmcor2011.reset(new rochcor_2011(229+100*jobNum));
   rmcor2012.reset(new rochcor2012(229+100*jobNum));
   rEl.reset(new TRandom3(230+100*jobNum));
@@ -90,15 +97,6 @@ void tnpProducer::Begin(TTree * tree)
 
   tnpFile.reset(new TFile(("tnpFile_"+params->dataname+"_"+params->selection+"_"+params->jobCount+".root").c_str(), "RECREATE"));
   tnpFile->cd();
-
-  unsigned int runNum, lumiSec, evtNum;   // event ID
-  unsigned int npv, npu;                  // number of PV / PU
-  unsigned int pass;                      // whether probe passes requirements
-  float        scale1fb;                  // event weight per 1/fb
-  float        mass;                      // tag-probe mass
-  int          qtag, qprobe;              // tag, probe charge
-  TLorentzVector *tag=0, *probe=0;        // tag, probe 4-vector
-
 
   tnpTree.reset(new TTree(("tnpTree_"+params->suffix).c_str(),"three body mass values"));
 
@@ -119,6 +117,7 @@ void tnpProducer::Begin(TTree * tree)
   tnpTree->Branch("qprobe", &qprobe, "qprobe/I");
   tnpTree->Branch("probe", "TLorentzVector", &probe);
 
+  assert(tnpType == "leadingTrigger" || tnpType == "trailingTrigger" || tnpType == "ID" || tnpType == "Iso");
 
 }
 
@@ -134,34 +133,23 @@ Bool_t tnpProducer::Process(Long64_t entry)
 
   vector<TCGenParticle> genPhotons;
   vector<TCGenParticle> genMuons;
+  vector<TCGenParticle> genElectrons;
   vector<TCGenParticle> genZs;
   bool vetoDY = false;
   particleSelector->CleanUpGen(genHZG);
-  if(!isRealData) particleSelector->FindGenParticles(*genParticles, *recoPhotons, genPhotons, genMuons, genZs, genHZG, vetoDY);
+  if(!isRealData) particleSelector->FindGenParticles(*genParticles, *recoPhotons, genPhotons, genMuons, genElectrons, genZs, genHZG, vetoDY);
 
-  bool muon1 = false;
-  bool muon2 = false;
-  bool pho = false;
-  if (genMuons.size() > 1){
-    for(vector<TCGenParticle>::iterator it = genMuons.begin(); it != genMuons.end(); ++it){
-      if (it->GetStatus() == 1){
-        if (it->Charge() == 1 && !muon1){
-          muonPosGen = *it;
-          muon1 = true;
-        }else if(it->Charge() == -1 && !muon2){
-          muonNegGen = *it;
-          muon2 = true;
-        }
-      }
-      if(muon1 && muon2) break;
-    }
-  }
-  if (genPhotons.size() > 1){
-    photonGen = genPhotons[0];
-    pho = true;
-  }
-  
+  /////////////////////
+  // require trigger //
+  /////////////////////
 
+  for(int i = 0; i < 64; ++i) {
+    unsigned long iHLT = 0x0; 
+    iHLT = 0x01 << i;  
+  } 
+
+  bool triggerPass   = triggerSelector->SelectTrigger(triggerStatus, hltPrescale);
+  if (params->period.find("2012") != string::npos) if (!triggerPass) return kTRUE;
 
   /////////////////////////
   // require good vertex //
@@ -196,245 +184,148 @@ Bool_t tnpProducer::Process(Long64_t entry)
   // electrons //
   ///////////////
 
-  vector<TLorentzVector> extraLeptons;
-  vector<TCElectron> electronsID;
-  vector<TCElectron> electronsIDIso;
-
+  TCElectron vTag, vProbe;
   for (int i = 0; i <  recoElectrons->GetSize(); ++i) {
-    TCElectron* thisElec = (TCElectron*) recoElectrons->At(i);    
+    TCElectron* thisElecTag = (TCElectron*) recoElectrons->At(i);    
 
-    bool passID = false;
-    bool passIso = false;
+    bool passIDTag = false;
+    bool passIsoTag = false;
+    bool passTrigTag = false;
 
-    thisElec->SetPtEtaPhiM(thisElec->Pt(),thisElec->Eta(),thisElec->Phi(),0.000511);
+    thisElecTag->SetPtEtaPhiM(thisElecTag->Pt(),thisElecTag->Eta(),thisElecTag->Phi(),0.000511);
 
-    if (params->EVENTNUMBER == eventNumber) cout<<"regE: "<<thisElec->IdMap("EnergyRegression")<<" regE-p: "<<thisElec->RegressionMomCombP4().E()<<endl;
-    
+    // tag finder
+    if (thisElecTag->Pt() >= cuts->leadElePt && particleSelector->PassElectronID(*thisElecTag, cuts->mvaPreElID, *recoMuons,true) && thisElecTag->MvaID_Old() > -0.3){
+      passIDTag = true; 
+    }
+    if (particleSelector->PassElectronIso(*thisElecTag, cuts->mediumElIso, cuts->EAEle)) passIsoTag = true;
 
-    if(params->doEleMVA){
-
-      /// low pt
-      if (thisElec->Pt() < 20 && particleSelector->PassElectronID(*thisElec, cuts->mvaPreElID, *recoMuons, true) && thisElec->MvaID_Old() > -0.9){
-        passID = true; 
-      /// high pt
-      }else if (thisElec->Pt() > 20 && particleSelector->PassElectronID(*thisElec, cuts->mvaPreElID, *recoMuons,true) && thisElec->MvaID_Old() > -0.5){
-        passID = true; 
-      }
-      if (particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)) passIso = true;
-                                                                  
-
+    map<string, vector<string> > trigMapTag = thisElecTag->GetTriggers();
+    if(tnpType.find("Trigger") != string::npos){
+      if (trigMapTag.find("HLT_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v") != trigMapTag.end()) passTrigTag = true;
     }else{
-      if (particleSelector->PassElectronID(*thisElec, cuts->mediumElID, *recoMuons, false)) passID = true;
-      if (particleSelector->PassElectronIso(*thisElec, cuts->mediumElIso, cuts->EAEle)) passIso = true; 
-    } 
-    
-    // eng cor
-
-    if (eventNumber == params->EVENTNUMBER){
-      cout<< "electron before cor: "<<TCPhysObject(*thisElec)<<endl;
-    }
-    if(params->engCor && !params->doSync && params->PU == "S10") UniversalEnergyCorrector(*thisElec);
-    //else if(params->engCor && !params->doSync && !isRealData){
-    //  float ptCor = ElectronMCScale(thisElec->SCEta(), thisElec->Pt());
-    //  thisElec->SetPtEtaPhiM(thisElec->Pt()*ptCor, thisElec->Eta(), thisElec->Phi(), thisElec->M());
-    //}
-
-    if (eventNumber == params->EVENTNUMBER){
-      cout<< "electron after cor: "<<TCPhysObject(*thisElec)<<endl;
-    }
-
-
-    dumper->ElectronDump(*thisElec, *recoMuons, 1);
-
-    if(passID) electronsID.push_back(*thisElec);
-    if(passID&&passIso) electronsIDIso.push_back(*thisElec);
-
-  }
-
-  sort(electronsID.begin(), electronsID.end(), P4SortCondition);
-  sort(electronsIDIso.begin(), electronsIDIso.end(), P4SortCondition);
-  
-  ///////////
-  // muons //
-  ///////////
-
-  vector<TCMuon> muonsID;
-  vector<TCMuon> muonsIDIso;
-
-  for (int i = 0; i < recoMuons->GetSize(); ++ i)
-  {
-    TCMuon* thisMuon = (TCMuon*) recoMuons->At(i);    
-
-    if (eventNumber == params->EVENTNUMBER){
-      cout<< "muon uncor: " << TCPhysObject(*thisMuon) << endl;
-    }
-
-    bool passID = false;
-    bool passIso = false;
-
-    if (particleSelector->PassMuonID(*thisMuon, cuts->tightMuID)) passID = true;
-
-    if (params->doLooseMuIso){
-      if (particleSelector->PassMuonIso(*thisMuon, cuts->looseMuIso)) passIso = true;
-    }else{
-      if (particleSelector->PassMuonIso(*thisMuon, cuts->tightMuIso)) passIso = true;
-    }
-    
-    if (params->engCor && !params->doSync) UniversalEnergyCorrector(*thisMuon);
-
-    if (passID) muonsID.push_back(*thisMuon);
-    if (passID && passIso) muonsIDIso.push_back(*thisMuon);
-
-    if (eventNumber == params->EVENTNUMBER){
-      cout<< "muon cor: " << TCPhysObject(*thisMuon) << endl;
-    }
-
-    dumper->MuonDump(*thisMuon, 1);
-
-  }
-
-  sort(muonsID.begin(), muonsID.end(), P4SortCondition);
-  sort(muonsIDIso.begin(), muonsIDIso.end(), P4SortCondition);
-  sort(extraLeptons.begin(), extraLeptons.begin(), P4SortCondition);
-
-  /////////////
-  // photons //
-  /////////////
-
-  vector<TCPhoton> photonsID; 
-  vector<TCPhoton> photonsIDIso; 
-  vector<TCPhoton> photonsLIDMIso; 
-  vector<TCPhoton> photonsMIDLIso; 
-  vector<TCPhoton> photonsLIDLIso; 
-  vector<TCPhoton> photonsNoIDIso; 
-
-
-  if (params->selection == "mumuGamma" || params->selection == "eeGamma") {
-    for (Int_t i = 0; i < recoPhotons->GetSize(); ++i) {
-      //cout<<endl;
-      //cout<<"new photon!!!!!!!"<<endl;
-      vector<float> TrkIsoVec;
-      TCPhoton* thisPhoton = (TCPhoton*) recoPhotons->At(i);
-
-      if (params->spikeVeto && (params->period == "2012A_Jul13" || params->period == "2012A_Aug06rec" || params->period == "2012B_Jul13")){
-        bool veto = false;
-        veto = SpikeVeto(*thisPhoton);
-        if(veto) continue;
+      if (trigMapTag.find("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v") != trigMapTag.end()){
+        vector<string> trigLegsTag = trigMapTag["HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v"];
+        if(find(trigLegsTag.begin(), trigLegsTag.end(), "hltEle17TightIdLooseIsoEle8TightIdLooseIsoTrackIsoDoubleFilter")!=trigLegsTag.end()){
+          passTrigTag = true;
+        }
       }
+    }
 
-      ////// R9 Correction ///////
+    if (!isRealData){
+      bool match = false;
+      for(vector<TCGenParticle>::iterator it = genElectrons.begin(); it != genElectrons.end(); it++){
+        if (it->DeltaR(*thisElecTag) < 0.5){
+          match = true;
+          break;
+        }
+      }
+      if (!match) continue;
+    }
 
-      if (params->doR9Cor) PhotonR9Corrector(*thisPhoton);
+    if(passIDTag && passIsoTag && passTrigTag){
+      vTag = *thisElecTag;
 
-      ////// Currently Using Cut-Based Photon ID, 2012
+      // probe finder
 
-      bool passID = false;
-      bool passIso = false;
+      for (int j = 0; j <  recoElectrons->GetSize(); ++j) {
+        if (j==i) continue;
+        TCElectron* thisElecProbe = (TCElectron*) recoElectrons->At(j);
 
-      // non MVA selection
-      if(!params->doPhoMVA){
-        if (particleSelector->PassPhotonID(*thisPhoton, cuts->mediumPhID)) passID = true;
-        if (particleSelector->PassPhotonIso(*thisPhoton, cuts->mediumPhIso, cuts->EAPho)) passIso = true;
-      
-      // MVA Selection
-      }else{
-        bool goodLepPre = false;
-        if (particleSelector->PassPhotonID(*thisPhoton, cuts->preSelPhID)) passID = true; 
-        if (params->selection == "mumuGamma"){
-          if (muonsIDIso.size() > 1){
-            goodLepPre = GoodLeptonsCat( muonsIDIso[0], muonsIDIso[1]);
+        bool passProbe = false;
+        bool passIDProbe = false;
+        bool passIsoProbe = false;
+        bool passTrigLeadProbe = false;
+        bool passTrigTrailProbe = false;
+
+        thisElecProbe->SetPtEtaPhiM(thisElecProbe->Pt(),thisElecProbe->Eta(),thisElecProbe->Phi(),0.000511);
+
+        /// low pt
+        if (thisElecProbe->Pt() < 20 && thisElecProbe->Pt() > cuts->trailElePt && particleSelector->PassElectronID(*thisElecProbe, cuts->mvaPreElID, *recoMuons, true) && thisElecProbe->MvaID_Old() > -0.9){
+          passIDProbe = true; 
+        /// high pt
+        }else if (thisElecProbe->Pt() >= 20 && particleSelector->PassElectronID(*thisElecProbe, cuts->mvaPreElID, *recoMuons,true) && thisElecProbe->MvaID_Old() > -0.5){
+          passIDProbe = true; 
+        }
+        if (particleSelector->PassElectronIso(*thisElecProbe, cuts->looseElIso, cuts->EAEle)) passIsoProbe = true;
+
+        map<string, vector<string> > trigMapProbe = thisElecProbe->GetTriggers();
+        if (trigMapProbe.find("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v") != trigMapProbe.end()){
+          vector<string> trigLegsProbe = trigMapProbe["HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v"];
+          if(find(trigLegsProbe.begin(), trigLegsProbe.end(), "hltEle17TightIdLooseIsoEle8TightIdLooseIsoTrackIsoFilter")!=trigLegsProbe.end() ){
+            passTrigLeadProbe = true;
           }
-        }else{
-          if (electronsIDIso.size() > 1){
-            goodLepPre = GoodLeptonsCat( electronsIDIso[0], electronsIDIso[1]);
+          if(find(trigLegsProbe.begin(), trigLegsProbe.end(), "hltEle17TightIdLooseIsoEle8TightIdLooseIsoTrackIsoDoubleFilter")!=trigLegsProbe.end()){
+            passTrigTrailProbe = true;
           }
         }
-        if (particleSelector->PassPhotonMVA(*thisPhoton, cuts->catPhMVAID, goodLepPre)) passIso = true;
+
+        if (!isRealData){
+          bool match = false;
+          for(vector<TCGenParticle>::iterator it = genElectrons.begin(); it != genElectrons.end(); it++){
+            if (it->DeltaR(*thisElecProbe) < 0.5){
+              match = true;
+              break;
+            }
+          }
+          if (!match) continue;
+        }
+
+        vProbe = *thisElecProbe;
+
+        TLorentzVector ZP4 = vProbe+vTag;
+        if ((ZP4.M() < cuts->zMassLow || ZP4.M() > cuts->zMassHigh)) continue; 
+
+        if (tnpType == "ID"){
+          passProbe = passIDProbe;
+        }else if(tnpType == "Iso"){
+          if(!passIDProbe) continue;
+          passProbe = passIsoProbe;
+        }else if(tnpType == "trailingTrigger"){ 
+          if(!(passIDProbe && passIsoProbe)) continue;
+          passProbe = passTrigTrailProbe;
+        }else if(tnpType == "leadingTrigger"){ 
+          if(!(passIDProbe && passIsoProbe)) continue;
+          passProbe = passTrigLeadProbe;
+        }
+
+        //////////////////////
+        // Fill output tree //
+        //////////////////////
+
+        runNum   = runNumber;
+        lumiSec  = lumiSection;
+        evtNum   = eventNumber;
+        npv      = goodVertices.size();
+        npu      = nPUVerticesTrue;
+        pass     = passProbe ? 1 : 0;
+        //scale1fb = eventWeight;
+        scale1fb = 1.0;
+        mass     = ZP4.M();	     
+        qtag     = vTag.Charge();
+        tag      = &vTag;
+        qprobe   = vTag.Charge();
+        probe    = &vProbe;
+
+        tnpTree->Fill();
       }
 
-      // energy correction after ID and ISO
-  
-      if (params->engCor && !params->doSync) UniversalEnergyCorrector(*thisPhoton, genPhotons);
-
-      if (passID) photonsID.push_back(*thisPhoton);
-      if (passID && passIso) photonsIDIso.push_back(*thisPhoton);
-
-      dumper->PhotonDump(*thisPhoton, 1); 
-
-    }
-    //cout<<"debug0"<<endl;
-    //return kTRUE;
-    sort(photonsID.begin(), photonsID.end(), P4SortCondition);
-    sort(photonsIDIso.begin(), photonsIDIso.end(), P4SortCondition);
-  }
-  
-  // 2 good muons
-  
-
-  if (muonsID.size() < 2) return kTRUE;
-  if (muonsIDIso.size() < 1) return kTRUE;
-  bool firstMu = false;
-  bool bothMus = false;
-  for (UInt_t i = 0; i<muonsID.size(); i++){
-    if (!firstMu && (muonsID[i].Pt() >cuts->trailMuPt)){
-      firstMu = true;
-    }else if (firstMu && (muonsID[i].Pt() >cuts->trailMuPt)){
-      bothMus = true;
-      break;
     }
   }
-  if (!bothMus) return kTRUE;
 
-  TCPhysObject   lepton1;
-  TCPhysObject   lepton2;
-  int            lepton1int =-1;
-  int            lepton2int =-1;
-  TLorentzVector ZP4; 
-  TLorentzVector HP4; 
+  ////////////////////////
+  // Analysis selection //
+  ////////////////////////
 
-  bool goodZ = particleSelector->FindGoodZMuon(muonsIDIso,muonsID,lepton1,lepton2,ZP4,lepton1int,lepton2int,0.0);
-  if (!goodZ) return kTRUE;
-
-
-  // good photon
-  
-  TCPhoton GP4;
-  float GP4scEta = -9999;
-  if (photonsIDIso.size() < 1) return kTRUE;
-  bool goodPhoton = particleSelector->FindGoodPhoton(photonsIDIso, GP4, lepton1, lepton2, GP4scEta);
-  if(!goodPhoton) return kTRUE;
-
-  HP4 = ZP4+GP4;
-  if (HP4.M() < 50) return kTRUE;
-
-
-  // put them in the branch
-
-  if (lepton1.Charge() == 1){
-    muonPos = lepton1;
-    muonNeg = lepton2;
-  }else{
-    muonPos = lepton2;
-    muonNeg = lepton1;
+  /*
+  if (params->period.find("2011") != string::npos){
+    if (params->doScaleFactors) eventWeight   *= weighter->PUWeight(nPUVertices);
+    eventWeightPU   *= weighter->PUWeight(nPUVertices);
+  }else if (params->period.find("2012") != string::npos){
+    if (params->doScaleFactors) eventWeight   *= weighter->PUWeight(nPUVerticesTrue);
+    eventWeightPU   *= weighter->PUWeight(nPUVerticesTrue);
   }
-  photon = GP4;
-
-
-  
-  tnpTree->Fill();
-
-  // trigger
-
-  for(int i = 0; i < 64; ++i) {
-    unsigned long iHLT = 0x0; 
-    iHLT = 0x01 << i;  
-  } 
-
-  bool triggerPass   = triggerSelector->SelectTrigger(triggerStatus, hltPrescale);
-  if (params->period.find("2012") != string::npos) if (!triggerPass) return kTRUE;
-
-
-
+  */
 
   return kTRUE;
 }
@@ -443,7 +334,6 @@ void tnpProducer::Terminate()
 {
   tnpFile->Write();
   tnpFile->Close();
-
 }
 
 void tnpProducer::PhotonR9Corrector(TCPhoton& ph){

@@ -14,8 +14,6 @@ TriggerSelector::TriggerSelector(string type, string dataPeriod, vstring trigger
 
   cout << "data type: " << _type << "\t data period: " << dataPeriod << endl;
 
-  TriggerDefaults();
-  SetSelectedBits();
 }
 
 int TriggerSelector::GetEventPrescale() const

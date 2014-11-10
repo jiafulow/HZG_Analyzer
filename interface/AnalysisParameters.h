@@ -41,7 +41,7 @@ class Parameters{
     ///// debugging /////
     bool dumps;                  
     bool dataDumps;             
-    int EVENTNUMBER;           
+    unsigned int EVENTNUMBER;           
     bool doSync;
 
     //// energy corrections ////
