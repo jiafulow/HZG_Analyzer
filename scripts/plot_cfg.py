@@ -115,14 +115,21 @@ def DoAll(suffix):
         raise IOError(mainPath+'EE2012ABCD_'+suffix+'.root not found')
 
     #folders = ['ZGAngles_RECO','MVAPlots','pT-Eta-Phi','PreSelDiLep','PreSelThreeBody','PreSelDiLepNoW','PreSelThreeBodyNoW']
-    folders = ['pT-Eta-Phi','HighMass','MVAPlots','ZGAngles_RECO','ZGamma','PreSelDiLep','PreSelThreeBody']
+    folders = ['pT-Eta-Phi','HighMass','MVAPlots','ZGAngles_RECO','ZGamma','PreSelDiLep','PreSelThreeBody','PreGen']
     #folders = ['pT-Eta-Phi']
     #folders = ['ZGamma','CAT1','CAT2','CAT3','CAT4','CAT5','CAT6','CAT7','CAT8','CAT9','pT-Eta-Phi','MVAPlots','ZGAngles_RECO','PreSelDiLep','PreSelThreeBody']
     if FileEl != None:
       for folder in folders:
         plotterEl = Plotter(FileEl, folder, headDir+'/'+folder, '2012','el','Signal2012gg'+testMass)
         for key in plotterEl.folderDict.keys():
-          plotterEl.RatioPlot(key,['Signal2012gg'+testMass,'BG'],['Signal2012gg'+testMass,'BG'],True, False)
+          print 'el', folder, key, testMass
+          if folder != 'PreGen':
+            plotterEl.RatioPlot(key,['Signal2012gg'+testMass,'BG'],['Signal2012gg'+testMass,'BG'],True, False)
+            if 'threeBodyMassHigh' in key:
+              plotterEl.RatioPlot(key,['Signal2012gg'+testMass,'BG'],['Signal2012gg'+testMass,'BG'],False, False)
+              raw_input('this is the threeBodyMassHigh, signal/BG')
+            if 'threeBodyMassHigh' in key: raw_input('this is the threeBodyMassHigh, signal/BG')
+          plotterEl.RatioPlot(key,['Signal2012ggM200','Signal2012ggM500'],['200','500'],True,False)
           if testMass != 'M125':
             try:
               plotterEl.RatioPlot(key,['Signal2012gg'+testMass,'Signal2012ggM125'],[testMass,'M125'],True, False)
@@ -130,12 +137,14 @@ def DoAll(suffix):
               pass
           #plotterEl.RatioPlot(key,['BG','Signal'],['BG','Signal'],True, False)
           #plotterEl.RatioPlot(key,['DATA','BG'],['DATA','BG'],True)
-          if 'MassHigh' in key:
-            plotterEl.RatioPlot(key,['DATA','BG'],['DATA','BG'],False,True)
-          elif 'pvMult' in key:
-            plotterEl.RatioPlot(key,['DATA','BG'],['DATA','BG'],True,False)
-          else:
-            plotterEl.RatioPlot(key,['DATA','BG'],['DATA','BG'],False,False)
+          if folder != 'PreGen':
+            if 'MassHigh' in key:
+              plotterEl.RatioPlot(key,['DATA','BG'],['DATA','BG'],False,True)
+            elif 'pvMult' in key:
+              plotterEl.RatioPlot(key,['DATA','BG'],['DATA','BG'],True,False)
+            else:
+              plotterEl.RatioPlot(key,['DATA','BG'],['DATA','BG'],False,False)
+              if folder == 'PreSelDiLep' and key == 'diLepMassPreSelDiLep': raw_input()
           #plotterEl.RatioPlot(key,['DYToElEl','ZGToLLG'],['DYToElEl','ZGToLLG'],False)
           #plotterEl.RatioPlot(key,['Signal','ZGToLLG'],['Signal','ZGToLLG'],True)
           #plotterEl.RatioPlot(key,['Signal','DYJets'],['Signal','DYJets'],True)
@@ -146,19 +155,23 @@ def DoAll(suffix):
       for folder in folders:
         plotterMu = Plotter(FileMu, folder, headDir+'/'+folder, '2012','mu','Signal2012gg'+testMass)
         for key in plotterMu.folderDict.keys():
-          plotterMu.RatioPlot(key,['Signal2012gg'+testMass,'BG'],['Signal2012gg'+testMass,'BG'],True,False)
+          print 'mu', folder, key, testMass
+          if folder != 'PreGen': plotterMu.RatioPlot(key,['Signal2012gg'+testMass,'BG'],['Signal2012gg'+testMass,'BG'],True,False)
+          plotterMu.RatioPlot(key,['Signal2012ggM200','Signal2012ggM500'],['200','500'],True,False)
           if testMass != 'M125':
             try:
               plotterMu.RatioPlot(key,['Signal2012gg'+testMass,'Signal2012ggM125'],[testMass,'M125'],True, False)
             except:
               pass
           #plotterMu.RatioPlot(key,['DATA','BG'],['DATA','BG'],True)
-          if 'MassHigh' in key:
-            plotterMu.RatioPlot(key,['DATA','BG'],['DATA','BG'],False,True)
-          elif 'pvMult' in key:
-            plotterMu.RatioPlot(key,['DATA','BG'],['DATA','BG'],True,False)
-          else:
-            plotterMu.RatioPlot(key,['DATA','BG'],['DATA','BG'],False,False)
+          if folder != 'PreGen':
+            if 'MassHigh' in key:
+              plotterMu.RatioPlot(key,['DATA','BG'],['DATA','BG'],False,True)
+            elif 'pvMult' in key:
+              plotterMu.RatioPlot(key,['DATA','BG'],['DATA','BG'],True,False)
+            else:
+              plotterMu.RatioPlot(key,['DATA','BG'],['DATA','BG'],False,False)
+              if folder == 'PreSelDiLep' and key == 'diLepMassPreSelDiLep': raw_input()
           #plotterMu.RatioPlot(key,['DYToMuMu','ZGToLLG'],['DYToMuMu','ZGToLLG'],False)
           #plotterMu.RatioPlot(key,['Signal','ZGToLLG'],['Signal','ZGToLLG'],True)
           #plotterMu.RatioPlot(key,['Signal','DYJets'],['Signal','DYJets'],True)
@@ -218,6 +231,35 @@ def DoMulti(suffix1, nS1, folder1, nF1, **kwargs):
 
   else: print 'this is not set up for FNAL'
 
+def DoAcc(suffix):
+  if os.environ.get('AT_NWU'):
+    mainPath = '/tthome/bpollack/CMSSW_6_1_1/src/HZG_Analyzer/HiggsZGAnalyzer/batchHistos/higgsHistograms_'
+    headDir = 'AccEff_'+suffix
+    if not os.path.isdir(headDir):
+      os.mkdir(headDir)
+    if 'HighMass' in suffix: testMass = 'M200'
+    else: testMass = 'M125'
+
+    FileMu = FileEl = None
+    if os.path.isfile(mainPath+'MuMu2012ABCD_'+suffix+'.root'):
+      FileMu = TFile(mainPath+'MuMu2012ABCD_'+suffix+'.root','OPEN')
+      if (FileMu.GetSize() == -1):
+        raise IOError(mainPath+'MuMu2012ABCD_'+suffix+'.root not found')
+    if os.path.isfile(mainPath+'EE2012ABCD_'+suffix+'.root'):
+      FileEl = TFile(mainPath+'EE2012ABCD_'+suffix+'.root','OPEN')
+      if (FileEl.GetSize() == -1):
+        raise IOError(mainPath+'EE2012ABCD_'+suffix+'.root not found')
+
+    massList = [200,250,300,350,400,450,500]
+    if FileEl != None:
+      plotterEl = Plotter(FileEl, 'Misc', headDir+'/acc', '2012','el','Signal2012gg'+testMass)
+      plotterEl.AcceptancePlot(massList,False)
+      plotterEl.AcceptancePlot(massList,True)
+    if FileMu != None:
+      plotterMu = Plotter(FileMu, 'Misc', headDir+'/acc', '2012','mu','Signal2012gg'+testMass)
+      plotterMu.AcceptancePlot(massList,False)
+      plotterMu.AcceptancePlot(massList,True)
+
 def update_default(args):
   #Create temp file
   fh, abs_path = mkstemp()
@@ -267,6 +309,9 @@ if __name__=="__main__":
     update_default(sys.argv)
   elif 'multi' == sys.argv[1].lower():
     DoMulti(*sys.argv[2:])
+    update_default(sys.argv)
+  elif 'acc' == sys.argv[1].lower():
+    DoAcc(*sys.argv[2:])
     update_default(sys.argv)
 
 

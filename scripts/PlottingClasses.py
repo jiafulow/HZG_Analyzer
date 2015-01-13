@@ -56,9 +56,10 @@ class Plotter:
       self.folderDict = folderDict
 
   def LumiXSScale(self,name,fNum=None):
+    print name
     '''Outputs scale for MC with respect to lumi and XS'''
 
-    if name is 'DATA': return 1
+    if name == 'DATA': return 1
 
     lumi = 0
     if self.lepton is 'mu': lumi = 19.672
@@ -76,6 +77,7 @@ class Plotter:
     scaleDict['2012']['gg']['125'] = 19.52*0.00154*0.10098*1000
     scaleDict['2012']['gg']['135'] = 16.79*0.00227*0.10098*1000
     scaleDict['2012']['gg']['200'] = 5.356*0.000175*0.10098*1000
+    scaleDict['2012']['gg']['500'] = 1.283*0.00000759*0.10098*1000
 
     if type(self.thisFile) != list:
       initEvents = self.thisFile.GetDirectory('Misc').Get('h1_acceptanceByCut_'+name).Integral(1,1)
@@ -108,6 +110,10 @@ class Plotter:
       for hist in histList:
         if chooseNames[0] in hist.GetName():
           outList.append(hist.Clone())
+          label = outList[-1].GetName().split('_')[-1]
+          print label
+          scale = self.LumiXSScale(label)
+          outList[-1].Scale(scale)
           break
 
     if histList2 == None: histList2 = histList
@@ -125,6 +131,9 @@ class Plotter:
       for hist in histList2:
         if chooseNames[1] in hist.GetName():
           outList.append(hist.Clone())
+          label = outList[-1].GetName().split('_')[-1]
+          scale = self.LumiXSScale(label)
+          outList[-1].Scale(scale)
           break
 
     if len(outList) != 2:
@@ -319,34 +328,34 @@ class Plotter:
 
 
   def MakeBGStack(self, bgList, leg = None, dontStack = False):
+    bgNoStack = bgList[0].Clone()
+    bgNoStack.Reset()
+    for hist in bgList:
+      hist = hist.Clone()
+      label = hist.GetName().split('_')[-1]
+      scale = self.LumiXSScale(label)
+      hist.Scale(scale)
+      bgNoStack.Add(hist)
+    bgNoStack.SetFillColor(kBlue)
+    if leg and dontStack: leg.AddEntry(bgNoStack,'BG','f')
+    bgStack = THStack('stack'+bgList[0].GetName(),'bgs')
+    for hist in bgList:
+      hist = hist.Clone()
+      label = hist.GetName().split('_')[-1]
+      hist.SetFillStyle(1001)
+      hist.SetFillColor(colorDict[label])
+      hist.SetLineColor(colorDict[label])
+      scale = self.LumiXSScale(label)
+      hist.Scale(scale)
+      if leg and not dontStack: leg.AddEntry(hist,label,'f')
+      bgStack.Add(hist)
+      print hist.GetName()
+      print 'bin1:',hist.GetBinContent(1)
+      #raw_input()
     if dontStack:
-      bgStack = bgList[0].Clone()
-      bgStack.Reset()
-      for hist in bgList:
-        hist = hist.Clone()
-        label = hist.GetName().split('_')[-1]
-        scale = self.LumiXSScale(label)
-        hist.Scale(scale)
-        bgStack.Add(hist)
-      bgStack.SetFillColor(kBlue)
-      if leg: leg.AddEntry(bgStack,'BG','f')
+      return bgNoStack, bgStack
     else:
-      bgStack = THStack('stack'+bgList[0].GetName(),'bgs')
-      for hist in bgList:
-        hist = hist.Clone()
-        label = hist.GetName().split('_')[-1]
-        hist.SetFillStyle(1001)
-        hist.SetFillColor(colorDict[label])
-        hist.SetLineColor(colorDict[label])
-        scale = self.LumiXSScale(label)
-        hist.Scale(scale)
-        if leg: leg.AddEntry(hist,label,'f')
-        bgStack.Add(hist)
-        print hist.GetName()
-        print hist.Integral(0,hist.GetNbinsX())
-        print 'bin1:',hist.GetBinContent(1)
-        #raw_input()
-    return bgStack
+      return bgStack, bgNoStack
 
   def MakeLegend(self,x1 = None, y1 = None, x2 = None, y2 = None):
     if x1 == y1 == x2 == y2 == None:
@@ -566,7 +575,7 @@ class Plotter:
         leg.AddEntry(dataHist,'DATA','lep')
 
     if soloPlot in [None, 'bg']:
-      bgStack = self.MakeBGStack(bgList,leg,do2D)
+      bgStack,tmp = self.MakeBGStack(bgList,leg,do2D)
 
     scale = self.LumiXSScale(self.sigName)
     signalHist.Scale(scale*200)
@@ -805,6 +814,8 @@ class Plotter:
     pad1.cd()
     if logy: pad1.SetLogy()
 
+    bgStack = None
+    bgNoStack = None
     if type(compHists[0]) is TProfile:
       h1 = compHists[0].ProjectionX()
       h2 = compHists[1].ProjectionX()
@@ -834,7 +845,7 @@ class Plotter:
             if logy:
               for bg in bgList:
                 bg.SetMinimum(0.1)
-            bgStack = self.MakeBGStack(bgList,leg,False)
+            bgStack,bgNoStack = self.MakeBGStack(bgList,leg,False)
             bgStack.Draw('hist')
             stackLeg = True
         else:
@@ -853,7 +864,7 @@ class Plotter:
             if logy:
               for bg in bgList:
                 bg.SetMinimum(0.1)
-            bgStack = self.MakeBGStack(bgList,leg,False)
+            bgStack,bgNoStack = self.MakeBGStack(bgList,leg,False)
             bgStack.Draw('histsame')
             stackLeg = True
         else:
@@ -865,6 +876,7 @@ class Plotter:
     if 'Signal' in chooseNames:
       idat = chooseNames.index('Signal')
       compHists[idat].Draw('histsame')
+    if bgNoStack != None: print compHists[0].GetName(), compHists[0].Integral(), bgNoStack.GetName(), bgNoStack.Integral(), compHists[0].Integral()/sqrt(bgNoStack.Integral()+compHists[0].Integral())
 
     leg.Draw()
     pad2.cd()
@@ -933,17 +945,77 @@ class Plotter:
 
     self.can= TCanvas('multiCan','canvas',800,600)
     self.can.cd()
+    self.can.SetLogy(logy)
     leg = self.MakeLegend(0.7,0.90-0.05*len(legendNames),0.95,0.90)
     for i,plot in enumerate(compHists):
       if i ==0:
+        if logy: plot.SetMinimum(0.0001)
         plot.Draw('hist')
+
       else:
         plot.Draw('histsame')
       leg.AddEntry(plot,legendNames[i],'l')
-    self.can.SetLogy(logy)
     leg.Draw()
 
     ratioNames = ''.join(chooseNames)
     self.can.SaveAs(self.directory+'/'+self.lepton+self.lepton+'_'+compHists[0].GetName().split('_')[1]+
             '_'+ratioNames+'.pdf')
+    self.can.IsA().Destructor(self.can)
+
+  def AcceptancePlot(self, massList, doNarrow = False):
+    '''Make AcceptanceXEff plots as a function of mass'''
+    x = np.array(massList,float)
+    y = np.zeros(len(massList),float)
+    xerr = np.zeros(len(massList),float)
+    yerr = np.zeros(len(massList),float)
+    histList = self.folderDict['acceptanceByCut']
+    syst = 0
+    if self.lepton == 'mu':
+      syst = sqrt(0.04**2+0.035**2+0.01**2+0.014**2+0.004**2)
+    else:
+      syst = sqrt(0.04**2+0.02**2+0.01**2+0.008**2+0.008**2)
+    for i,mass in enumerate(massList):
+      if doNarrow:
+        hist = filter(lambda x: str(mass) in x.GetName() and 'Narrow' in x.GetName(), histList)[0]
+      else:
+        hist = filter(lambda x: str(mass) in x.GetName() and 'Narrow' not in x.GetName(), histList)[0]
+      initEvents = hist.GetBinContent(1)
+      finalEvents= hist.GetBinContent(19)
+      accEff = float(finalEvents)/float(initEvents/3)
+      accErr = accEff*syst
+      print initEvents, finalEvents, accEff
+      y[i] = accEff
+      yerr[i] = accErr
+
+    print x, y
+    accPlot = TGraphErrors(len(massList),x,y,xerr,yerr)
+    accPlot.GetXaxis().SetTitle('Signal Mass (GeV)')
+    accPlot.GetYaxis().SetTitle('Acceptance X Efficiency')
+    accPlot.GetYaxis().CenterTitle()
+    accPlot.SetTitle(self.lepton+self.lepton+' Channel')
+    accPlot.SetFillColor(kCyan)
+
+    gStyle.SetOptStat(0)
+
+    if not os.path.isdir(self.directory):
+      os.mkdir(self.directory)
+
+    TH1.SetDefaultSumw2(kTRUE)
+    TProfile.SetDefaultSumw2(kTRUE)
+
+    self.can= TCanvas('multiCan','canvas',800,600)
+    self.can.cd()
+    self.can.SetLeftMargin(0.13)
+    self.can.SetBottomMargin(0.13)
+    accPlot.Draw('ALE3')
+    accPlot.Draw('LXsame')
+    leg = self.MakeLegend(0.7,0.30,0.85,0.45)
+
+    leg.AddEntry(accPlot,'#pm 1 #sigma syst','F')
+    leg.Draw()
+
+    if doNarrow:
+      self.can.SaveAs(self.directory+'/'+self.lepton+self.lepton+'_'+'AccEffNarrow'+'.pdf')
+    else:
+      self.can.SaveAs(self.directory+'/'+self.lepton+self.lepton+'_'+'AccEff'+'.pdf')
     self.can.IsA().Destructor(self.can)
