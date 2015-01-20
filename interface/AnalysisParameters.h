@@ -26,6 +26,8 @@ class Parameters{
     bool R9switch;            
 
     bool doEleMVA;           
+    bool doHWWMVA;
+    bool doHZZMVA;
 
     bool doLooseMuIso;      
     bool doAnglesMVA;      
@@ -37,11 +39,15 @@ class Parameters{
     bool doLeptonPrune;
     bool doVBF;
     
+    bool doHighMass;
+
+    bool doCT10;
+    
 
     ///// debugging /////
     bool dumps;                  
     bool dataDumps;             
-    unsigned int EVENTNUMBER;           
+    int EVENTNUMBER;           
     bool doSync;
 
     //// energy corrections ////
@@ -143,6 +149,16 @@ class Cuts{
       float mvaValCat4;
       string cutName;
     } catPhMVAID, noCatPhMVAID;
+
+    struct elMVACuts{
+      float mvaVal[6];
+      float pt[2];
+      float eta[3];
+      int missHits[6];
+      float sip[6];
+      int conversionVeto[6];
+      string cutName;
+    } hzzMVAID, hwwMVAID, hzgMVAID;
 
     struct jetIDCuts{
       float betaStarC[2];

@@ -127,8 +127,7 @@ def DoAll(suffix):
             plotterEl.RatioPlot(key,['Signal2012gg'+testMass,'BG'],['Signal2012gg'+testMass,'BG'],True, False)
             if 'threeBodyMassHigh' in key:
               plotterEl.RatioPlot(key,['Signal2012gg'+testMass,'BG'],['Signal2012gg'+testMass,'BG'],False, False)
-              raw_input('this is the threeBodyMassHigh, signal/BG')
-            if 'threeBodyMassHigh' in key: raw_input('this is the threeBodyMassHigh, signal/BG')
+              #raw_input('this is the threeBodyMassHigh, signal/BG')
           plotterEl.RatioPlot(key,['Signal2012ggM200','Signal2012ggM500'],['200','500'],True,False)
           if testMass != 'M125':
             try:
@@ -143,8 +142,8 @@ def DoAll(suffix):
             elif 'pvMult' in key:
               plotterEl.RatioPlot(key,['DATA','BG'],['DATA','BG'],True,False)
             else:
-              plotterEl.RatioPlot(key,['DATA','BG'],['DATA','BG'],False,False)
-              if folder == 'PreSelDiLep' and key == 'diLepMassPreSelDiLep': raw_input()
+              plotterEl.RatioPlot(key,['DATA','BG'],['DATA','BG'],True,False)
+              #if folder == 'PreSelDiLep' and key == 'diLepMassPreSelDiLep': raw_input()
           #plotterEl.RatioPlot(key,['DYToElEl','ZGToLLG'],['DYToElEl','ZGToLLG'],False)
           #plotterEl.RatioPlot(key,['Signal','ZGToLLG'],['Signal','ZGToLLG'],True)
           #plotterEl.RatioPlot(key,['Signal','DYJets'],['Signal','DYJets'],True)

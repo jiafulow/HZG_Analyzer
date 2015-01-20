@@ -45,10 +45,17 @@ void higgsAnalyzer::Begin(TTree * tree)
   //params->DYGammaVeto      = false;
   //params->doLooseMuIso     = false;
   //params->doEleMVA         = false;
+  //params->doHWWMVA           = true;
+  params->doHZZMVA           = true;
   //params->doScaleFactors     = false;
   
   //params->doLeptonPrune    = false;
   params->doVBF              = false;
+
+  params->doHighMass         = true;
+  //params->engCor             = false;
+
+  //params->doCT10             = true;
 
   // Initialize utilities and selectors here //
   int jobNum = atoi(params->jobCount.c_str());
@@ -574,6 +581,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   for (int i = 0; i <  recoElectrons->GetSize(); ++i) {
     TCElectron* thisElec = (TCElectron*) recoElectrons->At(i);    
 
+    /*
     map<string, vector<string> > myMap = thisElec->GetTriggers();
     map<string, vector<string> >::iterator it;
     for(it = myMap.begin(); it!=myMap.end(); it++){
@@ -583,6 +591,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       }
     }
     cout<<endl;
+    */
 
     bool passID = false;
     bool passIso = false;
@@ -593,15 +602,20 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     
 
     if(params->doEleMVA){
+      if(params->doHZZMVA){
+        if (particleSelector->PassElectronMVA(*thisElec, cuts->hzzMVAID)) passID = true;
+        if (particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)) passIso = true;
 
-      /// low pt
-      if (thisElec->Pt() < 20 && particleSelector->PassElectronID(*thisElec, cuts->mvaPreElID, *recoMuons, true) && thisElec->MvaID_Old() > -0.9){
-        passID = true; 
-      /// high pt
-      }else if (thisElec->Pt() > 20 && particleSelector->PassElectronID(*thisElec, cuts->mvaPreElID, *recoMuons,true) && thisElec->MvaID_Old() > -0.5){
-        passID = true; 
+      }else if(params->doHWWMVA){
+        if ((particleSelector->PassElectronID(*thisElec, cuts->mvaPreElID, *recoMuons, true))
+              && (particleSelector->PassElectronMVA(*thisElec, cuts->hwwMVAID))) passID = true;
+        if (particleSelector->PassElectronIso(*thisElec, cuts->mediumElIso, cuts->EAEle)) passIso = true;
+      
+      }else{
+        if ((particleSelector->PassElectronID(*thisElec, cuts->mvaPreElID, *recoMuons, true))
+              && (particleSelector->PassElectronMVA(*thisElec, cuts->hzgMVAID))) passID = true;
+        if (particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)) passIso = true;
       }
-      if (particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)) passIso = true;
                                                                   
 
     }else{
@@ -647,6 +661,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   {
     TCMuon* thisMuon = (TCMuon*) recoMuons->At(i);    
 
+    /*
     map<string, vector<string> > myMap = thisMuon->GetTriggers();
     map<string, vector<string> >::iterator it;
     for(it = myMap.begin(); it!=myMap.end(); it++){
@@ -656,6 +671,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       }
     }
     cout<<endl;
+    */
 
 
     if (eventNumber == params->EVENTNUMBER){
@@ -915,6 +931,11 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   }else if (params->period.find("2012") != string::npos){
     if (params->doScaleFactors) eventWeight   *= weighter->PUWeight(nPUVerticesTrue);
     eventWeightPU   *= weighter->PUWeight(nPUVerticesTrue);
+  }
+  if(!isRealData && params->doCT10){
+    //cout<<(pdfWeights[0]+pdfWeights[1])<<endl;
+    //eventWeight *= (pdfWeights[0]+pdfWeights[1]);
+    eventWeight *= (pdfWeights[0]-pdfWeights[2]);
   }
 
 
@@ -1810,8 +1831,13 @@ void higgsAnalyzer::HighMassPlots(TLorentzVector p1, TLorentzVector p2, TLorentz
 
 
   hm->fill1DHist(gamma.Pt(),"h1_photonPtHigh"+tag+"_"+params->suffix, "p_{T} gamma;p_{T};N_{evts}", 50, 0.,500., eventWeight,folder); 
+  hm->fill1DHist(p1.Pt(),"h1_leadingLepPtHigh"+tag+"_"+params->suffix, "p_{T} leading lep;p_{T};N_{evts}", 50, 0.,500., eventWeight,folder); 
+  hm->fill1DHist(p2.Pt(),"h1_trailingPtHigh"+tag+"_"+params->suffix, "p_{T} trailing lep;p_{T};N_{evts}", 50, 0.,500., eventWeight,folder); 
   hm->fill1DHist(diLep.Pt(),"h1_diLepPtHigh"+tag+"_"+params->suffix, "p_{T} Z;p_{T};N_{evts}", 50, 0., 500., eventWeight,folder);     
   hm->fill1DHist(threeBody.M(),"h1_threeBodyMassHigh"+tag+"_"+params->suffix, "M_{3body};M (TeV);N_{evts}", 230, 150, 1300, eventWeight,folder);    
+  if (p2.Pt() < 20){
+    hm->fill1DHist(threeBody.M(),"h1_threeBodyMassHighLowPtLep"+tag+"_"+params->suffix, "M_{3body};M (TeV);N_{evts}", 230, 150, 1300, eventWeight,folder);    
+  }
   if (params->suffix != "DATA" || (params->suffix == "DATA" && (threeBody.M() > 500. || threeBody.M() < 200.))){
     hm->fill1DHist(threeBody.M(),"h1_threeBodyMassHighBlind"+tag+"_"+params->suffix, "M_{3body};M (TeV);N_{evts}", 230, 150, 1300, eventWeight,folder);    
   }

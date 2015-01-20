@@ -76,7 +76,7 @@ class BatchMaster():
         batch_submit_file.write('Transfer_Input_Files = stageball.tar.gz\n')
         batch_submit_file.write('universe              = vanilla\n')
         batch_submit_file.write('Requirements          = OpSys == "LINUX"&& (Arch != "DUMMY" )\n')
-        #batch_submit_file.write('Requirements          = machine=="ttnode0008"\n')
+        #batch_submit_file.write('Requirements          = machine!="ttnode0004"\n')
         batch_submit_file.write('+LENGTH               = "LONG"\n')
         batch_submit_file.write('Output                = res/report_$(Cluster)_$(Process).stdout\n')
         batch_submit_file.write('Error                 = res/report_$(Cluster)_$(Process).stderr\n')
@@ -122,6 +122,11 @@ class BatchMaster():
             for i, source in enumerate(sourceFiles):
                 exec_tmp  = self.MakeExecutable(cfg, source)
                 batch_tmp = self.MakeBatchConfig(cfg, i, exec_tmp)
-                subprocess.call('condor_submit ' + batch_tmp.name , shell=True)
+                sub = subprocess.call('condor_submit ' + batch_tmp.name , shell=True)
                 exec_tmp.close()
                 batch_tmp.close()
+
+                #sub.wait()
+                #os.remove(exec_tmp.name)
+                #os.remove(batch_tmp.name)
+

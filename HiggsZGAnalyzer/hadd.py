@@ -11,7 +11,7 @@ def hadd(output = 'data/temp.root', inSelection = 'mumuGamma', inFileType = 'His
     batchPath = '~/BatchOutput/'
   inpaths = ''
   for i in inputs:
-    if inFileType in ['m_llgFile','liteFile','eleFile']:
+    if inFileType in ['m_llgFile','liteFile','eleFile','tnpFile']:
       inpaths += batchPath+inSelection+'/'+i+'/'+inFileType+'_'+i+'_* '
     else:
       inpaths += batchPath+inSelection+'/'+i+'/'+'higgs'+inFileType+'_'+i+'_* '

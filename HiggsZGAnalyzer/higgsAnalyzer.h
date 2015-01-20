@@ -207,6 +207,7 @@ class higgsAnalyzer : public TSelector {
 		ULong64_t     triggerStatus;
 		unsigned int           hltPrescale[64];
 		bool          isRealData;
+    double        pdfWeights[3];
 
 		// List of branches
 		TBranch        *b_recoJets;   //!
@@ -224,6 +225,7 @@ class higgsAnalyzer : public TSelector {
 		TBranch        *b_ptHat;   //!
 		TBranch        *b_triggerStatus;   //!
 		TBranch        *b_hltPrescale;   //!
+		TBranch        *b_pdfWeights;   //!
 		TBranch        *b_nPUVertices;   //!
 		TBranch        *b_nPUVerticesTrue;   //!
 		TBranch        *b_isRealData;   //!
@@ -412,6 +414,8 @@ void higgsAnalyzer::Init(TTree *tree)
 	fChain->SetBranchAddress("nPUVerticesTrue", &nPUVerticesTrue, &b_nPUVerticesTrue);
 	fChain->SetBranchAddress("triggerStatus", &triggerStatus, &b_triggerStatus);
 	fChain->SetBranchAddress("hltPrescale",&hltPrescale, &b_hltPrescale);
+
+	fChain->SetBranchAddress("pdfWeights",&pdfWeights, &b_pdfWeights);
 
 
 

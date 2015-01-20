@@ -426,6 +426,82 @@ bool ParticleSelector::PassElectronID(const TCElectron& el, const Cuts::elIDCuts
   return elPass;
 }
 
+bool ParticleSelector::PassElectronMVA(const TCElectron& el, const Cuts::elMVACuts& cutLevel){
+  bool passMVA = false;
+  if (cutLevel.cutName == "hzgMVAID"){
+    if (el.Pt() > cutLevel.pt[0] && el.Pt() < cutLevel.pt[1]){
+      if (el.MvaID_Old() > cutLevel.mvaVal[0]) passMVA = true;
+    }else if(el.Pt() > cutLevel.pt[1]){
+      if (el.MvaID_Old() > cutLevel.mvaVal[1]) passMVA = true;
+    }
+
+  }else if(cutLevel.cutName == "hzzMVAID"){
+    if (el.Pt() > cutLevel.pt[0] && el.Pt() < cutLevel.pt[1]){
+      if(abs(el.Eta()) < cutLevel.eta[0]){
+        if ((el.MvaID_HZZ()   >  cutLevel.mvaVal[0])
+           && (el.ConversionMissHits()  <  cutLevel.missHits[0])
+           && (el.IP3dSig()       <  cutLevel.sip[0])) passMVA = true;
+      }else if(abs(el.Eta()) < cutLevel.eta[1]){
+        if ((el.MvaID_HZZ()   >  cutLevel.mvaVal[1])
+           && (el.ConversionMissHits()  <  cutLevel.missHits[1])
+           && (el.IP3dSig()       <  cutLevel.sip[1])) passMVA = true;
+      }else if(abs(el.Eta()) < cutLevel.eta[2]){
+        if ((el.MvaID_HZZ()   >  cutLevel.mvaVal[2])
+           && (el.ConversionMissHits()  <  cutLevel.missHits[2])
+           && (el.IP3dSig()       <  cutLevel.sip[2])) passMVA = true;
+      }
+    }else if(el.Pt() > cutLevel.pt[1]){
+      if(abs(el.Eta()) < cutLevel.eta[0]){
+        if ((el.MvaID_HZZ()   >  cutLevel.mvaVal[3])
+           && (el.ConversionMissHits()  <  cutLevel.missHits[3])
+           && (el.IP3dSig()       <  cutLevel.sip[3])) passMVA = true;
+      }else if(abs(el.Eta()) < cutLevel.eta[1]){
+        if ((el.MvaID_HZZ()   >  cutLevel.mvaVal[4])
+           && (el.ConversionMissHits()  <  cutLevel.missHits[4])
+           && (el.IP3dSig()       <  cutLevel.sip[4])) passMVA = true;
+      }else if(abs(el.Eta()) < cutLevel.eta[2]){
+        if ((el.MvaID_HZZ()   >  cutLevel.mvaVal[5])
+           && (el.ConversionMissHits()  <  cutLevel.missHits[5])
+           && (el.IP3dSig()       <  cutLevel.sip[5])) passMVA = true;
+      }
+    }
+  }else if(cutLevel.cutName == "hwwMVAID"){
+    if (el.Pt() > cutLevel.pt[0] && el.Pt() < cutLevel.pt[1]){
+      if(abs(el.Eta()) < cutLevel.eta[0]){
+        if ((el.MvaID_Old()   >  cutLevel.mvaVal[0])
+           && (el.ConversionMissHits()  ==  cutLevel.missHits[0])
+           && (el.PassConversionVeto()       ==  cutLevel.conversionVeto[0])) passMVA = true;
+      }else if(abs(el.Eta()) < cutLevel.eta[1]){
+        if ((el.MvaID_HZZ()   >  cutLevel.mvaVal[1])
+           && (el.ConversionMissHits()  ==  cutLevel.missHits[1])
+           && (el.PassConversionVeto()       ==  cutLevel.conversionVeto[1])) passMVA = true;
+      }else if(abs(el.Eta()) < cutLevel.eta[2]){
+        if ((el.MvaID_HZZ()   >  cutLevel.mvaVal[2])
+           && (el.ConversionMissHits()  ==  cutLevel.missHits[2])
+           && (el.PassConversionVeto()       ==  cutLevel.conversionVeto[2])) passMVA = true;
+      }
+    }else if(el.Pt() > cutLevel.pt[1]){
+      if(abs(el.Eta()) < cutLevel.eta[0]){
+        if ((el.MvaID_HZZ()   >  cutLevel.mvaVal[3])
+           && (el.ConversionMissHits()  ==  cutLevel.missHits[3])
+           && (el.PassConversionVeto()       ==  cutLevel.conversionVeto[3])) passMVA = true;
+      }else if(abs(el.Eta()) < cutLevel.eta[1]){
+        if ((el.MvaID_HZZ()   >  cutLevel.mvaVal[4])
+           && (el.ConversionMissHits()  ==  cutLevel.missHits[4])
+           && (el.PassConversionVeto()       ==  cutLevel.conversionVeto[4])) passMVA = true;
+      }else if(abs(el.Eta()) < cutLevel.eta[2]){
+        if ((el.MvaID_HZZ()   >  cutLevel.mvaVal[5])
+           && (el.ConversionMissHits()  ==  cutLevel.missHits[5])
+           && (el.PassConversionVeto()       ==  cutLevel.conversionVeto[5])) passMVA = true;
+      }
+    }
+  }
+
+
+  return passMVA;
+}
+
+
 bool ParticleSelector::PassElectronIso(const TCElectron& el, const Cuts::elIsoCuts& cutLevel, float EAEle[7]){
   float thisEA = 0;
 

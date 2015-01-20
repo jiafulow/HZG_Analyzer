@@ -65,22 +65,42 @@ void tnpProducer::Begin(TTree * tree)
   cuts.reset(new Cuts());
   cuts->InitEA(params->period);
 
-  cuts->leadMuPt = 30;
-  cuts->trailMuPt = 10;
-  cuts->leadElePt = 30;
-  cuts->trailElePt = 10;
-  cuts->zgMassHigh = 200.0;
-  cuts->zgMassLow = 40.0;
-
   params->DYGammaVeto      = false;
 
-  tnpType = "leadingTrigger";
+  doSyst = true;
 
+  if(!doSyst){
+    cuts->leadMuPt = 30;
+    cuts->leadElePt = 30;
+  }else{
+    cuts->leadMuPt = 20;
+    cuts->leadElePt = 20;
+  }
+  cuts->trailMuPt = 10;
+  cuts->trailElePt = 10;
+  cuts->zMassHigh = 200.0;
+  cuts->zMassLow = 40.0;
+
+
+  //tnpType = "ID";
+  //tnpType = "Iso";
+  //tnpType = "leadingTrigger";
+  tnpType = "trailingTrigger";
+
+  if(tnpType.find("Trigger") == string::npos){
+    tagHLT = "HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v";
+  }else{
+    if (!doSyst){
+      tagHLT = "HLT_Ele27_WP80_v";
+    }else{
+      tagHLT = "HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v";
+    }
+  }
 
   weighter.reset(new WeightUtils(*params, isRealData, runNumber));
   triggerSelector.reset(new TriggerSelector(params->selection, params->period, *triggerNames));
-  if(tnpType == "trigger"){
-    triggerSelector->AddTriggers(vector<string>(1, "HLT_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v"));
+  if(tnpType.find("Trigger")!=string::npos){
+    triggerSelector->AddTriggers(vector<string>(1, tagHLT));
   }else{
     triggerSelector->TriggerDefaults();
   }
@@ -121,7 +141,7 @@ void tnpProducer::Begin(TTree * tree)
 
 }
 
-
+float totalPass, totalFail;
 Bool_t tnpProducer::Process(Long64_t entry)
 {
   GetEntry(entry,1);
@@ -150,6 +170,24 @@ Bool_t tnpProducer::Process(Long64_t entry)
 
   bool triggerPass   = triggerSelector->SelectTrigger(triggerStatus, hltPrescale);
   if (params->period.find("2012") != string::npos) if (!triggerPass) return kTRUE;
+
+  /* for quick gen trigger test
+  bool good1, good2;
+  good1 = good2 = false;
+  for(vector<TCGenParticle>::iterator it = genElectrons.begin(); it != genElectrons.end(); it++){
+    if(!good1 && it->MotherId() == 23 && it->Pt()>30 && fabs(it->Eta())<2.5){
+      good1 = true;
+      continue;
+    }
+    if(good1 && !good2&& it->MotherId() == 23 && it->Pt()>30 && fabs(it->Eta())<2.5){
+      good2 = true;
+      break;
+    }
+  }
+  if ((good2 && good1) && triggerPass) totalPass+=1;
+  else if ((good2 && good1) && !triggerPass) totalFail +=1;
+  */
+
 
   /////////////////////////
   // require good vertex //
@@ -185,8 +223,9 @@ Bool_t tnpProducer::Process(Long64_t entry)
   ///////////////
 
   TCElectron vTag, vProbe;
+  //cout<<"new event"<<endl;
   for (int i = 0; i <  recoElectrons->GetSize(); ++i) {
-    TCElectron* thisElecTag = (TCElectron*) recoElectrons->At(i);    
+    TCElectron* thisElecTag = (TCElectron*) recoElectrons->At(i);
 
     bool passIDTag = false;
     bool passIsoTag = false;
@@ -195,19 +234,54 @@ Bool_t tnpProducer::Process(Long64_t entry)
     thisElecTag->SetPtEtaPhiM(thisElecTag->Pt(),thisElecTag->Eta(),thisElecTag->Phi(),0.000511);
 
     // tag finder
-    if (thisElecTag->Pt() >= cuts->leadElePt && particleSelector->PassElectronID(*thisElecTag, cuts->mvaPreElID, *recoMuons,true) && thisElecTag->MvaID_Old() > -0.3){
+    double IDCut = -0.5;
+    if(doSyst) IDCut = -0.4;
+    if (thisElecTag->Pt() >= cuts->leadElePt && particleSelector->PassElectronID(*thisElecTag, cuts->mvaPreElID, *recoMuons,true) && thisElecTag->MvaID_Old() > IDCut){
       passIDTag = true; 
+    }else{
+      continue;
     }
-    if (particleSelector->PassElectronIso(*thisElecTag, cuts->mediumElIso, cuts->EAEle)) passIsoTag = true;
+    if(!doSyst){
+      if (particleSelector->PassElectronIso(*thisElecTag, cuts->looseElIso, cuts->EAEle)){
+        passIsoTag = true;
+      }else{
+        continue;
+      }
+    }else{
+      if (particleSelector->PassElectronIso(*thisElecTag, cuts->mediumElIso, cuts->EAEle)){
+        passIsoTag = true;
+      }else{
+        continue;
+      }
+    }
 
     map<string, vector<string> > trigMapTag = thisElecTag->GetTriggers();
+    //for (map<string, vector<string> >::iterator it = trigMapTag.begin(); it != trigMapTag.end(); it++) cout<<it->first<<endl;
     if(tnpType.find("Trigger") != string::npos){
-      if (trigMapTag.find("HLT_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v") != trigMapTag.end()) passTrigTag = true;
+      if (trigMapTag.find(tagHLT) != trigMapTag.end()){
+        vector<string> trigLegsTag = trigMapTag[tagHLT];
+        //for (vector<string>::iterator it = trigLegsTag.begin(); it != trigLegsTag.end(); it++) cout<<*it<<endl;
+        if(!doSyst){
+          if(find(trigLegsTag.begin(), trigLegsTag.end(), "hltEle27WP80TrackIsoFilter")!=trigLegsTag.end()){
+            passTrigTag = true;
+          }else{
+            continue;
+          }
+        }else{
+          if(find(trigLegsTag.begin(), trigLegsTag.end(), "hltEle17CaloIdTCaloIsoVLTrkIdVLTrkIsoVLTrackIsoFilter")!=trigLegsTag.end()){
+            passTrigTag = true;
+          }else{
+            continue;
+          }
+        }
+      }
     }else{
       if (trigMapTag.find("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v") != trigMapTag.end()){
         vector<string> trigLegsTag = trigMapTag["HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v"];
         if(find(trigLegsTag.begin(), trigLegsTag.end(), "hltEle17TightIdLooseIsoEle8TightIdLooseIsoTrackIsoDoubleFilter")!=trigLegsTag.end()){
           passTrigTag = true;
+        }else{
+          continue;
         }
       }
     }
@@ -222,6 +296,7 @@ Bool_t tnpProducer::Process(Long64_t entry)
       }
       if (!match) continue;
     }
+    //cout<<"  new tag found"<<endl;
 
     if(passIDTag && passIsoTag && passTrigTag){
       vTag = *thisElecTag;
@@ -250,6 +325,20 @@ Bool_t tnpProducer::Process(Long64_t entry)
         if (particleSelector->PassElectronIso(*thisElecProbe, cuts->looseElIso, cuts->EAEle)) passIsoProbe = true;
 
         map<string, vector<string> > trigMapProbe = thisElecProbe->GetTriggers();
+        /*
+        cout<<"new probe electron"<<endl;
+        for (map<string, vector<string> >::iterator it = trigMapTag.begin(); it != trigMapTag.end(); it++){
+          cout<<" "<<it->first<<endl;
+          if (it->second.size() == 0){                            
+            cout<<"hlt has no legs, how is this possible?"<<endl; 
+            cin.ignore();                                         
+          }                                                       
+          for (vector<string>::iterator itt = it->second.begin(); itt != it->second.end(); itt++){
+            cout<<"   "<<*itt<<endl;
+          }
+        }
+        */
+
         if (trigMapProbe.find("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v") != trigMapProbe.end()){
           vector<string> trigLegsProbe = trigMapProbe["HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v"];
           if(find(trigLegsProbe.begin(), trigLegsProbe.end(), "hltEle17TightIdLooseIsoEle8TightIdLooseIsoTrackIsoFilter")!=trigLegsProbe.end() ){
@@ -276,17 +365,65 @@ Bool_t tnpProducer::Process(Long64_t entry)
         TLorentzVector ZP4 = vProbe+vTag;
         if ((ZP4.M() < cuts->zMassLow || ZP4.M() > cuts->zMassHigh)) continue; 
 
+        
         if (tnpType == "ID"){
           passProbe = passIDProbe;
+          if (passProbe){
+            //cout<<"passed: "<<endl;
+            totalPass+=1;
+          }else{
+            //cout<<"failed: "<<endl;
+            totalFail+=1;
+          }
         }else if(tnpType == "Iso"){
           if(!passIDProbe) continue;
           passProbe = passIsoProbe;
+          if (passProbe){
+            //cout<<"passed: "<<endl;
+            totalPass+=1;
+          }else{
+            //cout<<"failed: "<<endl;
+            totalFail+=1;
+          }
         }else if(tnpType == "trailingTrigger"){ 
           if(!(passIDProbe && passIsoProbe)) continue;
+          //cout<<"    new probe found"<<endl;
           passProbe = passTrigTrailProbe;
+          if (passProbe){
+            //cout<<"passed: "<<endl;
+            totalPass+=1;
+          }else{
+            //cout<<"failed: "<<endl;
+            totalFail+=1;
+          }
         }else if(tnpType == "leadingTrigger"){ 
           if(!(passIDProbe && passIsoProbe)) continue;
+          //cout<<"    new probe found"<<endl;
           passProbe = passTrigLeadProbe;
+          if (passProbe){
+            //cout<<"passed: "<<endl;
+            totalPass+=1;
+          }else{
+            //cout<<"failed: "<<endl;
+            totalFail+=1;
+          }
+          
+          /*
+          cout<<"tag:"<<endl;
+          for (map<string, vector<string> >::iterator it = trigMapTag.begin(); it != trigMapTag.end(); it++){
+            cout<<" "<<it->first<<endl;
+            for (vector<string>::iterator itt = it->second.begin(); itt != it->second.end(); itt++){
+              cout<<"  "<<*itt<<endl;
+            }
+          }
+          cout<<"probe:"<<endl;
+          for (map<string, vector<string> >::iterator it = trigMapProbe.begin(); it != trigMapProbe.end(); it++){
+            cout<<" "<<it->first<<endl;
+            for (vector<string>::iterator itt = it->second.begin(); itt != it->second.end(); itt++){
+              cout<<"  "<<*itt<<endl;
+            }
+          }
+        */
         }
 
         //////////////////////
@@ -300,7 +437,12 @@ Bool_t tnpProducer::Process(Long64_t entry)
         npu      = nPUVerticesTrue;
         pass     = passProbe ? 1 : 0;
         //scale1fb = eventWeight;
-        scale1fb = 1.0;
+        if(!isRealData){
+          scale1fb = 1966.7*1000/42705454;
+          scale1fb *= weighter->PUWeight(nPUVertices);
+        }else{
+          scale1fb = 1.0;
+        }
         mass     = ZP4.M();	     
         qtag     = vTag.Charge();
         tag      = &vTag;
@@ -313,20 +455,6 @@ Bool_t tnpProducer::Process(Long64_t entry)
     }
   }
 
-  ////////////////////////
-  // Analysis selection //
-  ////////////////////////
-
-  /*
-  if (params->period.find("2011") != string::npos){
-    if (params->doScaleFactors) eventWeight   *= weighter->PUWeight(nPUVertices);
-    eventWeightPU   *= weighter->PUWeight(nPUVertices);
-  }else if (params->period.find("2012") != string::npos){
-    if (params->doScaleFactors) eventWeight   *= weighter->PUWeight(nPUVerticesTrue);
-    eventWeightPU   *= weighter->PUWeight(nPUVerticesTrue);
-  }
-  */
-
   return kTRUE;
 }
 
@@ -334,6 +462,7 @@ void tnpProducer::Terminate()
 {
   tnpFile->Write();
   tnpFile->Close();
+  cout<<"eff: "<<totalPass/(totalPass+totalFail)<<endl;
 }
 
 void tnpProducer::PhotonR9Corrector(TCPhoton& ph){

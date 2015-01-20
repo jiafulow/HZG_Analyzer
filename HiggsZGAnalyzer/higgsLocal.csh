@@ -1,5 +1,7 @@
 #!/bin/csh
 
+#call like: ./higgsLocal.csh ggHZG_M200Signal ABCD ggM200_NWU_S10_v0908 eeGamma 2012 S10 higgsAnalyzer.C
+
 set dir=`echo $1 | cut -d _ -f 1 `
 
 

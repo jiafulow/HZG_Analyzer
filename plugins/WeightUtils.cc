@@ -45,6 +45,11 @@ WeightUtils::WeightUtils(const Parameters& params, bool isRealData, int runNumbe
   _inFileMuonISO2012 = new TFile("otherHistos/MuonEfficiencies_ISO_Run_2012ReReco_53X.root","OPEN");
   _inFileMuonTrig2012 = new TFile("otherHistos/MuHLTEfficiencies_Run_2012ABCD_53X_DR03-2.root","OPEN");
 
+  _inFileEl_ID_Data = new TFile("otherHistos/el_ID_Data.root","OPEN");
+  _inFileEl_ID_MC = new TFile("otherHistos/el_ID_MC.root","OPEN");
+  _inFileEl_Iso_Data = new TFile("otherHistos/el_Iso_Data.root","OPEN");
+  _inFileEl_Iso_MC = new TFile("otherHistos/el_Iso_MC.root","OPEN");
+
 
   // PU weights
   h1_S6to2011          = (TH1F*)_inFileS6to2011->Get("pileupWeights");
@@ -97,6 +102,12 @@ WeightUtils::WeightUtils(const Parameters& params, bool isRealData, int runNumbe
   h1_EleMoriondWP2012 = (TH2F*)_EleMoriondWP2012->Get("heff_electron_selection");
   h1_EleLegacyWP2012 = (TH2F*)_EleLegacyWP2012->Get("h_electronScaleFactor_RecoIdIsoSip");
   h1_EleTightMVAWP = (TH2F*)_EleTightMVAWP->Get("electronsDATAMCratio_FO_ID");
+
+  //new electron histo
+  h2_el_ID_Data = (TH2F*)_inFileEl_ID_Data->Get("hEffEtaPt");
+  h2_el_ID_MC = (TH2F*)_inFileEl_ID_MC->Get("hEffEtaPt");
+  h2_el_Iso_Data = (TH2F*)_inFileEl_Iso_Data->Get("hEffEtaPt");
+  h2_el_Iso_MC = (TH2F*)_inFileEl_Iso_MC->Get("hEffEtaPt");
 
   //muon histos/graphs
   ge_MuonID2012_Tight[0] = (TGraphErrors*)_inFileMuonID2012->Get("DATA_over_MC_Tight_pt_abseta<0.9");
@@ -221,6 +232,7 @@ float WeightUtils::MuonSelectionWeight(TLorentzVector l1)
 {
   bool oldStyle = false;
 
+  /*
   float _muonID2012[15][16] = {
     { 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, },
     { 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, },
@@ -238,6 +250,7 @@ float WeightUtils::MuonSelectionWeight(TLorentzVector l1)
     { 0.9789,0.9813,0.9828,0.993,0.9805,0.9896,0.9932,0.9854,0.9846,0.9873,0.9865,0.9802,0.9906,0.9979,0.9951,0.993 }, 
     { 0.9635,0.9833,0.9733,0.9796,0.9771,0.988,0.9895,0.9832,0.9788,0.9961,0.9839,0.9775,0.9869,1.007,0.9825,0.979 }
   };
+  */
 
   float _muonID2012_2012ReReco[4][10] = {
   //pt 10-20,    20-25,     25-30,   30-35,    35-40,    40-50,    50-60,   60-90,   90-140,   140-300
@@ -387,8 +400,6 @@ float WeightUtils::GammaSelectionWeight(TLorentzVector l1, float SCEta)
   int etaBin = 0;
   float binningPt[]  = {15., 20., 30., 40., 50., 99999.};
   float binningEta[] = {0., 0.8, 1.4442, 2.0, 2.5};
-  float weight = 1.;
-
 
   for (int i = 0; i < 4; ++i) {
     //if (fabs(l1.Eta()) > binningEta[i] && fabs(l1.Eta()) <= binningEta[i+1]) {
@@ -455,9 +466,37 @@ float WeightUtils::ElectronSelectionWeight(TLorentzVector l1){
       eleSF = 1;
   }
   */
-  
+  if(_params.doHighMass == true){
+    float eleDataEff = 0;
+    float eleMCEff = 0;
 
-  if (_params.suffix.find("Old") != string::npos){
+    xBin = h2_el_ID_Data->GetXaxis()->FindFixBin(fabs(l1.Eta()));
+    if (xBin>5) xBin=5;
+    yBin = h2_el_ID_Data->GetYaxis()->FindFixBin(l1.Pt());
+    if (yBin>5) yBin=5;
+    eleDataEff = h2_el_ID_Data->GetBinContent(xBin,yBin);
+
+    xBin = h2_el_Iso_Data->GetXaxis()->FindFixBin(fabs(l1.Eta()));
+    if (xBin>5) xBin=5;
+    yBin = h2_el_Iso_Data->GetYaxis()->FindFixBin(l1.Pt());
+    if (yBin>5) yBin=5;
+    eleDataEff *= h2_el_Iso_Data->GetBinContent(xBin,yBin);
+
+    xBin = h2_el_ID_MC->GetXaxis()->FindFixBin(fabs(l1.Eta()));
+    if (xBin>5) xBin=5;
+    yBin = h2_el_ID_MC->GetYaxis()->FindFixBin(l1.Pt());
+    if (yBin>5) yBin=5;
+    eleMCEff = h2_el_ID_MC->GetBinContent(xBin,yBin);
+
+    xBin = h2_el_Iso_MC->GetXaxis()->FindFixBin(fabs(l1.Eta()));
+    if (xBin>5) xBin=5;
+    yBin = h2_el_Iso_MC->GetYaxis()->FindFixBin(l1.Pt());
+    if (yBin>5) yBin=5;
+    eleMCEff *= h2_el_Iso_MC->GetBinContent(xBin,yBin);
+
+    eleSF = eleDataEff/eleMCEff;
+
+  }else if (_params.suffix.find("Old") != string::npos){
     xBin = h1_EleLegacyWP2012->GetXaxis()->FindFixBin(l1.Pt());
     if (xBin>7) xBin=7;
     yBin = h1_EleLegacyWP2012->GetYaxis()->FindFixBin(l1.Eta());
@@ -488,6 +527,8 @@ float WeightUtils::ElectronSelectionWeight(TLorentzVector l1){
 
 float WeightUtils::MuonTriggerWeight(TLorentzVector l1, TLorentzVector l2) 
 {
+
+  bool lazy = false;
 
   float _DataEff_HLTMu17Mu8_8Leg2012[9][3] = {  
  //|eta|<0.9 , 0.9<|eta|<1.2 , 1.2<|eta|<2.4
@@ -550,6 +591,8 @@ float WeightUtils::MuonTriggerWeight(TLorentzVector l1, TLorentzVector l2)
   };
 
 
+  float muTrig2011 = 1.0;
+
   float muTrigSF1 = 1.0;
   float muTrigSF2 = 1.0;
 
@@ -567,9 +610,9 @@ float WeightUtils::MuonTriggerWeight(TLorentzVector l1, TLorentzVector l2)
 
   // 2011 use the 2D histogram
   if (_params.period.find("2011") != string::npos){
-    muTrigSF1 = _HLTMu17Mu8_2011->GetBinContent(_HLTMu17Mu8_2011->FindBin(l1.Eta(),l2.Eta()));
-    if (muTrigSF1 == 0.0) muTrigSF1 = 1.0;
-    return muTrigSF1;
+    muTrig2011 = _HLTMu17Mu8_2011->GetBinContent(_HLTMu17Mu8_2011->FindBin(l1.Eta(),l2.Eta()));
+    if (muTrig2011 == 0.0) muTrigSF1 = 1.0;
+    return muTrig2011;
   }else{
   // 2012 use the 2D arrays
 
@@ -630,9 +673,12 @@ float WeightUtils::MuonTriggerWeight(TLorentzVector l1, TLorentzVector l2)
     muTrigMCB17 = _MCEff_HLTMu17Mu8_17Leg2012[etaBin][ptBinV2];
     muTrigMCB8  = _MCEff_HLTMu17Mu8_8Leg2012[etaBin][ptBinV2];
 
-    //return muTrigSF1*muTrigSF2;
-    return (muTrigDataA8*muTrigDataB17 + muTrigDataA17*muTrigDataB8 - muTrigDataA17*muTrigDataB17)/
-           (muTrigMCA8*muTrigMCB17 + muTrigMCA17*muTrigMCB8 - muTrigMCA17*muTrigMCB17);
+
+    if(lazy)
+      return muTrigSF1*muTrigSF2;
+    else
+      return (muTrigDataA8*muTrigDataB17 + muTrigDataA17*muTrigDataB8 - muTrigDataA17*muTrigDataB17)/
+             (muTrigMCA8*muTrigMCB17 + muTrigMCA17*muTrigMCB8 - muTrigMCA17*muTrigMCB17);
   }
 
 
@@ -854,8 +900,6 @@ float WeightUtils::ElectronTriggerWeight(TLorentzVector l1, TLorentzVector l2, b
     int etaBin1 = -99;
     int ptBin2 = -99;
     int etaBin2 = -99;
-    float elTrigSF1 = 1.0;
-    float elTrigSF2 = 1.0;
     for (int i = 0; i < 6; ++i){
       if (l1.Pt() > binningPt[i] && l1.Pt() < binningPt[i+1]) ptBin1 = i;
     }

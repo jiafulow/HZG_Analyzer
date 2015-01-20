@@ -90,6 +90,11 @@ class WeightUtils: public TObject {
         TFile *_inFileMuonISO2012;
         TFile *_inFileMuonTrig2012;
 
+        TFile *_inFileEl_ID_Data;
+        TFile *_inFileEl_ID_MC;
+        TFile *_inFileEl_Iso_Data;
+        TFile *_inFileEl_Iso_MC;
+
 
         TH2D * _HLTMu17Mu8_2011;
 
@@ -143,6 +148,11 @@ class WeightUtils: public TObject {
         TGraphErrors * ge_MuonISO2012_Loose[4];
 
         TH2F * h2_MuonTrig2012[2];
+
+        TH2F * h2_el_ID_Data;
+        TH2F * h2_el_ID_MC;
+        TH2F * h2_el_Iso_Data;
+        TH2F * h2_el_Iso_MC;
 
 
         //weights

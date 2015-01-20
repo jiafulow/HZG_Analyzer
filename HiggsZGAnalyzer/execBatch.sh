@@ -1,5 +1,6 @@
 #!/bin/sh
 . /etc/bashrc
+echo `hostname`
 export OSG_APP=/software/tier3/osg
 export SCRAM_ARCH=slc5_amd64_gcc462
 source /software/tier3/osg/cmsset_default.sh

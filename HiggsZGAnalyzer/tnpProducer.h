@@ -189,6 +189,9 @@ class tnpProducer : public TSelector {
 
     //TnP analysis type
     string tnpType;
+    string tagHLT;
+
+    bool doSyst;
 
     // Default functions
 
@@ -199,7 +202,8 @@ class tnpProducer : public TSelector {
       unskimmedEvents(0),
       file0(0),
       h1_numOfEvents(0),
-      thisTree(0) { }
+      thisTree(0),
+      doSyst(false){ }
     virtual ~tnpProducer() { }
     virtual Int_t   Version() const { return 2; }
     virtual void    Begin(TTree *tree);
