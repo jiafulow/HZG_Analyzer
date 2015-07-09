@@ -42,6 +42,11 @@ def fastHadd():
       if not os.path.isdir('tnpFiles'): os.mkdir('tnpFiles')
       os.system('./hadd.py tnpFiles/tnpFile_'+leptonA+year+'_'+tag+'.root '+leptonB+' tnpFile {0}'.format(' '.join(selectionList[1:])))
 
+    elif 'amumu' in analyzer:
+      if not os.path.isdir('amumuFiles'): os.mkdir('amumuFiles')
+      os.system('./hadd.py amumu/amumuFile_'+leptonA+year+'_'+tag+'.root '+leptonB+' amumuFile {0}'.format(' '.join(selectionList[1:])))
+
+
     elif 'eeSelector' in analyzer:
       if not os.path.isdir('eleFiles'): os.mkdir('eleFiles')
       os.system('./hadd.py eleFiles/eleFile_'+leptonA+year+'_'+tag+'.root '+leptonB+' eleFile {0}'.format(' '.join(selectionList[1:])))

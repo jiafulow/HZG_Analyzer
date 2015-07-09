@@ -46,7 +46,7 @@ void higgsAnalyzer::Begin(TTree * tree)
   //params->doLooseMuIso     = false;
   //params->doEleMVA         = false;
   //params->doHWWMVA           = true;
-  params->doHZZMVA           = true;
+  //params->doHZZMVA           = true;
   //params->doScaleFactors     = false;
   
   //params->doLeptonPrune    = false;
@@ -64,12 +64,23 @@ void higgsAnalyzer::Begin(TTree * tree)
   cuts->InitEA(params->period);
   
   // Change any cuts from non-default values
-  //cuts->trailElePt = 20.0;
 
-  cuts->zgMassHigh = 1300.0;
+  //ATLAS CUTS
+  //cuts->trailElePt = 0.0;
+  //cuts->leadElePt= 30.0;
+  //cuts->trailMuPt = 0.0;
+  //cuts->leadMuPt = 30.0;
+  //cuts->dR  = 0.7;
+  //END ATLAS CUTS
+
+  cuts->zgMassHigh = 99999999999.0;
+  cuts->zgMassLow = 150.0;
   cuts->gPt = 40.0;
   cuts->gPtOverMass = 40./150.;
   
+  //cuts->zMassLow = 50.0;
+  //
+  //cuts->trailElePt = 15.0;
 
 
 
@@ -106,7 +117,7 @@ void higgsAnalyzer::Begin(TTree * tree)
 
 
   // Random numbers! //
-  rnGenerator.reset(new TRandom3);
+  rnGenerator.reset(new TRandom3(231+1000*jobNum));
 
   TH1::SetDefaultSumw2(kTRUE);
   TH2::SetDefaultSumw2(kTRUE);
@@ -141,7 +152,6 @@ void higgsAnalyzer::Begin(TTree * tree)
   histoFile->mkdir("PreSelThreeBodyNoW", "PreSelThreeBodyNoW");
   histoFile->mkdir("PhotonIsoDR04", "PhotonIsoDR04");
   histoFile->mkdir("MuonIso", "MuonIso");
-  histoFile->mkdir("GenLvl", "GenLvl");
   histoFile->mkdir("GenPlots", "GenPlots");
   histoFile->mkdir("Jet-Photons", "Jet-Photons");
   histoFile->mkdir("CAT1", "CAT1");
@@ -410,6 +420,8 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
         getZGAngles(genLevelInputs,genLevelOutputs, false);
         AnglePlots(genLevelOutputs,1,"ZGAngles","GEN");
+        GenPlots(genHZG, 1);
+
       }
     }
 
@@ -555,6 +567,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   pvPosition.reset(new TVector3());
   *pvPosition = goodVertices[0];
   particleSelector->SetPv(*pvPosition);
+  particleSelector->SetAllPvs(goodVertices);
   dumper->SetPv(*pvPosition);
 
 
@@ -958,6 +971,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   bool goodZ = false;
   float SCetaEl1 = -99999;
   float SCetaEl2 = -99999;
+  bool quickSyst = false;
   if(params->selection == "eeGamma"){
     if (eventNumber == params->EVENTNUMBER) cout<<goodZ<<endl;
     goodZ = particleSelector->FindGoodZElectron(electronsIDIso,lepton1,lepton2,ZP4,SCetaEl1,SCetaEl2,lepton1int,lepton2int);
@@ -965,22 +979,44 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     if (!goodZ) return kTRUE;
     if (!isRealData){ 
       if (params->doScaleFactors){
-        eventWeight   *= weighter->ElectronTriggerWeight(lepton1, lepton2, true);
+        eventWeight   *= weighter->ElectronTriggerWeight(lepton1, lepton2, false);
         if (params->period.find("2011") != string::npos){
           eventWeight   *= getEfficiencyWeight( &lepton1, CorrectionType::CENTRAL, atoi(params->period.c_str()));
           eventWeight   *= getEfficiencyWeight( &lepton2, CorrectionType::CENTRAL, atoi(params->period.c_str()));
         }else if (params->period.find("2012") != string::npos){
-          eventWeight   *= weighter->ElectronSelectionWeight(lepton1);
-          eventWeight   *= weighter->ElectronSelectionWeight(lepton2);
+          if(quickSyst){
+            if (lepton1.Pt() < 20){
+              eventWeight   *= (1.1*weighter->ElectronSelectionWeight(lepton1));
+            }else if (lepton1.Pt() < 40){
+              eventWeight   *= (1.02*weighter->ElectronSelectionWeight(lepton1));
+            }else if (lepton1.Pt() < 8000){
+              eventWeight   *= (1.01*weighter->ElectronSelectionWeight(lepton1));
+            }
+            if (lepton2.Pt() < 20){
+              eventWeight   *= (1.1*weighter->ElectronSelectionWeight(lepton2));
+            }else if (lepton2.Pt() < 40){
+              eventWeight   *= (1.02*weighter->ElectronSelectionWeight(lepton2));
+            }else if (lepton2.Pt() < 8000){
+              eventWeight   *= (1.01*weighter->ElectronSelectionWeight(lepton2));
+            }
+          }else{
+            eventWeight   *= weighter->ElectronSelectionWeight(lepton1);
+            eventWeight   *= weighter->ElectronSelectionWeight(lepton2);
+          }
+
         }
       }
-      eventWeightTrig   *= weighter->ElectronTriggerWeight(lepton1, lepton2, true);
+      eventWeightTrig   *= weighter->ElectronTriggerWeight(lepton1, lepton2, false);
       if (params->period.find("2011") != string::npos){
         eventWeightLep   *= getEfficiencyWeight( &lepton1, CorrectionType::CENTRAL, atoi(params->period.c_str()));
         eventWeightLep   *= getEfficiencyWeight( &lepton2, CorrectionType::CENTRAL, atoi(params->period.c_str()));
       }else if (params->period.find("2012") != string::npos){
         eventWeightLep   *= weighter->ElectronSelectionWeight(lepton1);
         eventWeightLep   *= weighter->ElectronSelectionWeight(lepton2);
+        //cout<<"pts: "<<lepton1.Pt()<<" "<<lepton2.Pt()<<endl;
+        //cout<<"eta: "<<lepton1.Eta()<<" "<<lepton2.Eta()<<endl;
+        //cout<<"weights: "<<weighter->ElectronSelectionWeight(lepton1)<<" "<<weighter->ElectronSelectionWeight(lepton2)<<endl;
+        //cout<<"weights: "<<weighter->ElectronTriggerWeight(lepton1, lepton2, false)<<endl;
 
       }
 
@@ -1067,7 +1103,11 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   }
 
   if (photonsIDIso.size() < 1) return kTRUE;
-  goodPhoton = particleSelector->FindGoodPhoton(photonsIDIso, GP4, lepton1, lepton2, GP4scEta);
+  goodPhoton = particleSelector->FindGoodPhoton(photonsIDIso, GP4, lepton1, lepton2, GP4scEta,false);
+  if(!goodPhoton) return kTRUE;
+  hm->fill1DHist(GP4.Pt()/(GP4+ZP4).M(),"h1_gPtOM_"+params->suffix, "Photon pT over Mass, precut; g_{pT}/llg_{M}; N_{evts}", 50, 0, 1, eventWeight,"HighMass");
+
+  goodPhoton = particleSelector->FindGoodPhoton(photonsIDIso, GP4, lepton1, lepton2, GP4scEta, true);
   if(!goodPhoton) return kTRUE;
 
   if (params->doScaleFactors){
@@ -1076,7 +1116,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
       }else{
         eventWeight   *= weighter->GammaSelectionWeight(GP4, GP4scEta);
       }
-      //if (params->suffix == "DYJets") eventWeight   *= weighter->PhotonFakeWeight(GP4.Eta(), GP4.Pt()); 
+      //if (params->suffix == "DYToMuMu" || params->suffix == "DYToEE") eventWeight   *= weighter->PhotonFakeWeight(GP4.Eta(), GP4.Pt()); 
   }
   if(params->doPhoMVA){
     eventWeightPho   *= weighter->GammaSelectionWeight(GP4, GetCatNum(GP4, goodLep));
@@ -1097,6 +1137,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   //////////////////////////////////////////////////////////////////////
 
   StandardPlots(lepton1,lepton2,GP4,eventWeight,"PreSelThreeBody", "PreSelThreeBody");
+  ZGammaPlots(lepton1,lepton2,GP4,eventWeight,"PreSelThreeBody","PreSelThreeBody");
   StandardPlots(lepton1,lepton2,GP4,1,"PreSelThreeBodyNoW", "PreSelThreeBodyNoW");
 
   ///////////////////////////////
@@ -1168,6 +1209,7 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
   hm->fill1DHist(16,"h1_acceptanceByCutRaw_"+params->suffix, "Raw number of events passing cuts; cut; N_{evts}", 100, 0.5, 100.5,1,"Misc");
   ++nEvents[15];
 
+  hm->fill2DHist(ZP4.M(),(GP4+ZP4).M(),"h2_2BodyVs3Body_"+params->suffix,"2-Body (ll) Mass vs 3-Body (llg) mass;ll_{m}; ll#gamma_{m}",35,50,120,75,100,250,eventWeight,"HighMass");
   //////////////////////////
   //**ZGamma**    MZG Low //
   //////////////////////////
@@ -1484,7 +1526,21 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
     hm->fill1DHist((ZP4+GP4).M(),"h1_InvariantMassCut_"+params->suffix,"Invariant Mass (H->Z#gamma);Mass (GeV);Entries",65,115,190,eventWeight,"ZGamma");
 
 
+    /*
+    float m_llg_smear= rnGenerator->Gaus(1,0.17);
+    if (params->suffix.find("Narrow") == string::npos &&
+        (params->suffix.find("800") != string::npos ||
+         params->suffix.find("1200") != string::npos ||
+         params->suffix.find("1600") != string::npos)){
+
+      m_llg = (GP4+ZP4).M()*m_llg_smear;
+      //m_llg = (GP4+ZP4).M();
+    }else{
+      m_llg = (GP4+ZP4).M();
+    }
+    */
     m_llg = (GP4+ZP4).M();
+
 
 
 
@@ -1533,41 +1589,9 @@ Bool_t higgsAnalyzer::Process(Long64_t entry)
 
     unBinnedWeight = eventWeight;
 
+    ZGammaPlots(lepton1,lepton2,GP4,eventWeight,"","ZGamma");
 
-
-    hm->fill1DHist(lepton1.DeltaR(GP4),"h1_DeltaRLeading_"+params->suffix,"DeltaR leading lepton vs photon;#Delta R;Entries",16,0,4,eventWeight,"ZGamma");
-    hm->fill1DHist(lepton2.DeltaR(GP4),"h1_DeltaRTrailing_"+params->suffix,"DeltaR trailing lepton vs photon;#Delta R;Entries",16,0,4,eventWeight,"ZGamma");
-    hm->fill1DHist(ZP4.DeltaR(GP4),"h1_DeltaRZG_"+params->suffix,"DeltaR diLepton vs photon;#Delta R;Entries",16,0,4,eventWeight,"ZGamma");
-    hm->fill1DHist(lepton1.DeltaR(lepton2),"h1_DeltaRDiLep_"+params->suffix,"DeltaR leading lepton vs trailing lepton;#Delta R;Entries",16,0,4,eventWeight,"ZGamma");
-    hm->fill1DHist(CalculateM12sqrd(ZP4,GP4),"h1_M12sqrd_"+params->suffix,"M12^{2} CORRECTED (H->Z#gamma);Mass^{2} (GeV^{2});Entries",25,3600,34400,eventWeight,"ZGamma");
-    hm->fill1DHist(CalculateX1(ZP4,GP4),"h1_X1_"+params->suffix,"x1;x1;Entries",50,0,0.4,eventWeight,"ZGamma");
-    hm->fill1DHist(CalculateX2(ZP4,GP4),"h1_X2_"+params->suffix,"x2;x2;Entries",50,0,0.4,eventWeight,"ZGamma");
-    hm->fill1DHist(ZP4.Pt()-GP4.Pt(),"h1_PtDiffZG_"+params->suffix,"Zp_{T}-Gp_{T} (scalar);#Delta p_{T} (GeV);Entries",50,-100,100,eventWeight,"ZGamma");
-    hm->fill1DHist((ZP4-GP4).Pt(),"h1_PtVecDiffZG_"+params->suffix,"Zp_{T}-Gp_{T} (vector);#Delta p_{T} (GeV);Entries",50,0,200,eventWeight,"ZGamma");
-    hm->fill1DHist(ZP4.Pt()/GP4.Pt(),"h1_PtRatZG_"+params->suffix,"Zp_{T}/Gp_{T};#frac{Zp_{T}}{Gp_{T}};Entries",40,0,10,eventWeight,"ZGamma");
-    hm->fill1DHist((ZP4+GP4).Pt(),"h1_PtSumZG_"+params->suffix,"3-Body p_{T};p_{T};Entries",25,0,70,eventWeight,"ZGamma");
-    hm->fill1DHist(GP4.E(),"h1_GammaEnergy_"+params->suffix,"Gamma Energy;E (GeV);Entries",30,0,150,eventWeight,"ZGamma");
-    hm->fill1DHist(GP4.Pt(),"h1_GammaPt_"+params->suffix,"Gamma p_{T};p_{T} (GeV);Entries",45,10,100,eventWeight,"ZGamma");
-    hm->fill2DHist(CalculateX1(ZP4,GP4),CalculateX2(ZP4,GP4),"h2_X1X2_"+params->suffix,"x1 vs x2;x1;x2",50,0,0.4,50,0,0.4,eventWeight,"ZGamma");
-    hm->fill2DHist(ZP4.M(),(ZP4+GP4).M(),"h2_InvariantMasses_"+params->suffix,"2 Body vs 3 Body Invariant Mass; Z (GeV); Z#gamma (GeV)",80,50,130,110,90,200,eventWeight,"ZGamma");
-    hm->fill1DHist((ZP4+GP4).M()-ZP4.M(),"h1_DeltaM_"+params->suffix,"Z#gamma_{m}-Z_{m};#Deltam (GeV);Entries",70,0,140,eventWeight,"ZGamma");
-    hm->fill2DHist(ZP4.M(),GP4.Pt(),"h2_2BodyVsGPt_"+params->suffix,"Dilepton Mass vs #gamma p_{T};Z_{m} (GeV);#gamma p_{T}",100,50,150,45,10,100,eventWeight,"ZGamma");
-    hm->fill2DHist((ZP4+GP4).M(),GP4.Pt(),"h2_3BodyVsGPt_"+params->suffix,"3-Body Mass vs #gamma p_{T};Z#gamma_{m};#gamma p_{T}",20,100,190,45,10,100,eventWeight,"ZGamma");
-    hm->fill2DHist((ZP4+GP4).M(),(ZP4.Pt()-GP4.Pt()),"h2_3BodyVsDiffPt_"+params->suffix,"3-Body Mass vs diff p_{T};Z#gamma_{m};Z p_{T} - #gamma p_{T}",20,100,190,100,-150,150,eventWeight,"ZGamma");
-    hm->fill2DHist((ZP4+GP4).M(),(ZP4.Pt()/GP4.Pt()),"h2_3BodyVsRatPt_"+params->suffix,"3-Body Mass vs ratio p_{T};Z#gamma_{m};Ratio p_{T}",20,100,190,50,0,10,eventWeight,"ZGamma");
-    hm->fill2DHist((ZP4+GP4).M(),ZP4.Pt(),"h2_3BodyVsZPt_"+params->suffix,"3-Body Mass vs #Z p_{T};Z#gamma_{m};Z p_{T}",20,100,190,50,0,150,eventWeight,"ZGamma");
-    hm->fill2DHist((ZP4+GP4).M()/(ZP4+GP4).Pt(),GP4.Pt(),"h2_3BodyOptVsGPt_"+params->suffix,"3-Body Mass/pt vs #gamma p_{T};Z#gamma_{m}/Z#gamma_{pT};#gamma p_{T}",20,0,20,45,10,100,eventWeight,"ZGamma");
-    hm->fill2DHist((ZP4+GP4).M()/(ZP4+GP4).Pt(),(ZP4.Pt()-GP4.Pt()),"h2_3BodyOptVsDiffPt_"+params->suffix,"3-Body Mass/pt vs diff p_{T};Z#gamma_{m}/Z#gamma_{pT};Z p_{T} - #gamma p_{T}",20,0,20,100,-150,150,eventWeight,"ZGamma");
-    hm->fill2DHist((ZP4+GP4).M()/(ZP4+GP4).Pt(),(ZP4.Pt()/GP4.Pt()),"h2_3BodyOptVsRatPt_"+params->suffix,"3-Body Mass/pt vs ratio p_{T};Z#gamma_{m}/Z#gamma_{pT};Ratio p_{T}",20,0,20,50,0,10,eventWeight,"ZGamma");
-    hm->fill2DHist((ZP4+GP4).M()/(ZP4+GP4).Pt(),ZP4.Pt(),"h2_3BodyOptVsZPt_"+params->suffix,"3-Body Mass/pt vs #Z p_{T};Z#gamma_{m}/Z#gamma_{pT};Z p_{T}",20,0,20,50,0,150,eventWeight,"ZGamma");
-    hm->fillProfile(CalculateX1(ZP4,GP4),CalculateX2(ZP4,GP4),"profile_X1X2Pro_"+params->suffix,"x1 vs x2;x1;x2",50,0,0.4,0,0.4,eventWeight,"ZGamma");
-    hm->fill1DHist(lepton1.Pt()/lepton2.Pt(),"h1_MuonRatPt_"+params->suffix,"leading/trailing p_{T};p_{T} Ratio;Entries",15,0,5,eventWeight,"ZGamma");
     hm->fill1DHist(photonsIDIso.size(),"h1_photonMult_"+params->suffix,"Photon Multiplicity;nPhoton;Entries",10,0.5,10.5,eventWeight,"ZGamma");
-    hm->fill1DHist(fabs(ZP4.DeltaPhi(GP4)),"h1_DeltaPhiZG_"+params->suffix,"#Delta#phi (Z,#gamma);#Delta#phi (rad);Entries",20,0,TMath::Pi()+0.5,eventWeight,"ZGamma");
-    if (params->suffix.find("GammaStar") !=string::npos){
-      hm->fill1DHist(ZP4.M(),"h1_gammaStarMll1_"+params->suffix,"gammaStar M_ll full range; M_ll (GeV);Entries",120,-5,115,eventWeight,"ZGamma");
-      hm->fill1DHist(ZP4.M(),"h1_gammaStarMll2_"+params->suffix,"gammaStar M_ll low range; M_ll (GeV);Entries",50,-5,45,eventWeight,"ZGamma");
-    }
 
   }
 
@@ -1739,6 +1763,7 @@ void higgsAnalyzer::LeptonBasicPlots(TLorentzVector p1, TLorentzVector p2, float
   hm->fill1DHist(p1.Phi(),"h1_leadLeptonPhi_"+params->suffix, "#phi leading lepton;#phi;N_{evts}", 36, -TMath::Pi(), TMath::Pi(), eventWeight,"Lepton");    
 
   hm->fill1DHist(p2.Pt(),"h1_trailingLeptonPt_"+params->suffix, "p_{T} trailing lepton;p_{T};N_{evts}", 38, 10., 200., eventWeight,"Lepton"); 
+  hm->fill1DHist(p2.Pt(),"h1_trailingLeptonPtLow_"+params->suffix, "p_{T} trailing lepton;p_{T};N_{evts}", 20, 0., 40., eventWeight,"Lepton"); 
   hm->fill1DHist(p2.Eta(),"h1_trailingLeptonEta_"+params->suffix, "#eta trailing lepton;#eta;N_{evts}", 25, -2.5, 2.5, eventWeight,"Lepton");
   hm->fill1DHist(p2.Phi(),"h1_trailingLeptonPhi_"+params->suffix, "#phi trailing lepton;#phi;N_{evts}", 36, -TMath::Pi(), TMath::Pi(), eventWeight,"Lepton");
 
@@ -1748,6 +1773,45 @@ void higgsAnalyzer::LeptonBasicPlots(TLorentzVector p1, TLorentzVector p2, float
   hm->fill1DHist(fabs(p2.Eta() - p1.Eta()),"h1_diLeptonDeltaEta_"+params->suffix, "dilepton #Delta#eta;#Delta#eta;N_{evts}", 40, 0., 8., eventWeight,"Lepton");
   hm->fill1DHist(fabs(p2.DeltaPhi(p1)),"h1_diLeptonDeltaPhi_"+params->suffix, "dilepton #Delta#phi;#Delta#phi;N_{evts}", 18, 0., TMath::Pi(), eventWeight,"Lepton");
   hm->fill1DHist(p2.DeltaR(p1),"h1_diLeptonDeltaR_"+params->suffix, "dilepton #Delta R;#Delta R;N_{evts}", 18, 0., 4.5, eventWeight,"Lepton");  
+}
+
+void higgsAnalyzer::ZGammaPlots(TLorentzVector p1, TLorentzVector p2, TLorentzVector gamma, float eventWeight,string tag, string folder)
+{
+  TLorentzVector diLep = p1+p2;
+
+  hm->fill1DHist(p1.DeltaR(gamma),"h1_DeltaRLeading"+tag+"_"+params->suffix,"DeltaR leading lepton vs photon;#Delta R;Entries",16,0,4,eventWeight,folder);
+  hm->fill1DHist(p2.DeltaR(gamma),"h1_DeltaRTrailing"+tag+"_"+params->suffix,"DeltaR trailing lepton vs photon;#Delta R;Entries",16,0,4,eventWeight,folder);
+  hm->fill1DHist(diLep.DeltaR(gamma),"h1_DeltaRZG"+tag+"_"+params->suffix,"DeltaR diLepton vs photon;#Delta R;Entries",16,0,4,eventWeight,folder);
+  hm->fill1DHist(p1.DeltaR(p2),"h1_DeltaRDiLep"+tag+"_"+params->suffix,"DeltaR leading lepton vs trailing lepton;#Delta R;Entries",16,0,4,eventWeight,folder);
+  hm->fill1DHist(CalculateM12sqrd(diLep,gamma),"h1_M12sqrd"+tag+"_"+params->suffix,"M12^{2} CORRECTED (H->Z#gamma);Mass^{2} (GeV^{2});Entries",25,3600,34400,eventWeight,folder);
+  hm->fill1DHist(CalculateX1(diLep,gamma),"h1_X1"+tag+"_"+params->suffix,"x1;x1;Entries",50,0,0.4,eventWeight,folder);
+  hm->fill1DHist(CalculateX2(diLep,gamma),"h1_X2"+tag+"_"+params->suffix,"x2;x2;Entries",50,0,0.4,eventWeight,folder);
+  hm->fill1DHist(diLep.Pt()-gamma.Pt(),"h1_PtDiffZG"+tag+"_"+params->suffix,"Zp_{T}-Gp_{T} (scalar);#Delta p_{T} (GeV);Entries",50,-100,100,eventWeight,folder);
+  hm->fill1DHist((diLep-gamma).Pt(),"h1_PtVecDiffZG"+tag+"_"+params->suffix,"Zp_{T}-Gp_{T} (vector);#Delta p_{T} (GeV);Entries",50,0,200,eventWeight,folder);
+  hm->fill1DHist(diLep.Pt()/gamma.Pt(),"h1_PtRatZG"+tag+"_"+params->suffix,"Zp_{T}/Gp_{T};#frac{Zp_{T}}{Gp_{T}};Entries",40,0,10,eventWeight,folder);
+  hm->fill1DHist((diLep+gamma).Pt(),"h1_PtSumZG"+tag+"_"+params->suffix,"3-Body p_{T};p_{T};Entries",25,0,70,eventWeight,folder);
+  hm->fill1DHist(gamma.E(),"h1_GammaEnergy"+tag+"_"+params->suffix,"Gamma Energy;E (GeV);Entries",30,0,150,eventWeight,folder);
+  hm->fill1DHist(gamma.Pt(),"h1_GammaPt"+tag+"_"+params->suffix,"Gamma p_{T};p_{T} (GeV);Entries",45,10,100,eventWeight,folder);
+  hm->fill2DHist(CalculateX1(diLep,gamma),CalculateX2(diLep,gamma),"h2_X1X2"+tag+"_"+params->suffix,"x1 vs x2;x1;x2",50,0,0.4,50,0,0.4,eventWeight,folder);
+  hm->fill2DHist(diLep.M(),(diLep+gamma).M(),"h2_InvariantMasses"+tag+"_"+params->suffix,"2 Body vs 3 Body Invariant Mass; Z (GeV); Z#gamma (GeV)",80,50,130,110,90,200,eventWeight,folder);
+  hm->fill1DHist((diLep+gamma).M()-diLep.M(),"h1_DeltaM"+tag+"_"+params->suffix,"Z#gamma_{m}-Z_{m};#Deltam (GeV);Entries",70,0,140,eventWeight,folder);
+  hm->fill2DHist(diLep.M(),gamma.Pt(),"h2_2BodyVsGPt"+tag+"_"+params->suffix,"Dilepton Mass vs #gamma p_{T};Z_{m} (GeV);#gamma p_{T}",100,50,150,45,10,100,eventWeight,folder);
+  hm->fill2DHist((diLep+gamma).M(),gamma.Pt(),"h2_3BodyVsGPt"+tag+"_"+params->suffix,"3-Body Mass vs #gamma p_{T};Z#gamma_{m};#gamma p_{T}",20,100,190,45,10,100,eventWeight,folder);
+  hm->fill2DHist((diLep+gamma).M(),(diLep.Pt()-gamma.Pt()),"h2_3BodyVsDiffPt"+tag+"_"+params->suffix,"3-Body Mass vs diff p_{T};Z#gamma_{m};Z p_{T} - #gamma p_{T}",20,100,190,100,-150,150,eventWeight,folder);
+  hm->fill2DHist((diLep+gamma).M(),(diLep.Pt()/gamma.Pt()),"h2_3BodyVsRatPt"+tag+"_"+params->suffix,"3-Body Mass vs ratio p_{T};Z#gamma_{m};Ratio p_{T}",20,100,190,50,0,10,eventWeight,folder);
+  hm->fill2DHist((diLep+gamma).M(),diLep.Pt(),"h2_3BodyVsZPt"+tag+"_"+params->suffix,"3-Body Mass vs #Z p_{T};Z#gamma_{m};Z p_{T}",20,100,190,50,0,150,eventWeight,folder);
+  hm->fill2DHist((diLep+gamma).M()/(diLep+gamma).Pt(),gamma.Pt(),"h2_3BodyOptVsGPt"+tag+"_"+params->suffix,"3-Body Mass/pt vs #gamma p_{T};Z#gamma_{m}/Z#gamma_{pT};#gamma p_{T}",20,0,20,45,10,100,eventWeight,folder);
+  hm->fill2DHist((diLep+gamma).M()/(diLep+gamma).Pt(),(diLep.Pt()-gamma.Pt()),"h2_3BodyOptVsDiffPt"+tag+"_"+params->suffix,"3-Body Mass/pt vs diff p_{T};Z#gamma_{m}/Z#gamma_{pT};Z p_{T} - #gamma p_{T}",20,0,20,100,-150,150,eventWeight,folder);
+  hm->fill2DHist((diLep+gamma).M()/(diLep+gamma).Pt(),(diLep.Pt()/gamma.Pt()),"h2_3BodyOptVsRatPt"+tag+"_"+params->suffix,"3-Body Mass/pt vs ratio p_{T};Z#gamma_{m}/Z#gamma_{pT};Ratio p_{T}",20,0,20,50,0,10,eventWeight,folder);
+  hm->fill2DHist((diLep+gamma).M()/(diLep+gamma).Pt(),diLep.Pt(),"h2_3BodyOptVsZPt"+tag+"_"+params->suffix,"3-Body Mass/pt vs #Z p_{T};Z#gamma_{m}/Z#gamma_{pT};Z p_{T}",20,0,20,50,0,150,eventWeight,folder);
+  hm->fillProfile(CalculateX1(diLep,gamma),CalculateX2(diLep,gamma),"profile_X1X2Pro"+tag+"_"+params->suffix,"x1 vs x2;x1;x2",50,0,0.4,0,0.4,eventWeight,folder);
+  hm->fill1DHist(p1.Pt()/p2.Pt(),"h1_MuonRatPt"+tag+"_"+params->suffix,"leading/trailing p_{T};p_{T} Ratio;Entries",15,0,5,eventWeight,folder);
+  //hm->fill1DHist(photonsIDIso.size(),"h1_photonMult"+tag+"_"+params->suffix,"Photon Multiplicity;nPhoton;Entries",10,0.5,10.5,eventWeight,folder);
+  hm->fill1DHist(fabs(diLep.DeltaPhi(gamma)),"h1_DeltaPhiZG"+tag+"_"+params->suffix,"#Delta#phi (Z,#gamma);#Delta#phi (rad);Entries",20,0,TMath::Pi()+0.5,eventWeight,folder);
+  if (params->suffix.find("GammaStar") !=string::npos){
+    hm->fill1DHist(diLep.M(),"h1_gammaStarMll1"+tag+"_"+params->suffix,"gammaStar M_ll full range; M_ll (GeV);Entries",120,-5,115,eventWeight,folder);
+    hm->fill1DHist(diLep.M(),"h1_gammaStarMll2"+tag+"_"+params->suffix,"gammaStar M_ll low range; M_ll (GeV);Entries",50,-5,45,eventWeight,folder);
+  }
 }
 
 void higgsAnalyzer::StandardPlots(TLorentzVector p1, TLorentzVector p2, TLorentzVector gamma, float eventWeight,string tag, string folder)
@@ -1760,6 +1824,7 @@ void higgsAnalyzer::StandardPlots(TLorentzVector p1, TLorentzVector p2, TLorentz
   hm->fill1DHist(p1.Phi(),"h1_leadLeptonStdPhi"+tag+"_"+params->suffix, "#phi leading lepton;#phi;N_{evts}", 20, -TMath::Pi(), TMath::Pi(), eventWeight,folder);    
 
   hm->fill1DHist(p2.Pt(),"h1_trailingLeptonStdPt"+tag+"_"+params->suffix, "p_{T} trailing lepton;p_{T};N_{evts}", 20, 0., 100., eventWeight,folder); 
+  hm->fill1DHist(p2.Pt(),"h1_trailingLeptonStdPtLow"+tag+"_"+params->suffix, "p_{T} trailing lepton;p_{T};N_{evts}", 20, 0., 40., eventWeight,folder); 
   hm->fill1DHist(p2.Eta(),"h1_trailingLeptonStdEta"+tag+"_"+params->suffix, "#eta trailing lepton;#eta;N_{evts}", 20, -2.5, 2.5, eventWeight,folder);
   hm->fill1DHist(p2.Phi(),"h1_trailingLeptonStdPhi"+tag+"_"+params->suffix, "#phi trailing lepton;#phi;N_{evts}", 20, -TMath::Pi(), TMath::Pi(), eventWeight,folder);
 
@@ -1770,7 +1835,7 @@ void higgsAnalyzer::StandardPlots(TLorentzVector p1, TLorentzVector p2, TLorentz
   hm->fill1DHist(diLep.Pt(),"h1_diLepPt"+tag+"_"+params->suffix, "p_{T} Z;p_{T};N_{evts}", 20, 0., 100., eventWeight,folder);     
   hm->fill1DHist(diLep.Eta(),"h1_diLepEta"+tag+"_"+params->suffix, "#eta Z;#eta;N_{evts}", 18, -2.5, 2.5, eventWeight,folder);    
   hm->fill1DHist(diLep.Phi(),"h1_diLepPhi"+tag+"_"+params->suffix, "#phi Z;#phi;N_{evts}", 18, -TMath::Pi(), TMath::Pi(), eventWeight,folder);    
-  hm->fill1DHist(diLep.M(),"h1_diLepMass"+tag+"_"+params->suffix, "M_{Z};M (GeV);N_{evts}", 50, 66, 116, eventWeight,folder);    
+  hm->fill1DHist(diLep.M(),"h1_diLepMass"+tag+"_"+params->suffix, "M_{Z};M (GeV);N_{evts}", 35, 50, 120, eventWeight,folder);    
   hm->fill1DHist(p1.DeltaR(p2),"h1_diLepDeltaR"+tag+"_"+params->suffix, "DeltaR(p1,p2);#DeltaR;N_{evts}", 50, 0, 6.5, eventWeight,folder);    
   hm->fill1DHist(p1.DeltaR(p2),"h1_diLepDeltaRZoom"+tag+"_"+params->suffix, "DeltaR(p1,p2);#DeltaR;N_{evts}", 50, 0, 1, eventWeight,folder);    
 
@@ -1830,11 +1895,11 @@ void higgsAnalyzer::HighMassPlots(TLorentzVector p1, TLorentzVector p2, TLorentz
   TLorentzVector threeBody = p1+p2+gamma;
 
 
-  hm->fill1DHist(gamma.Pt(),"h1_photonPtHigh"+tag+"_"+params->suffix, "p_{T} gamma;p_{T};N_{evts}", 50, 0.,500., eventWeight,folder); 
-  hm->fill1DHist(p1.Pt(),"h1_leadingLepPtHigh"+tag+"_"+params->suffix, "p_{T} leading lep;p_{T};N_{evts}", 50, 0.,500., eventWeight,folder); 
+  hm->fill1DHist(gamma.Pt(),"h1_photonPtHigh"+tag+"_"+params->suffix, "p_{T} gamma;p_{T};N_{evts}", 100, 0.,1000., eventWeight,folder); 
+  hm->fill1DHist(p1.Pt(),"h1_leadingLepPtHigh"+tag+"_"+params->suffix, "p_{T} leading lep;p_{T};N_{evts}", 100, 0.,1000., eventWeight,folder); 
   hm->fill1DHist(p2.Pt(),"h1_trailingPtHigh"+tag+"_"+params->suffix, "p_{T} trailing lep;p_{T};N_{evts}", 50, 0.,500., eventWeight,folder); 
   hm->fill1DHist(diLep.Pt(),"h1_diLepPtHigh"+tag+"_"+params->suffix, "p_{T} Z;p_{T};N_{evts}", 50, 0., 500., eventWeight,folder);     
-  hm->fill1DHist(threeBody.M(),"h1_threeBodyMassHigh"+tag+"_"+params->suffix, "M_{3body};M (TeV);N_{evts}", 230, 150, 1300, eventWeight,folder);    
+  hm->fill1DHist(threeBody.M(),"h1_threeBodyMassHigh"+tag+"_"+params->suffix, "M_{3body};M (TeV);N_{evts}", 370, 150, 2000, eventWeight,folder);    
   if (p2.Pt() < 20){
     hm->fill1DHist(threeBody.M(),"h1_threeBodyMassHighLowPtLep"+tag+"_"+params->suffix, "M_{3body};M (TeV);N_{evts}", 230, 150, 1300, eventWeight,folder);    
   }
@@ -1883,120 +1948,13 @@ void higgsAnalyzer::DileptonBasicPlots(TLorentzVector ZP4, float eventWeight)
   hm->fill1DHist(ZP4.Pt(),"h1_diLeptonQt_"+params->suffix, "q_{T};Q_{T};N_{evts}", 50, 0., 500., eventWeight,"Lepton");       
 }
 
-void higgsAnalyzer::GenPlots(vector<TCGenParticle> Zs, vector<TCGenParticle> leps, vector<TCGenParticle> phots, vector<TCGenParticle> Hs, TLorentzVector ZP4, TLorentzVector GP4, float eventWeight)
+void higgsAnalyzer::GenPlots(const ParticleSelector::genHZGParticles& myGens, float eventWeight)
 {
-  //cout<<"gen function has activated"<<endl;
-  if (Zs.size()>0){
-    //cout<<"yarp there's some Zs"<<endl;
-    hm->fill1DHist(Zs[0].M(),"h1_genZMass_"+params->suffix, "GEN M_{Z}; M_{Z};N_{evts}", 40, 70., 110., eventWeight,"GenLvl");     
-    hm->fill1DHist(Zs[0].Pt(),"h1_genZQt_"+params->suffix, "q_{T};Q_{T};N_{evts}", 50, 0., 500., eventWeight,"GenLvl");       
-  }
-  if (Hs.size()>0){
-    //cout<<"yarp there's some Zs"<<endl;
-    hm->fill1DHist(Hs[0].M(),"h1_genHMass_"+params->suffix, "GEN M_{H}; M_{H};N_{evts}", 90, 90., 190., eventWeight,"GenLvl");     
-    hm->fill1DHist(Hs[0].Pt(),"h1_genHQt_"+params->suffix, "H p_{T};Q_{T};N_{evts}", 50, 0., 500., eventWeight,"GenLvl");       
-  }
+  hm->fill1DHist(myGens.z->M(),"h1_genZMass_"+params->suffix, "GEN M_{Z}; M_{Z};N_{evts}", 40, 70., 110., eventWeight,"GenPlots");     
+  hm->fill1DHist(myGens.z->Pt(),"h1_genZQt_"+params->suffix, "q_{T};Q_{T};N_{evts}", 50, 0., 500., eventWeight,"GenPlots");       
 
-  vector<TCGenParticle>::iterator lepIt;
-  TCGenParticle zMuon1;
-  TCGenParticle zMuon2;
-  bool oneSet = false;
-
-  if (leps.size() > 1){
-    for (lepIt=leps.begin(); lepIt<leps.end(); lepIt++){
-      if (oneSet && (*lepIt).Mother() && abs((*lepIt).Mother()->GetPDGId()) == 23){
-        zMuon2 = *lepIt;
-        break;
-      }
-      if (!oneSet && (*lepIt).Mother() && abs((*lepIt).Mother()->GetPDGId()) == 23){
-        zMuon1 = *lepIt;
-        oneSet = true;
-      }
-    }
-    //cout<<"yarp there's some MUOOOOONs"<<endl;
-    hm->fill1DHist((zMuon1+zMuon2).M(),"h1_genDiLeptonMass_"+params->suffix, "M_{ll} (pre FSR); M_{ll};N_{evts}", 40, 70., 110., eventWeight,"GenLvl");
-    hm->fill1DHist((zMuon1+zMuon2).Pt(),"h1_genDiLeptonPt_"+params->suffix, "pT_{ll} (pre FSR); M_{ll};N_{evts}", 50, 0., 500., eventWeight,"GenLvl");
-    hm->fill1DHist((zMuon1+zMuon2).M()-ZP4.M(),"h1_genDiLeptonMassRes_"+params->suffix, "Gen-Reco No Gamma M_{ll}; #Delta M_{ll};N_{evts}", 40, -10., 10., eventWeight,"GenLvl");
-
-    /// combinatorix time
-
-    if(params->suffix == "HZG125Signal"){
-      //cout<<"SIGNAL GEN SHIT"<<endl;
-      TCGenParticle hPhot;
-      vector<TCGenParticle>::iterator photIt;
-      for (photIt=leps.begin(); photIt<leps.end(); photIt++){
-        //cout<<(*photIt).Mother()<<endl;
-        if ((*photIt).Mother() && (*photIt).Mother()->GetPDGId()==23){
-          hPhot = *photIt;
-          break;
-        }
-      }
-      //cout<<"End PhotoLoop"<<endl;
-      //cout<<"Gen: "<<(Hs[0]).M()<<endl;
-      //cout<<"Reco: "<<(ZP4+GP4).M()<<endl;
-      hm->fill1DHist((Hs[0]).M()-(ZP4+GP4).M(),"h1_genGamDiLeptonMassRes_"+params->suffix, "Gen-Reco M_{ll#gamma} Total Acc; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight,"GenLvl");
-      // gamma barrel, Z barrel
-      if (fabs(GP4.Eta())<1.4442 && fabs(ZP4.Eta())<1.4442){
-        hm->fill1DHist((Hs[0]).M()-(ZP4+GP4).M(),"h1_genGamDiLeptonMassResBB_"+params->suffix, "Gen-Reco M_{ll#gamma} Barrel Only; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight,"GenLvl");
-      }
-      // gamma barrel, Z endcap
-      if (fabs(GP4.Eta())<1.4442 && fabs(ZP4.Eta())>1.566){
-        hm->fill1DHist((Hs[0]).M()-(ZP4+GP4).M(),"h1_genGamDiLeptonMassResBE_"+params->suffix, "Gen-Reco M_{ll#gamma} #gamma Barrel, diLep Endcap; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight,"GenLvl");
-      }
-      // gamma endcap, Z barrel
-      if (fabs(GP4.Eta())>1.566 && fabs(ZP4.Eta())<1.4442){
-        hm->fill1DHist((Hs[0]).M()-(ZP4+GP4).M(),"h1_genGamDiLeptonMassResEB_"+params->suffix, "Gen-Reco M_{ll#gamma} #gamma Endcap, diLep Barrel; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight,"GenLvl");
-      }
-      // gamma endcap, Z endcap
-      if (fabs(GP4.Eta())>1.566 && fabs(ZP4.Eta())>1.566){
-        hm->fill1DHist((Hs[0]).M()-(ZP4+GP4).M(),"h1_genGamDiLeptonMassResEE_"+params->suffix, "Gen-Reco M_{ll#gamma} Endcap Only; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight,"GenLvl");
-      }
-      // gamma endcap, Z both
-      if (fabs(GP4.Eta())>1.566){
-        hm->fill1DHist((Hs[0]).M()-(ZP4+GP4).M(),"h1_genGamDiLeptonMassResE_"+params->suffix, "Gen-Reco M_{ll#gamma} #gamma Endcap, diLep Both; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight,"GenLvl");
-      }
-      // gamma barrel, Z both
-      if (fabs(GP4.Eta())<1.4442){
-        hm->fill1DHist((Hs[0]).M()-(ZP4+GP4).M(),"h1_genGamDiLeptonMassResB_"+params->suffix, "Gen-Reco M_{ll#gamma} #gamma Barrel, diLep Both; #Delta M_{ll};N_{evts}", 40, -20., 20., eventWeight,"GenLvl");
-      }
-    }
-
-
-
-    else{
-      hm->fill1DHist((zMuon1+zMuon2).M()-(ZP4+GP4).M(),"h1_genGamDiLeptonMassRes_"+params->suffix, "Gen-Reco M_{ll#gamma} Total Acc; #Delta M_{ll};N_{evts}", 40, -10., 10., eventWeight,"GenLvl");
-      // gamma barrel, Z barrel
-      if (fabs(GP4.Eta())<1.4442 && fabs(ZP4.Eta())<1.4442){
-        hm->fill1DHist((zMuon1+zMuon2).M()-(ZP4+GP4).M(),"h1_genGamDiLeptonMassResBB_"+params->suffix, "Gen-Reco M_{ll#gamma} Barrel Only; #Delta M_{ll};N_{evts}", 40, -10., 10., eventWeight,"GenLvl");
-      }
-      // gamma barrel, Z endcap
-      if (fabs(GP4.Eta())<1.4442 && fabs(ZP4.Eta())>1.566){
-        hm->fill1DHist((zMuon1+zMuon2).M()-(ZP4+GP4).M(),"h1_genGamDiLeptonMassResBE_"+params->suffix, "Gen-Reco M_{ll#gamma} #gamma Barrel, diLep Endcap; #Delta M_{ll};N_{evts}", 40, -10., 10., eventWeight,"GenLvl");
-      }
-      // gamma endcap, Z barrel
-      if (fabs(GP4.Eta())>1.566 && fabs(ZP4.Eta())<1.4442){
-        hm->fill1DHist((zMuon1+zMuon2).M()-(ZP4+GP4).M(),"h1_genGamDiLeptonMassResEB_"+params->suffix, "Gen-Reco M_{ll#gamma} #gamma Endcap, diLep Barrel; #Delta M_{ll};N_{evts}", 40, -10., 10., eventWeight,"GenLvl");
-      }
-      // gamma endcap, Z endcap
-      if (fabs(GP4.Eta())>1.566 && fabs(ZP4.Eta())>1.566){
-        hm->fill1DHist((zMuon1+zMuon2).M()-(ZP4+GP4).M(),"h1_genGamDiLeptonMassResEE_"+params->suffix, "Gen-Reco M_{ll#gamma} Endcap Only; #Delta M_{ll};N_{evts}", 40, -10., 10., eventWeight,"GenLvl");
-      }
-      // gamma endcap, Z both
-      if (fabs(GP4.Eta())>1.566){
-        hm->fill1DHist((zMuon1+zMuon2).M()-(ZP4+GP4).M(),"h1_genGamDiLeptonMassResE_"+params->suffix, "Gen-Reco M_{ll#gamma} #gamma Endcap, diLep Both; #Delta M_{ll};N_{evts}", 40, -10., 10., eventWeight,"GenLvl");
-      }
-      // gamma barrel, Z both
-      if (fabs(GP4.Eta())<1.4442){
-        hm->fill1DHist((zMuon1+zMuon2).M()-(ZP4+GP4).M(),"h1_genGamDiLeptonMassResB_"+params->suffix, "Gen-Reco M_{ll#gamma} #gamma Barrel, diLep Both; #Delta M_{ll};N_{evts}", 40, -10., 10., eventWeight,"GenLvl");
-      }
-    }
-
-  }
-
-  if (phots.size() > 1){
-    hm->fill1DHist(phots[0].Pt(),"h1_genLeadPhotonPt_"+params->suffix, "p_{T} gamma;p_{T};N_{evts}", 16, 0., 80., eventWeight,"GenLvl");
-  }
-
+  hm->fill1DHist(myGens.h->M(),"h1_genHMass_"+params->suffix, "GEN M_{H}; M_{H};N_{evts}", 1900, 100., 2000., eventWeight,"GenPlots");     
+  hm->fill1DHist(myGens.h->Pt(),"h1_genHQt_"+params->suffix, "H p_{T};Q_{T};N_{evts}", 50, 0., 500., eventWeight,"GenPlots");       
 }
 
 
@@ -2516,7 +2474,8 @@ void higgsAnalyzer::UniversalEnergyCorrector(TCPhoton& ph, vector<TCGenParticle>
       //cout<<"veto photon size: "<<_genPhotons.size()<<endl;
       for (UInt_t j = 0; j<_genPhotons.size(); j++){
         //if (_genPhotons[j].Mother() && fabs(_genPhotons[j].Mother()->GetPDGId()) == 22) cout<<"mother: "<<_genPhotons[j].Mother()->GetPDGId()<<endl;
-        if(_genPhotons[j].Mother() && (fabs(_genPhotons[j].Mother()->GetPDGId()) == 25 || fabs(_genPhotons[j].Mother()->GetPDGId()) == 22) && _genPhotons[j].GetStatus()==1){
+        if(_genPhotons[j].Mother() && ((fabs(_genPhotons[j].Mother()->GetPDGId()) == 25 || fabs(_genPhotons[j].Mother()->GetPDGId()) == 36)
+              || fabs(_genPhotons[j].Mother()->GetPDGId()) == 22) && _genPhotons[j].GetStatus()==1){
           if(ph.DeltaR(_genPhotons[j])<testDr){
             goodGenPhoton = _genPhotons[j];
             testDr = ph.DeltaR(_genPhotons[j]);
