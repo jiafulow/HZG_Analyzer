@@ -67,12 +67,13 @@ void amumuAnalyzer::Begin(TTree * tree)
   cuts->leadMuPt = 25;
   cuts->trailMuPt = 25;
 
+  //params->engCor = false;
 
   cuts->InitEA(params->period);
   weighter.reset(new WeightUtils(*params, isRealData, runNumber));
   triggerSelector.reset(new TriggerSelector(params->selection, params->period, *triggerNames));
-  //vector<string> triggers{"HLT_Mu17_Mu8_v"};
-  vector<string> triggers{"HLT_IsoMu24_v"};
+  vector<string> triggers{"HLT_Mu17_Mu8_v"};
+  //vector<string> triggers{"HLT_IsoMu24_v"};
   triggerSelector->AddTriggers(triggers);
   triggerSelector->SetSelectedBits();
   rmcor2011.reset(new rochcor_2011(229+100*jobNum));
@@ -88,6 +89,7 @@ void amumuAnalyzer::Begin(TTree * tree)
   amumuFile.reset(new TFile(("amumuFile_"+params->dataname+"_"+params->selection+"_"+params->jobCount+".root").c_str(), "RECREATE"));
   amumuFile->cd();
   amumuTree.reset(new TTree(("amumuTree_"+params->suffix).c_str(),"three body mass values"));
+  hm.reset(new HistManager(amumuFile.get()));
 
   amumuTree->Branch("muonPos",&muonPos);
   amumuTree->Branch("muonNeg",&muonNeg);
@@ -195,52 +197,28 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
 
     if(params->engCor){
       tmpMuCor = *thisMuon;
-      if ( params->period.find("2011") != string::npos ){
-        if (isRealData){
-          if ( params->period.find("A") != string::npos ){
-            rmcor2011->momcor_data(tmpMuCor,thisMuon->Charge(),0,0);
-          }else{
-            rmcor2011->momcor_data(tmpMuCor,thisMuon->Charge(),0,1);
-          }
+      float ptErrMu = 1.0;
+      if (isRealData){
+        if (params->abcd.find("D") != string::npos ){
+          rmcor2012->momcor_data(tmpMuCor,thisMuon->Charge(),1,ptErrMu);
+        }else{
+          rmcor2012->momcor_data(tmpMuCor,thisMuon->Charge(),0,ptErrMu);
         }
-        if (!isRealData){
-          if (rMuRun->Rndm() < 0.458){
-            rmcor2011->momcor_mc(tmpMuCor,thisMuon->Charge(),0,0);
-          }else{
-            rmcor2011->momcor_mc(tmpMuCor,thisMuon->Charge(),0,1);
-          }
-        }
-      }else{
-        float ptErrMu = 1.0;
-        if (isRealData){
-          if (params->abcd.find("D") != string::npos ){
-            rmcor2012->momcor_data(tmpMuCor,thisMuon->Charge(),1,ptErrMu);
-          }else{
-            rmcor2012->momcor_data(tmpMuCor,thisMuon->Charge(),0,ptErrMu);
-          }
-        }
-
-        if (!isRealData) rmcor2012->momcor_mc(tmpMuCor,thisMuon->Charge(),0,ptErrMu);
       }
+
+      if (!isRealData) rmcor2012->momcor_mc(tmpMuCor,thisMuon->Charge(),0,ptErrMu);
       thisMuon->SetPtEtaPhiM(tmpMuCor.Pt(), tmpMuCor.Eta(), tmpMuCor.Phi(), tmpMuCor.M());
     }
 
 
-    // tight muon id
-
-    if (particleSelector->PassMuonID(*thisMuon, cuts->amumu_MuID)){
-      muonsID.push_back(*thisMuon);
-    }
-
     //tight ID and Iso
 
-    if (particleSelector->PassMuonID(*thisMuon, cuts->amumu_MuID) && particleSelector->PassMuonIso(*thisMuon, cuts->tightMuIso)){
+    if (particleSelector->PassMuonID(*thisMuon, cuts->amumu_MuID) && particleSelector->PassMuonIso(*thisMuon, cuts->amumu_MuIso)){
       muonsIDIso.push_back(*thisMuon);
     }
 
   }
 
-  sort(muonsID.begin(), muonsID.end(), P4SortCondition);
   sort(muonsIDIso.begin(), muonsIDIso.end(), P4SortCondition);
 
   /////////
@@ -280,14 +258,13 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   // 2 good muons
   
 
-  if (muonsID.size() < 2) return kTRUE;
-  if (muonsIDIso.size() < 1) return kTRUE;
+  if (muonsIDIso.size() < 2) return kTRUE;
   bool firstMu = false;
   bool bothMus = false;
-  for (UInt_t i = 0; i<muonsID.size(); i++){
-    if (!firstMu && (muonsID[i].Pt() >cuts->trailMuPt)){
+  for (UInt_t i = 0; i<muonsIDIso.size(); i++){
+    if (!firstMu && (muonsIDIso[i].Pt() >cuts->leadMuPt)){
       firstMu = true;
-    }else if (firstMu && (muonsID[i].Pt() >cuts->trailMuPt)){
+    }else if (firstMu && (muonsIDIso[i].Pt() >cuts->trailMuPt)){
       bothMus = true;
       break;
     }
@@ -301,7 +278,7 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   TLorentzVector ZP4; 
 
 
-  bool goodZ = particleSelector->FindGoodZMuon(muonsIDIso,muonsID,lepton1,lepton2,ZP4,lepton1int,lepton2int,30.0);
+  bool goodZ = particleSelector->FindGoodZMuon(muonsIDIso,lepton1,lepton2,ZP4,lepton1int,lepton2int,0.0);
   if (!goodZ) return kTRUE;
 
   //bjet finder
@@ -342,6 +319,7 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   fjet = goodFJet;
   bjet = goodBJet;
   dimuon = ZP4;
+  hm->fill1DHist(ZP4.M(),"h1_dimuonMass_"+params->suffix, "M_{#mu#mu}; M_{#mu#mu};N_{evts}", 60, 10., 70., 1);     
 
 
   

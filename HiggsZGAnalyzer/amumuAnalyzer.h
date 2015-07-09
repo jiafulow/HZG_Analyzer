@@ -166,6 +166,7 @@ class amumuAnalyzer : public TSelector {
     auto_ptr<TTree> genTree;
 
     auto_ptr<TVector3> pvPosition;
+    auto_ptr<HistManager> hm;
 
     // Random number generator
     auto_ptr<TRandom3> rnGenerator;
