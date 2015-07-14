@@ -72,8 +72,8 @@ float TCJet::UncertaintyJES() const {
 }
 
 // b tagging discriminators
-float TCJet::BDiscriminatorMap(string key) {
-    return _bDiscrMap[key];
+float TCJet::BDiscriminatorMap(string key) const{
+    return _bDiscrMap.at(key);
 }
 
 // jet flavor

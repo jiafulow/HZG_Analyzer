@@ -98,3 +98,46 @@ last good script calls:
 ./plot_cfg.py all 12-04-14_HighMass
 ./plot_cfg.py all 12-04-14_HighMass
 ./plot_cfg.py all 12-04-14_HighMass
+./plot_cfg.py all 01-29-15_HighMass
+./plot_cfg.py all 02-04-15_HighMass
+./plot_cfg.py all 02-04-15_HighMassZ75
+./plot_cfg.py all 02-11-15_HighMass
+./plot_cfg.py all 02-13-15_HighMassFakeWeight
+./plot_cfg.py all 02-11-15_HighMass
+./plot_cfg.py all 02-11-15_HighMass
+./plot_cfg.py all 02-11-15_HighMass
+./plot_cfg.py all 02-15-15_HighMass
+./plot_cfg.py all 02-15-15_HighMass
+./plot_cfg.py all 02-17-15_HighMass
+./plot_cfg.py all 02-17-15_HighMass
+./plot_cfg.py multi 02-17-15_HighMass 5 HighMass 5
+./plot_cfg.py multi 02-17-15_HighMass 8 HighMass 8
+./plot_cfg.py multi 02-17-15_HighMass 3 HighMass 3
+./plot_cfg.py all 02-17-15_HighMass
+./plot_cfg.py all 02-17-15_HighMass
+./plot_cfg.py all 02-11-15_HighMass
+./plot_cfg.py all 02-11-15_HighMass
+./plot_cfg.py all 04-23-15_HZG
+./plot_cfg.py all 04-23-15_HZG
+./plot_cfg.py all 04-23-15_HZG
+./plot_cfg.py all 04-23-15_HZG
+./plot_cfg.py all 04-23-15_HZG
+./plot_cfg.py all 04-23-15_HZG
+./plot_cfg.py all 04-23-15_HZG
+./plot_cfg.py all 04-23-15_HZG
+./plot_cfg.py acc 04-13-15_HighMass
+./plot_cfg.py acc 04-13-15_HighMass
+./plot_cfg.py acc 05-29-15_HighMass
+./plot_cfg.py acc 05-29-15_HighMass
+./plot_cfg.py acc 04-27-15_HighMass
+./plot_cfg.py acc 04-1-15_HighMass
+./plot_cfg.py multi 05-29-15_HighMass 10 HighMass 10
+./plot_cfg.py multi 05-29-15_HighMass 10 HighMass 10
+./plot_cfg.py multi 05-29-15_HighMass 10 pT-Eta-Phi 10
+./plot_cfg.py multi 05-29-15_HighMass 10 pT-Eta-Phi 10
+./plot_cfg.py multi 05-29-15_HighMass 10 HighMass 10
+./plot_cfg.py multi 05-29-15_HighMass 10 HighMass 10
+./plot_cfg.py multi 05-29-15_HighMass 10 HighMass 10
+./plot_cfg.py multi 05-29-15_HighMass 10 pT-Eta-Phi 10
+./plot_cfg.py multi 05-29-15_HighMass 10 pT-Eta-Phi 10
+./plot_cfg.py multi 05-29-15_HighMass 10 HighMass 10

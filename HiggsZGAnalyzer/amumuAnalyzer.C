@@ -72,8 +72,8 @@ void amumuAnalyzer::Begin(TTree * tree)
   cuts->InitEA(params->period);
   weighter.reset(new WeightUtils(*params, isRealData, runNumber));
   triggerSelector.reset(new TriggerSelector(params->selection, params->period, *triggerNames));
-  vector<string> triggers{"HLT_Mu17_Mu8_v"};
-  //vector<string> triggers{"HLT_IsoMu24_v"};
+  //vector<string> triggers{"HLT_Mu17_Mu8_v"};
+  vector<string> triggers{"HLT_IsoMu24_v"};
   triggerSelector->AddTriggers(triggers);
   triggerSelector->SetSelectedBits();
   rmcor2011.reset(new rochcor_2011(229+100*jobNum));
@@ -82,6 +82,14 @@ void amumuAnalyzer::Begin(TTree * tree)
   rMuRun.reset(new TRandom3(231+100*jobNum));
   phoCorrector.reset(new zgamma::PhosphorCorrectionFunctor("../plugins/PHOSPHOR_NUMBERS_EXPFIT_ERRORS.txt", true));
   particleSelector.reset(new ParticleSelector(*params, *cuts, isRealData, runNumber));
+  if (params->dataname.find("Run2012D") != string::npos){
+    muscleFitCor.reset(new MuScleFitCorrector("../interface/MuScleFit_2012D_DATA_ReReco_53X.txt"));
+    cout<<"musclefit for run D"<<endl;
+  }else{
+    muscleFitCor.reset(new MuScleFitCorrector("../interface/MuScleFit_2012ABC_DATA_ReReco_53X.txt"));
+    cout<<"musclefit for run ABC"<<endl;
+  }
+
 
   // Random numbers! //
   rnGenerator.reset(new TRandom3);
@@ -197,6 +205,7 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
 
     if(params->engCor){
       tmpMuCor = *thisMuon;
+      /*
       float ptErrMu = 1.0;
       if (isRealData){
         if (params->abcd.find("D") != string::npos ){
@@ -207,6 +216,9 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
       }
 
       if (!isRealData) rmcor2012->momcor_mc(tmpMuCor,thisMuon->Charge(),0,ptErrMu);
+      */
+      muscleFitCor->applyPtCorrection(tmpMuCor,thisMuon->Charge());
+      //muscleFitCor->applyPtSmearing(tmpMuCor,thisMuon->Charge(),false);
       thisMuon->SetPtEtaPhiM(tmpMuCor.Pt(), tmpMuCor.Eta(), tmpMuCor.Phi(), tmpMuCor.M());
     }
 
@@ -242,7 +254,7 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   //forward jet finder
   for (Int_t i = 0; i < recoJets->GetSize(); ++i) {
     TCJet* thisJet = (TCJet*) recoJets->At(i);
-    if (particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), cuts->amumu_fJetID)) fjetsID.push_back(*thisJet);
+    if (particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), cuts->amumu_fJetID_v2)) fjetsID.push_back(*thisJet);
   }
   sort(fjetsID.begin(), fjetsID.end(), P4SortCondition);
 

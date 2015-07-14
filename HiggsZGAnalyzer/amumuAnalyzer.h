@@ -63,6 +63,7 @@
 #include "../interface/ElectronFunctions.h"
 #include "../interface/rochcor_2011.h"
 #include "../interface/rochcor2012jan22.h"
+#include "../interface/MuScleFitCorrector.h"
 #include "../interface/PhosphorCorrectorFunctor.hh"
 #include "../interface/LeptonScaleCorrections.h"
 #include "../interface/EGammaMvaEleEstimator.h"
@@ -184,6 +185,7 @@ class amumuAnalyzer : public TSelector {
     auto_ptr<rochcor_2011> rmcor2011;
     auto_ptr<rochcor2012> rmcor2012;
     auto_ptr<zgamma::PhosphorCorrectionFunctor> phoCorrector;
+    auto_ptr<MuScleFitCorrector> muscleFitCor;
 
     //ElectronMVA selection
     auto_ptr<TMVA::Reader> myTMVAReader;

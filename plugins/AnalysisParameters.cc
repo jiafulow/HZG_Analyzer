@@ -208,6 +208,18 @@ Cuts::Cuts():
   tightMuID.dxy =                         0.2;
   tightMuID.dz =                          0.5;
 
+  amumu_MuID.cutName =                     "amumu_MuID";
+  amumu_MuID.IsPF =                        1;
+  amumu_MuID.IsGLB =                       1;
+  amumu_MuID.IsTRK =                       1;
+  amumu_MuID.NormalizedChi2 =              10;
+  amumu_MuID.NumberOfValidMuonHits =       0;
+  amumu_MuID.NumberOfMatchedStations =     1;
+  amumu_MuID.NumberOfValidPixelHits =      0;
+  amumu_MuID.TrackLayersWithMeasurement =  5;
+  amumu_MuID.dxy =                         0.2;
+  amumu_MuID.dz =                          0.5;
+
   dalitzMuID.cutName =                     "dalitzMuID";
   dalitzMuID.IsPF =                        1;
   dalitzMuID.IsGLB =                       1;
@@ -226,11 +238,17 @@ Cuts::Cuts():
   tightMuIso.phIso04 =                    99999;
   tightMuIso.relCombIso04 =               0.12;
 
+  amumu_MuIso.cutName =                    "amumu_MuIso";
+  amumu_MuIso.chIso04 =                    99999;
+  amumu_MuIso.nhIso04 =                    99999;
+  amumu_MuIso.phIso04 =                    99999;
+  amumu_MuIso.relCombIso04 =               0.1;
+
   looseMuIso.cutName =                    "looseMuIso";
   looseMuIso.chIso04 =                    99999;
   looseMuIso.nhIso04 =                    99999;
   looseMuIso.phIso04 =                    99999;
-  looseMuIso.relCombIso04 =               0.4;
+  looseMuIso.relCombIso04 =               0.2;
 
   loosePhID.cutName =                     "loosePhID";
   loosePhID.PassedEleSafeVeto[0] =        1;
@@ -299,6 +317,38 @@ Cuts::Cuts():
   vbfJetID.dR2Mean[2] =                    0.05;
 
   vbfJetID.dR2Mean[3] =                    0.055;
+
+  amumu_bJetID.cutName =                       "amumu_bJetID";
+  amumu_bJetID.betaStarC[0] =                  0.2;
+  amumu_bJetID.dR2Mean[0] =                    0.06;
+  amumu_bJetID.betaStarC[1] =                  0.3;
+  amumu_bJetID.dR2Mean[1] =                    0.05;
+  amumu_bJetID.dR2Mean[2] =                    0.05;
+  amumu_bJetID.dR2Mean[3] =                    0.055;
+
+  amumu_fJetID.cutName =                       "amumu_fJetID";
+  amumu_fJetID.betaStarC[0] =                  0.2;
+  amumu_fJetID.dR2Mean[0] =                    0.06;
+  amumu_fJetID.betaStarC[1] =                  0.3;
+  amumu_fJetID.dR2Mean[1] =                    0.05;
+  amumu_fJetID.dR2Mean[2] =                    0.05;
+  amumu_fJetID.dR2Mean[3] =                    0.055;
+
+  amumu_fJetID_v2.cutName =                       "amumu_fJetID_v2";
+  amumu_fJetID_v2.betaStarC[0] =                  0.2;
+  amumu_fJetID_v2.dR2Mean[0] =                    0.06;
+  amumu_fJetID_v2.betaStarC[1] =                  0.3;
+  amumu_fJetID_v2.dR2Mean[1] =                    0.05;
+  amumu_fJetID_v2.dR2Mean[2] =                    0.05;
+  amumu_fJetID_v2.dR2Mean[3] =                    0.055;
+
+  amumu_cJetVetoID.cutName =                       "amumu_cJetVetoID";
+  amumu_cJetVetoID.betaStarC[0] =                  0.2;
+  amumu_cJetVetoID.dR2Mean[0] =                    0.06;
+  amumu_cJetVetoID.betaStarC[1] =                  0.3;
+  amumu_cJetVetoID.dR2Mean[1] =                    0.05;
+  amumu_cJetVetoID.dR2Mean[2] =                    0.05;
+  amumu_cJetVetoID.dR2Mean[3] =                    0.055;
 
   hzgMVAID.cutName  =                      "hzgMVAID";
   hzgMVAID.mvaVal[0] =                      -0.9;

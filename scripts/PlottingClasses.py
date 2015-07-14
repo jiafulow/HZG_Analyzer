@@ -7,7 +7,7 @@ import numpy as np
 
 #color dictionary
 colorDict = {'DYJets':kGreen+1,'ZGToLLG':kBlue,'DYToMuMu':kOrange,'DYToEE':kOrange,'DYJetsS10':kGreen+1}
-colorList = [kBlack,kRed,kBlue,kGreen+1,kMagenta+1,kOrange,kYellow+2,kMagenta+3,kGreen-1]
+colorList = [kBlack,kRed,kBlue,kGreen+1,kMagenta+1,kOrange,kYellow+2,kMagenta+3,kGreen-1,kCyan,kGray]
 
 # class for multi-layered nested dictionaries, pretty cool
 class AutoVivification(dict):
@@ -141,8 +141,8 @@ class Plotter:
       return outList
 
     if norm:
-      outList[0].Scale(1/outList[0].Integral())
-      outList[1].Scale(1/outList[1].Integral())
+      outList[0].Scale(1/outList[0].Integral(0,outList[0].GetNbinsX()+1))
+      outList[1].Scale(1/outList[1].Integral(0,outList[1].GetNbinsX()+1))
 
     ymax = max(map(lambda x:x.GetMaximum(),outList))*1.1
     ymin = 0
@@ -192,7 +192,7 @@ class Plotter:
 
     if norm:
       for hist in outList:
-        hist.Scale(1/hist.Integral())
+        hist.Scale(1/hist.Integral(0,hist.GetNbinsX()+1))
 
     ymax = max(map(lambda x:x.GetMaximum(),outList))*1.1
     #ymin = 0.00001
@@ -376,12 +376,17 @@ class Plotter:
     bg.SetMaximum(ymax)
     bg.SetMinimum(ymin)
     if not do2D: bg.Draw('hist')
-    else: bg.Draw('colz')
+    else: bg.Draw('box')
+    #else: bg.Draw('')
     bg.GetYaxis().SetTitle(data.GetYaxis().GetTitle())
     bg.GetYaxis().SetTitleSize(0.06)
     bg.GetYaxis().CenterTitle()
     bg.GetXaxis().SetTitle(data.GetXaxis().GetTitle())
     bg.GetXaxis().SetTitleSize(0.05)
+    if do2D:
+      bg.SetMarkerStyle(kBlack)
+      bg.Rebin2D(3,2)
+      bg.SetFillColor(kBlack)
     #bg.GetYaxis().SetLabelSize(0.05)
     #bg.GetXaxis().SetLabelSize(0.05)
     #bg.GetXaxis().SetTitle(dist)
@@ -390,10 +395,16 @@ class Plotter:
     #bg.GetXaxis().SetRangeUser(100,200)
 
     if not do2D: data.Draw('pesame')
-    else: data.Draw('boxsame')
+    #else: data.Draw('boxsame')
 
     if not do2D: signal.Draw('histsame')
-    else: signal.Draw('boxsame')
+    else:
+      signal.Set
+      signal.Rebin2D(3,2)
+      signal.SetFillColor(kRed)
+      signal.SetFillStyle(1001)
+      signal.Draw('boxsame')
+      #signal.Draw('same')
 
     if lineX:
       print 'lineX',lineX
@@ -569,9 +580,7 @@ class Plotter:
     else:
       leg = self.MakeLegend()
     if soloPlot in [None, 'Data']:
-      if do2D:
-        leg.AddEntry(dataHist,'DATA','f')
-      else:
+      if not do2D:
         leg.AddEntry(dataHist,'DATA','lep')
 
     if soloPlot in [None, 'bg']:

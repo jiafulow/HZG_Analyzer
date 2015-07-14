@@ -65,7 +65,7 @@ class TCJet : public TCPhysObject {
         float UncertaintyJES() const;
 
         // b tagging discriminators
-        float BDiscriminatorMap(string key);
+        float BDiscriminatorMap(string key) const;
 
         // Jet flavor
         int   JetFlavor() const;

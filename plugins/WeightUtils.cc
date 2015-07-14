@@ -50,6 +50,24 @@ WeightUtils::WeightUtils(const Parameters& params, bool isRealData, int runNumbe
   _inFileEl_Iso_Data = new TFile("otherHistos/el_Iso_Data.root","OPEN");
   _inFileEl_Iso_MC = new TFile("otherHistos/el_Iso_MC.root","OPEN");
 
+  _inFileEl_ID_Data_v2 = new TFile("otherHistos/el_ID_Data_v2.root","OPEN");
+  _inFileEl_ID_MC_v2 = new TFile("otherHistos/el_ID_MC_v2.root","OPEN");
+  _inFileEl_Iso_Data_v2 = new TFile("otherHistos/el_Iso_Data_v2.root","OPEN");
+  _inFileEl_Iso_MC_v2 = new TFile("otherHistos/el_Iso_MC_v2.root","OPEN");
+  _inFileEl_ID_Data_Low_v2 = new TFile("otherHistos/el_ID_Data_Low_v2.root","OPEN");
+  _inFileEl_ID_MC_Low_v2 = new TFile("otherHistos/el_ID_MC_Low_v2.root","OPEN");
+  _inFileEl_Iso_Data_Low_v2 = new TFile("otherHistos/el_Iso_Data_Low_v2.root","OPEN");
+  _inFileEl_Iso_MC_Low_v2 = new TFile("otherHistos/el_Iso_MC_Low_v2.root","OPEN");
+
+  _inFileEl_LeadingTrigger_Data_v2 = new TFile("otherHistos/el_LeadingTrigger_Data_v2.root","OPEN");
+  _inFileEl_LeadingTrigger_MC_v2 = new TFile("otherHistos/el_LeadingTrigger_MC_v2.root","OPEN");
+  _inFileEl_TrailingTrigger_Data_v2 = new TFile("otherHistos/el_TrailingTrigger_Data_v2.root","OPEN");
+  _inFileEl_TrailingTrigger_MC_v2 = new TFile("otherHistos/el_TrailingTrigger_MC_v2.root","OPEN");
+  _inFileEl_LeadingTrigger_Data_Low_v2 = new TFile("otherHistos/el_LeadingTrigger_Data_Low_v2.root","OPEN");
+  _inFileEl_LeadingTrigger_MC_Low_v2 = new TFile("otherHistos/el_LeadingTrigger_MC_Low_v2.root","OPEN");
+  _inFileEl_TrailingTrigger_Data_Low_v2 = new TFile("otherHistos/el_TrailingTrigger_Data_Low_v2.root","OPEN");
+  _inFileEl_TrailingTrigger_MC_Low_v2 = new TFile("otherHistos/el_TrailingTrigger_MC_Low_v2.root","OPEN");
+
 
   // PU weights
   h1_S6to2011          = (TH1F*)_inFileS6to2011->Get("pileupWeights");
@@ -108,6 +126,25 @@ WeightUtils::WeightUtils(const Parameters& params, bool isRealData, int runNumbe
   h2_el_ID_MC = (TH2F*)_inFileEl_ID_MC->Get("hEffEtaPt");
   h2_el_Iso_Data = (TH2F*)_inFileEl_Iso_Data->Get("hEffEtaPt");
   h2_el_Iso_MC = (TH2F*)_inFileEl_Iso_MC->Get("hEffEtaPt");
+
+  h2_el_ID_Data_v2 = (TH2F*)_inFileEl_ID_Data_v2->Get("hEffEtaPt");
+  h2_el_ID_MC_v2 = (TH2F*)_inFileEl_ID_MC_v2->Get("hEffEtaPt");
+  h2_el_Iso_Data_v2 = (TH2F*)_inFileEl_Iso_Data_v2->Get("hEffEtaPt");
+  h2_el_Iso_MC_v2 = (TH2F*)_inFileEl_Iso_MC_v2->Get("hEffEtaPt");
+  h2_el_ID_Data_Low_v2 = (TH2F*)_inFileEl_ID_Data_Low_v2->Get("hEffEtaPt");
+  h2_el_ID_MC_Low_v2 = (TH2F*)_inFileEl_ID_MC_Low_v2->Get("hEffEtaPt");
+  h2_el_Iso_Data_Low_v2 = (TH2F*)_inFileEl_Iso_Data_Low_v2->Get("hEffEtaPt");
+  h2_el_Iso_MC_Low_v2 = (TH2F*)_inFileEl_Iso_MC_Low_v2->Get("hEffEtaPt");
+
+  h2_el_LeadingTrigger_Data_v2 = (TH2F*)_inFileEl_LeadingTrigger_Data_v2->Get("hEffEtaPt");
+  h2_el_LeadingTrigger_MC_v2 = (TH2F*)_inFileEl_LeadingTrigger_MC_v2->Get("hEffEtaPt");
+  h2_el_TrailingTrigger_Data_v2 = (TH2F*)_inFileEl_TrailingTrigger_Data_v2->Get("hEffEtaPt");
+  h2_el_TrailingTrigger_MC_v2 = (TH2F*)_inFileEl_TrailingTrigger_MC_v2->Get("hEffEtaPt");
+  h2_el_LeadingTrigger_Data_Low_v2 = (TH2F*)_inFileEl_LeadingTrigger_Data_Low_v2->Get("hEffEtaPt");
+  h2_el_LeadingTrigger_MC_Low_v2 = (TH2F*)_inFileEl_LeadingTrigger_MC_Low_v2->Get("hEffEtaPt");
+  h2_el_TrailingTrigger_Data_Low_v2 = (TH2F*)_inFileEl_TrailingTrigger_Data_Low_v2->Get("hEffEtaPt");
+  h2_el_TrailingTrigger_MC_Low_v2 = (TH2F*)_inFileEl_TrailingTrigger_MC_Low_v2->Get("hEffEtaPt");
+
 
   //muon histos/graphs
   ge_MuonID2012_Tight[0] = (TGraphErrors*)_inFileMuonID2012->Get("DATA_over_MC_Tight_pt_abseta<0.9");
@@ -435,25 +472,35 @@ float WeightUtils::GammaSelectionWeight(TLorentzVector l1, int cat){
 
   float phoSF = 1.0;
 
+  /*
   float _photonMVASF[4][2] = {
     //40<pT<50    50<pT<120
     {0.9975,      1.0240},  //Cat1
     {0.9958,      1.0229},  //Cat2
     {1.0071,      1.0311},  //Cat3
     {0.9901,      0.9874}}; //Cat4
+  */
 
-  if(l1.Pt() < 50) phoSF = _photonMVASF[cat-1][0];
-  else phoSF = _photonMVASF[cat-1][1];
+  float _photonMVASF[4][7] = {
+    //40<pT<45    45<pT<50      50<pT<55     55<pT<60   60<pT<70    70<pT<80  80<pT<120 
+    {0.9982,      1.0224,       1.0323,      1.0297,    1.0325,     1.0220,   1.0319},  //Cat1
+    {0.9776,      1.0138,       1.0175,      1.0211,    1.0251,     1.0210,   1.0245},  //Cat2
+    {0.9877,      1.0124,       1.0259,      1.0262,    1.0217,     1.0181,   1.0258},  //Cat3
+    {0.9941,      0.9913,       0.9850,      0.9883,    0.9870,     0.9708,   1.0059}}; //Cat4
+
+  if(l1.Pt() < 45) phoSF = _photonMVASF[cat-1][0];
+  else if(l1.Pt() < 50) phoSF = _photonMVASF[cat-1][1];
+  else if(l1.Pt() < 55) phoSF = _photonMVASF[cat-1][2];
+  else if(l1.Pt() < 60) phoSF = _photonMVASF[cat-1][3];
+  else if(l1.Pt() < 70) phoSF = _photonMVASF[cat-1][4];
+  else if(l1.Pt() < 80) phoSF = _photonMVASF[cat-1][5];
+  else phoSF = _photonMVASF[cat-1][6];
 
   return phoSF;
 }
 
 
 float WeightUtils::ElectronSelectionWeight(TLorentzVector l1){
-  float eleSF;
-  int xBin;
-  int yBin;
-
   /*
   xBin = h1_EleMoriondWP2012->GetXaxis()->FindFixBin(l1.Pt());
   if (xBin>7) xBin=7;
@@ -466,7 +513,12 @@ float WeightUtils::ElectronSelectionWeight(TLorentzVector l1){
       eleSF = 1;
   }
   */
-  if(_params.doHighMass == true){
+  float eleSF;
+  int xBin;
+  int yBin;
+
+  bool badCor = false;
+  if(_params.doHighMass == true && badCor){
     float eleDataEff = 0;
     float eleMCEff = 0;
 
@@ -496,8 +548,60 @@ float WeightUtils::ElectronSelectionWeight(TLorentzVector l1){
 
     eleSF = eleDataEff/eleMCEff;
 
+  }else if(_params.doHighMass == true && !badCor){
+    float eleDataEff = 0;
+    float eleMCEff = 0;
+
+    TH2F * h2_el_ID_Data_tmp;
+    TH2F * h2_el_Iso_Data_tmp;
+    TH2F * h2_el_ID_MC_tmp;
+    TH2F * h2_el_Iso_MC_tmp;
+    int xbinMax = 0;
+    int ybinMax = 0;
+    if (l1.Pt()<20){
+      h2_el_ID_Data_tmp = h2_el_ID_Data_Low_v2;
+      h2_el_ID_MC_tmp= h2_el_ID_MC_Low_v2;
+      h2_el_Iso_Data_tmp = h2_el_Iso_Data_Low_v2;
+      h2_el_Iso_MC_tmp = h2_el_Iso_MC_Low_v2;
+      xbinMax = 2;
+      ybinMax= 1;
+    }else{
+      h2_el_ID_Data_tmp = h2_el_ID_Data_v2;
+      h2_el_ID_MC_tmp = h2_el_ID_MC_v2;
+      h2_el_Iso_Data_tmp = h2_el_Iso_Data_v2;
+      h2_el_Iso_MC_tmp = h2_el_Iso_MC_v2;
+      xbinMax = 5;
+      ybinMax= 3;
+    }
+
+    xBin = h2_el_ID_Data_tmp->GetXaxis()->FindFixBin(fabs(l1.Eta()));
+    yBin = h2_el_ID_Data_tmp->GetYaxis()->FindFixBin(max(l1.Pt(),10.0));
+    if (xBin>xbinMax) xBin=xbinMax;
+    if (yBin>ybinMax) yBin=ybinMax;
+    eleDataEff = h2_el_ID_Data_tmp->GetBinContent(xBin,yBin);
+
+    xBin = h2_el_Iso_Data_tmp->GetXaxis()->FindFixBin(fabs(l1.Eta()));
+    yBin = h2_el_Iso_Data_tmp->GetYaxis()->FindFixBin(max(l1.Pt(),10.0));
+    if (xBin>xbinMax) xBin=xbinMax;
+    if (yBin>ybinMax) yBin=ybinMax;
+    eleDataEff *= h2_el_Iso_Data_tmp->GetBinContent(xBin,yBin);
+
+    xBin = h2_el_ID_MC_tmp->GetXaxis()->FindFixBin(fabs(l1.Eta()));
+    yBin = h2_el_ID_MC_tmp->GetYaxis()->FindFixBin(max(l1.Pt(),10.0));
+    if (xBin>xbinMax) xBin=xbinMax;
+    if (yBin>ybinMax) yBin=ybinMax;
+    eleMCEff = h2_el_ID_MC_tmp->GetBinContent(xBin,yBin);
+
+    xBin = h2_el_Iso_MC_tmp->GetXaxis()->FindFixBin(fabs(l1.Eta()));
+    yBin = h2_el_Iso_MC_tmp->GetYaxis()->FindFixBin(max(l1.Pt(),10.0));
+    if (xBin>xbinMax) xBin=xbinMax;
+    if (yBin>ybinMax) yBin=ybinMax;
+    eleMCEff *= h2_el_Iso_MC_tmp->GetBinContent(xBin,yBin);
+
+    eleSF = eleDataEff/eleMCEff;
+
   }else if (_params.suffix.find("Old") != string::npos){
-    xBin = h1_EleLegacyWP2012->GetXaxis()->FindFixBin(l1.Pt());
+    xBin = h1_EleLegacyWP2012->GetXaxis()->FindFixBin(max(l1.Pt(),10.0));
     if (xBin>7) xBin=7;
     yBin = h1_EleLegacyWP2012->GetYaxis()->FindFixBin(l1.Eta());
     if (yBin>10) yBin=10;
@@ -508,7 +612,7 @@ float WeightUtils::ElectronSelectionWeight(TLorentzVector l1){
       eleSF = 1;
     }
   }else{
-    xBin = h1_EleTightMVAWP->GetYaxis()->FindFixBin(l1.Pt());
+    xBin = h1_EleTightMVAWP->GetYaxis()->FindFixBin(max(l1.Pt(),10.0));
     if (xBin>4) xBin=4;
     yBin = h1_EleTightMVAWP->GetXaxis()->FindFixBin(l1.Eta());
     if (yBin>5) yBin=5;
@@ -709,6 +813,7 @@ float WeightUtils::ElectronTriggerWeight(TLorentzVector l1, TLorentzVector l2, b
 {
   if (_isRealData) return 1.0;
 
+
  ///////////////////
  // Scale Factors //
  ///////////////////
@@ -809,7 +914,118 @@ float WeightUtils::ElectronTriggerWeight(TLorentzVector l1, TLorentzVector l2, b
     {0.977215,    0.986849,   0.992508,   0.993102}  // |eta| > 1.566, leading 
   };
 
-  if (_params.PU == "S10"){
+  if(_params.doHighMass == true){
+    float elTrigDataA8 = 1.0;
+    float elTrigDataA17 = 1.0;
+    float elTrigDataB8 = 1.0;
+    float elTrigDataB17 = 1.0;
+
+    float elTrigMCA8 = 1.0;
+    float elTrigMCA17 = 1.0;
+    float elTrigMCB8 = 1.0;
+    float elTrigMCB17 = 1.0;
+
+
+    TH2F * h2_el_LeadingTrigger_Data_tmpA;
+    TH2F * h2_el_TrailingTrigger_Data_tmpA;
+    TH2F * h2_el_LeadingTrigger_MC_tmpA;
+    TH2F * h2_el_TrailingTrigger_MC_tmpA;
+    TH2F * h2_el_LeadingTrigger_Data_tmpB;
+    TH2F * h2_el_TrailingTrigger_Data_tmpB;
+    TH2F * h2_el_LeadingTrigger_MC_tmpB;
+    TH2F * h2_el_TrailingTrigger_MC_tmpB;
+    int xbinMax = 0;
+    int ybinMax = 0;
+    int xBin = 99;
+    int yBin = 99;
+    if (l1.Pt()<20){
+      h2_el_LeadingTrigger_Data_tmpA = h2_el_LeadingTrigger_Data_Low_v2;
+      h2_el_LeadingTrigger_MC_tmpA= h2_el_LeadingTrigger_MC_Low_v2;
+      h2_el_TrailingTrigger_Data_tmpA = h2_el_TrailingTrigger_Data_Low_v2;
+      h2_el_TrailingTrigger_MC_tmpA = h2_el_TrailingTrigger_MC_Low_v2;
+      xbinMax = 2;
+      ybinMax= 1;
+    }else{
+      h2_el_LeadingTrigger_Data_tmpA = h2_el_LeadingTrigger_Data_v2;
+      h2_el_LeadingTrigger_MC_tmpA = h2_el_LeadingTrigger_MC_v2;
+      h2_el_TrailingTrigger_Data_tmpA = h2_el_TrailingTrigger_Data_v2;
+      h2_el_TrailingTrigger_MC_tmpA = h2_el_TrailingTrigger_MC_v2;
+      xbinMax = 5;
+      ybinMax= 3;
+    }
+
+    xBin = h2_el_LeadingTrigger_Data_tmpA->GetXaxis()->FindFixBin(fabs(l1.Eta()));
+    yBin = h2_el_LeadingTrigger_Data_tmpA->GetYaxis()->FindFixBin(max(l1.Pt(),10.0));
+    if (xBin>xbinMax) xBin=xbinMax;
+    if (yBin>ybinMax) yBin=ybinMax;
+    elTrigDataA17 = h2_el_LeadingTrigger_Data_tmpA->GetBinContent(xBin,yBin);
+
+    xBin = h2_el_TrailingTrigger_Data_tmpA->GetXaxis()->FindFixBin(fabs(l1.Eta()));
+    yBin = h2_el_TrailingTrigger_Data_tmpA->GetYaxis()->FindFixBin(max(l1.Pt(),10.0));
+    if (xBin>xbinMax) xBin=xbinMax;
+    if (yBin>ybinMax) yBin=ybinMax;
+    elTrigDataA8 = h2_el_TrailingTrigger_Data_tmpA->GetBinContent(xBin,yBin);
+
+    xBin = h2_el_LeadingTrigger_MC_tmpA->GetXaxis()->FindFixBin(fabs(l1.Eta()));
+    yBin = h2_el_LeadingTrigger_MC_tmpA->GetYaxis()->FindFixBin(max(l1.Pt(),10.0));
+    if (xBin>xbinMax) xBin=xbinMax;
+    if (yBin>ybinMax) yBin=ybinMax;
+    elTrigMCA17 = h2_el_LeadingTrigger_MC_tmpA->GetBinContent(xBin,yBin);
+
+    xBin = h2_el_TrailingTrigger_MC_tmpA->GetXaxis()->FindFixBin(fabs(l1.Eta()));
+    yBin = h2_el_TrailingTrigger_MC_tmpA->GetYaxis()->FindFixBin(max(l1.Pt(),10.0));
+    if (xBin>xbinMax) xBin=xbinMax;
+    if (yBin>ybinMax) yBin=ybinMax;
+    elTrigMCA8 = h2_el_TrailingTrigger_MC_tmpA->GetBinContent(xBin,yBin);
+
+    if (l2.Pt()<20){
+      h2_el_LeadingTrigger_Data_tmpB = h2_el_LeadingTrigger_Data_Low_v2;
+      h2_el_LeadingTrigger_MC_tmpB= h2_el_LeadingTrigger_MC_Low_v2;
+      h2_el_TrailingTrigger_Data_tmpB = h2_el_TrailingTrigger_Data_Low_v2;
+      h2_el_TrailingTrigger_MC_tmpB = h2_el_TrailingTrigger_MC_Low_v2;
+      xbinMax = 2;
+      ybinMax= 1;
+    }else{
+      h2_el_LeadingTrigger_Data_tmpB = h2_el_LeadingTrigger_Data_v2;
+      h2_el_LeadingTrigger_MC_tmpB = h2_el_LeadingTrigger_MC_v2;
+      h2_el_TrailingTrigger_Data_tmpB = h2_el_TrailingTrigger_Data_v2;
+      h2_el_TrailingTrigger_MC_tmpB = h2_el_TrailingTrigger_MC_v2;
+      xbinMax = 5;
+      ybinMax= 3;
+    }
+
+    xBin = h2_el_LeadingTrigger_Data_tmpB->GetXaxis()->FindFixBin(fabs(l2.Eta()));
+    yBin = h2_el_LeadingTrigger_Data_tmpB->GetYaxis()->FindFixBin(max(l2.Pt(),10.0));
+    if (xBin>xbinMax) xBin=xbinMax;
+    if (yBin>ybinMax) yBin=ybinMax;
+    elTrigDataB17 = h2_el_LeadingTrigger_Data_tmpB->GetBinContent(xBin,yBin);
+
+    xBin = h2_el_TrailingTrigger_Data_tmpB->GetXaxis()->FindFixBin(fabs(l2.Eta()));
+    yBin = h2_el_TrailingTrigger_Data_tmpB->GetYaxis()->FindFixBin(max(l2.Pt(),10.0));
+    if (xBin>xbinMax) xBin=xbinMax;
+    if (yBin>ybinMax) yBin=ybinMax;
+    elTrigDataB8 = h2_el_TrailingTrigger_Data_tmpB->GetBinContent(xBin,yBin);
+
+    xBin = h2_el_LeadingTrigger_MC_tmpB->GetXaxis()->FindFixBin(fabs(l2.Eta()));
+    yBin = h2_el_LeadingTrigger_MC_tmpB->GetYaxis()->FindFixBin(max(l2.Pt(),10.0));
+    if (xBin>xbinMax) xBin=xbinMax;
+    if (yBin>ybinMax) yBin=ybinMax;
+    elTrigMCB17 = h2_el_LeadingTrigger_MC_tmpB->GetBinContent(xBin,yBin);
+
+    xBin = h2_el_TrailingTrigger_MC_tmpB->GetXaxis()->FindFixBin(fabs(l2.Eta()));
+    yBin = h2_el_TrailingTrigger_MC_tmpB->GetYaxis()->FindFixBin(max(l2.Pt(),10.0));
+    if (xBin>xbinMax) xBin=xbinMax;
+    if (yBin>ybinMax) yBin=ybinMax;
+    elTrigMCB8 = h2_el_TrailingTrigger_MC_tmpB->GetBinContent(xBin,yBin);
+
+    if (approx){
+      return (elTrigDataA17/elTrigMCA17)*(elTrigDataB8/elTrigMCB8);
+    }else{
+      return (elTrigDataA8*elTrigDataB17 + elTrigDataA17*elTrigDataB8 - elTrigDataA17*elTrigDataB17)/
+        (elTrigMCA8*elTrigMCB17 + elTrigMCA17*elTrigMCB8 - elTrigMCA17*elTrigMCB17);
+    }
+
+  }else if (_params.PU == "S10"){
     //using old scalefactors
 
     float elTrigSF1 = 1.0;

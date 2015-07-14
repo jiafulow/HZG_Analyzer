@@ -58,6 +58,7 @@ cat > run.C << +EOF
     gROOT->LoadMacro("ElectronFunctions.cc+");
     gROOT->LoadMacro("rochcor_2011.cc+");
     gROOT->LoadMacro("rochcor2012v2.C+");
+    gROOT->LoadMacro("MuScleFitCorrector.h+");
     gROOT->LoadMacro("PhosphorCorrectorFunctor.cc+");
     gROOT->LoadMacro("LeptonScaleCorrections.h+");
     gROOT->LoadMacro("EGammaMvaEleEstimator.cc+");

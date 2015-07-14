@@ -83,7 +83,7 @@ class Cuts{
       float dxy;
       float dz;
       string cutName;
-    } tightMuID, dalitzMuID;
+    } tightMuID, dalitzMuID, amumu_MuID;
 
     struct muIsoCuts{
       float chIso04;
@@ -91,7 +91,7 @@ class Cuts{
       float phIso04;
       float relCombIso04;
       string cutName;
-    } tightMuIso, looseMuIso;
+    } tightMuIso, looseMuIso, amumu_MuIso;
 
     struct elIDCuts{
       //broken into [0] barrel and [1] endcap
@@ -164,7 +164,7 @@ class Cuts{
       float betaStarC[2];
       float dR2Mean[4];
       string cutName;
-    } vbfJetID;
+    } vbfJetID, amumu_fJetID, amumu_fJetID_v2, amumu_bJetID, amumu_cJetVetoID;
 
 
     ~Cuts();

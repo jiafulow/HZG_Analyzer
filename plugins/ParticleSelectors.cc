@@ -15,6 +15,10 @@ void ParticleSelector::SetPv(const TVector3& pv){
   _pv = pv;
 }
 
+void ParticleSelector::SetAllPvs(const vector<TVector3>& pvs){
+  _allPvs = pvs;
+}
+
 void ParticleSelector::SetRho(float rhoFactor){
   _rhoFactor = rhoFactor;
 }
@@ -127,7 +131,7 @@ bool ParticleSelector::FindGoodZMuon(const vector<TCMuon>& muonList1, const vect
   return goodZ;
 }
 
-bool ParticleSelector::FindGoodPhoton(const vector<TCPhoton>& photonList, TCPhoton& gamma, const TCPhysObject& lepton1, const TCPhysObject& lepton2, float& scEta){
+bool ParticleSelector::FindGoodPhoton(const vector<TCPhoton>& photonList, TCPhoton& gamma, const TCPhysObject& lepton1, const TCPhysObject& lepton2, float& scEta, bool doScaledPt){
   bool goodPhoton = false;
   for (UInt_t i = 0; i<photonList.size(); i++){
 
@@ -144,7 +148,10 @@ bool ParticleSelector::FindGoodPhoton(const vector<TCPhoton>& photonList, TCPhot
     }
 
     if ((gamma.DeltaR(lepton1)<_cuts.dR || gamma.DeltaR(lepton2)<_cuts.dR)) continue;
-    if (gamma.Pt()/(gamma+lepton1+lepton2).M() > _cuts.gPtOverMass && gamma.Pt() > _cuts.gPt){
+    if (doScaledPt){
+      if (gamma.Pt()/(gamma+lepton1+lepton2).M() < _cuts.gPtOverMass) continue;
+    }
+    if (gamma.Pt() > _cuts.gPt){
       goodPhoton = true;
       break;
     }
@@ -198,7 +205,7 @@ void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, const
     }else if (abs(thisGen->GetPDGId()) == 23) genZs.push_back(*thisGen);
     else if (abs(thisGen->GetPDGId()) == 24) genWs.push_back(*thisGen);
     else if (abs(thisGen->GetPDGId()) == 22) genPhotons.push_back(*thisGen);
-    else if (abs(thisGen->GetPDGId()) == 25) genHs.push_back(*thisGen);
+    else if (abs(thisGen->GetPDGId()) == 25 || abs(thisGen->GetPDGId()) == 36) genHs.push_back(*thisGen);
   }
   ///////// sort gen particles by PT ///////////
 
@@ -264,11 +271,13 @@ void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, const
 
   if (genLeptons.size() > 1){
     for (testIt=genLeptons.begin(); testIt<genLeptons.end(); testIt++){
-      if((*testIt).Mother() && (*testIt).Mother()->Mother() && (*testIt).Mother()->GetPDGId() == 23 && (*testIt).Mother()->Mother()->GetPDGId() == 25 && (*testIt).Charge() == 1 ){
+      if((*testIt).Mother() && (*testIt).Mother()->Mother() && (*testIt).Mother()->GetPDGId() == 23
+          && ((*testIt).Mother()->Mother()->GetPDGId() == 25 ||(*testIt).Mother()->Mother()->GetPDGId() == 36  )&& (*testIt).Charge() == 1 ){
 
         _genHZG.lp = new TCGenParticle(*testIt);
         posLep = true;
-      }else if((*testIt).Mother() && (*testIt).Mother()->Mother() && (*testIt).Mother()->GetPDGId()== 23 && (*testIt).Mother()->Mother()->GetPDGId() == 25 && (*testIt).Charge() == -1){
+      }else if((*testIt).Mother() && (*testIt).Mother()->Mother() && (*testIt).Mother()->GetPDGId()== 23
+          && ((*testIt).Mother()->Mother()->GetPDGId() == 25 || (*testIt).Mother()->Mother()->GetPDGId() == 36)&& (*testIt).Charge() == -1){
         _genHZG.lm = new TCGenParticle(*testIt);
         negLep = true;
       }
@@ -280,7 +289,8 @@ void  ParticleSelector::FindGenParticles(const TClonesArray& genParticles, const
       for (testIt=genPhotons.begin(); testIt<genPhotons.end(); testIt++){
         //cout<<"mother: "<<testIt->Mother()<<"\tstatus: "<<testIt->GetStatus()<<endl;
         if (fabs((*testIt+*_genHZG.lm+*_genHZG.lp).M()- _genHZG.h->M()) < 0.1) _genHZG.g = new TCGenParticle(*testIt); goodPhot = true; break;
-        if ((*testIt).Mother() && (*testIt).Mother()->GetPDGId() == 25 && fabs((*testIt+*_genHZG.lm+*_genHZG.lp).M()-_genHZG.h->M()) < 0.1) _genHZG.g = new TCGenParticle(*testIt); goodPhot = true; break;
+        if ( ((*testIt).Mother() && (*testIt).Mother()->GetPDGId() == 25 || (*testIt).Mother() && (*testIt).Mother()->GetPDGId() == 36)
+            && fabs((*testIt+*_genHZG.lm+*_genHZG.lp).M()-_genHZG.h->M()) < 0.1) _genHZG.g = new TCGenParticle(*testIt); goodPhot = true; break;
       }
       if (!goodPhot) return;
     //_genHZG.g = new TCGenParticle(genPhotons.front());
@@ -304,6 +314,7 @@ void ParticleSelector::CleanUpGen(genHZGParticles& _genHZG){
 bool ParticleSelector::PassMuonID(const TCMuon& mu, const Cuts::muIDCuts& cutLevel){
 
   bool muPass = false;
+  bool testPvBullshit = false;
   if (cutLevel.cutName == "tightMuID"){
     if (_parameters.suffix.find("2011") != string::npos){
       if (
@@ -317,6 +328,24 @@ bool ParticleSelector::PassMuonID(const TCMuon& mu, const Cuts::muIDCuts& cutLev
           && fabs(mu.Dxy(&_pv))           < cutLevel.dxy
           && fabs(mu.Dz(&_pv))            < cutLevel.dz
          ) muPass = true;
+    }else if(testPvBullshit){
+      if (
+          fabs(mu.Eta()) < 2.4
+          && mu.IsPF()                          == cutLevel.IsPF
+          && mu.IsGLB()                         == cutLevel.IsGLB
+          && mu.NormalizedChi2()                < cutLevel.NormalizedChi2
+          && mu.NumberOfValidMuonHits()         > cutLevel.NumberOfValidMuonHits
+          && mu.NumberOfMatchedStations()       > cutLevel.NumberOfMatchedStations
+          && mu.NumberOfValidPixelHits()        > cutLevel.NumberOfValidPixelHits
+          && mu.TrackLayersWithMeasurement()    > cutLevel.TrackLayersWithMeasurement
+         ){
+        for (vector<TVector3>::iterator it = _allPvs.begin(); it != _allPvs.end(); ++it){
+          if((fabs(mu.Dxy(&(*it))) < cutLevel.dxy) && (fabs(mu.Dz(&(*it)))  < cutLevel.dz)){
+            muPass = true;
+            break;
+          }
+        }
+      }
     }else{
       if (
           fabs(mu.Eta()) < 2.4
@@ -331,6 +360,18 @@ bool ParticleSelector::PassMuonID(const TCMuon& mu, const Cuts::muIDCuts& cutLev
           && fabs(mu.Dz(&_pv))            < cutLevel.dz
          ) muPass = true;
     }
+  }else if (cutLevel.cutName == "amumu_MuID"){
+    if (
+        fabs(mu.Eta()) < 2.1
+        && mu.IsGLB()                         == cutLevel.IsGLB
+        && mu.NormalizedChi2()                < cutLevel.NormalizedChi2
+        && mu.NumberOfMatchedStations()       > cutLevel.NumberOfMatchedStations
+        && mu.NumberOfValidPixelHits()        > cutLevel.NumberOfValidPixelHits
+        && mu.TrackLayersWithMeasurement()    > cutLevel.TrackLayersWithMeasurement
+        && fabs(mu.Dxy(&_pv))           < cutLevel.dxy
+        && fabs(mu.Dz(&_pv))            < cutLevel.dz
+       ) muPass = true;
+
   }else if (cutLevel.cutName == "dalitzMuID"){
     if (
         fabs(mu.Eta()) < 2.4
@@ -348,13 +389,17 @@ bool ParticleSelector::PassMuonID(const TCMuon& mu, const Cuts::muIDCuts& cutLev
 
 bool ParticleSelector::PassMuonIso(const TCMuon& mu, const Cuts::muIsoCuts& cutLevel){
 
-  float combIso;
-
-  combIso = (mu.PfIsoChargedHad()
-    + max(0.,(double)mu.PfIsoNeutral()+ mu.PfIsoPhoton() - 0.5*mu.PfIsoPU()));
-
   bool isoPass = false;
-  if (combIso/mu.Pt() < cutLevel.relCombIso04) isoPass = true;
+  if(cutLevel.cutName == "amumu_MuIso"){
+    if(mu.IdMap("SumPt_R03")< 0.1) isoPass = true;
+  }else if (cutLevel.cutName == "tightMuIso" || cutLevel.cutName == "looseMuIso"){
+    float combIso;
+
+    combIso = (mu.PfIsoChargedHad()
+      + max(0.,(double)mu.PfIsoNeutral()+ mu.PfIsoPhoton() - 0.5*mu.PfIsoPU()));
+
+    if (combIso/mu.Pt() < cutLevel.relCombIso04) isoPass = true;
+  }
   return isoPass;
 }
 
@@ -774,25 +819,106 @@ bool ParticleSelector::PassPhotonMVA(const TCPhoton& ph, const Cuts::phMVACuts& 
 bool ParticleSelector::PassJetID(const TCJet& jet, int nVtx, const Cuts::jetIDCuts& cutLevel){
   bool idPass = false;
 
-  if (fabs(jet.Eta()) < 2.5){
-    if(
-          jet.BetaStarClassic()/log(nVtx-0.64)  < cutLevel.betaStarC[0]
-       && jet.DR2Mean()                         < cutLevel.dR2Mean[0]
-      ) idPass = true;
-  }else if (fabs(jet.Eta()) < 2.75){
-    if(
-          jet.BetaStarClassic()/log(nVtx-0.64)  < cutLevel.betaStarC[1]
-       && jet.DR2Mean()                         < cutLevel.dR2Mean[1]
-      ) idPass = true;
-  }else if (fabs(jet.Eta()) < 3.0){
-    if(
-          jet.DR2Mean()                         < cutLevel.dR2Mean[2]
-      ) idPass = true;
-  }else{ 
-    if(
-          jet.DR2Mean()                         < cutLevel.dR2Mean[3]
-      ) idPass = true;
+  if (cutLevel.cutName == "vbfJetID"){
+    if (fabs(jet.Eta()) < 2.5){
+      if(
+            jet.BetaStarClassic()/log(nVtx-0.64)  < cutLevel.betaStarC[0]
+         && jet.DR2Mean()                         < cutLevel.dR2Mean[0]
+        ) idPass = true;
+    }else if (fabs(jet.Eta()) < 2.75){
+      if(
+            jet.BetaStarClassic()/log(nVtx-0.64)  < cutLevel.betaStarC[1]
+         && jet.DR2Mean()                         < cutLevel.dR2Mean[1]
+        ) idPass = true;
+    }else if (fabs(jet.Eta()) < 3.0){
+      if(
+            jet.DR2Mean()                         < cutLevel.dR2Mean[2]
+        ) idPass = true;
+    }else{ 
+      if(
+            jet.DR2Mean()                         < cutLevel.dR2Mean[3]
+        ) idPass = true;
+    }
+
+  }else if (cutLevel.cutName=="amumu_fJetID"){
+    if (fabs(jet.Eta()) < 2.4) return false;
+    if (fabs(jet.Eta()) > 4.7) return false;
+    if (jet.Pt() < 30) return false;
+
+    if( !(jet.NumConstit()  > 1
+      && jet.NeuHadFrac()  < 0.99
+      && jet.NeuEmFrac()   < 0.99)) return false;
+    //if( !(jet.NumConstit()  > 1
+    //  && jet.NeuHadFrac()  < 0.9
+    //  && jet.NeuEmFrac()   < 0.9)) return false;
+
+    if (fabs(jet.Eta()) < 2.5){
+      if(
+            jet.BetaStarClassic()/log(nVtx-0.64)  < cutLevel.betaStarC[0]
+         && jet.DR2Mean()                         < cutLevel.dR2Mean[0]
+        ) idPass = true;
+    }else if (fabs(jet.Eta()) < 2.75){
+      if(
+            jet.BetaStarClassic()/log(nVtx-0.64)  < cutLevel.betaStarC[1]
+         && jet.DR2Mean()                         < cutLevel.dR2Mean[1]
+        ) idPass = true;
+    }else if (fabs(jet.Eta()) < 3.0){
+      if(
+            jet.DR2Mean()                         < cutLevel.dR2Mean[2]
+        ) idPass = true;
+    }else{ 
+      if(
+            jet.DR2Mean()                         < cutLevel.dR2Mean[3]
+        ) idPass = true;
+    }
+
+  }else if (cutLevel.cutName=="amumu_fJetID_v2"){
+    if (fabs(jet.Eta()) < 2.4) return false;
+    if (fabs(jet.Eta()) > 4.7) return false;
+    if (jet.Pt() < 30) return false;
+
+    if( !(jet.NumConstit()  > 1
+      && jet.NeuHadFrac()  < 0.99
+      && jet.NeuEmFrac()   < 0.99)) return false;
+    //if( !(jet.NumConstit()  > 1
+    //  && jet.NeuHadFrac()  < 0.9
+    //  && jet.NeuEmFrac()   < 0.9)) return false;
+    
+    if (jet.IdMap("PUID_MVA_Loose")) idPass = true;
+
+
+  }else if (cutLevel.cutName=="amumu_cJetVetoID"){
+    if (fabs(jet.Eta()) > 2.4) return false;
+    if (jet.Pt() < 30) return false;
+
+    if( jet.NumConstit()  > 1
+      && jet.NeuHadFrac()  < 0.99
+      && jet.NeuEmFrac()   < 0.99
+      && jet.ChHadFrac()   > 0.
+      && jet.NumChPart()   > 0.
+      && jet.ChEmFrac()    < 0.99
+      && jet.IdMap("PUID_MVA_Loose")) idPass = true;
   }
+
+  return idPass;
+}
+
+bool ParticleSelector::PassJetID(const TCJet& jet, int nVtx, const TCPhysObject& muon1, const TCPhysObject& muon2, const Cuts::jetIDCuts& cutLevel){
+  bool idPass = false;
+
+  if (cutLevel.cutName=="amumu_bJetID"){
+    //float b_csv = jet.BDiscriminatorMap("CSV");
+    float b_csv = jet.BDiscriminatorMap("CSVv1");
+    if (fabs(jet.Eta())<2.4 &&
+        jet.Pt() > 30 &&
+        b_csv > 0.783) // CSVv1 Medium
+        //b_csv > 0.679) // CSV Medium
+    {
+      if (jet.DeltaR(muon1)>0.5 && jet.DeltaR(muon2)>0.5) idPass = true;
+    }
+
+  }
+
   return idPass;
 }
         

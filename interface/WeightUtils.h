@@ -95,6 +95,24 @@ class WeightUtils: public TObject {
         TFile *_inFileEl_Iso_Data;
         TFile *_inFileEl_Iso_MC;
 
+        TFile *_inFileEl_ID_Data_v2;
+        TFile *_inFileEl_ID_MC_v2;
+        TFile *_inFileEl_Iso_Data_v2;
+        TFile *_inFileEl_Iso_MC_v2;
+        TFile *_inFileEl_ID_Data_Low_v2;
+        TFile *_inFileEl_ID_MC_Low_v2;
+        TFile *_inFileEl_Iso_Data_Low_v2;
+        TFile *_inFileEl_Iso_MC_Low_v2;
+
+        TFile *_inFileEl_LeadingTrigger_Data_v2;
+        TFile *_inFileEl_LeadingTrigger_MC_v2;
+        TFile *_inFileEl_TrailingTrigger_Data_v2;
+        TFile *_inFileEl_TrailingTrigger_MC_v2;
+        TFile *_inFileEl_LeadingTrigger_Data_Low_v2;
+        TFile *_inFileEl_LeadingTrigger_MC_Low_v2;
+        TFile *_inFileEl_TrailingTrigger_Data_Low_v2;
+        TFile *_inFileEl_TrailingTrigger_MC_Low_v2;
+
 
         TH2D * _HLTMu17Mu8_2011;
 
@@ -154,6 +172,23 @@ class WeightUtils: public TObject {
         TH2F * h2_el_Iso_Data;
         TH2F * h2_el_Iso_MC;
 
+        TH2F * h2_el_ID_Data_v2;
+        TH2F * h2_el_ID_MC_v2;
+        TH2F * h2_el_Iso_Data_v2;
+        TH2F * h2_el_Iso_MC_v2;
+        TH2F * h2_el_ID_Data_Low_v2;
+        TH2F * h2_el_ID_MC_Low_v2;
+        TH2F * h2_el_Iso_Data_Low_v2;
+        TH2F * h2_el_Iso_MC_Low_v2;
+
+        TH2F * h2_el_LeadingTrigger_Data_v2;
+        TH2F * h2_el_LeadingTrigger_MC_v2;
+        TH2F * h2_el_TrailingTrigger_Data_v2;
+        TH2F * h2_el_TrailingTrigger_MC_v2;
+        TH2F * h2_el_LeadingTrigger_Data_Low_v2;
+        TH2F * h2_el_LeadingTrigger_MC_Low_v2;
+        TH2F * h2_el_TrailingTrigger_Data_Low_v2;
+        TH2F * h2_el_TrailingTrigger_MC_Low_v2;
 
         //weights
         float _puWeight;

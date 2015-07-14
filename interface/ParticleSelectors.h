@@ -20,6 +20,7 @@ class ParticleSelector {
   public:
     ParticleSelector(const Parameters& parameters, const Cuts& cuts, bool isRealData, int runNumber);
     void SetPv(const TVector3&);
+    void SetAllPvs(const vector<TVector3>&);
     void SetRho(float);
     void SetEventNumber(int);
     bool FindGoodZElectron(const vector<TCElectron>& electronList, TCPhysObject& lepton1, TCPhysObject& lepton2, TLorentzVector& ZP4, float& eta1, float& eta2, int& int1, int& int2); 
@@ -27,7 +28,7 @@ class ParticleSelector {
     bool FindGoodZMuon(const vector<TCMuon>& muonList, TCPhysObject& lepton1, TCPhysObject& lepton2, TLorentzVector& ZP4, int& int1, int& int2, float diLepMass); 
     bool FindGoodZMuon(const vector<TCMuon>& muonList1, const vector<TCMuon>& muonList2, TCPhysObject& lepton1, TCPhysObject& lepton2, TLorentzVector& ZP4, int& int1, int& int2, float diLepMass); 
     bool FindGoodDiJets(const vector<TCJet>& jetList, const TCPhysObject& lepton1, const TCPhysObject& lepton2, const TLorentzVector& gamma, TCJet& jet1, TCJet& jet2); 
-    bool FindGoodPhoton(const vector<TCPhoton>& photonList, TCPhoton& gamma, const TCPhysObject& lepton1, const TCPhysObject& lepton2, float& scEta);
+    bool FindGoodPhoton(const vector<TCPhoton>& photonList, TCPhoton& gamma, const TCPhysObject& lepton1, const TCPhysObject& lepton2, float& scEta, bool doScaledPt);
 
     static bool P4SortCondition(const TLorentzVector& p1, const TLorentzVector& p2) {return (p1.Pt() > p2.Pt());} 
     struct genHZGParticles{
@@ -53,6 +54,7 @@ class ParticleSelector {
     bool PassPhotonIso(const TCPhoton& ph, const Cuts::phIsoCuts& cutLevel, float EAPho[7][3]);
     bool PassPhotonMVA(const TCPhoton& ph, const Cuts::phMVACuts& cutLevel, const bool isGoodLeptons);
     bool PassJetID(const TCJet& jet, int nVtx, const Cuts::jetIDCuts& cutLevel);
+    bool PassJetID(const TCJet& jet, int nVtx, const TCPhysObject& muon1, const TCPhysObject& muon2, const Cuts::jetIDCuts& cutLevel);
     float   Zeppenfeld(const TLorentzVector& p, const TLorentzVector& pj1, const TLorentzVector& pj2);
 
   private:
@@ -63,6 +65,8 @@ class ParticleSelector {
     TVector3 _pv;
     float _rhoFactor;
     int _evtnum;
+
+    vector<TVector3> _allPvs;
 };
 
 
