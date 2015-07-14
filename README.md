@@ -4,9 +4,10 @@ Welcome to the New HZG Analyzer, by Brian Pollack
 This branch is in production, intended to run on the bleeding edge NWU ntuples.
 Significant updates are intended for readability, speed improvements, and workflow optimization.
 
-Notes:
+Overview:
 ------
-  * No more visible runtime errors.  Will update instructions shortly.
+`HiggsZGAnalyzer`
+
 
 From Yanyan (compiling MCFM for MEM):
 ------------------------------------
