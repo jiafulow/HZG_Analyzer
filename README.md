@@ -6,7 +6,10 @@ Significant updates are intended for readability, speed improvements, and workfl
 
 Overview:
 ------
-`HiggsZGAnalyzer`
+`HiggsZGAnalyzer` contains the main analyzer for H(A)->Zg, along with other analyzers.  All analyzers are meant to run on nuTuples.
+`hzgammaME` contains MCFM libraries for computing matrix elements
+`scripts` contains plotting scripts for use on analyzer outputs
+`interface, src, plugins` contain C++ source code for all the dependencies required to run the analyzers.
 
 
 From Yanyan (compiling MCFM for MEM):
