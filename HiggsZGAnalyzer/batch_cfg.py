@@ -2,12 +2,12 @@
 import BatchMaster as b
 import os
 
-EOS         = '/eos/uscms/store/user/bpollack'
-dCache      = '/pnfs/cms/WAX/11/store/user/bpollack'
+EOS         = '/eos/uscms/store/user/jiafulow'
+dCache      = '/pnfs/cms/WAX/11/store/user/jiafulow'
 t3storage   = '/tthome/share/noobs/'
 
-outputPathFNAL  = '/uscms/home/bpollack/nobackup/BatchOutput'
-outputPathNWU  = '/tthome/bpollack/BatchOutput'
+outputPathFNAL  = '/uscms/home/jiafulow/nobackup/BatchOutput'
+outputPathNWU  = '/tthome/jiafulow/BatchOutput'
 
 
 do7Tev = False

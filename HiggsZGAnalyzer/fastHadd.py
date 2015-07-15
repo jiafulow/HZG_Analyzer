@@ -84,8 +84,8 @@ def fastHadd():
 
 if __name__=="__main__":
   fastHadd()
-  os.system('rm /tmp/batch_submit*')
-  os.system('rm /tmp/*Gamma*')
+  os.system('rm -f /tmp/batch_submit*')
+  os.system('rm -f /tmp/*Gamma*')
 
 #hadd -f otherHistos/eleSmear2011.root ~/nobackup/BatchOutput/eeGamma_Combined/eleSmearFile_*
 #./hadd.py ForStoyan/higgsHistograms_MuMu2011_Limits_Nominal_LowR9.root mumuGamma File Run2011A Run2011B ggHZG_M120 ggHZG_M125 ggHZG_M130 ggHZG_M135 ggHZG_M140 vbfHZG_M120 vbfHZG_M125 vbfHZG_M130 vbfHZG_M135 vbfHZG_M140

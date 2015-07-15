@@ -2,7 +2,7 @@
 . /etc/bashrc
 echo `hostname`
 export OSG_APP=/software/tier3/osg
-export SCRAM_ARCH=slc5_amd64_gcc462
+export SCRAM_ARCH=slc5_amd64_gcc472
 source /software/tier3/osg/cmsset_default.sh
 scramv1 project CMSSW_6_1_1
 cd CMSSW_6_1_1/src
