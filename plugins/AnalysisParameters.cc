@@ -326,6 +326,14 @@ Cuts::Cuts():
   amumu_bJetID.dR2Mean[2] =                    0.05;
   amumu_bJetID.dR2Mean[3] =                    0.055;
 
+  amumu_bJetID_v2.cutName =                    "amumu_bJetID_v2";
+  amumu_bJetID_v2.betaStarC[0] =               0.2;
+  amumu_bJetID_v2.dR2Mean[0] =                 0.06;
+  amumu_bJetID_v2.betaStarC[1] =               0.3;
+  amumu_bJetID_v2.dR2Mean[1] =                 0.05;
+  amumu_bJetID_v2.dR2Mean[2] =                 0.05;
+  amumu_bJetID_v2.dR2Mean[3] =                 0.055;
+
   amumu_fJetID.cutName =                       "amumu_fJetID";
   amumu_fJetID.betaStarC[0] =                  0.2;
   amumu_fJetID.dR2Mean[0] =                    0.06;

@@ -34,7 +34,11 @@ cat > run.C << +EOF
     const string delWarn("-Wshadow");
     int pos1 = libMake.find(delWarn);
     libMake= libMake.substr(0, pos1) + libMake.substr(pos1+delWarn.size()+1); 
+    const string delWarn2("-Wunused-parameter");
+    int pos2 = libMake.find(delWarn2);
+    libMake= libMake.substr(0, pos2) + libMake.substr(pos2+delWarn2.size()+1); 
     gSystem->SetMakeSharedLib(libMake.c_str());
+
 
     //cout<<gSystem->GetMakeSharedLib()<<endl;
 

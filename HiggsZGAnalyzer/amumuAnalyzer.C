@@ -73,7 +73,8 @@ void amumuAnalyzer::Begin(TTree * tree)
   weighter.reset(new WeightUtils(*params, isRealData, runNumber));
   triggerSelector.reset(new TriggerSelector(params->selection, params->period, *triggerNames));
   //vector<string> triggers{"HLT_Mu17_Mu8_v"};
-  vector<string> triggers{"HLT_IsoMu24_v"};
+  //vector<string> triggers{"HLT_IsoMu24_v"};
+  vector<string> triggers{"HLT_IsoMu24_eta2p1_v"};
   triggerSelector->AddTriggers(triggers);
   triggerSelector->SetSelectedBits();
   rmcor2011.reset(new rochcor_2011(229+100*jobNum));
@@ -102,12 +103,29 @@ void amumuAnalyzer::Begin(TTree * tree)
   amumuTree->Branch("muonPos",&muonPos);
   amumuTree->Branch("muonNeg",&muonNeg);
   amumuTree->Branch("dimuon",&dimuon);
+  amumuTree->Branch("ncjets",&ncjets);
+  amumuTree->Branch("nbjets",&nbjets);
+  amumuTree->Branch("nfjets",&nfjets);
   amumuTree->Branch("bjet",&bjet);
   amumuTree->Branch("fjet",&fjet);
+  amumuTree->Branch("passSasha",&passSasha);
+  amumuTree->Branch("passMass",&passMass);
+  amumuTree->Branch("passFjet",&passFjet);
+  amumuTree->Branch("bjetCSV",&bjetCSV);
+  amumuTree->Branch("bjetCSVv1",&bjetCSVv1);
+  amumuTree->Branch("bjetPUID",&bjetPUID);
+  amumuTree->Branch("fjetPUID",&fjetPUID);
 
   genTree.reset(new TTree(("genTree_"+params->suffix).c_str(),"three body mass values"));
   genTree->Branch("muonPosGen",&muonPosGen);
   genTree->Branch("muonNegGen",&muonNegGen);
+
+  eidTree.reset(new TTree(("eidTree_"+params->suffix).c_str(), "event ID values"));
+  eidTree->Branch("runNumber",  &runNumber,   "runNumber/i");
+  eidTree->Branch("eventNumber",&eventNumber, "eventNumber/l");
+  eidTree->Branch("lumiSection",&lumiSection, "lumiSection/i");
+  eidTree->Branch("bunchCross", &bunchCross,  "bunchCross/i");
+
 }
 
 
@@ -155,6 +173,54 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   
 
 */
+
+  // Sasha
+  passSasha = false;
+  std::vector<TString> sasha_eids = {
+    "194210 330188889 353",
+    "195013 155914555 137",
+    "195013 432365639 294",
+    "195016 500333554 461",
+    "195530 191933309 121",
+    "195930 473942607 534",
+    "194076 44538663 39",
+    "198208 6083441 8",
+    "199608 1041294296 910",
+    "200244 546645828 392",
+    "201611 25727947 92",
+    "201625 710936075 506",
+    "202272 1324877158 1244",
+    "203002 661609587 495",
+    "205344 1290153995 1293",
+    "205344 760686468 688",
+    "206187 300828672 230",
+    "206207 351305609 243",
+    "207487 488341242 295",
+    "207492 28138469 33",
+    "206389 360651834 266",
+    "206512 1191941546 972",
+    "206542 890723046 596",
+    "208429 18763549 16",
+    "207454 1307316295 969",
+    "207492 49930022 59",
+    "207515 1541194263 1128",
+    "207905 931671297 663",
+    "208427 237292625 153",
+    "208541 146684805 95",
+    "206940 332466391 247",
+    "205217 315513605 316",
+    "207279 1265277673 976"
+  };
+  assert(sasha_eids.size() == 33);
+  for (int i = 0; i < sasha_eids.size(); ++i) {
+    TString eid = Form("%d %ld %d", runNumber, eventNumber, lumiSection);
+    if (eid == sasha_eids.at(i)) {
+        passSasha = true;
+        break;
+    }
+  }
+
+
   // trigger
 
   for(int i = 0; i < 64; ++i) {
@@ -233,39 +299,6 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
 
   sort(muonsIDIso.begin(), muonsIDIso.end(), P4SortCondition);
 
-  /////////
-  // MET //
-  /////////
-
-  //if(recoMET->Mod() > 40) return kTRUE;
-
-
-
-  //////////
-  // Jets //
-  //////////
-
-  vector<TCJet> fjetsID;
-  vector<TCJet> cjetsVetoID;
-  vector<TCJet> bjetsID;
-  TCPhysObject goodFJet;
-  TCPhysObject goodBJet;
-  
-  //forward jet finder
-  for (Int_t i = 0; i < recoJets->GetSize(); ++i) {
-    TCJet* thisJet = (TCJet*) recoJets->At(i);
-    if (particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), cuts->amumu_fJetID_v2)) fjetsID.push_back(*thisJet);
-  }
-  sort(fjetsID.begin(), fjetsID.end(), P4SortCondition);
-
-  if (fjetsID.size() >= 1){
-
-    goodFJet= fjetsID[0];
-  }else{
-    return kTRUE;
-  }
-
-
 
   // 2 good muons
   
@@ -293,31 +326,86 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   bool goodZ = particleSelector->FindGoodZMuon(muonsIDIso,lepton1,lepton2,ZP4,lepton1int,lepton2int,0.0);
   if (!goodZ) return kTRUE;
 
+  // Apply dimuon mass window cut
+  if (!(12. <= ZP4.M() && ZP4.M() <= 70.)) return kTRUE;
+  hm->fill1DHist(1, "h1_cutFlow_"+params->suffix, "; cut flow step;N_{evts}", 10, 0., 10., 1);
+
+
+  //////////
+  // Jets //
+  //////////
+
+  vector<TCJet> fjetsID;
+  vector<TCJet> cjetsVetoID;
+  vector<TCJet> bjetsID;
+  TCJet goodFJet;
+  TCJet goodBJet;
+
+  //central jet finder
+  for (Int_t i = 0; i < recoJets->GetSize(); ++i) {
+    TCJet* thisJet = (TCJet*) recoJets->At(i);
+    if (particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), lepton1, lepton2, cuts->amumu_cJetVetoID)) cjetsVetoID.push_back(*thisJet);
+  }
+  //sort(cjetsVetoID.begin(), cjetsVetoID.end(), P4SortCondition);
+
+  if (cjetsVetoID.size() > 0){
+    // do nothing
+  }else{
+    return kTRUE;
+  }
+  hm->fill1DHist(2, "h1_cutFlow_"+params->suffix, "; cut flow step;N_{evts}", 10, 0., 10., 1);
+
   //bjet finder
   for (Int_t i = 0; i < recoJets->GetSize(); ++i) {
     TCJet* thisJet = (TCJet*) recoJets->At(i);
-    if (particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), lepton1, lepton2, cuts->amumu_bJetID)) bjetsID.push_back(*thisJet);
+    if (particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), lepton1, lepton2, cuts->amumu_bJetID_v2)) bjetsID.push_back(*thisJet);
   }
   sort(bjetsID.begin(), bjetsID.end(), P4SortCondition);
 
   if (bjetsID.size() == 1){
-
     goodBJet= bjetsID[0];
   }else{
     return kTRUE;
   }
+  hm->fill1DHist(3, "h1_cutFlow_"+params->suffix, "; cut flow step;N_{evts}", 10, 0., 10., 1);
 
   //central jet veto
-  for (Int_t i = 0; i < recoJets->GetSize(); ++i) {
-    TCJet* thisJet = (TCJet*) recoJets->At(i);
-    if (particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), cuts->amumu_cJetVetoID)) cjetsVetoID.push_back(*thisJet);
-  }
-
   if (cjetsVetoID.size() > 0){
     for (Int_t i = 0; i < cjetsVetoID.size(); ++i){
-      if (goodBJet.DeltaR(cjetsVetoID[0])>0.1) return kTRUE;
+      if (goodBJet.DeltaR(cjetsVetoID[i])>0.1) return kTRUE;
     }
   }
+  hm->fill1DHist(4, "h1_cutFlow_"+params->suffix, "; cut flow step;N_{evts}", 10, 0., 10., 1);
+
+  //forward jet finder
+  for (Int_t i = 0; i < recoJets->GetSize(); ++i) {
+    TCJet* thisJet = (TCJet*) recoJets->At(i);
+    if (particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), cuts->amumu_fJetID_v2)) fjetsID.push_back(*thisJet);
+  }
+  sort(fjetsID.begin(), fjetsID.end(), P4SortCondition);
+
+  if (fjetsID.size() > 0){
+
+    goodFJet= fjetsID[0];
+  }else{
+    //return kTRUE;
+  }
+
+  passFjet = (fjetsID.size() > 0);
+  if (passFjet)  
+    hm->fill1DHist(5, "h1_cutFlow_"+params->suffix, "; cut flow step;N_{evts}", 10, 0., 10., 1);
+
+  passMass = (26. <= ZP4.M() && ZP4.M() <= 32.);
+  if (passMass)
+    hm->fill1DHist(6, "h1_cutFlow_"+params->suffix, "; cut flow step;N_{evts}", 10, 0., 10., 1);
+
+
+  /////////
+  // MET // 
+  /////////
+
+  //if(recoMET->Mod() > 40) return kTRUE;
+
 
   // put them in the branch
 
@@ -331,12 +419,24 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   fjet = goodFJet;
   bjet = goodBJet;
   dimuon = ZP4;
-  hm->fill1DHist(ZP4.M(),"h1_dimuonMass_"+params->suffix, "M_{#mu#mu}; M_{#mu#mu};N_{evts}", 60, 10., 70., 1);     
+
+  ncjets = cjetsVetoID.size();
+  nbjets = bjetsID.size();
+  nfjets = fjetsID.size();
+
+  bjetCSV = goodBJet.BDiscriminatorMap("CSV");
+  bjetCSVv1 = goodBJet.BDiscriminatorMap("CSVv1");
+  bjetPUID = goodBJet.IdMap("PUID_MVA");
+  fjetPUID = goodFJet.IdMap("PUID_MVA");
+
+  if (passFjet)
+    hm->fill1DHist(ZP4.M(),"h1_dimuonMass_"+params->suffix, "M_{#mu#mu}; M_{#mu#mu};N_{evts}", 58, 12., 70., 1);
 
 
   
   amumuTree->Fill();
 
+  eidTree->Fill();
 
 
 

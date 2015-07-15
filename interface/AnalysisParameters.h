@@ -164,7 +164,7 @@ class Cuts{
       float betaStarC[2];
       float dR2Mean[4];
       string cutName;
-    } vbfJetID, amumu_fJetID, amumu_fJetID_v2, amumu_bJetID, amumu_cJetVetoID;
+    } vbfJetID, amumu_fJetID, amumu_fJetID_v2, amumu_bJetID, amumu_bJetID_v2, amumu_cJetVetoID;
 
 
     ~Cuts();

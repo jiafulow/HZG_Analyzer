@@ -165,6 +165,7 @@ class amumuAnalyzer : public TSelector {
     auto_ptr<TFile> amumuFile;
     auto_ptr<TTree> amumuTree;
     auto_ptr<TTree> genTree;
+    auto_ptr<TTree> eidTree;
 
     auto_ptr<TVector3> pvPosition;
     auto_ptr<HistManager> hm;
@@ -196,6 +197,16 @@ class amumuAnalyzer : public TSelector {
     TLorentzVector dimuon;
     TLorentzVector bjet;
     TLorentzVector fjet;
+    int ncjets;
+    int nbjets;
+    int nfjets;
+    bool passSasha;
+    bool passMass;
+    bool passFjet;
+    float bjetCSV;
+    float bjetCSVv1;
+    float bjetPUID;
+    float fjetPUID;
 
     TLorentzVector muonPosGen;
     TLorentzVector muonNegGen;

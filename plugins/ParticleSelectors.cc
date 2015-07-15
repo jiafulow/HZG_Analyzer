@@ -114,18 +114,20 @@ bool ParticleSelector::FindGoodZMuon(const vector<TCMuon>& muonList1, const vect
     if (muonList1[i].Pt() > _cuts.leadMuPt){
       for(unsigned int j =0; j<muonList2.size(); j++){
         if (muonList2[j].Pt() > _cuts.trailMuPt && muonList2[j].Charge() != muonList1[i].Charge()){
-          goodZ = true;
           tmpZ = (muonList1[i]+muonList2[j]);
           if(fabs(diLepMass-tmpZ.M()) < ZmassDiff){
+            goodZ = true;
             ZP4 = (muonList1[i]+muonList2[j]);
             lepton1 = muonList1[i];
             lepton2 = muonList2[j];
             int1 = i;
             int2 = j;
-            ZmassDiff = fabs(diLepMass-tmpZ.M());
+            //ZmassDiff = fabs(diLepMass-tmpZ.M());
           }
+          if (goodZ)  break;
         }
       }
+      if (goodZ)  break;
     }
   }
   return goodZ;
@@ -891,13 +893,14 @@ bool ParticleSelector::PassJetID(const TCJet& jet, int nVtx, const Cuts::jetIDCu
     if (fabs(jet.Eta()) > 2.4) return false;
     if (jet.Pt() < 30) return false;
 
-    if( jet.NumConstit()  > 1
+    if( !(jet.NumConstit()  > 1
       && jet.NeuHadFrac()  < 0.99
       && jet.NeuEmFrac()   < 0.99
       && jet.ChHadFrac()   > 0.
       && jet.NumChPart()   > 0.
-      && jet.ChEmFrac()    < 0.99
-      && jet.IdMap("PUID_MVA_Loose")) idPass = true;
+      && jet.ChEmFrac()    < 0.99)) return false;
+
+    if (jet.IdMap("PUID_MVA_Loose")) idPass = true;
   }
 
   return idPass;
@@ -906,17 +909,50 @@ bool ParticleSelector::PassJetID(const TCJet& jet, int nVtx, const Cuts::jetIDCu
 bool ParticleSelector::PassJetID(const TCJet& jet, int nVtx, const TCPhysObject& muon1, const TCPhysObject& muon2, const Cuts::jetIDCuts& cutLevel){
   bool idPass = false;
 
-  if (cutLevel.cutName=="amumu_bJetID"){
-    //float b_csv = jet.BDiscriminatorMap("CSV");
-    float b_csv = jet.BDiscriminatorMap("CSVv1");
-    if (fabs(jet.Eta())<2.4 &&
-        jet.Pt() > 30 &&
-        b_csv > 0.783) // CSVv1 Medium
-        //b_csv > 0.679) // CSV Medium
-    {
-      if (jet.DeltaR(muon1)>0.5 && jet.DeltaR(muon2)>0.5) idPass = true;
-    }
+  if (cutLevel.cutName=="amumu_cJetVetoID"){
+    if (fabs(jet.Eta()) > 2.4) return false;
+    if (jet.Pt() < 30) return false;
 
+    if( !(jet.NumConstit()  > 1
+      && jet.NeuHadFrac()  < 0.99
+      && jet.NeuEmFrac()   < 0.99
+      && jet.ChHadFrac()   > 0.
+      && jet.NumChPart()   > 0.
+      && jet.ChEmFrac()    < 0.99)) return false;
+
+    if ( !(jet.DeltaR(muon1)>0.5 && jet.DeltaR(muon2)>0.5) ) return false;
+
+    if (jet.IdMap("PUID_MVA_Loose")) idPass = true;
+
+  } else if (cutLevel.cutName=="amumu_bJetID"){
+    if (fabs(jet.Eta()) > 2.4) return false;
+    if (jet.Pt() < 30) return false;
+
+    if( !(jet.NumConstit()  > 1
+      && jet.NeuHadFrac()  < 0.99
+      && jet.NeuEmFrac()   < 0.99
+      && jet.ChHadFrac()   > 0.
+      && jet.NumChPart()   > 0.
+      && jet.ChEmFrac()    < 0.99)) return false;
+
+    if ( !(jet.DeltaR(muon1)>0.5 && jet.DeltaR(muon2)>0.5) ) return false;
+
+    if (jet.BDiscriminatorMap("CSV") > 0.679) idPass = true;  // CSV Medium
+
+  } else if (cutLevel.cutName=="amumu_bJetID_v2"){
+    if (fabs(jet.Eta()) > 2.4) return false;
+    if (jet.Pt() < 30) return false;
+
+    if( !(jet.NumConstit()  > 1
+      && jet.NeuHadFrac()  < 0.99
+      && jet.NeuEmFrac()   < 0.99
+      && jet.ChHadFrac()   > 0.
+      && jet.NumChPart()   > 0.
+      && jet.ChEmFrac()    < 0.99)) return false;
+
+    if ( !(jet.DeltaR(muon1)>0.5 && jet.DeltaR(muon2)>0.5) ) return false;
+
+    if (jet.BDiscriminatorMap("CSVv1") > 0.783) idPass = true;  // CSVv1 medium
   }
 
   return idPass;
