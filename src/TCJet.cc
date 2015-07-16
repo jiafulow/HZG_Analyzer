@@ -160,3 +160,11 @@ void TCJet::SetBetaStarClassic(float b) {
 void TCJet::SetDR2Mean(float d) {
   _dR2Mean = d;
 }
+
+
+ostream& TCJet::TCprint(ostream& os) const {
+ return TCPhysObject::TCprint(os) <<
+   " ChHadFrac: "<< ChHadFrac() << " NeuHadFrac: " << NeuHadFrac() << " ChEmFrac: " << ChEmFrac() << " NeuEmFrac: "<< NeuEmFrac() << " NumConstit: "<< NumConstit() << " NumChPart: " << NumChPart() <<
+   " CSV: " << BDiscriminatorMap("CSV") << " CSVv1: " << BDiscriminatorMap("CSVv1") << " PUID_MVA: " << IdMap("PUID_MVA");
+}
+

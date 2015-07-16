@@ -58,6 +58,10 @@ void Dumper::InitDumps(){
     phoDump1.open(buffer);
     sprintf(buffer, "dumps/%s_%s_%s_%s_phoDump2.txt",_parameters.selection.c_str(),_parameters.suffix.c_str(),subtag.c_str(),cortag.c_str());
     phoDump2.open(buffer);
+    sprintf(buffer, "dumps/%s_%s_%s_%s_jetDump1.txt",_parameters.selection.c_str(),_parameters.suffix.c_str(),subtag.c_str(),cortag.c_str());
+    jetDump1.open(buffer);
+    sprintf(buffer, "dumps/%s_%s_%s_%s_jetDump2.txt",_parameters.selection.c_str(),_parameters.suffix.c_str(),subtag.c_str(),cortag.c_str());
+    jetDump2.open(buffer);
     sprintf(buffer, "dumps/%s_%s_%s_%s_finalDump.txt",_parameters.selection.c_str(),_parameters.suffix.c_str(),subtag.c_str(),cortag.c_str());
     finalDump.open(buffer);
   }
@@ -149,6 +153,22 @@ void Dumper::PhotonDump(const TCPhoton& ph, int dnum)
 
 }
 
+void Dumper::JetDump(const TCJet& jet, int dnum)
+{
+  if(!_parameters.dumps) return;
+  
+  ofstream* dump;
+  if (dnum == 1){
+    dump = &jetDump1;
+  } else if (dnum == 2){
+    dump = &jetDump2;
+  }else{
+    dump = &finalDump;
+  }
+  
+  *dump << "runNumber: " <<  _runNumber << " eventNumber: " << _eventNumber << " JET: " << jet
+       << endl;
+}
 
 void Dumper::CloseDumps(){
   if(_parameters.dumps){
@@ -156,6 +176,8 @@ void Dumper::CloseDumps(){
     lepDump2.close();
     phoDump1.close();
     phoDump2.close();
+    jetDump1.close();
+    jetDump2.close();
     finalDump.close();
   }
 }

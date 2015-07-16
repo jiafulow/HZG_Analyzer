@@ -81,6 +81,9 @@ def fastHadd():
 
     os.system('rm dumps/dataDump*.txt')
 
+  os.system('grep "eventNumber" ~/BatchOutput/%s/*/res/*.stdout  > DUMP_%s.txt' % (leptonB,tag))
+  os.system('grep  "SASHA" ~/BatchOutput/%s/*/res/*.stdout  >> DUMP_%s.txt' % (leptonB,tag))
+
 
 if __name__=="__main__":
   fastHadd()

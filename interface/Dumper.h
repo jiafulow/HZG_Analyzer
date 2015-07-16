@@ -7,6 +7,7 @@
 #include "TCMuon.h"
 #include "TCElectron.h"
 #include "TCPhoton.h"
+#include "TCJet.h"
 #include "TLorentzVector.h"
 #include "AnalysisParameters.h"
 #include "ParticleSelectors.h"
@@ -24,6 +25,7 @@ class Dumper{
     void  ElectronDump(const TCElectron& el, const TClonesArray& recoMuons, int dnum);
     void  MuonDump(const TCMuon& mu, int dnum);
     void  PhotonDump(const TCPhoton& ph, int dnum);
+    void  JetDump(const TCJet& jet, int dnum);
     void  CloseDumps();
     
   private:
@@ -31,6 +33,8 @@ class Dumper{
     ofstream lepDump2;
     ofstream phoDump1;
     ofstream phoDump2;
+    ofstream jetDump1;
+    ofstream jetDump2;
     ofstream finalDump;
 
     bool electronDump;

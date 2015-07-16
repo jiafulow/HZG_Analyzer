@@ -101,6 +101,9 @@ class TCJet : public TCPhysObject {
         void SetBetaStarClassic(float b);
         void SetDR2Mean(float d);
 
+        // print method
+        virtual ostream& TCprint(ostream& out) const;
+
         ClassDef(TCJet, 1);
 
 };

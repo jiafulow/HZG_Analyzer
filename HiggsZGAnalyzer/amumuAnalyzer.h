@@ -70,6 +70,7 @@
 #include "../interface/ZGAngles.h"
 #include "../interface/AnalysisParameters.h"
 #include "../interface/ParticleSelectors.h"
+#include "../interface/Dumper.h"
 
 #ifdef __MAKECINT__
 #pragma link C++ class vector<string>+;
@@ -161,6 +162,7 @@ class amumuAnalyzer : public TSelector {
     //Params and Cuts:
     auto_ptr<Parameters> params;
     auto_ptr<Cuts> cuts;
+    auto_ptr<Dumper> dumper;
 
     auto_ptr<TFile> amumuFile;
     auto_ptr<TTree> amumuTree;

@@ -368,6 +368,7 @@ bool ParticleSelector::PassMuonID(const TCMuon& mu, const Cuts::muIDCuts& cutLev
         && mu.IsGLB()                         == cutLevel.IsGLB
         && mu.NormalizedChi2()                < cutLevel.NormalizedChi2
         && mu.NumberOfMatchedStations()       > cutLevel.NumberOfMatchedStations
+        && mu.NumberOfValidMuonHits()         > cutLevel.NumberOfValidMuonHits
         && mu.NumberOfValidPixelHits()        > cutLevel.NumberOfValidPixelHits
         && mu.TrackLayersWithMeasurement()    > cutLevel.TrackLayersWithMeasurement
         && fabs(mu.Dxy(&_pv))           < cutLevel.dxy
