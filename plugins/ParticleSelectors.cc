@@ -394,7 +394,8 @@ bool ParticleSelector::PassMuonIso(const TCMuon& mu, const Cuts::muIsoCuts& cutL
 
   bool isoPass = false;
   if(cutLevel.cutName == "amumu_MuIso"){
-    if(mu.IdMap("SumPt_R03")< 0.1) isoPass = true;
+    if(mu.IdMap("SumPt_R03")/mu.Pt() < 0.1) isoPass = true;  // loose
+    //if(mu.IdMap("SumPt_R03")/mu.Pt() < 0.05) isoPass = true;  // tight
   }else if (cutLevel.cutName == "tightMuIso" || cutLevel.cutName == "looseMuIso"){
     float combIso;
 
@@ -879,6 +880,7 @@ bool ParticleSelector::PassJetID(const TCJet& jet, int nVtx, const Cuts::jetIDCu
     if (fabs(jet.Eta()) < 2.4) return false;
     if (fabs(jet.Eta()) > 4.7) return false;
     if (jet.Pt() < 30) return false;
+    //if (jet.Pt() < 25) return false;
 
     if( !(jet.NumConstit()  > 1
       && jet.NeuHadFrac()  < 0.99
@@ -918,7 +920,7 @@ bool ParticleSelector::PassJetID(const TCJet& jet, int nVtx, const TCPhysObject&
       && jet.NeuHadFrac()  < 0.99
       && jet.NeuEmFrac()   < 0.99
       && jet.ChHadFrac()   > 0.
-      && jet.NumChPart()   > 0.
+      && jet.NumChPart()   > 0
       && jet.ChEmFrac()    < 0.99)) return false;
 
     if ( !(jet.DeltaR(muon1)>0.5 && jet.DeltaR(muon2)>0.5) ) return false;
@@ -933,7 +935,7 @@ bool ParticleSelector::PassJetID(const TCJet& jet, int nVtx, const TCPhysObject&
       && jet.NeuHadFrac()  < 0.99
       && jet.NeuEmFrac()   < 0.99
       && jet.ChHadFrac()   > 0.
-      && jet.NumChPart()   > 0.
+      && jet.NumChPart()   > 0
       && jet.ChEmFrac()    < 0.99)) return false;
 
     if ( !(jet.DeltaR(muon1)>0.5 && jet.DeltaR(muon2)>0.5) ) return false;
@@ -948,12 +950,17 @@ bool ParticleSelector::PassJetID(const TCJet& jet, int nVtx, const TCPhysObject&
       && jet.NeuHadFrac()  < 0.99
       && jet.NeuEmFrac()   < 0.99
       && jet.ChHadFrac()   > 0.
-      && jet.NumChPart()   > 0.
+      && jet.NumChPart()   > 0
       && jet.ChEmFrac()    < 0.99)) return false;
 
     if ( !(jet.DeltaR(muon1)>0.5 && jet.DeltaR(muon2)>0.5) ) return false;
 
-    if (jet.BDiscriminatorMap("CSVv1") > 0.783) idPass = true;  // CSVv1 medium
+    //if (jet.BDiscriminatorMap("CSVv1") > 0.783) idPass = true;  // CSVv1 medium
+    //if (jet.BDiscriminatorMap("CSVv1") > 0.920) idPass = true;  // CSVv1 tight
+    if (jet.BDiscriminatorMap("CSVMVA") > 0.783) idPass = true;  // CSVMVA olga
+    //if (jet.BDiscriminatorMap("CSV") > 0.679) idPass = true;  // CSV medium
+    //if (jet.BDiscriminatorMap("CSV") > 0.898) idPass = true;  // CSV tight
+    //if (jet.BDiscriminatorMap("CSV") > 0.783) idPass = true;  // CSV olga
   }
 
   return idPass;

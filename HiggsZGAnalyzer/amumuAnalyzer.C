@@ -115,6 +115,7 @@ void amumuAnalyzer::Begin(TTree * tree)
   amumuTree->Branch("passFjet",&passFjet);
   amumuTree->Branch("bjetCSV",&bjetCSV);
   amumuTree->Branch("bjetCSVv1",&bjetCSVv1);
+  amumuTree->Branch("bjetCSVMVA",&bjetCSVMVA);
   amumuTree->Branch("bjetPUID",&bjetPUID);
   amumuTree->Branch("fjetPUID",&fjetPUID);
 
@@ -303,21 +304,36 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
 
     //tight ID and Iso
 
-    if (particleSelector->PassMuonID(*thisMuon, cuts->amumu_MuID) && particleSelector->PassMuonIso(*thisMuon, cuts->looseMuIso)){ 
+    if (particleSelector->PassMuonID(*thisMuon, cuts->amumu_MuID) && particleSelector->PassMuonIso(*thisMuon, cuts->looseMuIso)){
       muonsIDIso.push_back(*thisMuon);
     }
 
     if (params->dumps && passSasha) {  //SASHA
         dumper->MuonDump(*thisMuon, 1);
-        std::cout << "runNumber: " <<  runNumber << " eventNumber: " << eventNumber << " MUON: " << *thisMuon
+        std::cout << "runNumber: " <<  runNumber << " eventNumber: " << eventNumber << " lumiSection: " << lumiSection << " MUON: " << *thisMuon
             << " ID: " << particleSelector->PassMuonID(*thisMuon, cuts->amumu_MuID)
-            << " relIso: " << particleSelector->PassMuonIso(*thisMuon, cuts->looseMuIso)
+            << " looseMuIso: " << particleSelector->PassMuonIso(*thisMuon, cuts->looseMuIso)
+            << " tightMuIso: " << particleSelector->PassMuonIso(*thisMuon, cuts->tightMuIso)
             << " trkIso: " << particleSelector->PassMuonIso(*thisMuon, cuts->amumu_MuIso) << endl;
     }
 
   }
-
   sort(muonsIDIso.begin(), muonsIDIso.end(), P4SortCondition);
+
+
+  for (Int_t i = 0; i < recoJets->GetSize(); ++i) {
+    TCJet* thisJet = (TCJet*) recoJets->At(i);
+
+    if (params->dumps && passSasha) {  //SASHA
+        dumper->JetDump(*thisJet, 1);
+        std::cout << "runNumber: " <<  runNumber << " eventNumber: " << eventNumber << " lumiSection: " << lumiSection << " JET: " << *thisJet
+            << " cJetVetoID: " << particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), TCPhysObject(), TCPhysObject(), cuts->amumu_cJetVetoID)
+            << " bJetID: " << particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), TCPhysObject(), TCPhysObject(), cuts->amumu_bJetID)
+            << " bJetIDv2: " << particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), TCPhysObject(), TCPhysObject(), cuts->amumu_bJetID_v2)
+            << " fJetIDv2: " << particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), cuts->amumu_fJetID_v2)
+            << endl;
+    }
+  }
 
 
   // 2 good muons
@@ -369,16 +385,6 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   for (Int_t i = 0; i < recoJets->GetSize(); ++i) {
     TCJet* thisJet = (TCJet*) recoJets->At(i);
     if (particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), lepton1, lepton2, cuts->amumu_cJetVetoID)) cjetsVetoID.push_back(*thisJet);
-
-    if (params->dumps && passSasha) {  //SASHA
-        dumper->JetDump(*thisJet, 1);
-        std::cout << "runNumber: " <<  runNumber << " eventNumber: " << eventNumber << " JET: " << *thisJet 
-            << " cJetVetoID: " << particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), lepton1, lepton2, cuts->amumu_cJetVetoID)
-            << " bJetID: " << particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), lepton1, lepton2, cuts->amumu_bJetID)
-            << " bJetIDv2: " << particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), lepton1, lepton2, cuts->amumu_bJetID_v2)
-            << " fJetIDv2: " << particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), cuts->amumu_fJetID_v2)
-            << endl;
-    }
   }
   //sort(cjetsVetoID.begin(), cjetsVetoID.end(), P4SortCondition);
 
@@ -446,7 +452,7 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   }
 
   passMass = (26. <= ZP4.M() && ZP4.M() <= 32.);
-  if (passMass)  std::cout << "SASHA: passStep6: " << passMass << std::endl;  //SASHA
+  if (passSasha)  std::cout << "SASHA: passStep6: " << passMass << std::endl;  //SASHA
   if (passFjet && passMass)
     hm->fill1DHist(6, "h1_cutFlow_"+params->suffix, "; cut flow step;N_{evts}", 10, 0., 10., 1);
 
@@ -477,6 +483,7 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
 
   bjetCSV = goodBJet.BDiscriminatorMap("CSV");
   bjetCSVv1 = goodBJet.BDiscriminatorMap("CSVv1");
+  bjetCSVMVA = goodBJet.BDiscriminatorMap("CSVMVA");
   bjetPUID = goodBJet.IdMap("PUID_MVA");
   fjetPUID = goodFJet.IdMap("PUID_MVA");
 
@@ -485,13 +492,6 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   amumuTree->Fill();
 
   eidTree->Fill();
-
-  // Dump
-  //if (params->dumps) {
-  //  dumper->MuonDump(muonsIDIso[lepton1int],2);
-  //  dumper->MuonDump(muonsIDIso[lepton2int],2);
-  //}
-
 
 
   return kTRUE;

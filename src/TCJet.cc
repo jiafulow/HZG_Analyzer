@@ -81,6 +81,19 @@ int TCJet::JetFlavor() const {
     return _jetFlavor;
 }
 
+// Jet ID
+bool TCJet::JetID() const {
+    if (NeuHadFrac()  > 0.99) return false;
+    if (NeuEmFrac()   > 0.99) return false;
+    if (NumConstit() <= 1) return false;
+    if (fabs(Eta()) <= 2.4) {
+        if (ChEmFrac()   > 0.99) return false;
+        if (ChHadFrac() <= 0) return false;
+        if (NumChPart() == 0) return false;
+    }
+    return true;
+}
+
 // Hgg style Jet Id vars
 float TCJet::BetaStarClassic() const {
   return _betaStarClassic;
@@ -165,6 +178,6 @@ void TCJet::SetDR2Mean(float d) {
 ostream& TCJet::TCprint(ostream& os) const {
  return TCPhysObject::TCprint(os) <<
    " ChHadFrac: "<< ChHadFrac() << " NeuHadFrac: " << NeuHadFrac() << " ChEmFrac: " << ChEmFrac() << " NeuEmFrac: "<< NeuEmFrac() << " NumConstit: "<< NumConstit() << " NumChPart: " << NumChPart() <<
-   " CSV: " << BDiscriminatorMap("CSV") << " CSVv1: " << BDiscriminatorMap("CSVv1") << " PUID_MVA: " << IdMap("PUID_MVA");
+   " JetID: " << JetID() << " CSV: " << BDiscriminatorMap("CSV") << " CSVv1: " << BDiscriminatorMap("CSVv1") << " CSVMVA: " << BDiscriminatorMap("CSVMVA") << " PUID_MVA: " << IdMap("PUID_MVA");
 }
 

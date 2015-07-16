@@ -207,6 +207,7 @@ class amumuAnalyzer : public TSelector {
     bool passFjet;
     float bjetCSV;
     float bjetCSVv1;
+    float bjetCSVMVA;
     float bjetPUID;
     float fjetPUID;
 

@@ -81,7 +81,7 @@ void Dumper::ElectronDump(const TCElectron& el, const TClonesArray& recoMuons, i
     dump = &finalDump;
   }
 
-  *dump << "runNumber: " <<  _runNumber << " eventNumber: " << _eventNumber << " ELECTRON: " << el
+  *dump << "runNumber: " <<  _runNumber << " eventNumber: " << _eventNumber << " lumiSection: " << _lumiSection << " ELECTRON: " << el
        << endl;
 }
 
@@ -98,7 +98,7 @@ void Dumper::MuonDump(const TCMuon& mu, int dnum)
     dump = &finalDump;
   }
 
-  *dump << "runNumber: " <<  _runNumber << " eventNumber: " << _eventNumber << " MUON: " << mu
+  *dump << "runNumber: " <<  _runNumber << " eventNumber: " << _eventNumber << " lumiSection: " << _lumiSection << " MUON: " << mu
        << endl;
 }
 
@@ -148,7 +148,7 @@ void Dumper::PhotonDump(const TCPhoton& ph, int dnum)
     dump = &finalDump;
   }
 
-  *dump << "runNumber: " <<  _runNumber << " eventNumber: " << _eventNumber << " PHOTON: " << ph
+  *dump << "runNumber: " <<  _runNumber << " eventNumber: " << _eventNumber << " lumiSection: " << _lumiSection << " PHOTON: " << ph
        << endl;
 
 }
@@ -166,7 +166,7 @@ void Dumper::JetDump(const TCJet& jet, int dnum)
     dump = &finalDump;
   }
   
-  *dump << "runNumber: " <<  _runNumber << " eventNumber: " << _eventNumber << " JET: " << jet
+  *dump << "runNumber: " <<  _runNumber << " eventNumber: " << _eventNumber << " lumiSection: " << _lumiSection << " JET: " << jet
        << endl;
 }
 

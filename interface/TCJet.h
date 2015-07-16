@@ -70,6 +70,9 @@ class TCJet : public TCPhysObject {
         // Jet flavor
         int   JetFlavor() const;
 
+        // Jet ID
+        bool  JetID() const;
+
         // Hgg style Jet Id vars
         float BetaStarClassic() const;
         float DR2Mean() const;
