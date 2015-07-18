@@ -87,10 +87,10 @@ void amumuAnalyzer::Begin(TTree * tree)
   dumper.reset(new Dumper(*params,*cuts,*particleSelector));
   if (params->dataname.find("Run2012D") != string::npos){
     muscleFitCor.reset(new MuScleFitCorrector("../interface/MuScleFit_2012D_DATA_ReReco_53X.txt"));
-    cout<<"musclefit for run D"<<endl;
+    //cout<<"musclefit for run D"<<endl;
   }else{
     muscleFitCor.reset(new MuScleFitCorrector("../interface/MuScleFit_2012ABC_DATA_ReReco_53X.txt"));
-    cout<<"musclefit for run ABC"<<endl;
+    //cout<<"musclefit for run ABC"<<endl;
   }
 
 
@@ -110,6 +110,7 @@ void amumuAnalyzer::Begin(TTree * tree)
   amumuTree->Branch("nfjets",&nfjets);
   amumuTree->Branch("bjet",&bjet);
   amumuTree->Branch("fjet",&fjet);
+  amumuTree->Branch("met",&met);
   amumuTree->Branch("passSasha",&passSasha);
   amumuTree->Branch("passMass",&passMass);
   amumuTree->Branch("passFjet",&passFjet);
@@ -304,7 +305,7 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
 
     //tight ID and Iso
 
-    if (particleSelector->PassMuonID(*thisMuon, cuts->amumu_MuID) && particleSelector->PassMuonIso(*thisMuon, cuts->looseMuIso)){
+    if (particleSelector->PassMuonID(*thisMuon, cuts->amumu_MuID) && particleSelector->PassMuonIso(*thisMuon, cuts->amumu_MuIso)){
       muonsIDIso.push_back(*thisMuon);
     }
 
@@ -473,9 +474,10 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
     muonPos = lepton2;
     muonNeg = lepton1;
   }
-  fjet = goodFJet;
-  bjet = goodBJet;
   dimuon = ZP4;
+  bjet = goodBJet;
+  fjet = goodFJet;
+  met.SetPxPyPzE(recoMET->Px(), recoMET->Py(), 0, 0);
 
   ncjets = cjetsVetoID.size();
   nbjets = bjetsID.size();
