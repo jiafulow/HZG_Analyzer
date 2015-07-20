@@ -108,6 +108,9 @@ void amumuAnalyzer::Begin(TTree * tree)
   amumuTree->Branch("ncjets",&ncjets);
   amumuTree->Branch("nbjets",&nbjets);
   amumuTree->Branch("nfjets",&nfjets);
+  amumuTree->Branch("nmuons",&nmuons);
+  amumuTree->Branch("nelectrons",&nelectrons);
+  amumuTree->Branch("nphotons",&nphotons);
   amumuTree->Branch("bjet",&bjet);
   amumuTree->Branch("fjet",&fjet);
   amumuTree->Branch("met",&met);
@@ -119,6 +122,7 @@ void amumuAnalyzer::Begin(TTree * tree)
   amumuTree->Branch("bjetCSVMVA",&bjetCSVMVA);
   amumuTree->Branch("bjetPUID",&bjetPUID);
   amumuTree->Branch("fjetPUID",&fjetPUID);
+  amumuTree->Branch("x",&x);
 
   genTree.reset(new TTree(("genTree_"+params->suffix).c_str(),"three body mass values"));
   genTree->Branch("muonPosGen",&muonPosGen);
@@ -268,12 +272,15 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   *pvPosition = goodVertices[0];
   particleSelector->SetPv(*pvPosition);
   dumper->SetPv(*pvPosition);
-  
-  // muons
+
+
+  ///////////
+  // Muons //
+  ///////////
 
   vector<TCMuon> muonsID;
   vector<TCMuon> muonsIDIso;
-  vector<TCMuon> muonsIDIsoUnCor;
+  //vector<TCMuon> muonsIDIsoUnCor;
   TLorentzVector tmpMuCor;
 
   for (int i = 0; i < recoMuons->GetSize(); ++ i)
@@ -319,6 +326,7 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
     }
 
   }
+  nmuons = muonsIDIso.size();
   sort(muonsIDIso.begin(), muonsIDIso.end(), P4SortCondition);
 
 
@@ -370,6 +378,75 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   if (!(12. <= ZP4.M() && ZP4.M() <= 70.)) return kTRUE;
   hm->fill1DHist(1, "h1_cutFlow_"+params->suffix, "; cut flow step;N_{evts}", 10, 0., 10., 1);
   hm->fill1DHist(ZP4.M(), "h1_dimuonMass_1_"+params->suffix, "M_{#mu#mu}; M_{#mu#mu};N_{evts}", 58, 12., 70., 1);
+
+
+  ///////////////
+  // Electrons //
+  ///////////////
+
+  vector<TCElectron> electronsID;
+  vector<TCElectron> electronsIDIso;
+
+  for (int i = 0; i <  recoElectrons->GetSize(); ++i) {
+    TCElectron* thisElec = (TCElectron*) recoElectrons->At(i);
+
+    bool passID = false;
+    bool passIso = false;
+
+    if (particleSelector->PassElectronID(*thisElec, cuts->mediumElID, *recoMuons, false)) passID = true;
+    if (particleSelector->PassElectronIso(*thisElec, cuts->mediumElIso, cuts->EAEle)) passIso = true;
+
+    // eng cor
+
+    //if(params->engCor && !params->doSync && params->PU == "S10") UniversalEnergyCorrector(*thisElec);
+
+    if(passID) electronsID.push_back(*thisElec);
+    if(passID&&passIso) electronsIDIso.push_back(*thisElec);
+  }
+  nelectrons = electronsIDIso.size();
+
+
+  /////////////
+  // Photons //
+  /////////////
+
+  vector<TCPhoton> photonsID;
+  vector<TCPhoton> photonsIDIso;
+  for (Int_t i = 0; i < recoPhotons->GetSize(); ++i) {
+    TCPhoton* thisPhoton = (TCPhoton*) recoPhotons->At(i);
+
+    bool passID = false;
+    bool passIso = false;
+
+    // non MVA selection
+    if(!params->doPhoMVA){
+      if (particleSelector->PassPhotonID(*thisPhoton, cuts->mediumPhID)) passID = true;
+      if (particleSelector->PassPhotonIso(*thisPhoton, cuts->mediumPhIso, cuts->EAPho)) passIso = true;
+
+    // MVA Selection
+    }else{
+      bool goodLepPre = false;
+      if (particleSelector->PassPhotonID(*thisPhoton, cuts->preSelPhID)) passID = true;
+      //if (params->selection == "mumuGamma"){
+      //  if (muonsIDIso.size() > 1){
+      //    goodLepPre = GoodLeptonsCat( muonsIDIso[0], muonsIDIso[1]);
+      //  }
+      //}else{
+      //  if (electronsIDIso.size() > 1){
+      //    goodLepPre = GoodLeptonsCat( electronsIDIso[0], electronsIDIso[1]);
+      //  }
+      //}
+      if (particleSelector->PassPhotonMVA(*thisPhoton, cuts->catPhMVAID, goodLepPre)) passIso = true;
+    }
+
+    // energy correction after ID and ISO
+
+    //if (params->engCor && !params->doSync) UniversalEnergyCorrector(*thisPhoton, genPhotons);
+
+    if (passID) photonsID.push_back(*thisPhoton);
+    if (passID && passIso) photonsIDIso.push_back(*thisPhoton);
+  }
+  nphotons = photonsIDIso.size();
 
 
   //////////
@@ -488,6 +565,7 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   bjetCSVMVA = goodBJet.BDiscriminatorMap("CSVMVA");
   bjetPUID = goodBJet.IdMap("PUID_MVA");
   fjetPUID = goodFJet.IdMap("PUID_MVA");
+  x = passFjet ? ZP4.M() : 0.;  // for unbinned fit
 
 
   

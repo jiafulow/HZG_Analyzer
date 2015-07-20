@@ -203,6 +203,9 @@ class amumuAnalyzer : public TSelector {
     int ncjets;
     int nbjets;
     int nfjets;
+    int nmuons;
+    int nelectrons;
+    int nphotons;
     bool passSasha;
     bool passMass;
     bool passFjet;
@@ -211,6 +214,7 @@ class amumuAnalyzer : public TSelector {
     float bjetCSVMVA;
     float bjetPUID;
     float fjetPUID;
+    float x; // for unbinned fit
 
     TLorentzVector muonPosGen;
     TLorentzVector muonNegGen;
