@@ -88,18 +88,20 @@ bool ParticleSelector::FindGoodZMuon(const vector<TCMuon>& muonList, TCPhysObjec
     if (muonList[i].Pt() > _cuts.leadMuPt){
       for(unsigned int j =1; j<muonList.size(); j++){
         if ((muonList[j].Pt() > _cuts.trailMuPt) && (muonList[j].Charge() != muonList[i].Charge())){
-          goodZ = true;
           tmpZ = (muonList[i]+muonList[j]);
           if(fabs(diLepMass-tmpZ.M()) < ZmassDiff){
+            goodZ = true;
             ZP4 = (muonList[i]+muonList[j]);
             lepton1 = muonList[i];
             lepton2 = muonList[j];
             int1 = i;
             int2 = j;
-            ZmassDiff = fabs(diLepMass-tmpZ.M());
+            //ZmassDiff = fabs(diLepMass-tmpZ.M());
           }
+          if (goodZ)  break;
         }
       }
+      if (goodZ)  break;
     }
   }
   return goodZ;

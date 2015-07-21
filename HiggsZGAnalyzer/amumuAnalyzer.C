@@ -109,8 +109,8 @@ void amumuAnalyzer::Begin(TTree * tree)
   amumuTree->Branch("nbjets",&nbjets);
   amumuTree->Branch("nfjets",&nfjets);
   amumuTree->Branch("nmuons",&nmuons);
-  amumuTree->Branch("nelectrons",&nelectrons);
-  amumuTree->Branch("nphotons",&nphotons);
+  //amumuTree->Branch("nelectrons",&nelectrons);
+  //amumuTree->Branch("nphotons",&nphotons);
   amumuTree->Branch("bjet",&bjet);
   amumuTree->Branch("fjet",&fjet);
   amumuTree->Branch("met",&met);
@@ -383,7 +383,7 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   ///////////////
   // Electrons //
   ///////////////
-
+/*
   vector<TCElectron> electronsID;
   vector<TCElectron> electronsIDIso;
 
@@ -404,12 +404,12 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
     if(passID&&passIso) electronsIDIso.push_back(*thisElec);
   }
   nelectrons = electronsIDIso.size();
-
+*/
 
   /////////////
   // Photons //
   /////////////
-
+/*
   vector<TCPhoton> photonsID;
   vector<TCPhoton> photonsIDIso;
   for (Int_t i = 0; i < recoPhotons->GetSize(); ++i) {
@@ -447,7 +447,7 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
     if (passID && passIso) photonsIDIso.push_back(*thisPhoton);
   }
   nphotons = photonsIDIso.size();
-
+*/
 
   //////////
   // Jets //
