@@ -121,6 +121,9 @@ void amumuAnalyzer::Begin(TTree * tree)
   amumuTree->Branch("bjetCSVv1",&bjetCSVv1);
   amumuTree->Branch("bjetCSVMVA",&bjetCSVMVA);
   amumuTree->Branch("bjetPUID",&bjetPUID);
+  amumuTree->Branch("fjetCSV",&fjetCSV);
+  amumuTree->Branch("fjetCSVv1",&fjetCSVv1);
+  amumuTree->Branch("fjetCSVMVA",&fjetCSVMVA);
   amumuTree->Branch("fjetPUID",&fjetPUID);
   amumuTree->Branch("x",&x);
 
@@ -493,14 +496,16 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
 
   //central jet veto
   bool passCJV = true;
+  int passCJVcnt = 0;
   if (cjetsVetoID.size() > 0){
     for (Int_t i = 0; i < cjetsVetoID.size(); ++i){
       if (goodBJet.DeltaR(cjetsVetoID[i])>0.1) {
-        passCJV = false;
-        break;
+        passCJVcnt += 1;
+        goodFJet = cjetsVetoID[i];
       }
     }
   }
+  if (passCJVcnt > 1) passCJV = false;
   if (passSasha)  std::cout << "SASHA: passStep4: " << passCJV << std::endl;  //SASHA
   if (!passCJV) return kTRUE;
   hm->fill1DHist(4, "h1_cutFlow_"+params->suffix, "; cut flow step;N_{evts}", 10, 0., 10., 1);
@@ -515,12 +520,15 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
 
   if (fjetsID.size() > 0){
 
-    goodFJet= fjetsID[0];
+    //goodFJet= fjetsID[0];
   }else{
     //return kTRUE;
   }
 
-  passFjet = (fjetsID.size() > 0);
+  //passFjet = (fjetsID.size() > 0);
+  //passFjet = (fjetsID.size() > 0) && (fabs(ZP4.DeltaPhi(goodBJet+goodFJet))>2.5);
+  //passFjet = (fjetsID.size() == 0) && (passCJVcnt == 1);
+  passFjet = (fjetsID.size() == 0) && (passCJVcnt == 1) && (fabs(ZP4.DeltaPhi(goodBJet+goodFJet))>2.5) && (recoMET->Mod() <= 40);
   if (passSasha)  std::cout << "SASHA: passStep5: " << passFjet << std::endl;  //SASHA
   if (passFjet) {
     hm->fill1DHist(5, "h1_cutFlow_"+params->suffix, "; cut flow step;N_{evts}", 10, 0., 10., 1);
@@ -542,7 +550,10 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   //if(recoMET->Mod() > 40) return kTRUE;
 
 
-  // put them in the branch
+  //////////
+  // FILL //
+  //////////
+  if (!passFjet)  return kTRUE;
 
   if (lepton1.Charge() == 1){
     muonPos = lepton1;
@@ -564,6 +575,9 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   bjetCSVv1 = goodBJet.BDiscriminatorMap("CSVv1");
   bjetCSVMVA = goodBJet.BDiscriminatorMap("CSVMVA");
   bjetPUID = goodBJet.IdMap("PUID_MVA");
+  fjetCSV = goodFJet.BDiscriminatorMap("CSV");
+  fjetCSVv1 = goodFJet.BDiscriminatorMap("CSVv1");
+  fjetCSVMVA = goodFJet.BDiscriminatorMap("CSVMVA");
   fjetPUID = goodFJet.IdMap("PUID_MVA");
   x = passFjet ? ZP4.M() : 0.;  // for unbinned fit
 

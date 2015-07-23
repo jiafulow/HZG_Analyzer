@@ -213,6 +213,9 @@ class amumuAnalyzer : public TSelector {
     float bjetCSVv1;
     float bjetCSVMVA;
     float bjetPUID;
+    float fjetCSV;
+    float fjetCSVv1;
+    float fjetCSVMVA;
     float fjetPUID;
     float x; // for unbinned fit
 
