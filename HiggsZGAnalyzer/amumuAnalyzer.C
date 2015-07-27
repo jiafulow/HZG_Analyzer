@@ -65,6 +65,7 @@ void amumuAnalyzer::Begin(TTree * tree)
   int jobNum = atoi(params->jobCount.c_str());
   cuts.reset(new Cuts());
 
+  // Change muon pT cuts
   cuts->leadMuPt = 25;
   cuts->trailMuPt = 25;
 
@@ -102,21 +103,45 @@ void amumuAnalyzer::Begin(TTree * tree)
   amumuTree.reset(new TTree(("amumuTree_"+params->suffix).c_str(),"three body mass values"));
   hm.reset(new HistManager(amumuFile.get()));
 
-  amumuTree->Branch("muonPos",&muonPos);
-  amumuTree->Branch("muonNeg",&muonNeg);
+  amumuTree->Branch("muonOne",&muonOne);
+  amumuTree->Branch("muonTwo",&muonTwo);
   amumuTree->Branch("dimuon",&dimuon);
+  amumuTree->Branch("bjet",&bjet);
+  amumuTree->Branch("fjet",&fjet);
+  amumuTree->Branch("met",&met);
   amumuTree->Branch("ncjets",&ncjets);
   amumuTree->Branch("nbjets",&nbjets);
   amumuTree->Branch("nfjets",&nfjets);
   amumuTree->Branch("nmuons",&nmuons);
-  //amumuTree->Branch("nelectrons",&nelectrons);
-  //amumuTree->Branch("nphotons",&nphotons);
-  amumuTree->Branch("bjet",&bjet);
-  amumuTree->Branch("fjet",&fjet);
-  amumuTree->Branch("met",&met);
+  amumuTree->Branch("nelectrons",&nelectrons);
+  amumuTree->Branch("nphotons",&nphotons);
   amumuTree->Branch("passSasha",&passSasha);
   amumuTree->Branch("passMass",&passMass);
   amumuTree->Branch("passFjet",&passFjet);
+  amumuTree->Branch("muonOneCharge",&muonOneCharge);
+  amumuTree->Branch("muonOneIsPF",&muonOneIsPF);
+  amumuTree->Branch("muonOneIsGLB",&muonOneIsGLB);
+  amumuTree->Branch("muonOneNormalizedChi2",&muonOneNormalizedChi2);
+  amumuTree->Branch("muonOneNumberOfMatchedStations",&muonOneNumberOfMatchedStations);
+  amumuTree->Branch("muonOneNumberOfValidMuonHits",&muonOneNumberOfValidMuonHits);
+  amumuTree->Branch("muonOneNumberOfValidPixelHits",&muonOneNumberOfValidPixelHits);
+  amumuTree->Branch("muonOneTrackLayersWithMeasurement",&muonOneTrackLayersWithMeasurement);
+  amumuTree->Branch("muonOneDxy",&muonOneDxy);
+  amumuTree->Branch("muonOneDz",&muonOneDz);
+  amumuTree->Branch("muonOneTrkIso",&muonOneTrkIso);
+  amumuTree->Branch("muonOneRelIso",&muonOneRelIso);
+  amumuTree->Branch("muonTwoCharge",&muonTwoCharge);
+  amumuTree->Branch("muonTwoIsPF",&muonTwoIsPF);
+  amumuTree->Branch("muonTwoIsGLB",&muonTwoIsGLB);
+  amumuTree->Branch("muonTwoNormalizedChi2",&muonTwoNormalizedChi2);
+  amumuTree->Branch("muonTwoNumberOfMatchedStations",&muonTwoNumberOfMatchedStations);
+  amumuTree->Branch("muonTwoNumberOfValidMuonHits",&muonTwoNumberOfValidMuonHits);
+  amumuTree->Branch("muonTwoNumberOfValidPixelHits",&muonTwoNumberOfValidPixelHits);
+  amumuTree->Branch("muonTwoTrackLayersWithMeasurement",&muonTwoTrackLayersWithMeasurement);
+  amumuTree->Branch("muonTwoDxy",&muonTwoDxy);
+  amumuTree->Branch("muonTwoDz",&muonTwoDz);
+  amumuTree->Branch("muonTwoTrkIso",&muonTwoTrkIso);
+  amumuTree->Branch("muonTwoRelIso",&muonTwoRelIso);
   amumuTree->Branch("bjetCSV",&bjetCSV);
   amumuTree->Branch("bjetCSVv1",&bjetCSVv1);
   amumuTree->Branch("bjetCSVMVA",&bjetCSVMVA);
@@ -128,8 +153,8 @@ void amumuAnalyzer::Begin(TTree * tree)
   amumuTree->Branch("x",&x);
 
   genTree.reset(new TTree(("genTree_"+params->suffix).c_str(),"three body mass values"));
-  genTree->Branch("muonPosGen",&muonPosGen);
-  genTree->Branch("muonNegGen",&muonNegGen);
+  //genTree->Branch("muonOneGen",&muonOneGen);
+  //genTree->Branch("muonTwoGen",&muonTwoGen);
 
   eidTree.reset(new TTree(("eidTree_"+params->suffix).c_str(), "event ID values"));
   eidTree->Branch("runNumber",  &runNumber,   "runNumber/i");
@@ -329,7 +354,6 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
     }
 
   }
-  nmuons = muonsIDIso.size();
   sort(muonsIDIso.begin(), muonsIDIso.end(), P4SortCondition);
 
 
@@ -386,7 +410,7 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   ///////////////
   // Electrons //
   ///////////////
-/*
+
   vector<TCElectron> electronsID;
   vector<TCElectron> electronsIDIso;
 
@@ -406,13 +430,12 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
     if(passID) electronsID.push_back(*thisElec);
     if(passID&&passIso) electronsIDIso.push_back(*thisElec);
   }
-  nelectrons = electronsIDIso.size();
-*/
+
 
   /////////////
   // Photons //
   /////////////
-/*
+
   vector<TCPhoton> photonsID;
   vector<TCPhoton> photonsIDIso;
   for (Int_t i = 0; i < recoPhotons->GetSize(); ++i) {
@@ -449,8 +472,7 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
     if (passID) photonsID.push_back(*thisPhoton);
     if (passID && passIso) photonsIDIso.push_back(*thisPhoton);
   }
-  nphotons = photonsIDIso.size();
-*/
+
 
   //////////
   // Jets //
@@ -555,13 +577,17 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   //////////
   if (!passFjet)  return kTRUE;
 
-  if (lepton1.Charge() == 1){
-    muonPos = lepton1;
-    muonNeg = lepton2;
+  int muonOneInt = -1;
+  int muonTwoInt = -1;
+  if (lepton1.Pt() >= lepton2.Pt()){
+    muonOneInt = lepton1int;
+    muonTwoInt = lepton2int;
   }else{
-    muonPos = lepton2;
-    muonNeg = lepton1;
+    muonOneInt = lepton2int;
+    muonTwoInt = lepton1int;
   }
+  muonOne = muonsIDIso[muonOneInt];
+  muonTwo = muonsIDIso[muonTwoInt];
   dimuon = ZP4;
   bjet = goodBJet;
   fjet = goodFJet;
@@ -570,6 +596,36 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   ncjets = cjetsVetoID.size();
   nbjets = bjetsID.size();
   nfjets = fjetsID.size();
+  nmuons = muonsIDIso.size();
+  nelectrons = electronsIDIso.size();
+  nphotons = photonsIDIso.size();
+
+  muonOneCharge = muonsIDIso[muonOneInt].Charge();
+  muonOneIsPF = muonsIDIso[muonOneInt].IsPF();
+  muonOneIsGLB = muonsIDIso[muonOneInt].IsGLB();
+  muonOneNormalizedChi2 = muonsIDIso[muonOneInt].NormalizedChi2();
+  muonOneNumberOfMatchedStations = muonsIDIso[muonOneInt].NumberOfMatchedStations();
+  muonOneNumberOfValidMuonHits = muonsIDIso[muonOneInt].NumberOfValidMuonHits();
+  muonOneNumberOfValidPixelHits = muonsIDIso[muonOneInt].NumberOfValidPixelHits();
+  muonOneTrackLayersWithMeasurement = muonsIDIso[muonOneInt].TrackLayersWithMeasurement();
+  muonOneDxy = muonsIDIso[muonOneInt].Dxy(&(*pvPosition));
+  muonOneDz = muonsIDIso[muonOneInt].Dz(&(*pvPosition));
+  muonOneTrkIso = muonsIDIso[muonOneInt].IdMap("SumPt_R03")/muonsIDIso[muonOneInt].Pt();
+  muonOneRelIso = (muonsIDIso[muonOneInt].PfIsoChargedHad() 
+                + max(0.,(double)muonsIDIso[muonOneInt].PfIsoNeutral() + muonsIDIso[muonOneInt].PfIsoPhoton() - 0.5*muonsIDIso[muonOneInt].PfIsoPU()))/muonsIDIso[muonOneInt].Pt();
+  muonTwoCharge = muonsIDIso[muonTwoInt].Charge();
+  muonTwoIsPF = muonsIDIso[muonTwoInt].IsPF();
+  muonTwoIsGLB = muonsIDIso[muonTwoInt].IsGLB();
+  muonTwoNormalizedChi2 = muonsIDIso[muonTwoInt].NormalizedChi2();
+  muonTwoNumberOfMatchedStations = muonsIDIso[muonTwoInt].NumberOfMatchedStations();
+  muonTwoNumberOfValidMuonHits = muonsIDIso[muonTwoInt].NumberOfValidMuonHits();
+  muonTwoNumberOfValidPixelHits = muonsIDIso[muonTwoInt].NumberOfValidPixelHits();
+  muonTwoTrackLayersWithMeasurement = muonsIDIso[muonTwoInt].TrackLayersWithMeasurement();
+  muonTwoDxy = muonsIDIso[muonTwoInt].Dxy(&(*pvPosition));
+  muonTwoDz = muonsIDIso[muonTwoInt].Dz(&(*pvPosition));
+  muonTwoTrkIso = muonsIDIso[muonTwoInt].IdMap("SumPt_R03")/muonsIDIso[muonTwoInt].Pt();
+  muonTwoRelIso = (muonsIDIso[muonTwoInt].PfIsoChargedHad() 
+                + max(0.,(double)muonsIDIso[muonTwoInt].PfIsoNeutral() + muonsIDIso[muonTwoInt].PfIsoPhoton() - 0.5*muonsIDIso[muonTwoInt].PfIsoPU()))/muonsIDIso[muonTwoInt].Pt();
 
   bjetCSV = goodBJet.BDiscriminatorMap("CSV");
   bjetCSVv1 = goodBJet.BDiscriminatorMap("CSVv1");

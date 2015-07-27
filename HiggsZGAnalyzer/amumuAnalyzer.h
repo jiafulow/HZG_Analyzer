@@ -194,8 +194,8 @@ class amumuAnalyzer : public TSelector {
     auto_ptr<TMVA::Reader> myTMVAReader;
 
     //the amumu branches
-    TLorentzVector muonPos;
-    TLorentzVector muonNeg;
+    TLorentzVector muonOne;
+    TLorentzVector muonTwo;
     TLorentzVector dimuon;
     TLorentzVector bjet;
     TLorentzVector fjet;
@@ -209,6 +209,30 @@ class amumuAnalyzer : public TSelector {
     bool passSasha;
     bool passMass;
     bool passFjet;
+    int muonOneCharge;
+    float muonOneIsPF;
+    float muonOneIsGLB;
+    float muonOneNormalizedChi2;
+    float muonOneNumberOfMatchedStations;
+    float muonOneNumberOfValidMuonHits;
+    float muonOneNumberOfValidPixelHits;
+    float muonOneTrackLayersWithMeasurement;
+    float muonOneDxy;
+    float muonOneDz;
+    float muonOneTrkIso;
+    float muonOneRelIso;
+    int muonTwoCharge;
+    float muonTwoIsPF;
+    float muonTwoIsGLB;
+    float muonTwoNormalizedChi2;
+    float muonTwoNumberOfMatchedStations;
+    float muonTwoNumberOfValidMuonHits;
+    float muonTwoNumberOfValidPixelHits;
+    float muonTwoTrackLayersWithMeasurement;
+    float muonTwoDxy;
+    float muonTwoDz;
+    float muonTwoTrkIso;
+    float muonTwoRelIso;
     float bjetCSV;
     float bjetCSVv1;
     float bjetCSVMVA;
@@ -219,8 +243,8 @@ class amumuAnalyzer : public TSelector {
     float fjetPUID;
     float x; // for unbinned fit
 
-    TLorentzVector muonPosGen;
-    TLorentzVector muonNegGen;
+    TLorentzVector muonOneGen;
+    TLorentzVector muonTwoGen;
     TLorentzVector bjetGen;
     TLorentzVector fjetGen;
 
