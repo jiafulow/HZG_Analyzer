@@ -75,6 +75,7 @@ void amumuAnalyzer::Begin(TTree * tree)
   weighter.reset(new WeightUtils(*params, isRealData, runNumber));
   triggerSelector.reset(new TriggerSelector(params->selection, params->period, *triggerNames));
   //vector<string> triggers{"HLT_Mu17_Mu8_v"};
+  //vector<string> triggers{"HLT_Mu17_Mu8_v", "HLT_Mu17_TkMu8_v"};
   //vector<string> triggers{"HLT_IsoMu24_v"};
   vector<string> triggers{"HLT_IsoMu24_eta2p1_v"};
   triggerSelector->AddTriggers(triggers);
@@ -351,6 +352,17 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
             << " looseMuIso: " << particleSelector->PassMuonIso(*thisMuon, cuts->looseMuIso)
             << " tightMuIso: " << particleSelector->PassMuonIso(*thisMuon, cuts->tightMuIso)
             << " trkIso: " << particleSelector->PassMuonIso(*thisMuon, cuts->amumu_MuIso) << endl;
+
+        //const map<string, vector<string> >& myMap = thisMuon->GetTriggers();
+        //std::cout << "IsTriggered: " << thisMuon->IsTriggered() << " Triggers: " << myMap.size();
+        //map<string, vector<string> >::const_iterator it;
+        //for(it = myMap.begin(); it!=myMap.end(); it++){
+        //  cout << it->first << " ";
+        //  for(vector<string>::const_iterator vit=it->second.begin(); vit!=it->second.end(); vit++){
+        //    cout << (*vit) << " ";
+        //  }
+        //}
+        //cout << endl;
     }
 
   }
