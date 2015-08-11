@@ -535,11 +535,11 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
     for (Int_t i = 0; i < cjetsVetoID.size(); ++i){
       if (goodBJet.DeltaR(cjetsVetoID[i])>0.1) {
         passCJVcnt += 1;
-        //goodFJet = cjetsVetoID[i];
+        goodFJet = cjetsVetoID[i];
       }
     }
   }
-  if (passCJVcnt > 0) passCJV = false;
+  if (passCJVcnt > 1) passCJV = false;
   if (passSasha)  std::cout << "SASHA: passStep4: " << passCJV << std::endl;  //SASHA
   if (!passCJV) return kTRUE;
   hm->fill1DHist(4, "h1_cutFlow_"+params->suffix, "; cut flow step;N_{evts}", 10, 0., 10., 1);
@@ -559,10 +559,10 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
     //return kTRUE;
   }
 
-  passFjet = (fjetsID.size() > 0);
+  //passFjet = (fjetsID.size() > 0);
   //passFjet = (fjetsID.size() > 0) && (fabs(ZP4.DeltaPhi(goodBJet+goodFJet))>2.5);
   //passFjet = (fjetsID.size() == 0) && (passCJVcnt == 1);
-  //passFjet = (fjetsID.size() == 0) && (passCJVcnt == 1) && (fabs(ZP4.DeltaPhi(goodBJet+goodFJet))>2.5) && (recoMET->Mod() <= 40);
+  passFjet = (fjetsID.size() == 0) && (passCJVcnt == 1) && (fabs(ZP4.DeltaPhi(goodBJet+goodFJet))>2.5) && (recoMET->Mod() <= 40);
   if (passSasha)  std::cout << "SASHA: passStep5: " << passFjet << std::endl;  //SASHA
   if (passFjet) {
     hm->fill1DHist(5, "h1_cutFlow_"+params->suffix, "; cut flow step;N_{evts}", 10, 0., 10., 1);
