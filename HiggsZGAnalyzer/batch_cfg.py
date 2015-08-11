@@ -164,10 +164,14 @@ elif doTnP:
 elif doAmumu:
   if doSingleMu:
     for lepton in leptonDict:
-      configs.append(b.JobConfig('Run2012A', t3storage+'/nuTuples_v9.9_8TeV/Data3/Single'+lepton+'_Run2012A', 10, 'DATA ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
-      configs.append(b.JobConfig('Run2012B', t3storage+'/nuTuples_v9.9_8TeV/Data3/Single'+lepton+'_Run2012B', 45, 'DATA ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
-      configs.append(b.JobConfig('Run2012C', t3storage+'/nuTuples_v9.9_8TeV/Data3/Single'+lepton+'_Run2012C', 70, 'DATA ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
-      configs.append(b.JobConfig('Run2012D', t3storage+'/nuTuples_v9.9_8TeV/Data3/Single'+lepton+'_Run2012D', 88, 'DATA ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
+      #configs.append(b.JobConfig('Run2012A', t3storage+'/nuTuples_v9.9_8TeV/Data3/Single'+lepton+'_Run2012A', 10, 'DATA ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
+      #configs.append(b.JobConfig('Run2012B', t3storage+'/nuTuples_v9.9_8TeV/Data3/Single'+lepton+'_Run2012B', 45, 'DATA ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
+      #configs.append(b.JobConfig('Run2012C', t3storage+'/nuTuples_v9.9_8TeV/Data3/Single'+lepton+'_Run2012C', 70, 'DATA ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
+      #configs.append(b.JobConfig('Run2012D', t3storage+'/nuTuples_v9.9_8TeV/Data3/Single'+lepton+'_Run2012D', 88, 'DATA ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
+      configs.append(b.JobConfig('Run2012A', t3storage+'/nuTuples_v9.10_8TeV/Data/Single'+lepton+'_Run2012A', 10, 'DATA ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
+      configs.append(b.JobConfig('Run2012B', t3storage+'/nuTuples_v9.10_8TeV/Data/Single'+lepton+'_Run2012B', 45, 'DATA ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
+      configs.append(b.JobConfig('Run2012C', t3storage+'/nuTuples_v9.10_8TeV/Data/Single'+lepton+'_Run2012C', 70, 'DATA ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
+      configs.append(b.JobConfig('Run2012D', t3storage+'/nuTuples_v9.10_8TeV/Data/Single'+lepton+'_Run2012D', 88, 'DATA ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
   else:
     for lepton in leptonDict:
       configs.append(b.JobConfig('Run2012A', t3storage+'/nuTuples_v9.9_8TeV/Data3/Double'+lepton+'_Run2012A', 10, 'DATA ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
