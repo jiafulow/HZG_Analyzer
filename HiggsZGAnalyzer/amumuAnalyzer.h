@@ -207,8 +207,8 @@ class amumuAnalyzer : public TSelector {
     int nelectrons;
     int nphotons;
     bool passSasha;
-    bool passMass;
-    bool passFjet;
+    bool passStep5;
+    bool passStep6;
     int muonOneCharge;
     float muonOneIsPF;
     float muonOneIsGLB;

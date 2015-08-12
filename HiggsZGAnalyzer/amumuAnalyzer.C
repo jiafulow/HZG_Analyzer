@@ -117,8 +117,8 @@ void amumuAnalyzer::Begin(TTree * tree)
   amumuTree->Branch("nelectrons",&nelectrons);
   amumuTree->Branch("nphotons",&nphotons);
   amumuTree->Branch("passSasha",&passSasha);
-  amumuTree->Branch("passMass",&passMass);
-  amumuTree->Branch("passFjet",&passFjet);
+  amumuTree->Branch("passStep5",&passStep5);
+  amumuTree->Branch("passStep6",&passStep6);
   amumuTree->Branch("muonOneCharge",&muonOneCharge);
   amumuTree->Branch("muonOneIsPF",&muonOneIsPF);
   amumuTree->Branch("muonOneIsGLB",&muonOneIsGLB);
@@ -176,7 +176,22 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   dumper->SetEvent(eventNumber);
   dumper->SetLumi(lumiSection);
 
-  /*
+  // Check data integrity
+  int run = 0;
+  if (190456 <= runNumber && runNumber <= 193621)
+    run = 0;
+  else if (193833 <= runNumber && runNumber <= 196531)
+    run = 1;
+  else if (198022 <= runNumber && runNumber <= 203742)
+    run = 2;
+  else if (203777 <= runNumber && runNumber <= 208686)
+    run = 3;
+  hm->fill1DHist(run, "h1_runPeriod_"+params->suffix, "; run period;N_{evts}", 10, 0., 10., 1);
+
+  hm->fill1DHist(0, "h1_cutFlow_"+params->suffix, "; cut flow step;N_{evts}", 10, 0., 10., 1);
+
+
+/*
   // gen
 
   vector<TCGenParticle> genPhotons;
@@ -211,12 +226,9 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   if (muon1 && muon2 && pho){
     genTree->Fill();
   }
-
-  
-
 */
 
-  // Sasha
+  // Check Sasha events
   passSasha = false;
   std::vector<TString> sasha_eids = {
     "194210 330188889 353",
@@ -254,30 +266,24 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
     "207279 1265277673 976"
   };
   assert(sasha_eids.size() == 33);
-  for (int i = 0; i < sasha_eids.size(); ++i) {
-    TString eid = Form("%d %ld %d", runNumber, eventNumber, lumiSection);
+  for (UInt_t i = 0; i < sasha_eids.size(); ++i) {
+    TString eid = Form("%u %llu %u", runNumber, eventNumber, lumiSection);
     if (eid == sasha_eids.at(i)) {
         passSasha = true;
         std::cout << "SASHA: " << eid << std::endl;  //SASHA
         break;
     }
   }
-  //if (!passSasha) return kTRUE;  //SASHA //FIXME
 
 
-  // trigger
+  // Check trigger
 
-  for(int i = 0; i < 64; ++i) {
-    unsigned long iHLT = 0x0; 
-    iHLT = 0x01 << i;  
-  } 
-
-  bool triggerPass   = triggerSelector->SelectTrigger(triggerStatus, hltPrescale);
-  if (passSasha)  std::cout << "SASHA: passTrigger: " << triggerPass << std::endl;  //SASHA
-  if (params->period.find("2012") != string::npos) if (!triggerPass) return kTRUE;
+  bool passTrigger = triggerSelector->SelectTrigger(triggerStatus, hltPrescale);
+  if (passSasha)  std::cout << "SASHA: passTrigger: " << passTrigger << std::endl;  //SASHA
+  if (!passTrigger) return kTRUE;
 
 
-  // vertex
+  // Check primary vertex
 
   vector<TVector3> goodVertices;
   int nTracks = 0;
@@ -294,13 +300,57 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
       goodVertices.push_back(*pVtx);
 
   }
-  if (passSasha)  std::cout << "SASHA: passVertex: " << (goodVertices.size()>=1) << std::endl;  //SASHA
-  if (goodVertices.size() < 1) return kTRUE;
+
+  bool passVertex = (goodVertices.size() > 0);
+  if (passSasha)  std::cout << "SASHA: passVertex: " << passVertex << std::endl;  //SASHA
+  if (!passVertex) return kTRUE;
 
   pvPosition.reset(new TVector3());
   *pvPosition = goodVertices[0];
   particleSelector->SetPv(*pvPosition);
   dumper->SetPv(*pvPosition);
+
+  // Dump info
+  for (Int_t i = 0; i < recoMuons->GetSize(); ++ i)
+  {
+    TCMuon* thisMuon = (TCMuon*) recoMuons->At(i);
+
+    if (params->dumps && passSasha) {  //SASHA
+      dumper->MuonDump(*thisMuon, 1);
+      std::cout << "runNumber: " <<  runNumber << " eventNumber: " << eventNumber << " lumiSection: " << lumiSection << " MUON: " << *thisMuon
+          << " ID: " << particleSelector->PassMuonID(*thisMuon, cuts->amumu_MuID)
+          << " looseMuIso: " << particleSelector->PassMuonIso(*thisMuon, cuts->looseMuIso)
+          << " tightMuIso: " << particleSelector->PassMuonIso(*thisMuon, cuts->tightMuIso)
+          << " trkIso: " << particleSelector->PassMuonIso(*thisMuon, cuts->amumu_MuIso)
+          << endl;
+
+      //const map<string, vector<string> >& myMap = thisMuon->GetTriggers();
+      //std::cout << "IsTriggered: " << thisMuon->IsTriggered() << " Triggers: " << myMap.size();
+      //map<string, vector<string> >::const_iterator it;
+      //for(it = myMap.begin(); it!=myMap.end(); it++){
+      //  cout << it->first << " ";
+      //  for(vector<string>::const_iterator vit=it->second.begin(); vit!=it->second.end(); vit++){
+      //    cout << (*vit) << " ";
+      //  }
+      //}
+      //cout << endl;
+    }
+  }
+
+  for (Int_t i = 0; i < recoJets->GetSize(); ++i)
+  {
+    TCJet* thisJet = (TCJet*) recoJets->At(i);
+
+    if (params->dumps && passSasha) {  //SASHA
+      dumper->JetDump(*thisJet, 1);
+      std::cout << "runNumber: " <<  runNumber << " eventNumber: " << eventNumber << " lumiSection: " << lumiSection << " JET: " << *thisJet
+          << " cJetVetoID: " << particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), TCPhysObject(), TCPhysObject(), cuts->amumu_cJetVetoID)
+          << " bJetID: " << particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), TCPhysObject(), TCPhysObject(), cuts->amumu_bJetID)
+          << " bJetIDv2: " << particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), TCPhysObject(), TCPhysObject(), cuts->amumu_bJetID_v2)
+          << " fJetIDv2: " << particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), cuts->amumu_fJetID_v2)
+          << endl;
+    }
+  }
 
 
   ///////////
@@ -312,93 +362,53 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   //vector<TCMuon> muonsIDIsoUnCor;
   TLorentzVector tmpMuCor;
 
-  for (int i = 0; i < recoMuons->GetSize(); ++ i)
-    //for (int i = 0; i < pfMuons->GetSize(); ++ i)
+  for (Int_t i = 0; i < recoMuons->GetSize(); ++ i)
   {
-    TCMuon* thisMuon = (TCMuon*) recoMuons->At(i);    
+    TCMuon* thisMuon = (TCMuon*) recoMuons->At(i);
 
     // Section for muon energy/momentum corrections.  NOTE: this will change the pt and thus ID/ISO of muon
 
     if(params->engCor){
       tmpMuCor = *thisMuon;
-      /*
-      float ptErrMu = 1.0;
-      if (isRealData){
-        if (params->abcd.find("D") != string::npos ){
-          rmcor2012->momcor_data(tmpMuCor,thisMuon->Charge(),1,ptErrMu);
-        }else{
-          rmcor2012->momcor_data(tmpMuCor,thisMuon->Charge(),0,ptErrMu);
-        }
-      }
 
-      if (!isRealData) rmcor2012->momcor_mc(tmpMuCor,thisMuon->Charge(),0,ptErrMu);
-      */
+      //float ptErrMu = 1.0;
+      //if (isRealData){
+      //  if (params->abcd.find("D") != string::npos ){
+      //    rmcor2012->momcor_data(tmpMuCor,thisMuon->Charge(),1,ptErrMu);
+      //  }else{
+      //    rmcor2012->momcor_data(tmpMuCor,thisMuon->Charge(),0,ptErrMu);
+      //  }
+      //}
+      //
+      //if (!isRealData) rmcor2012->momcor_mc(tmpMuCor,thisMuon->Charge(),0,ptErrMu);
+
       muscleFitCor->applyPtCorrection(tmpMuCor,thisMuon->Charge());
       //muscleFitCor->applyPtSmearing(tmpMuCor,thisMuon->Charge(),false);
       thisMuon->SetPtEtaPhiM(tmpMuCor.Pt(), tmpMuCor.Eta(), tmpMuCor.Phi(), tmpMuCor.M());
     }
 
 
-    //tight ID and Iso
-
+    // ID and Iso
     if (particleSelector->PassMuonID(*thisMuon, cuts->amumu_MuID) && particleSelector->PassMuonIso(*thisMuon, cuts->amumu_MuIso)){
       muonsIDIso.push_back(*thisMuon);
-    }
-
-    if (params->dumps && passSasha) {  //SASHA
-        dumper->MuonDump(*thisMuon, 1);
-        std::cout << "runNumber: " <<  runNumber << " eventNumber: " << eventNumber << " lumiSection: " << lumiSection << " MUON: " << *thisMuon
-            << " ID: " << particleSelector->PassMuonID(*thisMuon, cuts->amumu_MuID)
-            << " looseMuIso: " << particleSelector->PassMuonIso(*thisMuon, cuts->looseMuIso)
-            << " tightMuIso: " << particleSelector->PassMuonIso(*thisMuon, cuts->tightMuIso)
-            << " trkIso: " << particleSelector->PassMuonIso(*thisMuon, cuts->amumu_MuIso) << endl;
-
-        //const map<string, vector<string> >& myMap = thisMuon->GetTriggers();
-        //std::cout << "IsTriggered: " << thisMuon->IsTriggered() << " Triggers: " << myMap.size();
-        //map<string, vector<string> >::const_iterator it;
-        //for(it = myMap.begin(); it!=myMap.end(); it++){
-        //  cout << it->first << " ";
-        //  for(vector<string>::const_iterator vit=it->second.begin(); vit!=it->second.end(); vit++){
-        //    cout << (*vit) << " ";
-        //  }
-        //}
-        //cout << endl;
     }
 
   }
   sort(muonsIDIso.begin(), muonsIDIso.end(), P4SortCondition);
 
 
-  for (Int_t i = 0; i < recoJets->GetSize(); ++i) {
-    TCJet* thisJet = (TCJet*) recoJets->At(i);
-
-    if (params->dumps && passSasha) {  //SASHA
-        dumper->JetDump(*thisJet, 1);
-        std::cout << "runNumber: " <<  runNumber << " eventNumber: " << eventNumber << " lumiSection: " << lumiSection << " JET: " << *thisJet
-            << " cJetVetoID: " << particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), TCPhysObject(), TCPhysObject(), cuts->amumu_cJetVetoID)
-            << " bJetID: " << particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), TCPhysObject(), TCPhysObject(), cuts->amumu_bJetID)
-            << " bJetIDv2: " << particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), TCPhysObject(), TCPhysObject(), cuts->amumu_bJetID_v2)
-            << " fJetIDv2: " << particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), cuts->amumu_fJetID_v2)
-            << endl;
-    }
-  }
-
-
   // 2 good muons
-  
-  if (passSasha)  std::cout << "SASHA: passMuMu: " << (muonsIDIso.size()>=2) << std::endl;  //SASHA
-  if (muonsIDIso.size() < 2) return kTRUE;
   bool firstMu = false;
   bool bothMus = false;
   for (UInt_t i = 0; i<muonsIDIso.size(); i++){
-    if (!firstMu && (muonsIDIso[i].Pt() >cuts->leadMuPt)){
+    if (!firstMu && (muonsIDIso[i].Pt() > cuts->leadMuPt)){
       firstMu = true;
-    }else if (firstMu && (muonsIDIso[i].Pt() >cuts->trailMuPt)){
+    }else if (firstMu && (muonsIDIso[i].Pt() > cuts->trailMuPt)){
       bothMus = true;
       break;
     }
   }
-  if (passSasha)  std::cout << "SASHA: passBothMus: " << bothMus << std::endl;  //SASHA
+  if (passSasha)  std::cout << "SASHA: passMuMu: " << bothMus << std::endl;  //SASHA
   if (!bothMus) return kTRUE;
 
   TCPhysObject   lepton1;
@@ -413,10 +423,14 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   if (!goodZ) return kTRUE;
 
   // Apply dimuon mass window cut
-  if (passSasha)  std::cout << "SASHA: passStep1: " << (12. <= ZP4.M() && ZP4.M() <= 70.) << std::endl;  //SASHA
-  if (!(12. <= ZP4.M() && ZP4.M() <= 70.)) return kTRUE;
-  hm->fill1DHist(1, "h1_cutFlow_"+params->suffix, "; cut flow step;N_{evts}", 10, 0., 10., 1);
-  hm->fill1DHist(ZP4.M(), "h1_dimuonMass_1_"+params->suffix, "M_{#mu#mu}; M_{#mu#mu};N_{evts}", 58, 12., 70., 1);
+  bool passStep1 = (12. <= ZP4.M() && ZP4.M() <= 70.);
+  if (passSasha)  std::cout << "SASHA: passStep1: " << passStep1 << std::endl;  //SASHA
+  if (passStep1) {
+    hm->fill1DHist(1, "h1_cutFlow_"+params->suffix, "; cut flow step;N_{evts}", 10, 0., 10., 1);
+    hm->fill1DHist(ZP4.M(), "h1_dimuonMass_1_"+params->suffix, "M_{#mu#mu}; M_{#mu#mu};N_{evts}", 58, 12., 70., 1);
+  } else {
+    return kTRUE;
+  }
 
 
   ///////////////
@@ -496,85 +510,85 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   TCJet goodFJet;
   TCJet goodBJet;
 
-  //central jet finder
+  // jet finder
   for (Int_t i = 0; i < recoJets->GetSize(); ++i) {
     TCJet* thisJet = (TCJet*) recoJets->At(i);
+
     if (particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), lepton1, lepton2, cuts->amumu_cJetVetoID)) cjetsVetoID.push_back(*thisJet);
-  }
-  //sort(cjetsVetoID.begin(), cjetsVetoID.end(), P4SortCondition);
 
-  if (passSasha)  std::cout << "SASHA: passStep2: " << (cjetsVetoID.size() > 0) << std::endl;  //SASHA
-  if (cjetsVetoID.size() > 0){
-    // do nothing
-  }else{
-    return kTRUE;
-  }
-  hm->fill1DHist(2, "h1_cutFlow_"+params->suffix, "; cut flow step;N_{evts}", 10, 0., 10., 1);
-  hm->fill1DHist(ZP4.M(), "h1_dimuonMass_2_"+params->suffix, "M_{#mu#mu}; M_{#mu#mu};N_{evts}", 58, 12., 70., 1);
-
-  //bjet finder
-  for (Int_t i = 0; i < recoJets->GetSize(); ++i) {
-    TCJet* thisJet = (TCJet*) recoJets->At(i);
     if (particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), lepton1, lepton2, cuts->amumu_bJetID_v2)) bjetsID.push_back(*thisJet);
-  }
-  sort(bjetsID.begin(), bjetsID.end(), P4SortCondition);
 
-  if (passSasha)  std::cout << "SASHA: passStep3: " << (bjetsID.size() > 0) << std::endl;  //SASHA
-  if (bjetsID.size() > 0){
-    goodBJet= bjetsID[0];
-  }else{
-    return kTRUE;
-  }
-  hm->fill1DHist(3, "h1_cutFlow_"+params->suffix, "; cut flow step;N_{evts}", 10, 0., 10., 1);
-  hm->fill1DHist(ZP4.M(), "h1_dimuonMass_3_"+params->suffix, "M_{#mu#mu}; M_{#mu#mu};N_{evts}", 58, 12., 70., 1);
-
-  //central jet veto
-  bool passCJV = true;
-  int passCJVcnt = 0;
-  if (cjetsVetoID.size() > 0){
-    for (Int_t i = 0; i < cjetsVetoID.size(); ++i){
-      if (goodBJet.DeltaR(cjetsVetoID[i])>0.1) {
-        passCJVcnt += 1;
-        //goodFJet = cjetsVetoID[i];
-      }
-    }
-  }
-  if (passCJVcnt > 0) passCJV = false;
-  if (passSasha)  std::cout << "SASHA: passStep4: " << passCJV << std::endl;  //SASHA
-  if (!passCJV) return kTRUE;
-  hm->fill1DHist(4, "h1_cutFlow_"+params->suffix, "; cut flow step;N_{evts}", 10, 0., 10., 1);
-  hm->fill1DHist(ZP4.M(), "h1_dimuonMass_4_"+params->suffix, "M_{#mu#mu}; M_{#mu#mu};N_{evts}", 58, 12., 70., 1);
-
-  //forward jet finder
-  for (Int_t i = 0; i < recoJets->GetSize(); ++i) {
-    TCJet* thisJet = (TCJet*) recoJets->At(i);
     if (particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), cuts->amumu_fJetID_v2)) fjetsID.push_back(*thisJet);
   }
+
+  sort(cjetsVetoID.begin(), cjetsVetoID.end(), P4SortCondition);
+  sort(bjetsID.begin(), bjetsID.end(), P4SortCondition);
   sort(fjetsID.begin(), fjetsID.end(), P4SortCondition);
 
-  if (fjetsID.size() > 0){
-
-    goodFJet= fjetsID[0];
+  bool passStep2 = (cjetsVetoID.size() > 0);
+  if (passSasha)  std::cout << "SASHA: passStep2: " << passStep2 << std::endl;  //SASHA
+  if (passStep2){
+    hm->fill1DHist(2, "h1_cutFlow_"+params->suffix, "; cut flow step;N_{evts}", 10, 0., 10., 1);
+    hm->fill1DHist(ZP4.M(), "h1_dimuonMass_2_"+params->suffix, "M_{#mu#mu}; M_{#mu#mu};N_{evts}", 58, 12., 70., 1);
   }else{
-    //return kTRUE;
+    return kTRUE;
   }
 
-  passFjet = (fjetsID.size() > 0);
-  //passFjet = (fjetsID.size() > 0) && (fabs(ZP4.DeltaPhi(goodBJet+goodFJet))>2.5);
-  //passFjet = (fjetsID.size() == 0) && (passCJVcnt == 1);
-  //passFjet = (fjetsID.size() == 0) && (passCJVcnt == 1) && (fabs(ZP4.DeltaPhi(goodBJet+goodFJet))>2.5) && (recoMET->Mod() <= 40);
-  if (passSasha)  std::cout << "SASHA: passStep5: " << passFjet << std::endl;  //SASHA
-  if (passFjet) {
+  bool passStep3 = (bjetsID.size() > 0);
+  if (passSasha)  std::cout << "SASHA: passStep3: " << passStep3 << std::endl;  //SASHA
+  if (passStep3){
+    goodBJet= bjetsID[0];
+
+    hm->fill1DHist(3, "h1_cutFlow_"+params->suffix, "; cut flow step;N_{evts}", 10, 0., 10., 1);
+    hm->fill1DHist(ZP4.M(), "h1_dimuonMass_3_"+params->suffix, "M_{#mu#mu}; M_{#mu#mu};N_{evts}", 58, 12., 70., 1);
+  }else{
+    return kTRUE;
+  }
+
+  // Central jet veto
+  int goodBJetInt = -1;
+  if (cjetsVetoID.size() > 0){
+    for (UInt_t i = 0; i < cjetsVetoID.size(); ++i){
+      if (goodBJet.DeltaR(cjetsVetoID[i])<0.1)
+        goodBJetInt = i;
+    }
+
+    if (goodBJetInt != -1)
+      cjetsVetoID.erase(cjetsVetoID.begin() + goodBJetInt);
+  }
+
+  bool passStep4 = (cjetsVetoID.size() == 0);
+  //bool passStep4 = (cjetsVetoID.size() == 1);
+  if (passSasha)  std::cout << "SASHA: passStep4: " << passStep4 << std::endl;  //SASHA
+  if (passStep4) {
+    //goodFJet = cjetsVetoID[0];
+
+    hm->fill1DHist(4, "h1_cutFlow_"+params->suffix, "; cut flow step;N_{evts}", 10, 0., 10., 1);
+    hm->fill1DHist(ZP4.M(), "h1_dimuonMass_4_"+params->suffix, "M_{#mu#mu}; M_{#mu#mu};N_{evts}", 58, 12., 70., 1);
+  }else{
+    return kTRUE;
+  }
+
+  passStep5 = (fjetsID.size() > 0);
+  //passStep5 = (fjetsID.size() == 0) && (cjetsVetoID.size() == 1) && (fabs(ZP4.DeltaPhi(goodBJet+goodFJet))>2.5) && (recoMET->Mod() <= 40);
+  if (passSasha)  std::cout << "SASHA: passStep5: " << passStep5 << std::endl;  //SASHA
+  if (passStep5){
+    goodFJet = fjetsID[0];
+
     hm->fill1DHist(5, "h1_cutFlow_"+params->suffix, "; cut flow step;N_{evts}", 10, 0., 10., 1);
     hm->fill1DHist(ZP4.M(), "h1_dimuonMass_5a_"+params->suffix, "M_{#mu#mu}; M_{#mu#mu};N_{evts}", 58, 12., 70., 1);
-  } else {
+  }else{
     hm->fill1DHist(ZP4.M(), "h1_dimuonMass_5b_"+params->suffix, "M_{#mu#mu}; M_{#mu#mu};N_{evts}", 58, 12., 70., 1);
+    return kTRUE;
   }
 
-  passMass = (26. <= ZP4.M() && ZP4.M() <= 32.);
-  if (passSasha)  std::cout << "SASHA: passStep6: " << passMass << std::endl;  //SASHA
-  if (passFjet && passMass)
+  passStep6 = (26. <= ZP4.M() && ZP4.M() <= 32.);
+  if (passSasha)  std::cout << "SASHA: passStep6: " << passStep6 << std::endl;  //SASHA
+  if (passStep6){
     hm->fill1DHist(6, "h1_cutFlow_"+params->suffix, "; cut flow step;N_{evts}", 10, 0., 10., 1);
+  }else{
+    // do nothing
+  }
 
 
   /////////
@@ -587,8 +601,6 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   //////////
   // FILL //
   //////////
-  if (!passFjet)  return kTRUE;
-
   int muonOneInt = -1;
   int muonTwoInt = -1;
   if (lepton1.Pt() >= lepton2.Pt()){
@@ -647,8 +659,7 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   fjetCSVv1 = goodFJet.BDiscriminatorMap("CSVv1");
   fjetCSVMVA = goodFJet.BDiscriminatorMap("CSVMVA");
   fjetPUID = goodFJet.IdMap("PUID_MVA");
-  x = passFjet ? ZP4.M() : 0.;  // for unbinned fit
-
+  x = ZP4.M();  // for unbinned fit
 
   
   amumuTree->Fill();
