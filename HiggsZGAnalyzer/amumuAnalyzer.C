@@ -391,9 +391,9 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
     if (params->dumps && passSasha) {  //SASHA
       dumper->JetDump(*thisJet, 1);
       std::cout << "runNumber: " <<  runNumber << " eventNumber: " << eventNumber << " lumiSection: " << lumiSection << " JET: " << *thisJet
-          << " cJetVetoID: " << particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), TCPhysObject(), TCPhysObject(), cuts->amumu_cJetVetoID)
-          << " bJetID: " << particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), TCPhysObject(), TCPhysObject(), cuts->amumu_bJetID)
-          << " bJetIDv2: " << particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), TCPhysObject(), TCPhysObject(), cuts->amumu_bJetID_v2)
+          << " cJetVetoID: " << particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), cuts->amumu_cJetVetoID)
+          << " bJetID: " << particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), cuts->amumu_bJetID)
+          << " bJetIDv2: " << particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), cuts->amumu_bJetID_v2)
           << " fJetIDv2: " << particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), cuts->amumu_fJetID_v2)
           << endl;
     }
@@ -487,22 +487,26 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   vector<TCElectron> electronsID;
   vector<TCElectron> electronsIDIso;
 
-  for (int i = 0; i <  recoElectrons->GetSize(); ++i) {
+  for (Int_t i = 0; i < recoElectrons->GetSize(); ++i) {
     TCElectron* thisElec = (TCElectron*) recoElectrons->At(i);
 
     bool passID = false;
     bool passIso = false;
 
-    if (particleSelector->PassElectronID(*thisElec, cuts->mediumElID, *recoMuons, false)) passID = true;
-    if (particleSelector->PassElectronIso(*thisElec, cuts->mediumElIso, cuts->EAEle)) passIso = true;
+    if (particleSelector->PassElectronID(*thisElec, cuts->looseElID, *recoMuons, false)) passID = true;
+    if (particleSelector->PassElectronIso(*thisElec, cuts->looseElIso, cuts->EAEle)) passIso = true;
 
-    // eng cor
+    //if (particleSelector->PassElectronID(*thisElec, cuts->mediumElID, *recoMuons, false)) passID = true;
+    //if (particleSelector->PassElectronIso(*thisElec, cuts->mediumElIso, cuts->EAEle)) passIso = true;
+
+    // energy correction after ID and ISO
 
     //if(params->engCor && !params->doSync && params->PU == "S10") UniversalEnergyCorrector(*thisElec);
 
     if(passID) electronsID.push_back(*thisElec);
     if(passID&&passIso) electronsIDIso.push_back(*thisElec);
   }
+  sort(electronsIDIso.begin(), electronsIDIso.end(), P4SortCondition);
 
 
   /////////////
@@ -517,26 +521,8 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
     bool passID = false;
     bool passIso = false;
 
-    // non MVA selection
-    if(!params->doPhoMVA){
-      if (particleSelector->PassPhotonID(*thisPhoton, cuts->mediumPhID)) passID = true;
-      if (particleSelector->PassPhotonIso(*thisPhoton, cuts->mediumPhIso, cuts->EAPho)) passIso = true;
-
-    // MVA Selection
-    }else{
-      bool goodLepPre = false;
-      if (particleSelector->PassPhotonID(*thisPhoton, cuts->preSelPhID)) passID = true;
-      //if (params->selection == "mumuGamma"){
-      //  if (muonsIDIso.size() > 1){
-      //    goodLepPre = GoodLeptonsCat( muonsIDIso[0], muonsIDIso[1]);
-      //  }
-      //}else{
-      //  if (electronsIDIso.size() > 1){
-      //    goodLepPre = GoodLeptonsCat( electronsIDIso[0], electronsIDIso[1]);
-      //  }
-      //}
-      if (particleSelector->PassPhotonMVA(*thisPhoton, cuts->catPhMVAID, goodLepPre)) passIso = true;
-    }
+    if (particleSelector->PassPhotonID(*thisPhoton, cuts->loosePhID)) passID = true;
+    if (particleSelector->PassPhotonIso(*thisPhoton, cuts->loosePhIso, cuts->EAPho)) passIso = true;
 
     // energy correction after ID and ISO
 
@@ -545,6 +531,29 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
     if (passID) photonsID.push_back(*thisPhoton);
     if (passID && passIso) photonsIDIso.push_back(*thisPhoton);
   }
+  sort(photonsIDIso.begin(), photonsIDIso.end(), P4SortCondition);
+
+
+  /////////////////
+  // Lepton Veto //
+  /////////////////
+
+  double leptonVetoPt = 20;
+  int muonVetoCount = 0;
+  for (UInt_t j=0; j < muonsIDIso.size(); ++j) {
+    if (muonsIDIso.at(j).Pt() > leptonVetoPt)
+      muonVetoCount += 1;
+  }
+
+  int electronVetoCount = 0;
+  for (UInt_t j=0; j < electronsIDIso.size(); ++j) {
+    if (electronsIDIso.at(j).Pt() > leptonVetoPt)
+      electronVetoCount += 1;
+  }
+
+  bool passLeptonVeto = (muonVetoCount == 2) && (electronVetoCount == 0);
+  if (passSasha)  std::cout << "SASHA: passLeptonVeto: " << passLeptonVeto << std::endl;  //SASHA
+  if (!passLeptonVeto) return kTRUE;
 
 
   //////////
@@ -557,13 +566,38 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   TCJet goodFJet;
   TCJet goodBJet;
 
+  double jetCleaningPt = 20;
+
   // jet finder
   for (Int_t i = 0; i < recoJets->GetSize(); ++i) {
     TCJet* thisJet = (TCJet*) recoJets->At(i);
 
-    if (particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), lepton1, lepton2, cuts->amumu_cJetVetoID)) cjetsVetoID.push_back(*thisJet);
+    // Skip jets that overlap with leptons or photons
+    bool skip = false;
+    for (UInt_t j=0; j < muonsIDIso.size(); ++j) {
+        const TCMuon& thisMuon = muonsIDIso.at(j);
+        if (thisMuon.Pt() > jetCleaningPt && thisJet->DeltaR(thisMuon)<0.5)
+            skip = true;
+    }
 
-    if (particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), lepton1, lepton2, cuts->amumu_bJetID_v2)) bjetsID.push_back(*thisJet);
+    for (UInt_t j=0; j < electronsIDIso.size(); ++j) {
+        const TCElectron& thisElec = electronsIDIso.at(j);
+        if (thisElec.Pt() > jetCleaningPt && thisJet->DeltaR(thisElec)<0.5)
+            skip = true;
+    }
+
+    for (UInt_t j=0; j < photonsIDIso.size(); ++j) {
+        const TCPhoton& thisPhoton = photonsIDIso.at(j);
+        if (thisPhoton.Pt() > jetCleaningPt && thisJet->DeltaR(thisPhoton)<0.5)
+            skip = true;
+    }
+
+    if (skip)
+        continue;
+
+    if (particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), cuts->amumu_cJetVetoID)) cjetsVetoID.push_back(*thisJet);
+
+    if (particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), cuts->amumu_bJetID_v2)) bjetsID.push_back(*thisJet);
 
     if (particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), cuts->amumu_fJetID_v2)) fjetsID.push_back(*thisJet);
   }

@@ -906,28 +906,6 @@ bool ParticleSelector::PassJetID(const TCJet& jet, int nVtx, const Cuts::jetIDCu
       && jet.ChEmFrac()    < 0.99)) return false;
 
     if (jet.IdMap("PUID_MVA_Loose")) idPass = true;
-  }
-
-  return idPass;
-}
-
-bool ParticleSelector::PassJetID(const TCJet& jet, int nVtx, const TCPhysObject& muon1, const TCPhysObject& muon2, const Cuts::jetIDCuts& cutLevel){
-  bool idPass = false;
-
-  if (cutLevel.cutName=="amumu_cJetVetoID"){
-    if (fabs(jet.Eta()) > 2.4) return false;
-    if (jet.Pt() < 30) return false;
-
-    if( !(jet.NumConstit()  > 1
-      && jet.NeuHadFrac()  < 0.99
-      && jet.NeuEmFrac()   < 0.99
-      && jet.ChHadFrac()   > 0.
-      && jet.NumChPart()   > 0
-      && jet.ChEmFrac()    < 0.99)) return false;
-
-    if ( !(jet.DeltaR(muon1)>0.5 && jet.DeltaR(muon2)>0.5) ) return false;
-
-    if (jet.IdMap("PUID_MVA_Loose")) idPass = true;
 
   } else if (cutLevel.cutName=="amumu_bJetID"){
     if (fabs(jet.Eta()) > 2.4) return false;
@@ -939,8 +917,6 @@ bool ParticleSelector::PassJetID(const TCJet& jet, int nVtx, const TCPhysObject&
       && jet.ChHadFrac()   > 0.
       && jet.NumChPart()   > 0
       && jet.ChEmFrac()    < 0.99)) return false;
-
-    if ( !(jet.DeltaR(muon1)>0.5 && jet.DeltaR(muon2)>0.5) ) return false;
 
     if (jet.BDiscriminatorMap("CSV") > 0.679) idPass = true;  // CSV Medium
 
@@ -955,8 +931,6 @@ bool ParticleSelector::PassJetID(const TCJet& jet, int nVtx, const TCPhysObject&
       && jet.NumChPart()   > 0
       && jet.ChEmFrac()    < 0.99)) return false;
 
-    if ( !(jet.DeltaR(muon1)>0.5 && jet.DeltaR(muon2)>0.5) ) return false;
-
     //if (jet.BDiscriminatorMap("CSVv1") > 0.783) idPass = true;  // CSVv1 medium
     //if (jet.BDiscriminatorMap("CSVv1") > 0.920) idPass = true;  // CSVv1 tight
     if (jet.BDiscriminatorMap("CSVMVA") > 0.783) idPass = true;  // CSVMVA olga
@@ -967,7 +941,12 @@ bool ParticleSelector::PassJetID(const TCJet& jet, int nVtx, const TCPhysObject&
 
   return idPass;
 }
-        
+
+//bool ParticleSelector::PassJetID(const TCJet& jet, int nVtx, const TCPhysObject& muon1, const TCPhysObject& muon2, const Cuts::jetIDCuts& cutLevel){
+//  bool idPass = false;
+//  return idPass;
+//}
+
     
 float ParticleSelector::Zeppenfeld(const TLorentzVector& p, const TLorentzVector& pj1, const TLorentzVector& pj2)
 {
