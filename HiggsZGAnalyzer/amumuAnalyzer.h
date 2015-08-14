@@ -209,6 +209,7 @@ class amumuAnalyzer : public TSelector {
     bool passSasha;
     bool passStep5;
     bool passStep6;
+    bool passStep7;
     int muonOneCharge;
     float muonOneIsPF;
     float muonOneIsGLB;

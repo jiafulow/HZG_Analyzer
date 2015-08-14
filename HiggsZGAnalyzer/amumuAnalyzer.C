@@ -119,6 +119,7 @@ void amumuAnalyzer::Begin(TTree * tree)
   amumuTree->Branch("passSasha",&passSasha);
   amumuTree->Branch("passStep5",&passStep5);
   amumuTree->Branch("passStep6",&passStep6);
+  amumuTree->Branch("passStep7",&passStep7);
   amumuTree->Branch("muonOneCharge",&muonOneCharge);
   amumuTree->Branch("muonOneIsPF",&muonOneIsPF);
   amumuTree->Branch("muonOneIsGLB",&muonOneIsGLB);
@@ -552,7 +553,7 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   }
 
   bool passLeptonVeto = (muonVetoCount == 2) && (electronVetoCount == 0);
-  if (passSasha)  std::cout << "SASHA: passLeptonVeto: " << passLeptonVeto << std::endl;  //SASHA
+  if (passSasha)  std::cout << "SASHA: passLepVeto: " << passLeptonVeto << std::endl;  //SASHA
   if (!passLeptonVeto) return kTRUE;
 
 
@@ -651,9 +652,8 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   }
 
   passStep5 = (fjetsID.size() > 0);
-  //passStep5 = (fjetsID.size() == 0) && (cjetsVetoID.size() == 1) && (fabs(ZP4.DeltaPhi(goodBJet+goodFJet))>2.5) && (recoMET->Mod() <= 40);
+  //passStep5 = (fjetsID.size() == 0) && (cjetsVetoID.size() == 1);
   if (passSasha)  std::cout << "SASHA: passStep5: " << passStep5 << std::endl;  //SASHA
-  //if (passSasha)  std::cout << "SASHA: passStep5: " << passStep5 << " " << (fjetsID.size() == 0) << " " << (cjetsVetoID.size() == 1) << " " << (fabs(ZP4.DeltaPhi(goodBJet+goodFJet))>2.5) << " " << (recoMET->Mod() <= 40) << std::endl;  //SASHA
   if (passStep5){
     goodFJet = fjetsID[0];
 
@@ -664,10 +664,21 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
     return kTRUE;
   }
 
-  passStep6 = (26. <= ZP4.M() && ZP4.M() <= 32.);
+  passStep6 = true;
+  //passStep6 = (recoMET->Mod() <= 40) && (fabs(ZP4.DeltaPhi(goodBJet+goodFJet))>2.5);
   if (passSasha)  std::cout << "SASHA: passStep6: " << passStep6 << std::endl;  //SASHA
   if (passStep6){
     hm->fill1DHist(6, "h1_cutFlow_"+params->suffix, "; cut flow step;N_{evts}", 10, 0., 10., 1);
+    hm->fill1DHist(ZP4.M(), "h1_dimuonMass_6a_"+params->suffix, "M_{#mu#mu}; M_{#mu#mu};N_{evts}", 58, 12., 70., 1);
+  }else{
+    hm->fill1DHist(ZP4.M(), "h1_dimuonMass_6b_"+params->suffix, "M_{#mu#mu}; M_{#mu#mu};N_{evts}", 58, 12., 70., 1);
+    return kTRUE;
+  }
+
+  passStep7 = (26. <= ZP4.M() && ZP4.M() <= 32.);
+  if (passSasha)  std::cout << "SASHA: passStep7: " << passStep7 << std::endl;  //SASHA
+  if (passStep7){
+    hm->fill1DHist(7, "h1_cutFlow_"+params->suffix, "; cut flow step;N_{evts}", 10, 0., 10., 1);
   }else{
     // do nothing
   }
