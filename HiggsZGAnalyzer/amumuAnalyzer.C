@@ -639,8 +639,9 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
       cjetsVetoID.erase(cjetsVetoID.begin() + goodBJetInt);
   }
 
-  bool passStep4 = (cjetsVetoID.size() == 0);
+  //bool passStep4 = (cjetsVetoID.size() == 0);
   //bool passStep4 = (cjetsVetoID.size() == 1);
+  bool passStep4 = true;
   if (passSasha)  std::cout << "SASHA: passStep4: " << passStep4 << std::endl;  //SASHA
   if (passStep4) {
     //goodFJet = cjetsVetoID[0];
@@ -651,11 +652,12 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
     return kTRUE;
   }
 
-  passStep5 = (fjetsID.size() > 0);
+  //passStep5 = (fjetsID.size() > 0);
   //passStep5 = (fjetsID.size() == 0) && (cjetsVetoID.size() == 1);
+  passStep5 = true;
   if (passSasha)  std::cout << "SASHA: passStep5: " << passStep5 << std::endl;  //SASHA
   if (passStep5){
-    goodFJet = fjetsID[0];
+    //goodFJet = fjetsID[0];
 
     hm->fill1DHist(5, "h1_cutFlow_"+params->suffix, "; cut flow step;N_{evts}", 10, 0., 10., 1);
     hm->fill1DHist(ZP4.M(), "h1_dimuonMass_5a_"+params->suffix, "M_{#mu#mu}; M_{#mu#mu};N_{evts}", 58, 12., 70., 1);
@@ -664,10 +666,15 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
     return kTRUE;
   }
 
-  passStep6 = true;
+  //passStep6 = true;
   //passStep6 = (recoMET->Mod() <= 40) && (fabs(ZP4.DeltaPhi(goodBJet+goodFJet))>2.5);
+  //passStep6 = (cjetsVetoID.size() == 0) && (fjetsID.size() == 0) && (recoMET->Mod() <= 40);  // 1j-only
+  passStep6 = (cjetsVetoID.size() == 1) && (fjetsID.size() == 0) && (recoMET->Mod() <= 40);  // 2j-only
   if (passSasha)  std::cout << "SASHA: passStep6: " << passStep6 << std::endl;  //SASHA
   if (passStep6){
+    //goodFJet = goodBJet;  //FIXME
+    goodFJet = cjetsVetoID[0]; //FIXME
+
     hm->fill1DHist(6, "h1_cutFlow_"+params->suffix, "; cut flow step;N_{evts}", 10, 0., 10., 1);
     hm->fill1DHist(ZP4.M(), "h1_dimuonMass_6a_"+params->suffix, "M_{#mu#mu}; M_{#mu#mu};N_{evts}", 58, 12., 70., 1);
   }else{
