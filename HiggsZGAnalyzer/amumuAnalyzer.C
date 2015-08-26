@@ -181,14 +181,16 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
 
   // Check data integrity
   int run = 0;
-  if (190456 <= runNumber && runNumber <= 193621)
-    run = 0;
-  else if (193833 <= runNumber && runNumber <= 196531)
-    run = 1;
-  else if (198022 <= runNumber && runNumber <= 203742)
-    run = 2;
-  else if (203777 <= runNumber && runNumber <= 208686)
-    run = 3;
+  if (isRealData) {
+    if (190456 <= runNumber && runNumber <= 193621)
+      run = 0;
+    else if (193833 <= runNumber && runNumber <= 196531)
+      run = 1;
+    else if (198022 <= runNumber && runNumber <= 203742)
+      run = 2;
+    else if (203777 <= runNumber && runNumber <= 208686)
+      run = 3;
+  }
   hm->fill1DHist(run, "h1_runPeriod_"+params->suffix, "; run period;N_{evts}", 10, 0., 10., 1);
 
   hm->fill1DHist(0, "h1_cutFlow_"+params->suffix, "; cut flow step;N_{evts}", 10, 0., 10., 1);
@@ -316,12 +318,15 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
     "204113 93 79839868"
   };
 */
-  for (UInt_t i = 0; i < sasha_eids.size(); ++i) {
-    TString eid = Form("%u %u %llu", runNumber, lumiSection, eventNumber);
-    if (eid == sasha_eids.at(i)) {
-        passSasha = true;
-        std::cout << "SASHA: " << eid << std::endl;  //SASHA
-        break;
+
+  if (isRealData) {
+    for (UInt_t i = 0; i < sasha_eids.size(); ++i) {
+      TString eid = Form("%u %u %llu", runNumber, lumiSection, eventNumber);
+      if (eid == sasha_eids.at(i)) {
+          passSasha = true;
+          std::cout << "SASHA: " << eid << std::endl;  //SASHA
+          break;
+      }
     }
   }
 
@@ -831,6 +836,11 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
 
 void amumuAnalyzer::Terminate()
 {
+  cout<<"TOTAL NUMBER OF FILES: "<<fileCount<<" and they have this many events: "<<unskimmedEventsTotal<<endl;
+
+  TH1I* totalEvents = new TH1I(("unskimmedEventsTotal_"+params->suffix).c_str(),("unskimmedEventsTotal_"+params->suffix).c_str(),1,0,1);
+  totalEvents->SetBinContent(1,unskimmedEventsTotal);
+
   amumuFile->Write();
   amumuFile->Close();
 

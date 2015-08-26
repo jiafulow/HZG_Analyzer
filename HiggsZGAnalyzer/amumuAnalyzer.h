@@ -153,8 +153,8 @@ class amumuAnalyzer : public TSelector {
 
     // For file and event counting
     int fileCount;
-    int unskimmedEventsTotal;
-    int unskimmedEvents;
+    long int unskimmedEventsTotal;
+    long int unskimmedEvents;
     TFile *file0;
     TH1F * h1_numOfEvents;
     TTree *thisTree;
