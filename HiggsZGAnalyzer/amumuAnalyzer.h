@@ -243,6 +243,7 @@ class amumuAnalyzer : public TSelector {
     float fjetCSVMVA;
     float fjetPUID;
     float x; // for unbinned fit
+    float w; // event weight
 
     TLorentzVector muonOneGen;
     TLorentzVector muonTwoGen;

@@ -173,11 +173,17 @@ elif doAmumu:
       configs.append(b.JobConfig('Run2012C', t3storage+'/nuTuples_v9.10_8TeV/Data/Single'+lepton+'_Run2012C', 70, 'DATA ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
       configs.append(b.JobConfig('Run2012D', t3storage+'/nuTuples_v9.10_8TeV/Data/Single'+lepton+'_Run2012D', 88, 'DATA ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
   else:
-    for lepton in leptonDict:
-      configs.append(b.JobConfig('Run2012A', t3storage+'/nuTuples_v9.9_8TeV/Data3/Double'+lepton+'_Run2012A', 10, 'DATA ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
-      configs.append(b.JobConfig('Run2012B', t3storage+'/nuTuples_v9.9_8TeV/Data3/Double'+lepton+'_Run2012B', 45, 'DATA ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
-      configs.append(b.JobConfig('Run2012C', t3storage+'/nuTuples_v9.9_8TeV/Data3/Double'+lepton+'_Run2012C', 70, 'DATA ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
-      configs.append(b.JobConfig('Run2012D', t3storage+'/nuTuples_v9.9_8TeV/Data3/Double'+lepton+'_Run2012D', 88, 'DATA ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
+    pass
+    #for lepton in leptonDict:
+    #  configs.append(b.JobConfig('Run2012A', t3storage+'/nuTuples_v9.9_8TeV/Data3/Double'+lepton+'_Run2012A', 10, 'DATA ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
+    #  configs.append(b.JobConfig('Run2012B', t3storage+'/nuTuples_v9.9_8TeV/Data3/Double'+lepton+'_Run2012B', 45, 'DATA ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
+    #  configs.append(b.JobConfig('Run2012C', t3storage+'/nuTuples_v9.9_8TeV/Data3/Double'+lepton+'_Run2012C', 70, 'DATA ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
+    #  configs.append(b.JobConfig('Run2012D', t3storage+'/nuTuples_v9.9_8TeV/Data3/Double'+lepton+'_Run2012D', 88, 'DATA ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
+  configs.append(b.JobConfig('DYJetsToLL_M-10To50', t3storage+'/nuTuples_v9.10_8TeV/MC/DYJetsToLL_M-10To50', 100, 'DYJetsToLL_M-10To50 ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
+  configs.append(b.JobConfig('DYJetsToLL_M-50', t3storage+'/nuTuples_v9.10_8TeV/MC/DYJetsToLL_M-50', 100, 'DYJetsToLL_M-50 ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
+  configs.append(b.JobConfig('TTJets_FullLep', t3storage+'/nuTuples_v9.10_8TeV/MC/TTJets_FullLep', 100, 'TTJets_FullLep ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
+  configs.append(b.JobConfig('TTJets_Hadronic', t3storage+'/nuTuples_v9.10_8TeV/MC/TTJets_Hadronic', 100, 'TTJets_Hadronic ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
+  configs.append(b.JobConfig('TTJets_SemiLep', t3storage+'/nuTuples_v9.10_8TeV/MC/TTJets_SemiLep', 100, 'TTJets_SemiLep ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
 
 batcher = b.BatchMaster(configs, outputPathNWU,'execBatch.sh')
 batcher.SubmitToLPC()

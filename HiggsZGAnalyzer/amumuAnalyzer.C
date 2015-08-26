@@ -52,6 +52,7 @@ void amumuAnalyzer::Begin(TTree * tree)
   params->dataname       = dataname;
   params->jobCount       = count;
   params->dumps          = true;
+  params->doScaleFactors = true;
 
   // Get trigger names from jobTree
   vector<string>* triggerNames = 0;
@@ -153,6 +154,7 @@ void amumuAnalyzer::Begin(TTree * tree)
   amumuTree->Branch("fjetCSVMVA",&fjetCSVMVA);
   amumuTree->Branch("fjetPUID",&fjetPUID);
   amumuTree->Branch("x",&x);
+  amumuTree->Branch("w", &w);
 
   genTree.reset(new TTree(("genTree_"+params->suffix).c_str(),"three body mass values"));
   //genTree->Branch("muonOneGen",&muonOneGen);
@@ -716,6 +718,51 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   }
 
 
+  ////////
+  // MC //
+  ////////
+  
+  float eventWeight = 1;
+  float eventWeightPU = 1;
+  float eventWeightPho = 1;
+  float eventWeightLep = 1;
+  float eventWeightTrig = 1;
+  
+  weighter->SetIsRealData(isRealData);
+  weighter->SetRunNumber(runNumber);
+  
+  if (!isRealData){
+  
+    if (params->period.find("2011") != string::npos){
+      if (params->doScaleFactors) eventWeight   *= weighter->PUWeight(nPUVertices);
+      eventWeightPU   *= weighter->PUWeight(nPUVertices);
+    }else if (params->period.find("2012") != string::npos){
+      if (params->doScaleFactors) eventWeight   *= weighter->PUWeight(nPUVerticesTrue);
+      eventWeightPU   *= weighter->PUWeight(nPUVerticesTrue);
+    }
+
+    if (params->doScaleFactors){
+      //eventWeight   *= weighter->MuonTriggerWeight(lepton1, lepton2);
+      eventWeight   *= weighter->MuonTriggerWeightV2(lepton1, lepton2);
+      eventWeight   *= weighter->MuonSelectionWeight(lepton1);
+      eventWeight   *= weighter->MuonSelectionWeight(lepton2);
+    }
+    //eventWeightTrig   *= weighter->MuonTriggerWeight(lepton1, lepton2);
+    eventWeightTrig   *= weighter->MuonTriggerWeightV2(lepton1, lepton2);
+    eventWeightLep   *= weighter->MuonSelectionWeight(lepton1);
+    eventWeightLep   *= weighter->MuonSelectionWeight(lepton2);
+  }
+  //cout<<eventWeight<<endl;
+  
+  float scaleFactor = eventWeight;
+  float lumi_8TeV = 19.672;
+  if (params->suffix == "DYJetsToLL_M-10To50") scaleFactor *= lumi_8TeV/(unskimmedEventsTotal/(11050*1.19*1000));
+  if (params->suffix == "DYJetsToLL_M-50") scaleFactor *= lumi_8TeV/(unskimmedEventsTotal/(2950*1.19*1000));
+  if (params->suffix == "TTJets_FullLep") scaleFactor *= lumi_8TeV/(unskimmedEventsTotal/(252.89*0.68*0.68*1000));
+  if (params->suffix == "TTJets_Hadronic") scaleFactor *= lumi_8TeV/(unskimmedEventsTotal/(252.89*0.32*0.32*1000));
+  if (params->suffix == "TTJets_SemiLep") scaleFactor *= lumi_8TeV/(unskimmedEventsTotal/(252.89*2*0.68*0.32*1000));
+
+
   //////////
   // FILL //
   //////////
@@ -778,6 +825,7 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   fjetCSVMVA = goodFJet.BDiscriminatorMap("CSVMVA");
   fjetPUID = goodFJet.IdMap("PUID_MVA");
   x = ZP4.M();  // for unbinned fit
+  w = scaleFactor;  // event weight
 
   
   amumuTree->Fill();
