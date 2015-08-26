@@ -78,20 +78,20 @@ cat > run.C << +EOF
     cout<<"Adding files from $3 to chain..."<<endl;
 
     while (sourceFiles >> myLine) {
-      if (count == 0 && myLine.find("dcache")==string::npos){
-      float rhoFactor;
-      TBranch        *b_rhoFactor;   //!
-      TFile fixFile(myLine.c_str(),"open");
-      TTree *fixTree = (TTree*)fixFile.Get("ntupleProducer/eventTree");
-      fixTree->SetBranchAddress("rhoFactor",&rhoFactor,&b_rhoFactor);
-      for(int i =0; i<fixTree->GetEntries();i++){
-      fixTree->GetEntry(i);
-    }
-    delete fixTree;
+      //if (count == 0 && myLine.find("dcache")==string::npos){
+      //  float rhoFactor;
+      //  TBranch        *b_rhoFactor;   //!
+      //  TFile fixFile(myLine.c_str(),"open");
+      //  TTree *fixTree = (TTree*)fixFile.Get("ntupleProducer/eventTree");
+      //  fixTree->SetBranchAddress("rhoFactor",&rhoFactor,&b_rhoFactor);
+      //  for(int i =0; i<fixTree->GetEntries();i++){
+      //    fixTree->GetEntry(i);
+      //  }
+      //  delete fixTree;
 
-    }
-    fChain->Add(myLine.c_str());      
-    ++count;
+      //}
+      fChain->Add(myLine.c_str());
+      ++count;
     }
     cout<<count<<" files added!"<<endl;
     sourceFiles.close();

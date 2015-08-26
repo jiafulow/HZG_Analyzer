@@ -753,14 +753,7 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
     eventWeightLep   *= weighter->MuonSelectionWeight(lepton2);
   }
   //cout<<eventWeight<<endl;
-  
-  float scaleFactor = eventWeight;
-  float lumi_8TeV = 19.672;
-  if (params->suffix == "DYJetsToLL_M-10To50") scaleFactor *= lumi_8TeV/(unskimmedEventsTotal/(11050*1.19*1000));
-  if (params->suffix == "DYJetsToLL_M-50") scaleFactor *= lumi_8TeV/(unskimmedEventsTotal/(2950*1.19*1000));
-  if (params->suffix == "TTJets_FullLep") scaleFactor *= lumi_8TeV/(unskimmedEventsTotal/(252.89*0.68*0.68*1000));
-  if (params->suffix == "TTJets_Hadronic") scaleFactor *= lumi_8TeV/(unskimmedEventsTotal/(252.89*0.32*0.32*1000));
-  if (params->suffix == "TTJets_SemiLep") scaleFactor *= lumi_8TeV/(unskimmedEventsTotal/(252.89*2*0.68*0.32*1000));
+
 
 
   //////////
@@ -825,7 +818,7 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   fjetCSVMVA = goodFJet.BDiscriminatorMap("CSVMVA");
   fjetPUID = goodFJet.IdMap("PUID_MVA");
   x = ZP4.M();  // for unbinned fit
-  w = scaleFactor;  // event weight
+  w = eventWeight;  // event weight
 
   
   amumuTree->Fill();
