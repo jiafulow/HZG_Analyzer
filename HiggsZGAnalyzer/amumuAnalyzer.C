@@ -40,7 +40,7 @@ void amumuAnalyzer::Begin(TTree * tree)
   string selection = static_cast<string>(static_cast<TObjString*>(option.Tokenize(" ")->At(2))->GetString());
   string period = static_cast<string>(static_cast<TObjString*>(option.Tokenize(" ")->At(3))->GetString());
   string dataname = static_cast<string>(static_cast<TObjString*>(option.Tokenize(" ")->At(4))->GetString());
-  string count = static_cast<string>(static_cast<TObjString*>(option.Tokenize(" ")->At(5))->GetString()); 
+  string count = static_cast<string>(static_cast<TObjString*>(option.Tokenize(" ")->At(5))->GetString());
 
   params.reset(new Parameters());
 
@@ -159,6 +159,8 @@ void amumuAnalyzer::Begin(TTree * tree)
   genTree.reset(new TTree(("genTree_"+params->suffix).c_str(),"three body mass values"));
   //genTree->Branch("muonOneGen",&muonOneGen);
   //genTree->Branch("muonTwoGen",&muonTwoGen);
+  //genTree->Branch("bjetGen",&bjetGen);
+  //genTree->Branch("fjetGen",&fjetGen);
 
   eidTree.reset(new TTree(("eidTree_"+params->suffix).c_str(), "event ID values"));
   eidTree->Branch("runNumber",  &runNumber,   "runNumber/i");
