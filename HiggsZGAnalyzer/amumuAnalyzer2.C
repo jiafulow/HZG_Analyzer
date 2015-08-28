@@ -39,7 +39,7 @@ void amumuAnalyzer2::Begin(TTree * /*tree*/)
   /////////////////////////////
 
   TString option = GetOption();
-  //string suffix = static_cast<string>(static_cast<TObjString*>(option.Tokenize(" ")->At(0))->GetString());
+  string suffix = static_cast<string>(static_cast<TObjString*>(option.Tokenize(" ")->At(0))->GetString());
   //string abcd = static_cast<string>(static_cast<TObjString*>(option.Tokenize(" ")->At(1))->GetString());
   //string selection = static_cast<string>(static_cast<TObjString*>(option.Tokenize(" ")->At(2))->GetString());
   //string period = static_cast<string>(static_cast<TObjString*>(option.Tokenize(" ")->At(3))->GetString());
@@ -58,9 +58,12 @@ void amumuAnalyzer2::Begin(TTree * /*tree*/)
   //params->dumps          = true;
   //params->doScaleFactors = true;
   
-  //newfile = new TFile(("amumuFile_"+params->dataname+"_"+params->selection+"_"+params->jobCount+".root").c_str(), "RECREATE");
-  newfile = new TFile("newfile.root", "RECREATE");
-  newfile->cd();
+  string outdir = "skims/MC/"+suffix;
+  //string outdir = "skims/Data/"+suffix;
+  if (gSystem->AccessPathName(outdir.c_str()))
+    gSystem->mkdir(outdir.c_str());
+  newFile = new TFile((outdir+"/nuTuple_1_1_ABC.root").c_str(), "RECREATE");
+  newFile->mkdir("ntupleProducer")->cd();
 
 }
 
@@ -95,13 +98,24 @@ Bool_t amumuAnalyzer2::Process(Long64_t entry)
   // The return value is currently not used.
   
   GetEntry(entry, 1);
-
+  
+  ///////////
+  // Muons //
+  ///////////
+  
+  int nmuons = 0;
+  for (Int_t i = 0; i < recoMuons->GetSize(); ++ i) {
+    TCMuon* thisMuon = (TCMuon*) recoMuons->At(i);
+    
+    if (thisMuon->Pt() > 15.)
+      nmuons += 1;
+  }
+  
+  bool passMuon = (nmuons >= 2);
 
   //////////
   // Jets //
   //////////
-
-  //b_recoJets->GetEntry(entry);
   
   int njets = 0;
   for (Int_t i = 0; i < recoJets->GetSize(); ++i) {
@@ -111,11 +125,17 @@ Bool_t amumuAnalyzer2::Process(Long64_t entry)
       njets += 1;
   }
 
-  //if (njets > 0)
-  //  newtree->Fill();
-  //newtree->Fill();
-
-  return kTRUE;
+  bool passJets = (njets >= 2);
+  
+  if (passMuon && passJets) {
+    newEventTree->Fill();
+    skimmedEventsTotal += 1;
+    
+    return kTRUE;
+  } else {
+    return kFALSE;
+  }
+  
 }
 
 void amumuAnalyzer2::SlaveTerminate()
@@ -131,7 +151,22 @@ void amumuAnalyzer2::Terminate()
   // The Terminate() function is the last function to be called during
   // a query. It always runs on the client, it can be used to present
   // the results graphically or save the results to file.
+  
+  cout << "TOTAL NUMBER OF FILES: " << fileCount << " and they have this many events: " << unskimmedEventsTotal << endl;
+  cout << "Passed: " << skimmedEventsTotal << "/" << unskimmedEventsTotal << endl;
 
-  newfile->Write();
-  newfile->Close();
+  // Remake the numOfEvents
+  new_h1_numOfEvents = new TH1F("numOfEvents", "total number of events, unskimmed", 1,0,1);
+  new_h1_numOfEvents->SetBinContent(1,unskimmedEventsTotal);
+  
+  // Remake the jobTree
+  newJobTree = new TTree("jobTree", "jobTree");
+  UInt_t nEvents = unskimmedEventsTotal;
+  vector<string> triggerPaths = *triggerNames;
+  newJobTree->Branch("nEvents", &nEvents, "nEvents/i");
+  newJobTree->Branch("triggerNames", "vector<string>", &triggerPaths);
+  newJobTree->Fill();
+
+  newFile->Write();
+  newFile->Close();
 }

@@ -8,6 +8,11 @@
 #ifndef amumuAnalyzer2_h
 #define amumuAnalyzer2_h
 
+#include <memory>
+#include <iostream>
+#include <map>
+#include <vector>
+
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
@@ -119,15 +124,33 @@ class amumuAnalyzer2 : public TSelector {
   	TBranch        *b_pdfWeights;   //!
     
     // Defs that are user created, not templated
-    TFile *newfile;
-    TTree *newtree;
+    TFile *newFile;
+    TTree *newEventTree;
+    TTree *newJobTree;
+    TH1F * new_h1_numOfEvents;
+    
+    int fileCount;
+    long int unskimmedEventsTotal;
+    long int unskimmedEvents;
+    long int skimmedEventsTotal;
+    vector<string>* triggerNames;
 
     //Params and Cuts:
     auto_ptr<Parameters> params;
     auto_ptr<Cuts> cuts;
     auto_ptr<Dumper> dumper;
 
-  	amumuAnalyzer2(TTree * /*tree*/ =0) : fChain(0) { }
+  	amumuAnalyzer2(TTree * /*tree*/ =0) : 
+        fChain(0),
+        newFile(0),
+        newEventTree(0),
+        newJobTree(0),
+        new_h1_numOfEvents(0),
+        fileCount(0),
+        unskimmedEventsTotal(0),
+        unskimmedEvents(0),
+        skimmedEventsTotal(0),
+        triggerNames(0) { }
   	virtual ~amumuAnalyzer2() { }
   	virtual Int_t   Version() const { return 2; }
   	virtual void    Begin(TTree *tree);
@@ -172,6 +195,13 @@ void amumuAnalyzer2::Init(TTree *tree)
   // Set branch addresses and branch pointers
   if (!tree) return;
   fChain = tree;
+  
+  // Make a clone
+  newEventTree = fChain->CloneTree(0);
+  //fChain->GetTree()->CopyAddresses(newEventTree);
+  //fOutput->Add(newEventTree);
+
+
   //fChain->SetMakeClass(1);
   fChain->SetMakeClass(0);
 
@@ -201,11 +231,6 @@ void amumuAnalyzer2::Init(TTree *tree)
   fChain->SetBranchAddress("hltPrescale", hltPrescale, &b_hltPrescale);
   fChain->SetBranchAddress("NoiseFilters", &NoiseFilters_isScraping, &b_NoiseFilters);
   fChain->SetBranchAddress("pdfWeights", pdfWeights, &b_pdfWeights);
-  
-  // Make a clone
-  newtree = fChain->CloneTree(0);
-  //fChain->GetTree()->CopyAddresses(newtree);
-  fOutput->Add(newtree);
 }
 
 Bool_t amumuAnalyzer2::Notify()
@@ -215,6 +240,17 @@ Bool_t amumuAnalyzer2::Notify()
   // is started when using PROOF. It is normally not necessary to make changes
   // to the generated code, but the routine can be extended by the
   // user if needed. The return value is currently not used.
+  
+  fileCount+= 1;
+  
+  TH1F * h1_numOfEvents = (TH1F*) fChain->GetCurrentFile()->Get("ntupleProducer/numOfEvents");
+  unskimmedEvents = h1_numOfEvents->GetBinContent(1);
+  cout<<"THIS IS FILE NUMBER: "<<fileCount<<" and it has this many events: "<<unskimmedEvents<<endl;
+  unskimmedEventsTotal += unskimmedEvents;
+  
+  TTree *jobTree = (TTree*) fChain->GetCurrentFile()->Get("ntupleProducer/jobTree");
+  jobTree->SetBranchAddress("triggerNames", &triggerNames);
+  jobTree->GetEntry();
 
   return kTRUE;
 }
