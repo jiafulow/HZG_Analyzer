@@ -1,14 +1,22 @@
-#!/bin/sh
-. /etc/bashrc
-echo `hostname`
-export SCRAM_ARCH=slc5_amd64_gcc472
-export OSG_APP=/software/tier3/osg
-source ${OSG_APP}/cmsset_default.sh
-cmsrel CMSSW_6_1_1
-cd CMSSW_6_1_1/src
-cmsenv
-cd ${_CONDOR_SCRATCH_DIR}
-#cd /scratch/condor
+#!/bin/bash
+
+if [ ! -z "${_CONDOR_SCRATCH_DIR}" ]
+then
+  is_batch=1
+
+  . /etc/bashrc
+  echo `hostname`
+  export SCRAM_ARCH=slc5_amd64_gcc472
+  export OSG_APP=/software/tier3/osg
+  source ${OSG_APP}/cmsset_default.sh
+  cmsrel CMSSW_6_1_1
+  cd CMSSW_6_1_1/src
+  cmsenv
+  cd ${_CONDOR_SCRATCH_DIR}
+  #cd /scratch/condor
+else
+  is_batch=0
+fi
 
 #### Leave this blank #######
 
@@ -24,19 +32,27 @@ period=$6
 PU=$7
 if [ -z $8 ]
 then
-  analyzer='higgsAnalyzer'
+  analyzer="higgsAnalyzer"
 else
-  analyzer="$8"
+  analyzer=$8
 fi
 
+if [ $is_batch -eq 1 ]
+then
+  #cp -v /tthome/bpollack/CMSSW_6_1_1/src/HZG_Analyzer/HiggsZGAnalyzer/stageball.tar.gz .
+  tar -zxf stageball.tar.gz
+  mkdir -v higgsDir
+  mv -v $analyzer* higgsDir/.
+  mv -v input.txt higgsDir/.
+  mv -v otherHistos higgsDir/.
+  cd higgsDir
 
-#cp -v /tthome/bpollack/CMSSW_6_1_1/src/HZG_Analyzer/HiggsZGAnalyzer/stageball.tar.gz .
-tar -zxf stageball.tar.gz
-mkdir -v higgsDir
-mv -v $analyzer* higgsDir/.
-mv -v input.txt higgsDir/.
-mv -v otherHistos higgsDir/.
-cd higgsDir
+  input="input.txt"
+else
+  count="local"
+
+  input="sourceFiles/$2.txt"
+fi
 
 cat > run.C << +EOF
 
@@ -93,7 +109,7 @@ void run(string args="") {
 
     TChain* fChain = new TChain("ntupleProducer/eventTree");
 
-    ifstream sourceFiles("input.txt");
+    ifstream sourceFiles("$input");
     string myLine;
     int count = 0;
     cout<<"Adding files to chain..."<<endl;
@@ -131,5 +147,11 @@ void run(string args="") {
 +EOF
 
 root -l -b -q 'run.C("'$suffix' '$abcd' '$selection' '$period' '$dataName' '$count' '$PU'")'
-mv *.root ..
+if [ $is_batch -eq 1 ]
+then
+  mv *.root ..
+else
+  mv *local.root localHistos/
+  rm run.C
+fi
 
