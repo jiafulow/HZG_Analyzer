@@ -39,20 +39,20 @@ mv -v otherHistos higgsDir/.
 cd higgsDir
 
 cat > run.C << +EOF
-    
-  #include <iostream>
-  #include <fstream>
-  #include <string>
-  #include <vector>
-  #include <cstdlib>
 
-  using namespace std;
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <cstdlib>
 
-  void run(string args="") {
+using namespace std;
+
+void run(string args="") {
     string libMake = gSystem->GetMakeSharedLib();
     const string delWarn("-Wshadow");
     int pos1 = libMake.find(delWarn);
-    libMake= libMake.substr(0, pos1) + libMake.substr(pos1+delWarn.size()+1); 
+    libMake= libMake.substr(0, pos1) + libMake.substr(pos1+delWarn.size()+1);
     gSystem->SetMakeSharedLib(libMake.c_str());
 
     //cout<<gSystem->GetMakeSharedLib()<<endl;
@@ -95,24 +95,24 @@ cat > run.C << +EOF
 
     ifstream sourceFiles("input.txt");
     string myLine;
-    int  count = 0;
+    int count = 0;
     cout<<"Adding files to chain..."<<endl;
 
     while (sourceFiles >> myLine) {
-      //if (count == 0 && myLine.find("dcache")==string::npos){
-      //  float rhoFactor;
-      //  TBranch        *b_rhoFactor;   //!
-      //  TFile fixFile(myLine.c_str(),"open");
-      //  TTree *fixTree = (TTree*)fixFile.Get("ntupleProducer/eventTree");
-      //  fixTree->SetBranchAddress("rhoFactor",&rhoFactor,&b_rhoFactor);
-      //  for(int i =0; i<fixTree->GetEntries();i++){
-      //    fixTree->GetEntry(i);
-      //  }
-      //  delete fixTree;
-      //}
+        //if (count == 0 && myLine.find("dcache")==string::npos){
+        //    float rhoFactor;
+        //    TBranch        *b_rhoFactor;   //!
+        //    TFile fixFile(myLine.c_str(),"open");
+        //    TTree *fixTree = (TTree*)fixFile.Get("ntupleProducer/eventTree");
+        //    fixTree->SetBranchAddress("rhoFactor",&rhoFactor,&b_rhoFactor);
+        //    for(int i =0; i<fixTree->GetEntries();i++){
+        //      fixTree->GetEntry(i);
+        //    }
+        //    delete fixTree;
+        //}
 
-      fChain->Add(myLine.c_str());      
-      ++count;
+        fChain->Add(myLine.c_str());
+        ++count;
     }
     cout<<count<<" files added!"<<endl;
     sourceFiles.close();
@@ -120,14 +120,14 @@ cat > run.C << +EOF
     TStopwatch timer;
     timer.Start();
 
-    fChain->Process("$analyzer.C+",args.c_str());
+    fChain->Process("$analyzer.C+", args.c_str());
 
     cout << "\n\nDone!" << endl;
     cout << "CPU Time : " << timer.CpuTime() << endl;
     cout << "RealTime : " << timer.RealTime() << endl;
     cout << "\n";
-  }
-                                          
+}
+
 +EOF
 
 root -l -b -q 'run.C("'$suffix' '$abcd' '$selection' '$period' '$dataName' '$count' '$PU'")'
