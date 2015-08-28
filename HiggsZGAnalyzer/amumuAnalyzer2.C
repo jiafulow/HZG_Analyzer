@@ -97,45 +97,65 @@ Bool_t amumuAnalyzer2::Process(Long64_t entry)
   //
   // The return value is currently not used.
   
-  GetEntry(entry, 1);
+  //GetEntry(entry, 1);
   
   ///////////
   // Muons //
   ///////////
   
+  b_recoMuons->GetEntry(entry);
+  
   int nmuons = 0;
+  int nmuons_pos = 0;
+  int nmuons_neg = 0;
   for (Int_t i = 0; i < recoMuons->GetSize(); ++ i) {
-    TCMuon* thisMuon = (TCMuon*) recoMuons->At(i);
+    const TCMuon* thisMuon = (TCMuon*) recoMuons->At(i);
     
-    if (thisMuon->Pt() > 15.)
+    if (thisMuon->Pt() > 15. && fabs(thisMuon->Eta()) < 2.4) {
+      if (thisMuon->Charge() == 1) {
+        nmuons_pos += 1;
+      } else if (thisMuon->Charge() == -1) {
+        nmuons_neg += 1;
+      }
       nmuons += 1;
+    }
   }
   
-  bool passMuon = (nmuons >= 2);
+  //bool passMuon = (nmuons >= 2);
+  bool passMuon = (nmuons_pos >= 1 && nmuons_neg >= 1);
 
   //////////
   // Jets //
   //////////
   
+  b_recoJets->GetEntry(entry);
+  
   int njets = 0;
   for (Int_t i = 0; i < recoJets->GetSize(); ++i) {
-    TCJet* thisJet = (TCJet*) recoJets->At(i);
+    const TCJet* thisJet = (TCJet*) recoJets->At(i);
     
-    if (thisJet->Pt() > 15.)
+    if (thisJet->Pt() > 20. && fabs(thisJet->Eta()) < 4.7) {
       njets += 1;
+    }
   }
 
   bool passJets = (njets >= 2);
   
+  ////////////
+  // Select //
+  ////////////
+  
   if (passMuon && passJets) {
+    GetEntry(entry, 1);
     newEventTree->Fill();
     skimmedEventsTotal += 1;
     
     return kTRUE;
+
   } else {
     return kFALSE;
   }
-  
+
 }
 
 void amumuAnalyzer2::SlaveTerminate()
