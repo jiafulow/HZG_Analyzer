@@ -40,11 +40,9 @@ void amumuAnalyzer2::Begin(TTree * /*tree*/)
 
   TString option = GetOption();
   string suffix = static_cast<string>(static_cast<TObjString*>(option.Tokenize(" ")->At(0))->GetString());
-  //string abcd = static_cast<string>(static_cast<TObjString*>(option.Tokenize(" ")->At(1))->GetString());
-  //string selection = static_cast<string>(static_cast<TObjString*>(option.Tokenize(" ")->At(2))->GetString());
-  //string period = static_cast<string>(static_cast<TObjString*>(option.Tokenize(" ")->At(3))->GetString());
-  //string dataname = static_cast<string>(static_cast<TObjString*>(option.Tokenize(" ")->At(4))->GetString());
-  //string count = static_cast<string>(static_cast<TObjString*>(option.Tokenize(" ")->At(5))->GetString());
+  string dataname = static_cast<string>(static_cast<TObjString*>(option.Tokenize(" ")->At(1))->GetString());
+  string njob = static_cast<string>(static_cast<TObjString*>(option.Tokenize(" ")->At(2))->GetString());
+  string outdir = static_cast<string>(static_cast<TObjString*>(option.Tokenize(" ")->At(3))->GetString());
 
   params.reset(new Parameters());
 
@@ -58,11 +56,10 @@ void amumuAnalyzer2::Begin(TTree * /*tree*/)
   //params->dumps          = true;
   //params->doScaleFactors = true;
   
-  string outdir = "skims/MC/"+suffix;
-  //string outdir = "skims/Data/"+suffix;
+  outdir = outdir + suffix;
   if (gSystem->AccessPathName(outdir.c_str()))
     gSystem->mkdir(outdir.c_str());
-  newFile = new TFile((outdir+"/nuTuple_1_1_ABC.root").c_str(), "RECREATE");
+  newFile = new TFile((outdir+"/nuTuple_" + njob + "_1_ABC.root").c_str(), "RECREATE");
   newFile->mkdir("ntupleProducer")->cd();
 
 }

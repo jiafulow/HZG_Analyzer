@@ -4,9 +4,6 @@
 #include <vector>
 #include <cstdlib>
 
-#include "TString.h"
-#include "TObjString.h"
-
 using namespace std;
 
 void run2(string args="") {
@@ -17,7 +14,7 @@ void run2(string args="") {
     gSystem->SetMakeSharedLib(libMake.c_str());
 
     //cout<<gSystem->GetMakeSharedLib()<<endl;
-    
+
     gROOT->SetMacroPath(".:../src/:../interface/:../plugins/");
     gROOT->LoadMacro("TCPhysObject.cc+");
     gROOT->LoadMacro("TCEGamma.cc+");
@@ -46,37 +43,49 @@ void run2(string args="") {
     gROOT->LoadMacro("AnalysisParameters.cc+");
     gROOT->LoadMacro("ParticleSelectors.cc+");
     gROOT->LoadMacro("Dumper.cc+");
+    cout<<"loading fortran"<<endl;
     gSystem->Load("libgfortran.so");
     gSystem->Load("/tthome/bpollack/CMSSW_6_1_1/src/HZG_Analyzer/hzgammaME/MCFM-6.6/obj/libmcfm_6p6.so");
     gSystem->Load("/tthome/bpollack/CMSSW_6_1_1/src/HZG_Analyzer/hzgammaME/libME.so");
-    
+    cout<<"fortran and ME loaded"<<endl;
+
     TChain* fChain = new TChain("ntupleProducer/eventTree");
 
     TString option = args;
     string suffix = ((TObjString *)(option.Tokenize(" ")->At(0)))->GetString();
-    //string suffix = "DYJetsToLL_M-10To50_910";
-    //string suffix = "DYJetsToLL_M-50_910";
-    //string suffix = "TTJets_FullLep_910";
-    //string suffix = "TTJets_Hadronic_910";
-    //string suffix = "TTJets_SemiLep_910";
+    string dataname = ((TObjString *)(option.Tokenize(" ")->At(1)))->GetString();
+    string njob = ((TObjString *)(option.Tokenize(" ")->At(2)))->GetString();
+    string outdir = "skims/nuTuples_v9.10_8TeV/MC/";
+    string srcdir = "skims/nuTuples_v9.10_8TeV/sourceFiles/";
 
-    //ifstream sourceFiles(Form("sourceFiles/%s.txt", suffix.c_str()));
-    ifstream sourceFiles(Form("sourceFiles2/%s.txt", suffix.c_str()));
+    ifstream sourceFiles((srcdir+dataname+".txt").c_str());
     string myLine;
     int count = 0;
-    cout << "Adding files from " << suffix << " to chain..." << endl;
-    
+    cout<<"Adding files to chain..."<<endl;
+
     while (sourceFiles >> myLine) {
+        //if (count == 0 && myLine.find("dcache")==string::npos){
+        //    float rhoFactor;
+        //    TBranch        *b_rhoFactor;   //!
+        //    TFile fixFile(myLine.c_str(),"open");
+        //    TTree *fixTree = (TTree*)fixFile.Get("ntupleProducer/eventTree");
+        //    fixTree->SetBranchAddress("rhoFactor",&rhoFactor,&b_rhoFactor);
+        //    for(int i =0; i<fixTree->GetEntries();i++){
+        //      fixTree->GetEntry(i);
+        //    }
+        //    delete fixTree;
+        //}
+
         fChain->Add(myLine.c_str());
         ++count;
     }
-    
-    cout << count << " files added!" << endl;
+    cout<<count<<" files added!"<<endl;
     sourceFiles.close();
-    
+
     TStopwatch timer;
     timer.Start();
 
+    args = suffix + " " + dataname + " " + njob + " " + outdir;
     fChain->Process("amumuAnalyzer2.C+", args.c_str());
 
     cout << "\n\nDone!" << endl;
