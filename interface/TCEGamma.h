@@ -1,5 +1,5 @@
 #ifndef _TCEGAMMA_H
-#define _TCEGAMMA_H
+#define	_TCEGAMMA_H
 
 #include "TObject.h"
 #include "TLorentzVector.h"
@@ -181,4 +181,4 @@ class TCEGamma : public TCPhysObject {
   ClassDef(TCEGamma, 1);
 };
 
-#endif  /* _TCEGAMMA_H */
+#endif	/* _TCEGAMMA_H */
