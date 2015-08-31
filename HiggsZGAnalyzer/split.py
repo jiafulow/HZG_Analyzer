@@ -8,15 +8,8 @@ from math import ceil
 Split a text file into many text files -- how cool is that!?
 """
 
-def split(verbose=True):
-    
-    if len(sys.argv) != 3:
-        print "usage: ./split.py filename n"
-        exit(1)
-    
-    filename = sys.argv[1]
-    n = int(sys.argv[2])
-    
+def split(filename, n, verbose=True):
+
     if n <= 0:
         raise Exception("n must be >= 1")
     
@@ -39,7 +32,7 @@ def split(verbose=True):
     
     # Write
     for i in xrange(n):
-        filename1 = "{0}_{1}{2}".format(base, i, ext)
+        filename1 = "{0}_{1}{2}".format(base, i+1, ext)
         
         with open(filename1, "w") as f:
             writeme = lines[i:i+m]
@@ -51,5 +44,13 @@ def split(verbose=True):
 
 
 if __name__=="__main__":
+
+    if len(sys.argv) != 3:
+        print "usage: ./split.py filename n"
+        exit(1)
     
-    split()
+    filename = sys.argv[1]
+    n = int(sys.argv[2])
+ 
+    split(filename, n)
+

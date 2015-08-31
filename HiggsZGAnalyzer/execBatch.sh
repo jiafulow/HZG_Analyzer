@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 if [ ! -z "${_CONDOR_SCRATCH_DIR}" ]
 then
@@ -9,9 +9,9 @@ then
   export SCRAM_ARCH=slc5_amd64_gcc472
   export OSG_APP=/software/tier3/osg
   source ${OSG_APP}/cmsset_default.sh
-  cmsrel CMSSW_6_1_1
+  scram project CMSSW CMSSW_6_1_1
   cd CMSSW_6_1_1/src
-  cmsenv
+  eval `scramv1 runtime -sh`
   cd ${_CONDOR_SCRATCH_DIR}
   #cd /scratch/condor
 else
