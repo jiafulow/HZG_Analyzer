@@ -35,7 +35,7 @@ def split(filename, n, verbose=True):
         filename1 = "{0}_{1}{2}".format(base, i+1, ext)
         
         with open(filename1, "w") as f:
-            writeme = lines[i:i+m]
+            writeme = lines[i*m:(i+1)*m]
             for line in writeme:
                 f.write(line)
     
