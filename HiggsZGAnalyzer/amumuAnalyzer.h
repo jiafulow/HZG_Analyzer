@@ -196,10 +196,11 @@ class amumuAnalyzer : public TSelector {
     //the amumu branches
     TLorentzVector muonOne;
     TLorentzVector muonTwo;
-    TLorentzVector dimuon;
     TLorentzVector bjet;
     TLorentzVector fjet;
     TLorentzVector met;
+    TLorentzVector dimuon;
+    TLorentzVector dijet;
     int ncjets;
     int nbjets;
     int nfjets;

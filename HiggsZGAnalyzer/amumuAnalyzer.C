@@ -107,10 +107,11 @@ void amumuAnalyzer::Begin(TTree * tree)
 
   amumuTree->Branch("muonOne",&muonOne);
   amumuTree->Branch("muonTwo",&muonTwo);
-  amumuTree->Branch("dimuon",&dimuon);
   amumuTree->Branch("bjet",&bjet);
   amumuTree->Branch("fjet",&fjet);
   amumuTree->Branch("met",&met);
+  amumuTree->Branch("dimuon",&dimuon);
+  amumuTree->Branch("dijet",&dijet);
   amumuTree->Branch("ncjets",&ncjets);
   amumuTree->Branch("nbjets",&nbjets);
   amumuTree->Branch("nfjets",&nfjets);
@@ -777,9 +778,10 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   }
   muonOne = muonsIDIso[muonOneInt];
   muonTwo = muonsIDIso[muonTwoInt];
-  dimuon = ZP4;
   bjet = goodBJet;
   fjet = goodFJet;
+  dimuon = ZP4;
+  dijet = bjet + fjet;
   met.SetPxPyPzE(recoMET->Px(), recoMET->Py(), 0, 0);
 
   ncjets = cjetsVetoID.size();
