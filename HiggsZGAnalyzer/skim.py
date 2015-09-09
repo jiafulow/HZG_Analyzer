@@ -10,7 +10,13 @@ ext = ".txt"
 
 datasets = OrderedDict([
     ("DYJetsToLL_M-10To50", 2),
+    ("DY1JetsToLL_M-10To50", 2),
+    ("DY2JetsToLL_M-10To50", 2),
     ("DYJetsToLL_M-50", 4),
+    ("DY1JetsToLL_M-50", 4),
+    ("DY2JetsToLL_M-50", 4),
+    ("DY3JetsToLL_M-50", 2),
+    ("DY4JetsToLL_M-50", 2),
     ("TTJets_FullLep", 2),
     ("TTJets_Hadronic", 2),
     ("TTJets_SemiLep", 2),
@@ -30,6 +36,7 @@ datasets = OrderedDict([
     ("Tbar_t", 1),
     ("Tbar_tW", 1),
     ("TT_FCNH_M-30", 1),
+    ("TTH_M-30", 1),
 ])
 
 def skim():
