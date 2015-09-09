@@ -154,6 +154,13 @@ void amumuAnalyzer::Begin(TTree * tree)
   amumuTree->Branch("fjetCSVv1",&fjetCSVv1);
   amumuTree->Branch("fjetCSVMVA",&fjetCSVMVA);
   amumuTree->Branch("fjetPUID",&fjetPUID);
+  
+  amumuTree->Branch("runNumber",  &runNumber);
+  amumuTree->Branch("eventNumber",&eventNumber);
+  amumuTree->Branch("lumiSection",&lumiSection);
+  amumuTree->Branch("bunchCross", &bunchCross);
+  amumuTree->Branch("lhe_nup", &lhe_nup); lhe_nup = 0;
+  
   amumuTree->Branch("x",&x);
   amumuTree->Branch("w", &w);
 
@@ -162,12 +169,6 @@ void amumuAnalyzer::Begin(TTree * tree)
   //genTree->Branch("muonTwoGen",&muonTwoGen);
   //genTree->Branch("bjetGen",&bjetGen);
   //genTree->Branch("fjetGen",&fjetGen);
-
-  eidTree.reset(new TTree(("eidTree_"+params->suffix).c_str(), "event ID values"));
-  eidTree->Branch("runNumber",  &runNumber,   "runNumber/i");
-  eidTree->Branch("eventNumber",&eventNumber, "eventNumber/l");
-  eidTree->Branch("lumiSection",&lumiSection, "lumiSection/i");
-  eidTree->Branch("bunchCross", &bunchCross,  "bunchCross/i");
 
 }
 
@@ -831,8 +832,6 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
 
   
   amumuTree->Fill();
-
-  eidTree->Fill();
 
 
   return kTRUE;

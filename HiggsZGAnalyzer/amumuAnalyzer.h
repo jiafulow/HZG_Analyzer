@@ -103,6 +103,7 @@ class amumuAnalyzer : public TSelector {
     Float_t         ptHat;
     Float_t         qScale;
     Float_t         evtWeight;
+    Int_t           lhe_nup;
     Float_t         rhoFactor;
     Float_t         rho25Factor;
     Float_t         rhoMuFactor;
@@ -142,6 +143,7 @@ class amumuAnalyzer : public TSelector {
     TBranch        *b_ptHat;   //!
     TBranch        *b_qScale;   //!
     TBranch        *b_evtWeight;   //!
+    TBranch        *b_lhe_nup;   //!
     TBranch        *b_rhoFactor;   //!
     TBranch        *b_rho25Factor;   //!
     TBranch        *b_rhoMuFactor;   //!
@@ -167,7 +169,6 @@ class amumuAnalyzer : public TSelector {
     auto_ptr<TFile> amumuFile;
     auto_ptr<TTree> amumuTree;
     auto_ptr<TTree> genTree;
-    auto_ptr<TTree> eidTree;
 
     auto_ptr<TVector3> pvPosition;
     auto_ptr<HistManager> hm;
@@ -334,6 +335,7 @@ void amumuAnalyzer::Init(TTree *tree)
   fChain->SetBranchAddress("ptHat", &ptHat, &b_ptHat);
   fChain->SetBranchAddress("qScale", &qScale, &b_qScale);
   fChain->SetBranchAddress("evtWeight", &evtWeight, &b_evtWeight);
+  fChain->SetBranchAddress("lhe_nup", &lhe_nup, &b_lhe_nup);
   fChain->SetBranchAddress("rhoFactor", &rhoFactor, &b_rhoFactor);
   fChain->SetBranchAddress("rho25Factor", &rho25Factor, &b_rho25Factor);
   fChain->SetBranchAddress("rhoMuFactor", &rhoMuFactor, &b_rhoMuFactor);
