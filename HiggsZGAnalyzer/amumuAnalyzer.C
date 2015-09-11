@@ -70,6 +70,10 @@ void amumuAnalyzer::Begin(TTree * tree)
   cuts->leadMuPt = 25;
   cuts->trailMuPt = 25;
 
+  // Change jet pT cuts
+  cuts->leadJetPt = 30;
+  cuts->trailJetPt = 30;
+
   //params->engCor = false;
 
   cuts->InitEA(params->period);
@@ -112,10 +116,46 @@ void amumuAnalyzer::Begin(TTree * tree)
   amumuTree->Branch("met",&met);
   amumuTree->Branch("dimuon",&dimuon);
   amumuTree->Branch("dijet",&dijet);
+  amumuTree->Branch("njets",&njets);
   amumuTree->Branch("ncjets",&ncjets);
   amumuTree->Branch("nbjets",&nbjets);
   amumuTree->Branch("nfjets",&nfjets);
   amumuTree->Branch("nmuons",&nmuons);
+  amumuTree->Branch("njets_pt20",&njets_pt20);
+  amumuTree->Branch("njets_pt25",&njets_pt25);
+  amumuTree->Branch("njets_pt30",&njets_pt30);
+  amumuTree->Branch("njets_pt40",&njets_pt40);
+  amumuTree->Branch("njets_pt50",&njets_pt50);
+  amumuTree->Branch("ncjets_pt20",&ncjets_pt20);
+  amumuTree->Branch("ncjets_pt25",&ncjets_pt25);
+  amumuTree->Branch("ncjets_pt30",&ncjets_pt30);
+  amumuTree->Branch("ncjets_pt40",&ncjets_pt40);
+  amumuTree->Branch("ncjets_pt50",&ncjets_pt50);
+  amumuTree->Branch("nbjets_pt20",&nbjets_pt20);
+  amumuTree->Branch("nbjets_pt25",&nbjets_pt25);
+  amumuTree->Branch("nbjets_pt30",&nbjets_pt30);
+  amumuTree->Branch("nbjets_pt40",&nbjets_pt40);
+  amumuTree->Branch("nbjets_pt50",&nbjets_pt50);
+  amumuTree->Branch("nfjets_pt20",&nfjets_pt20);
+  amumuTree->Branch("nfjets_pt25",&nfjets_pt25);
+  amumuTree->Branch("nfjets_pt30",&nfjets_pt30);
+  amumuTree->Branch("nfjets_pt40",&nfjets_pt40);
+  amumuTree->Branch("nfjets_pt50",&nfjets_pt50);
+  amumuTree->Branch("njets_noclean_pt20",&njets_noclean_pt20);
+  amumuTree->Branch("njets_noclean_pt25",&njets_noclean_pt25);
+  amumuTree->Branch("njets_noclean_pt30",&njets_noclean_pt30);
+  amumuTree->Branch("njets_noclean_pt40",&njets_noclean_pt40);
+  amumuTree->Branch("njets_noclean_pt50",&njets_noclean_pt50);
+  amumuTree->Branch("ncjets_noclean_pt20",&ncjets_noclean_pt20);
+  amumuTree->Branch("ncjets_noclean_pt25",&ncjets_noclean_pt25);
+  amumuTree->Branch("ncjets_noclean_pt30",&ncjets_noclean_pt30);
+  amumuTree->Branch("ncjets_noclean_pt40",&ncjets_noclean_pt40);
+  amumuTree->Branch("ncjets_noclean_pt50",&ncjets_noclean_pt50);
+  amumuTree->Branch("nbjets_noclean_pt20",&nbjets_noclean_pt20);
+  amumuTree->Branch("nbjets_noclean_pt25",&nbjets_noclean_pt25);
+  amumuTree->Branch("nbjets_noclean_pt30",&nbjets_noclean_pt30);
+  amumuTree->Branch("nbjets_noclean_pt40",&nbjets_noclean_pt40);
+  amumuTree->Branch("nbjets_noclean_pt50",&nbjets_noclean_pt50);
   amumuTree->Branch("nelectrons",&nelectrons);
   amumuTree->Branch("nphotons",&nphotons);
   amumuTree->Branch("passSasha",&passSasha);
@@ -581,6 +621,42 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
 
   double jetCleaningPt = 20;
 
+  njets_pt20 = 0;
+  njets_pt25 = 0;
+  njets_pt30 = 0;
+  njets_pt40 = 0;
+  njets_pt50 = 0;
+  ncjets_pt20 = 0;
+  ncjets_pt25 = 0;
+  ncjets_pt30 = 0;
+  ncjets_pt40 = 0;
+  ncjets_pt50 = 0;
+  nbjets_pt20 = 0;
+  nbjets_pt25 = 0;
+  nbjets_pt30 = 0;
+  nbjets_pt40 = 0;
+  nbjets_pt50 = 0;
+  nfjets_pt20 = 0;
+  nfjets_pt25 = 0;
+  nfjets_pt30 = 0;
+  nfjets_pt40 = 0;
+  nfjets_pt50 = 0;
+  njets_noclean_pt20 = 0;
+  njets_noclean_pt25 = 0;
+  njets_noclean_pt30 = 0;
+  njets_noclean_pt40 = 0;
+  njets_noclean_pt50 = 0;
+  ncjets_noclean_pt20 = 0;
+  ncjets_noclean_pt25 = 0;
+  ncjets_noclean_pt30 = 0;
+  ncjets_noclean_pt40 = 0;
+  ncjets_noclean_pt50 = 0;
+  nbjets_noclean_pt20 = 0;
+  nbjets_noclean_pt25 = 0;
+  nbjets_noclean_pt30 = 0;
+  nbjets_noclean_pt40 = 0;
+  nbjets_noclean_pt50 = 0;
+
   // jet finder
   for (Int_t i = 0; i < recoJets->GetSize(); ++i) {
     TCJet* thisJet = (TCJet*) recoJets->At(i);
@@ -605,14 +681,131 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
             skip = true;
     }
 
-    if (skip)
-        continue;
+    //if (skip)
+    //    continue;
 
-    if (particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), cuts->amumu_cJetVetoID)) cjetsVetoID.push_back(*thisJet);
+    if (particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), cuts->amumu_cJetVetoID)) {
+        if (!skip) {
+            if (thisJet->Pt() > cuts->leadJetPt) {
+                cjetsVetoID.push_back(*thisJet);
+            }
+            
+            if (thisJet->Pt() > 20) {
+                ++njets_pt20;
+                ++ncjets_pt20;
+            }
+            if (thisJet->Pt() > 25) {
+                ++njets_pt25;
+                ++ncjets_pt25;
+            }
+            if (thisJet->Pt() > 30) {
+                ++njets_pt30;
+                ++ncjets_pt30;
+            }
+            if (thisJet->Pt() > 40) {
+                ++njets_pt40;
+                ++ncjets_pt40;
+            }
+            if (thisJet->Pt() > 50) {
+                ++njets_pt50;
+                ++ncjets_pt50;
+            }
+        }
+        
+        if (true) {
+            if (thisJet->Pt() > 20) {
+                ++njets_noclean_pt20;
+                ++ncjets_noclean_pt20;
+            }
+            if (thisJet->Pt() > 25) {
+                ++njets_noclean_pt25;
+                ++ncjets_noclean_pt25;
+            }
+            if (thisJet->Pt() > 30) {
+                ++njets_noclean_pt30;
+                ++ncjets_noclean_pt30;
+            }
+            if (thisJet->Pt() > 40) {
+                ++njets_noclean_pt40;
+                ++ncjets_noclean_pt40;
+            }
+            if (thisJet->Pt() > 50) {
+                ++njets_noclean_pt50;
+                ++ncjets_noclean_pt50;
+            }
+        }
+    }
 
-    if (particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), cuts->amumu_bJetID_v2)) bjetsID.push_back(*thisJet);
+    if (particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), cuts->amumu_bJetID_v2)) {
+        if (!skip) {
+            if (thisJet->Pt() > cuts->leadJetPt) {
+                bjetsID.push_back(*thisJet);
+            }
+            
+            if (thisJet->Pt() > 20) {
+                ++nbjets_pt20;
+            }
+            if (thisJet->Pt() > 25) {
+                ++nbjets_pt25;
+            }
+            if (thisJet->Pt() > 30) {
+                ++nbjets_pt30;
+            }
+            if (thisJet->Pt() > 40) {
+                ++nbjets_pt40;
+            }
+            if (thisJet->Pt() > 50) {
+                ++nbjets_pt50;
+            }
+        }
+        
+        if (true) {
+            if (thisJet->Pt() > 20) {
+                ++nbjets_noclean_pt20;
+            }
+            if (thisJet->Pt() > 25) {
+                ++nbjets_noclean_pt25;
+            }
+            if (thisJet->Pt() > 30) {
+                ++nbjets_noclean_pt30;
+            }
+            if (thisJet->Pt() > 40) {
+                ++nbjets_noclean_pt40;
+            }
+            if (thisJet->Pt() > 50) {
+                ++nbjets_noclean_pt50;
+            }
+        }
+    }
 
-    if (particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), cuts->amumu_fJetID_v2)) fjetsID.push_back(*thisJet);
+    if (particleSelector->PassJetID(*thisJet, primaryVtx->GetSize(), cuts->amumu_fJetID_v2)) {
+        if (!skip) {
+            if (thisJet->Pt() > cuts->leadJetPt) {
+                fjetsID.push_back(*thisJet);
+            }
+            
+            if (thisJet->Pt() > 20) {
+                ++njets_pt20;
+                ++nfjets_pt20;
+            }
+            if (thisJet->Pt() > 25) {
+                ++njets_pt25;
+                ++nfjets_pt25;
+            }
+            if (thisJet->Pt() > 30) {
+                ++njets_pt30;
+                ++nfjets_pt30;
+            }
+            if (thisJet->Pt() > 40) {
+                ++njets_pt40;
+                ++nfjets_pt40;
+            }
+            if (thisJet->Pt() > 50) {
+                ++njets_pt50;
+                ++nfjets_pt50;
+            }
+        }
+    }
   }
 
   sort(cjetsVetoID.begin(), cjetsVetoID.end(), P4SortCondition);
@@ -703,9 +896,7 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   passStep6 = true;
   //passStep6 = passMETFilters && (recoMET->Mod() <= 40) && (fabs(ZP4.DeltaPhi(goodBJet+goodFJet))>2.5);
   //passStep6 = (cjetsVetoID.size() == 0) && (fjetsID.size() == 0);  // 1j-only
-  //passStep6 = (cjetsVetoID.size() == 0) && (fjetsID.size() == 0) && passMETFilters && (recoMET->Mod() <= 40);  // 1j-only
   //passStep6 = (cjetsVetoID.size() == 1) && (fjetsID.size() == 0);  // 2j-only
-  //passStep6 = (cjetsVetoID.size() == 1) && (fjetsID.size() == 0) && passMETFilters && (recoMET->Mod() <= 40);  // 2j-only
   if (passSasha)  std::cout << "SASHA: passStep6: " << passStep6 << std::endl;  //SASHA
   if (passStep6){
     //goodFJet = goodBJet;  //FIXME
@@ -788,6 +979,7 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   ncjets = cjetsVetoID.size();
   nbjets = bjetsID.size();
   nfjets = fjetsID.size();
+  njets = ncjets + nfjets;
   nmuons = muonsIDIso.size();
   nelectrons = electronsIDIso.size();
   nphotons = photonsIDIso.size();

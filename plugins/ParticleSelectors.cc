@@ -849,7 +849,7 @@ bool ParticleSelector::PassJetID(const TCJet& jet, int nVtx, const Cuts::jetIDCu
   }else if (cutLevel.cutName=="amumu_fJetID"){
     if (fabs(jet.Eta()) < 2.4) return false;
     if (fabs(jet.Eta()) > 4.7) return false;
-    if (jet.Pt() < 30) return false;
+    //if (jet.Pt() < 30) return false;
 
     if( !(jet.NumConstit()  > 1
       && jet.NeuHadFrac()  < 0.99
@@ -881,8 +881,7 @@ bool ParticleSelector::PassJetID(const TCJet& jet, int nVtx, const Cuts::jetIDCu
   }else if (cutLevel.cutName=="amumu_fJetID_v2"){
     if (fabs(jet.Eta()) < 2.4) return false;
     if (fabs(jet.Eta()) > 4.7) return false;
-    if (jet.Pt() < 30) return false;
-    //if (jet.Pt() < 25) return false;
+    //if (jet.Pt() < 30) return false;
 
     if( !(jet.NumConstit()  > 1
       && jet.NeuHadFrac()  < 0.99
@@ -896,7 +895,7 @@ bool ParticleSelector::PassJetID(const TCJet& jet, int nVtx, const Cuts::jetIDCu
 
   }else if (cutLevel.cutName=="amumu_cJetVetoID"){
     if (fabs(jet.Eta()) > 2.4) return false;
-    if (jet.Pt() < 30) return false;
+    //if (jet.Pt() < 30) return false;
 
     if( !(jet.NumConstit()  > 1
       && jet.NeuHadFrac()  < 0.99
@@ -909,7 +908,7 @@ bool ParticleSelector::PassJetID(const TCJet& jet, int nVtx, const Cuts::jetIDCu
 
   } else if (cutLevel.cutName=="amumu_bJetID"){
     if (fabs(jet.Eta()) > 2.4) return false;
-    if (jet.Pt() < 30) return false;
+    //if (jet.Pt() < 30) return false;
 
     if( !(jet.NumConstit()  > 1
       && jet.NeuHadFrac()  < 0.99
@@ -922,7 +921,7 @@ bool ParticleSelector::PassJetID(const TCJet& jet, int nVtx, const Cuts::jetIDCu
 
   } else if (cutLevel.cutName=="amumu_bJetID_v2"){
     if (fabs(jet.Eta()) > 2.4) return false;
-    if (jet.Pt() < 30) return false;
+    //if (jet.Pt() < 30) return false;
 
     if( !(jet.NumConstit()  > 1
       && jet.NeuHadFrac()  < 0.99
