@@ -17,6 +17,7 @@ datasets = OrderedDict([
     ("DY2JetsToLL_M-50", 4),
     ("DY3JetsToLL_M-50", 2),
     ("DY4JetsToLL_M-50", 2),
+    ("WJetsToLNu", 2),
     ("TTJets_FullLep", 2),
     ("TTJets_Hadronic", 2),
     ("TTJets_SemiLep", 2),

@@ -198,6 +198,7 @@ elif doAmumu:
     configs.append(b.JobConfig('DY2JetsToLL_M-50', t3storage2+'/nuTuples_v9.10_8TeV/MC/DY2JetsToLL_M-50', 4, 'DY2JetsToLL_M-50 ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
     configs.append(b.JobConfig('DY3JetsToLL_M-50', t3storage2+'/nuTuples_v9.10_8TeV/MC/DY3JetsToLL_M-50', 2, 'DY3JetsToLL_M-50 ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
     configs.append(b.JobConfig('DY4JetsToLL_M-50', t3storage2+'/nuTuples_v9.10_8TeV/MC/DY4JetsToLL_M-50', 2, 'DY4JetsToLL_M-50 ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
+    configs.append(b.JobConfig('WJetsToLNu', t3storage2+'/nuTuples_v9.10_8TeV/MC/WJetsToLNu', 2, 'WJetsToLNu ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
     configs.append(b.JobConfig('DY1JetsToLL_M-10To50', t3storage2+'/nuTuples_v9.10_8TeV/MC/DY1JetsToLL_M-10To50', 2, 'DY1JetsToLL_M-10To50 ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
     configs.append(b.JobConfig('DY2JetsToLL_M-10To50', t3storage2+'/nuTuples_v9.10_8TeV/MC/DY2JetsToLL_M-10To50', 2, 'DY2JetsToLL_M-10To50 ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
     configs.append(b.JobConfig('WW', t3storage2+'/nuTuples_v9.10_8TeV/MC/WW', 2, 'WW ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
