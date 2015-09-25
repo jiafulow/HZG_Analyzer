@@ -217,6 +217,7 @@ elif doAmumu:
     configs.append(b.JobConfig('Tbar_t', t3storage2+'/nuTuples_v9.10_8TeV/MC/Tbar_t', 1, 'Tbar_t ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
     configs.append(b.JobConfig('Tbar_tW', t3storage2+'/nuTuples_v9.10_8TeV/MC/Tbar_tW', 1, 'Tbar_tW ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
     configs.append(b.JobConfig('TT_FCNH_M-30', t3storage2+'/nuTuples_v9.10_8TeV/MC/TT_FCNH_M-30', 1, 'TT_FCNH_M-30 ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
+    configs.append(b.JobConfig('T_FCNH_M-30', t3storage2+'/nuTuples_v9.10_8TeV/MC/T_FCNH_M-30', 1, 'T_FCNH_M-30 ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
     configs.append(b.JobConfig('TTH_M-30', t3storage2+'/nuTuples_v9.10_8TeV/MC/TTH_M-30', 1, 'TTH_M-30 ABCD {0} 2012 {1} {2}'.format(leptonDict[lepton],pu,analyzer),leptonDict[lepton]))
 
 batcher = b.BatchMaster(configs, outputPathNWU,'execBatch.sh')

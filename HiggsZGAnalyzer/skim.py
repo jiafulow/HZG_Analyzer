@@ -37,6 +37,7 @@ datasets = OrderedDict([
     ("Tbar_t", 1),
     ("Tbar_tW", 1),
     ("TT_FCNH_M-30", 1),
+    ("T_FCNH_M-30", 1),
     ("TTH_M-30", 1),
 ])
 
