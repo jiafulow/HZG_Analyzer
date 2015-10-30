@@ -1,0 +1,2 @@
+/tthome/share/noobs/nuTuples_v9.10_8TeV/MC/DYJetsToLL_M-50/nuTuple_1_1_rhP.root
+/tthome/share/noobs/nuTuples_v9.10_8TeV/MC/DYJetsToLL_M-50/nuTuple_2_2_P7c.root

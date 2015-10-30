@@ -1,0 +1,1 @@
+/tthome/jiafulow/HZG/CMSSW_6_1_1/src/HZG_Analyzer/HiggsZGAnalyzer/newFile.root
