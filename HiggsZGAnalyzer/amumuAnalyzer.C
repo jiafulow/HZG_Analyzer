@@ -186,10 +186,12 @@ void amumuAnalyzer::Begin(TTree * tree)
   amumuTree->Branch("muonTwoDz",&muonTwoDz);
   amumuTree->Branch("muonTwoTrkIso",&muonTwoTrkIso);
   amumuTree->Branch("muonTwoRelIso",&muonTwoRelIso);
+  amumuTree->Branch("bjetFlavor",&bjetFlavor);
   amumuTree->Branch("bjetCSV",&bjetCSV);
   amumuTree->Branch("bjetCSVv1",&bjetCSVv1);
   amumuTree->Branch("bjetCSVMVA",&bjetCSVMVA);
   amumuTree->Branch("bjetPUID",&bjetPUID);
+  amumuTree->Branch("fjetFlavor",&fjetFlavor);
   amumuTree->Branch("fjetCSV",&fjetCSV);
   amumuTree->Branch("fjetCSVv1",&fjetCSVv1);
   amumuTree->Branch("fjetCSVMVA",&fjetCSVMVA);
@@ -1011,10 +1013,12 @@ Bool_t amumuAnalyzer::Process(Long64_t entry)
   muonTwoRelIso = (muonsIDIso[muonTwoInt].PfIsoChargedHad() 
                 + max(0.,(double)muonsIDIso[muonTwoInt].PfIsoNeutral() + muonsIDIso[muonTwoInt].PfIsoPhoton() - 0.5*muonsIDIso[muonTwoInt].PfIsoPU()))/muonsIDIso[muonTwoInt].Pt();
 
+  bjetFlavor = goodBJet.JetFlavor();
   bjetCSV = goodBJet.BDiscriminatorMap("CSV");
   bjetCSVv1 = goodBJet.BDiscriminatorMap("CSVv1");
   bjetCSVMVA = goodBJet.BDiscriminatorMap("CSVMVA");
   bjetPUID = goodBJet.IdMap("PUID_MVA");
+  fjetFlavor = goodFJet.JetFlavor();
   fjetCSV = goodFJet.BDiscriminatorMap("CSV");
   fjetCSVv1 = goodFJet.BDiscriminatorMap("CSVv1");
   fjetCSVMVA = goodFJet.BDiscriminatorMap("CSVMVA");

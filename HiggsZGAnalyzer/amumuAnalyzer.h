@@ -272,10 +272,12 @@ class amumuAnalyzer : public TSelector {
     float muonTwoDz;
     float muonTwoTrkIso;
     float muonTwoRelIso;
+    int bjetFlavor;
     float bjetCSV;
     float bjetCSVv1;
     float bjetCSVMVA;
     float bjetPUID;
+    int fjetFlavor;
     float fjetCSV;
     float fjetCSVv1;
     float fjetCSVMVA;
