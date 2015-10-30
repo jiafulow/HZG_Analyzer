@@ -151,7 +151,7 @@ if [ $is_batch -eq 1 ]
 then
   mv *.root ..
 else
-  mv *local.root localHistos/
+  #mv *local.root localHistos/
   rm run.C
 fi
 
