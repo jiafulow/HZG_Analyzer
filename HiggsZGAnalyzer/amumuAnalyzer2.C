@@ -124,7 +124,7 @@ Bool_t amumuAnalyzer2::Process(Long64_t entry)
   //////////
   // Jets //
   //////////
-  
+/*  
   b_recoJets->GetEntry(entry);
   
   int njets = 0;
@@ -137,12 +137,24 @@ Bool_t amumuAnalyzer2::Process(Long64_t entry)
   }
 
   bool passJets = (njets >= 2);
-  
+*/
   ////////////
   // Select //
   ////////////
-  
+/*  
   if (passMuon && passJets) {
+    GetEntry(entry, 1);
+    newEventTree->Fill();
+    skimmedEventsTotal += 1;
+    
+    return kTRUE;
+
+  } else {
+    return kFALSE;
+  }
+*/
+
+  if (passMuon) {
     GetEntry(entry, 1);
     newEventTree->Fill();
     skimmedEventsTotal += 1;

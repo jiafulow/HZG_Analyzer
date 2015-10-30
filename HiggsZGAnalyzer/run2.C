@@ -55,7 +55,8 @@ void run2(string args="") {
     string suffix = ((TObjString *)(option.Tokenize(" ")->At(0)))->GetString();
     string dataname = ((TObjString *)(option.Tokenize(" ")->At(1)))->GetString();
     string njob = ((TObjString *)(option.Tokenize(" ")->At(2)))->GetString();
-    string outdir = "skims/nuTuples_v9.10_8TeV/MC/";
+    //string outdir = "skims/nuTuples_v9.10_8TeV/MC/";
+    string outdir = "skims_datavis/nuTuples_v9.10_8TeV/MC/";
     string srcdir = "skims/nuTuples_v9.10_8TeV/sourceFiles/";
 
     ifstream sourceFiles((srcdir+dataname+".txt").c_str());
