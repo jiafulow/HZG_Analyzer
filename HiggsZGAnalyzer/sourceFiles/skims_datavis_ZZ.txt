@@ -1,0 +1,4 @@
+/uscms_data/d2/jiafu/HZG/CMSSW_6_1_1/src/HZG_Analyzer/HiggsZGAnalyzer/skims_datavis/nuTuples_v9.10_8TeV/MC/ZZ/nuTuple_1_1_ABC.root
+/uscms_data/d2/jiafu/HZG/CMSSW_6_1_1/src/HZG_Analyzer/HiggsZGAnalyzer/skims_datavis/nuTuples_v9.10_8TeV/MC/ZZ/nuTuple_2_1_ABC.root
+/uscms_data/d2/jiafu/HZG/CMSSW_6_1_1/src/HZG_Analyzer/HiggsZGAnalyzer/skims_datavis/nuTuples_v9.10_8TeV/MC/ZZ/nuTuple_3_1_ABC.root
+/uscms_data/d2/jiafu/HZG/CMSSW_6_1_1/src/HZG_Analyzer/HiggsZGAnalyzer/skims_datavis/nuTuples_v9.10_8TeV/MC/ZZ/nuTuple_4_1_ABC.root
